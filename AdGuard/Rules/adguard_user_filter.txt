@@ -41,3 +41,138 @@
 ||advertising.twitter.com^
 ||ads.tiktok.com^
 ||ads-sg.tiktok.com^
+
+! Azure URL's from https://learn.microsoft.com/en-us/azure/azure-portal/azure-portal-safelist-urls?tabs=public-cloud
+
+@@||login.microsoftonline.com^
+@@||aadcdn.msftauth.net^
+@@||aadcdn.msftauthimages.net^
+@@||aadcdn.msauthimages.net^
+@@||logincdn.msftauth.net^
+@@||login.live.com^
+@@||msauth.net^
+@@||aadcdn.microsoftonline-p.com^
+@@||microsoftonline-p.com^
+@@||portal.azure.com^
+@@||hosting.portal.azure.net^
+@@||reactblade.portal.azure.net^
+@@||management.azure.com^
+@@||ext.azure.com^
+@@||graph.windows.net^
+@@||graph.microsoft.com^
+@@||account.microsoft.com^
+@@||bmx.azure.com^
+@@||subscriptionrp.trafficmanager.net^
+@@||signup.azure.com^
+@@||aka.ms^
+! (Microsoft short URL)
+@@||asazure.windows.net^
+! (Analysis Services)
+@@||azconfig.io^
+! (AzConfig Service)
+@@||aad.azure.com^
+! (Azure AD)
+@@||aadconnecthealth.azure.com^
+! (Azure AD)
+@@||ad.azure.com^
+! (Azure AD)
+@@||adf.azure.com^
+!(Azure Data Factory)
+@@||api.aadrm.com^
+!(Azure AD)
+@@||api.loganalytics.io^
+!(Log Analytics Service)
+@@||applicationinsights.azure.com^
+!(Application Insights Service)
+@@||appservice.azure.com^
+!(Azure App Services)
+@@||arc.azure.net^
+!(Azure Arc)
+@@||asazure.windows.net^
+!(Analysis Services)
+@@||bastion.azure.com^
+!(Azure Bastion Service)
+@@||batch.azure.com^
+!(Azure Batch Service)
+@@||catalogapi.azure.com^
+!(Azure Marketplace)
+@@||changeanalysis.azure.com^
+!(Change Analysis)
+@@||cognitiveservices.azure.com^
+!(Cognitive Services)
+@@||config.office.com^
+!(Microsoft Office)
+@@||cosmos.azure.com^
+!(Azure Cosmos DB)
+@@||database.windows.net^
+!(SQL Server)
+@@||datalake.azure.net^
+!(Azure Data Lake Service)
+@@||dev.azure.com^
+!(Azure DevOps)
+@@||dev.azuresynapse.net^
+!(Azure Synapse)
+@@||digitaltwins.azure.net^
+!(Azure Digital Twins)
+@@||learn.microsoft.com^
+!(Azure documentation)
+@@||elm.iga.azure.com^
+!(Azure AD)
+@@||eventhubs.azure.net^
+!(Azure Event Hubs)
+@@||functions.azure.com^
+!(Azure Functions)
+@@||gallery.azure.com^
+!(Azure Marketplace)
+@@||go.microsoft.com^
+!(Microsoft documentation placeholder)
+@@||help.kusto.windows.net^
+!(Azure Kusto Cluster Help)
+@@||identitygovernance.azure.com^
+!(Azure AD)
+@@||iga.azure.com^
+!(Azure AD)
+@@||informationprotection.azure.com^
+!(Azure AD)
+@@||kusto.windows.net^
+!(Azure Kusto Clusters)
+@@||learn.microsoft.com^
+!(Azure documentation)
+@@||logic.azure.com^
+!(Logic Apps)
+@@||marketplacedataprovider.azure.com^
+!(Azure Marketplace)
+@@||marketplaceemail.azure.com^
+!(Azure Marketplace)
+@@||media.azure.net^
+!(Azure Media Services)
+@@||monitor.azure.com^
+!(Azure Monitor Service)
+@@||mspim.azure.com^
+!(Azure AD)
+@@||network.azure.com^
+!(Azure Network)
+@@||purview.azure.com^
+!(Azure Purview)
+@@||quantum.azure.com^
+!(Azure Quantum Service)
+@@||rest.media.azure.net^
+!(Azure Media Services)
+@@||search.azure.com^
+!(Azure Search)
+@@||servicebus.azure.net^
+!(Azure Service Bus)
+@@||servicebus.windows.net^
+!(Azure Service Bus)
+@@||shell.azure.com
+!(Azure Command Shell)
+@@||sphere.azure.net
+!(Azure Sphere)
+@@||azure.status.microsoft^
+!(Azure Status)
+@@||storage.azure.com^
+!(Azure Storage)
+@@||storage.azure.net^
+!(Azure Storage)
+@@||vault.azure.net^
+!(Azure Key Vault Service)
