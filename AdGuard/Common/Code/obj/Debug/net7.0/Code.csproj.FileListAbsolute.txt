@@ -1,0 +1,5 @@
+C:\Users\jayson.knight\OneDrive - JK [DOT] COM\Downloads\adguard\Common\Code\obj\Debug\net7.0\Code.csproj.AssemblyReference.cache
+C:\Users\jayson.knight\OneDrive - JK [DOT] COM\Downloads\adguard\Common\Code\obj\Debug\net7.0\Code.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\jayson.knight\OneDrive - JK [DOT] COM\Downloads\adguard\Common\Code\obj\Debug\net7.0\Code.AssemblyInfoInputs.cache
+C:\Users\jayson.knight\OneDrive - JK [DOT] COM\Downloads\adguard\Common\Code\obj\Debug\net7.0\Code.AssemblyInfo.cs
+C:\Users\jayson.knight\OneDrive - JK [DOT] COM\Downloads\adguard\Common\Code\obj\Debug\net7.0\Code.csproj.CoreCompileInputs.cache
