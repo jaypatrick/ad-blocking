@@ -1,4 +1,3 @@
-! Title
 @@||visualstudio.com^
 @@||azureedge.net^
 @@||visualstudio.microsoft.com^
