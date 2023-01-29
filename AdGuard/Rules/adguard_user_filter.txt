@@ -1,3 +1,5 @@
+@@||visualstudio.com^
+@@||azureedge.net^
 @@||visualstudio.microsoft.com^
 @@||js.monitor.azure.com^
 @@||browser.pipe.aria.microsoft.com^
