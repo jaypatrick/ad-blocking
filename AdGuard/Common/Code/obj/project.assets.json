@@ -15,11 +15,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\jayson.knight\\OneDrive - JK [DOT] COM\\Downloads\\adguard\\Common\\Code\\Code.csproj",
+      "projectUniqueName": "C:\\Users\\jayson.knight\\Source\\repos\\projects\\ad-blocking\\AdGuard\\Common\\Code\\Code.csproj",
       "projectName": "Code",
-      "projectPath": "C:\\Users\\jayson.knight\\OneDrive - JK [DOT] COM\\Downloads\\adguard\\Common\\Code\\Code.csproj",
+      "projectPath": "C:\\Users\\jayson.knight\\Source\\repos\\projects\\ad-blocking\\AdGuard\\Common\\Code\\Code.csproj",
       "packagesPath": "C:\\Users\\jayson.knight\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\jayson.knight\\OneDrive - JK [DOT] COM\\Downloads\\adguard\\Common\\Code\\obj\\",
+      "outputPath": "C:\\Users\\jayson.knight\\Source\\repos\\projects\\ad-blocking\\AdGuard\\Common\\Code\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",

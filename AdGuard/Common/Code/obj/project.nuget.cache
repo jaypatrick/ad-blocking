@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "HbVoqRapKRsUamBrobsRXFu1fYp7G9Aaiv/gn8UrqcXwR3AGaWwG2JXWC4SbE91MmuFlh5G1AA/jpKXjOVGsyw==",
+  "dgSpecHash": "P6x9Ao8wtgUljWXe90NXe1OxAi3QXDSX28W+jNJgN5gGCOlKH8kQJGNprbe2yrxWGl+y2vyZ8B6mvfsjPNPu/g==",
   "success": true,
-  "projectFilePath": "C:\\Users\\jayson.knight\\OneDrive - JK [DOT] COM\\Downloads\\adguard\\Common\\Code\\Code.csproj",
+  "projectFilePath": "C:\\Users\\jayson.knight\\Source\\repos\\projects\\ad-blocking\\AdGuard\\Common\\Code\\Code.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }
