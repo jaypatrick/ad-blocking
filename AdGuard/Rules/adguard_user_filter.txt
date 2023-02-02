@@ -185,3 +185,5 @@
 !(Azure Key Vault Service)
 @@|| trafficmanager.net^
 !(Azure Traffic Manager)
+@@!!umwatson.events.data.microsoft.com^
+!(Microsoft Server Diagnostics)
