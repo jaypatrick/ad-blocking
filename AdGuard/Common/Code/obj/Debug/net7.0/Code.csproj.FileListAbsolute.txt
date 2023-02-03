@@ -3,3 +3,20 @@ C:\Users\jayson.knight\OneDrive - JK [DOT] COM\Downloads\adguard\Common\Code\obj
 C:\Users\jayson.knight\OneDrive - JK [DOT] COM\Downloads\adguard\Common\Code\obj\Debug\net7.0\Code.AssemblyInfoInputs.cache
 C:\Users\jayson.knight\OneDrive - JK [DOT] COM\Downloads\adguard\Common\Code\obj\Debug\net7.0\Code.AssemblyInfo.cs
 C:\Users\jayson.knight\OneDrive - JK [DOT] COM\Downloads\adguard\Common\Code\obj\Debug\net7.0\Code.csproj.CoreCompileInputs.cache
+C:\Users\jayson.knight\Source\repos\projects\ad-blocking\AdGuard\Common\Code\obj\Debug\net7.0\Code.csproj.AssemblyReference.cache
+C:\Users\jayson.knight\Source\repos\projects\ad-blocking\AdGuard\Common\Code\obj\Debug\net7.0\Code.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\jayson.knight\Source\repos\projects\ad-blocking\AdGuard\Common\Code\obj\Debug\net7.0\Code.AssemblyInfoInputs.cache
+C:\Users\jayson.knight\Source\repos\projects\ad-blocking\AdGuard\Common\Code\obj\Debug\net7.0\Code.AssemblyInfo.cs
+C:\Users\jayson.knight\Source\repos\projects\ad-blocking\AdGuard\Common\Code\obj\Debug\net7.0\Code.csproj.CoreCompileInputs.cache
+C:\Users\jayson.knight\Source\repos\projects\ad-blocking\AdGuard\Common\Code\bin\Debug\net7.0\Code.exe
+C:\Users\jayson.knight\Source\repos\projects\ad-blocking\AdGuard\Common\Code\bin\Debug\net7.0\Code.deps.json
+C:\Users\jayson.knight\Source\repos\projects\ad-blocking\AdGuard\Common\Code\bin\Debug\net7.0\Code.runtimeconfig.json
+C:\Users\jayson.knight\Source\repos\projects\ad-blocking\AdGuard\Common\Code\bin\Debug\net7.0\Code.dll
+C:\Users\jayson.knight\Source\repos\projects\ad-blocking\AdGuard\Common\Code\bin\Debug\net7.0\Code.pdb
+C:\Users\jayson.knight\Source\repos\projects\ad-blocking\AdGuard\Common\Code\bin\Debug\net7.0\System.Threading.RateLimiting.dll
+C:\Users\jayson.knight\Source\repos\projects\ad-blocking\AdGuard\Common\Code\obj\Debug\net7.0\Code.csproj.CopyComplete
+C:\Users\jayson.knight\Source\repos\projects\ad-blocking\AdGuard\Common\Code\obj\Debug\net7.0\Code.dll
+C:\Users\jayson.knight\Source\repos\projects\ad-blocking\AdGuard\Common\Code\obj\Debug\net7.0\refint\Code.dll
+C:\Users\jayson.knight\Source\repos\projects\ad-blocking\AdGuard\Common\Code\obj\Debug\net7.0\Code.pdb
+C:\Users\jayson.knight\Source\repos\projects\ad-blocking\AdGuard\Common\Code\obj\Debug\net7.0\Code.genruntimeconfig.cache
+C:\Users\jayson.knight\Source\repos\projects\ad-blocking\AdGuard\Common\Code\obj\Debug\net7.0\ref\Code.dll

@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "P6x9Ao8wtgUljWXe90NXe1OxAi3QXDSX28W+jNJgN5gGCOlKH8kQJGNprbe2yrxWGl+y2vyZ8B6mvfsjPNPu/g==",
+  "dgSpecHash": "G9adbIaO9NVBvgGCywf9MX14FCEJlgL5Zio5EnFXmqPFKHmSXmSN+mIFFba1pqodiEl6PBT3IQODC34nxHrJRg==",
   "success": true,
   "projectFilePath": "C:\\Users\\jayson.knight\\Source\\repos\\projects\\ad-blocking\\AdGuard\\Common\\Code\\Code.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\jayson.knight\\.nuget\\packages\\system.threading.ratelimiting\\7.0.0\\system.threading.ratelimiting.7.0.0.nupkg.sha512"
+  ],
   "logs": []
 }
