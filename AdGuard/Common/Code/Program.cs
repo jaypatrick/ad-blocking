@@ -1,6 +1,9 @@
 ﻿using Code.Extensions;
 using Code.Infrastructure;
 
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+
 namespace Code;
 public class Program
 {
@@ -15,6 +18,16 @@ public class Program
             QueueProcessingOrder = QueueProcessingOrder.OldestFirst
         };
 
+        var tokenOptions = new TokenBucketRateLimiterOptions
+        {
+            TokenLimit = 8,
+            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+            QueueLimit = 3,
+            ReplenishmentPeriod = TimeSpan.FromMilliseconds(1),
+            TokensPerPeriod = 2,
+            AutoReplenishment = true
+        };
+
         using HttpClient httpClient = new(new ClientSideRateLimitedHandler(new FixedWindowRateLimiter(windowOptions)))
         //handler: new ClientSideRateLimitedHandler(
         //	limiter: new TokenBucketRateLimiter(tokenOptions)))
@@ -26,6 +39,38 @@ public class Program
         };
 
         using var cts = new CancellationTokenSource();
+        using IHost host = Host.CreateDefaultBuilder(args)
+            .ConfigureAppConfiguration((hostingContext, configuration) =>
+            {
+                configuration.Sources.Clear();
+
+                IHostEnvironment env = hostingContext.HostingEnvironment;
+
+                configuration
+                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                    .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true, true);
+
+                IConfigurationRoot configurationRoot = configuration.Build();
+            })
+
+            .Build();
+        using IHost host = Host.CreateDefaultBuilder(args)
+            .ConfigureAppConfiguration((_, configuration) =>
+                configuration.AddInMemoryCollection(
+                    new Dictionary<string, string?>
+                    {
+                        ["SecretKey"] = "Dictionary MyKey Value",
+                        ["TransientFaultHandlingOptions:Enabled"] = bool.TrueString,
+                        ["TransientFaultHandlingOptions:AutoRetryDelay"] = "00:00:07",
+                        ["Logging:LogLevel:Default"] = "Warning"
+                    }))
+            .Build();
+
+
+
+        await host.RunAsync(cts.Token);
+
+
         await GetAsync(httpClient, cts);
     }
 
