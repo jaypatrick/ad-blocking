@@ -39,7 +39,7 @@ public class Program
         };
 
         using var cts = new CancellationTokenSource();
-        using IHost host = Host.CreateDefaultBuilder(args)
+        using IHost host1 = Host.CreateDefaultBuilder(args)
             .ConfigureAppConfiguration((hostingContext, configuration) =>
             {
                 configuration.Sources.Clear();
@@ -54,7 +54,7 @@ public class Program
             })
 
             .Build();
-        using IHost host = Host.CreateDefaultBuilder(args)
+        using IHost host2 = Host.CreateDefaultBuilder(args)
             .ConfigureAppConfiguration((_, configuration) =>
                 configuration.AddInMemoryCollection(
                     new Dictionary<string, string?>
@@ -68,7 +68,7 @@ public class Program
 
 
 
-        await host.RunAsync(cts.Token);
+        await host1.RunAsync(cts.Token);
 
 
         await GetAsync(httpClient, cts);
