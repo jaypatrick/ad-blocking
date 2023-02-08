@@ -1,4 +1,4 @@
-﻿function Invoke-dWebhook {
+﻿function Invoke-Webhook {
     <#
     .SYNOPSIS
     Returns a list of services that are set to start automatically, are not
@@ -10,7 +10,7 @@
     currently running, and it excludes the services that are set to start automatically
     with a delayed startup.
 
-    .PARAMETER WebHookUrl
+    .PARAMETER WebhookUrl
     The remote webhook endpoint to trigger
 
     .PARAMETER WaitTime
@@ -26,7 +26,7 @@
     Should this script be run continuously, or until the user specifies it to stop. This defaults to false. True will run in a loop.
 
     .EXAMPLE
-    Update=ExternalIPAddress -WebhookUrl <url> -Wait 200 -Count 10 -Interval 5 -Continous $True
+    Invoke-Webhook -WebhookUrl <url> -Wait 200 -Count 10 -Interval 5 -Continous $True
 
     .INPUTS
     String, Int, Int, Int
@@ -44,9 +44,8 @@
     param(
         [Parameter(Mandatory, Position = 0, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [Alias("u, Url")]
-        [ValidateCount(1, 1)]
-        [ValidatePattern("((?:(?:1\d\d|2[0-5][0-5]|2[0-4]\d|0?[1-9]\d|0?0?\d)\.){3}(?:1\d\d|2[0-5][0-5]|2[0-4]\d|0?[1-9]\d|0?0?\d))")]
-        [string]$WebHookUrl,
+        [ValidatePattern("(http[s]?|[s]?ftp[s]?)(:\/\/)([^\s,]+)")]
+        [string]$WebhookUrl,
 
         [Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [Alias("w, Wait")]
@@ -63,13 +62,12 @@
         [ValidateRange(1, 60)]
         [int]$RetryInterval = 5,
 
-        [ValidateCount(0, 1)]
         [Alias("c, Continuous")]
         [bool]$Continous = $false
     )
+
     BEGIN {
-        $DefaultUri = "https://linkip.adguard-dns.com/linkip/db94e3e9/8AdnEQlPCjyMaX74vTDZkraUDUYpCFiZ1tcH8dSk9VH"
-        Write-Output $WebHookUrl
+        Write-Output $WebhookUrl
         Write-Output $WaitTime
         Write-Output $RetryCount
         Write-Output $RetryInterval
@@ -77,13 +75,14 @@
         [int]$RequestsSucceeded, $RequestsFailed, $TotalRequests = 0
         $Stopwatch = [system.diagnostics.stopwatch]::StartNew()
     }
+
     PROCESS {
 
         $Counter
         do {
             try {
                 Write-Host "Allocated wait time is: $WaitTime ms"
-                $NewResponse = Invoke-WebRequest -Uri $WebHookUrl -MaximumRetryCount $RetryCount -RetryIntervalSec $RetryInterval
+                $NewResponse = Invoke-WebRequest -Uri $WebhookUrl -MaximumRetryCount $RetryCount -RetryIntervalSec $RetryInterval
                 $StatusCode = $Response.StatusCode
                 if ($StatusCode -lt 300) { [void]$RequestsSucceeded++ }
                 $ElapsedTime = New-TimeSpan -Start($CurrentDate)
@@ -102,11 +101,13 @@
                 [void]$TotalRequests++
                 Start-Sleep -Milliseconds $WaitTime
             }
-            return $StatusCode
+            return $NewResponse
         }until ($Continous)
     }
+
     END {
-        $stopwatch.Stop()
-        $stopwatch
+        [void]$stopwatch.Stop()
+        [void]$stopwatch
     }
 }
+Export-ModuleMember -Function Invoke-Webhook
