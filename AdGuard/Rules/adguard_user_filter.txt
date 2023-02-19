@@ -1,8 +1,8 @@
 ! Checksum: s8yoqc+UnjP2yG6UuCyjog
 ! Title: JK.com AdGuard Rules
 ! Description: This is the base blocking list for JK.com
-! Version: 2.3.3
-! TimeUpdated: 2023-02-02T11:31:31+00:00
+! Version: 2.3.5
+! TimeUpdated: 2023-02-18T11:31:31+00:00
 ! Expires: 1 days (update frequency)
 @@||visualstudio.com^
 @@||azureedge.net^
@@ -186,3 +186,11 @@
 !(Azure Traffic Manager)
 @@!!umwatson.events.data.microsoft.com^
 !(Microsoft Server Diagnostics)
+
+! Azure AD Sync URLs from https://learn.microsoft.com/en-us/azure/active-directory/devices/howto-hybrid-azure-ad-join
+
+@@!!enterpriseregistration.windows.net
+@@!!login.microsoftonline.com
+@@!!device.login.microsoftonline.com
+@@!!autologon.microsoftazuread-sso.com
+@@!!device.login.microsoftonline.com
