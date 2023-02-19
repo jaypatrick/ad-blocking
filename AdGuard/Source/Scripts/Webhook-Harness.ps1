@@ -1,9 +1,15 @@
 Import-Module -Name .\Invoke-WebHook.psm1 -Force
 
-$DefaultUri = "https://linkip.adguard-dns.com/linkip/db94e3e9/8AdnEQlPCjyMaX74vTDZkraUDUYpCFiZ1tcH8dSk9VH"
+[uri]$DefaultUri = "https://linkip.adguard-dns.com/linkip/db94e3e9/8AdnEQlPCjyMaX74vTDZkraUDUYpCFiZ1tcH8dSk9VH"
 [int]$Wait = 500
 [int]$Count = 10
 [int]$Interval = 5
+[bool]$Continuous = $false
+
+$commandLine = $args[0]
+if ($commandLine) {
+    $Continuous = $true
+}
 
 function Get-YesNoResponse {
     # Create prompt body
@@ -20,9 +26,11 @@ function Get-YesNoResponse {
     $response = $host.UI.PromptForChoice($title, $message, $options, 0)
     return $response
 }
-
-$YesNoResponse = Get-YesNoResponse
-$ResponseMessage = Invoke-Webhook -WebhookUrl $DefaultUri -WaitTime $Wait -RetryCount $Count -RetryInterval $Interval -Continous $YesNoResponse
-
-Write-Host "The response message was: $ResponseMessage" -ForegroundColor Yellow
-# Remove-Module -Name .\Invoke-WebHook.psm1
+try {
+    $YesNoResponse = if ($Continuous) { $true } else { Get-YesNoResponse }
+    $ResponseMessage = Invoke-Webhook -WebhookUrl $DefaultUri -WaitTime $Wait -RetryCount $Count -RetryInterval $Interval -Continous $YesNoResponse
+    Write-Host "The response message was: $ResponseMessage" -ForegroundColor Cyan
+}
+catch {
+    Write-Error $_
+}
