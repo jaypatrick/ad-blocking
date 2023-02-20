@@ -1,5 +1,4 @@
-# Import-Module -Name .\Invoke-WebHook.psm1 -Force
-Import-Module (Resolve-Path('Invoke-Webhook.psm1'))
+Import-Module $PSScriptRoot\Invoke-Webhook.psm1
 
 [uri]$DefaultUri = "https://linkip.adguard-dns.com/linkip/db94e3e9/8AdnEQlPCjyMaX74vTDZkraUDUYpCFiZ1tcH8dSk9VH"
 [int]$Wait = 500
