@@ -72,13 +72,14 @@
         Write-Output $RetryCount
         Write-Output $RetryInterval
         $CurrentDate = Get-Date -DisplayHint Time
-        [int]$RequestsSucceeded, $RequestsFailed, $TotalRequests = 0
+        [int]$RequestsSucceeded = 1
+        [int]$RequestsFailed = 0
+        [int]$TotalRequests = 1
         $Stopwatch = [system.diagnostics.stopwatch]::StartNew()
     }
 
     PROCESS {
 
-        $Counter
         do {
             try {
                 Write-Host "Allocated wait time is: $WaitTime ms"
@@ -88,8 +89,8 @@
                 $ElapsedTime = New-TimeSpan -Start($CurrentDate)
                 Write-Host $ElapsedTime "TOTAL elapsed time since invocation"
                 Write-Host $Response.Content -ForegroundColor Green
-                Write-Host $ElapsedTime.TotalSeconds "seconds elapsed since $currentDate" -ForegroundColor Magenta
-                Write-Host "Public IP address has been updated $counter times." -ForegroundColor Blue
+                Write-Host $ElapsedTime.TotalSeconds "seconds elapsed since $CurrentDate" -ForegroundColor Magenta
+                Write-Host "Public IP address has been updated $RequestsSucceeded times." -ForegroundColor Blue
             }
             catch {
                 $StatusCode = $_.Exception.Response.StatusCode.value__
@@ -98,8 +99,8 @@
                 Write-Host $_.ScriptStackTrace
             }
             finally {
-                Write-Verbose "Global counter is incremented to track request #'s: $Counter invocations"
                 [void]$TotalRequests++
+                Write-Verbose "Global counter is incremented to track request #'s: $TotalRequests invocations"
                 Start-Sleep -Milliseconds $WaitTime
             }
             return $Response
