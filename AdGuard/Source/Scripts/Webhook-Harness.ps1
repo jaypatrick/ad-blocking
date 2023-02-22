@@ -1,6 +1,7 @@
 Import-Module $PSScriptRoot\Invoke-Webhook.psm1
 
 [uri]$DefaultUri = "https://linkip.adguard-dns.com/linkip/db94e3e9/8AdnEQlPCjyMaX74vTDZkraUDUYpCFiZ1tcH8dSk9VH"
+[uri]$ShortenedUri = "https://bit.ly/jk-adguard-webhook"
 [int]$Wait = 500
 [int]$Count = 10
 [int]$Interval = 5
@@ -28,7 +29,7 @@ function Get-YesNoResponse {
 }
 try {
     $YesNoResponse = if ($Continuous) { $true } else { Get-YesNoResponse }
-    $ResponseMessage = Invoke-Webhook -WebhookUrl $DefaultUri -WaitTime $Wait -RetryCount $Count -RetryInterval $Interval -Continous $YesNoResponse
+    $ResponseMessage = Invoke-Webhook -WebhookUrl $ShortenedUri -WaitTime $Wait -RetryCount $Count -RetryInterval $Interval -Continous $YesNoResponse
     Write-Host "The response message was: $ResponseMessage" -ForegroundColor Cyan
 }
 catch {
