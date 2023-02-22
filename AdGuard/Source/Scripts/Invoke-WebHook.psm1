@@ -29,7 +29,7 @@
     Invoke-Webhook -WebhookUrl <url> -Wait 200 -Count 10 -Interval 5 -Continous $True
 
     .INPUTS
-    String, Int, Int, Int
+    Uri, Int, Int, Int
 
     .OUTPUTS
     The status code of the webhook invocation
@@ -44,8 +44,8 @@
     param(
         [Parameter(Mandatory, Position = 0, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [Alias("u, Url")]
-        [ValidatePattern("(http[s]?|[s]?ftp[s]?)(:\/\/)([^\s,]+)")]
-        [string]$WebhookUrl,
+        # [ValidatePattern("(http[s]?|[s]?ftp[s]?)(:\/\/)([^\s,]+)")]
+        [uri]$WebhookUrl,
 
         [Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [Alias("w, Wait")]
@@ -82,26 +82,27 @@
         do {
             try {
                 Write-Host "Allocated wait time is: $WaitTime ms"
-                $NewResponse = Invoke-WebRequest -Uri $WebhookUrl -MaximumRetryCount $RetryCount -RetryIntervalSec $RetryInterval
+                $Response = Invoke-WebRequest -Uri $WebhookUrl -MaximumRetryCount $RetryCount -RetryIntervalSec $RetryInterval
                 $StatusCode = $Response.StatusCode
                 if ($StatusCode -lt 300) { [void]$RequestsSucceeded++ }
                 $ElapsedTime = New-TimeSpan -Start($CurrentDate)
                 Write-Host $ElapsedTime "TOTAL elapsed time since invocation"
-                Write-Host $NewResponse.Content -ForegroundColor Green
+                Write-Host $Response.Content -ForegroundColor Green
                 Write-Host $ElapsedTime.TotalSeconds "seconds elapsed since $currentDate" -ForegroundColor Magenta
                 Write-Host "Public IP address has been updated $counter times." -ForegroundColor Blue
             }
             catch {
                 $StatusCode = $_.Exception.Response.StatusCode.value__
                 [void]$RequestsFailed++
-                Write-Warning "An error occurred" -ErrorAction Continue
+                Write-Error $_ -ErrorAction Continue
+                Write-Host $_.ScriptStackTrace
             }
             finally {
                 Write-Verbose "Global counter is incremented to track request #'s: $Counter invocations"
                 [void]$TotalRequests++
                 Start-Sleep -Milliseconds $WaitTime
             }
-            return $NewResponse
+            return $Response
         }until ($Continous)
     }
 
