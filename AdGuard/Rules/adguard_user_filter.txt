@@ -1,8 +1,8 @@
 ! Checksum: s8yoqc+UnjP2yG6UuCyjog
 ! Title: JK.com AdGuard Rules
 ! Description: This is the base blocking list for JK.com
-! Version: 2.3.5
-! TimeUpdated: 2023-02-18T11:31:31+00:00
+! Version: 2.4.5
+! TimeUpdated: 2023-02-21T11:31:31+00:00
 ! Expires: 1 days (update frequency)
 @@||visualstudio.com^
 @@||azureedge.net^
@@ -194,3 +194,24 @@
 @@!!device.login.microsoftonline.com
 @@!!autologon.microsoftazuread-sso.com
 @@!!device.login.microsoftonline.com
+
+! VSCode.dev URLs from https://code.visualstudio.com/docs/setup/network
+
+@@!!update.code.visualstudio.com
+@@!!code.visualstudio.com
+@@!!go.microsoft.com 
+@@!!vscode.blob.core.windows.net
+@@!!marketplace.visualstudio.com
+@@!!gallery.vsassets.io
+@@!!gallerycdn.vsassets.io
+@@!!rink.hockeyapp.net
+@@!!bingsettingssearch.trafficmanager.net
+@@!!vscode.search.windows.net
+@@!!raw.githubusercontent.com
+@@!!vsmarketplacebadges.dev 
+@@!!az764295.vo.msecnd.net
+@@!!download.visualstudio.microsoft.com
+@@!!vscode-sync.trafficmanager.net
+@@!!vscode-sync-insiders.trafficmanager.net
+@@!!vscode.dev
+@@!!default.exp-tas.com
