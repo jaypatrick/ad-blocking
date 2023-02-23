@@ -215,3 +215,10 @@
 @@!!vscode-sync-insiders.trafficmanager.net
 @@!!vscode.dev
 @@!!default.exp-tas.com
+
+! GitHub.dev URLs from https://docs.github.com/en/codespaces/the-githubdev-web-based-editor#using-githubdev-behind-a-firewall
+
+@@!!vscode-cdn.net
+@@!!update.code.visualstudio.com
+@@!!api.github.com
+@@!!vscode-sync-insiders.trafficmanager.net
