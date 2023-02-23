@@ -1,9 +1,18 @@
 ! Checksum: s8yoqc+UnjP2yG6UuCyjog
 ! Title: JK.com AdGuard Rules
-! Description: This is the base blocking list for JK.com
-! Version: 2.4.6
-! TimeUpdated: 2023-02-21T18f:31:31+00:00
+! Description: This is the base blocking list for JK.com and includes allowlists for most common microsoft development URLs, among others.
+! Version: 3.1.2
+! Last modified: 2023-02-23T00:02:28.864Z
 ! Expires: 1 days (update frequency)
+
+! Homepage: https://github.com/jaypatrick/ad-blocking
+! License: https://github.com/AdguardTeam/AdguardSDNSFilter/blob/master/LICENSE
+! Compiled by @adguard/hostlist-compiler v1.0.15
+!
+!
+! Source name: JK.com Base filter ad servers
+! Source: https://jaypatrick.github.io/ad-blocking/AdGuard/Rules/adguard_user_filter.txt
+!
 @@||visualstudio.com^
 @@||azureedge.net^
 @@||visualstudio.microsoft.com^
