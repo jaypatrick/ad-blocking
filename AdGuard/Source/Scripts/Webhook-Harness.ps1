@@ -1,6 +1,6 @@
 Import-Module $PSScriptRoot\Invoke-Webhook.psm1
 
-[uri]$DefaultUri = "https://linkip.adguard-dns.com/linkip/db94e3e9/8AdnEQlPCjyMaX74vTDZkraUDUYpCFiZ1tcH8dSk9VH"
+# [uri]$DefaultUri = "https://linkip.adguard-dns.com/linkip/db94e3e9/8AdnEQlPCjyMaX74vTDZkraUDUYpCFiZ1tcH8dSk9VH"
 [uri]$ShortenedUri = "https://bit.ly/jk-adguard-webhook"
 [int]$Wait = 500
 [int]$Count = 10
