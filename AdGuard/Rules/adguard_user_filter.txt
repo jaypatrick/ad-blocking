@@ -1,9 +1,18 @@
 ! Checksum: s8yoqc+UnjP2yG6UuCyjog
 ! Title: JK.com AdGuard Rules
-! Description: This is the base blocking list for JK.com
-! Version: 2.3.5
-! TimeUpdated: 2023-02-18T11:31:31+00:00
+! Description: This is the base blocking list for JK.com and includes allowlists for most common microsoft development URLs, among others.
+! Version: 3.1.2
+! Last modified: 2023-02-23T00:02:28.864Z
 ! Expires: 1 days (update frequency)
+
+! Homepage: https://github.com/jaypatrick/ad-blocking
+! License: https://github.com/AdguardTeam/AdguardSDNSFilter/blob/master/LICENSE
+! Compiled by @adguard/hostlist-compiler v1.0.15
+!
+!
+! Source name: JK.com Base filter ad servers
+! Source: https://jaypatrick.github.io/ad-blocking/AdGuard/Rules/adguard_user_filter.txt
+!
 @@||visualstudio.com^
 @@||azureedge.net^
 @@||visualstudio.microsoft.com^
@@ -194,3 +203,31 @@
 @@!!device.login.microsoftonline.com
 @@!!autologon.microsoftazuread-sso.com
 @@!!device.login.microsoftonline.com
+
+! VSCode.dev URLs from https://code.visualstudio.com/docs/setup/network
+
+@@!!update.code.visualstudio.com
+@@!!code.visualstudio.com
+@@!!go.microsoft.com 
+@@!!vscode.blob.core.windows.net
+@@!!marketplace.visualstudio.com
+@@!!gallery.vsassets.io
+@@!!gallerycdn.vsassets.io
+@@!!rink.hockeyapp.net
+@@!!bingsettingssearch.trafficmanager.net
+@@!!vscode.search.windows.net
+@@!!raw.githubusercontent.com
+@@!!vsmarketplacebadges.dev 
+@@!!az764295.vo.msecnd.net
+@@!!download.visualstudio.microsoft.com
+@@!!vscode-sync.trafficmanager.net
+@@!!vscode-sync-insiders.trafficmanager.net
+@@!!vscode.dev
+@@!!default.exp-tas.com
+
+! GitHub.dev URLs from https://docs.github.com/en/codespaces/the-githubdev-web-based-editor#using-githubdev-behind-a-firewall
+
+@@!!vscode-cdn.net
+@@!!update.code.visualstudio.com
+@@!!api.github.com
+@@!!vscode-sync-insiders.trafficmanager.net
