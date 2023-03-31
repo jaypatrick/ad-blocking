@@ -1,8 +1,8 @@
 ! Checksum: s8yoqc+UnjP2yG6UuCyjog
 ! Title: JK.com AdGuard Rules
 ! Description: This is the base AdGuard blocking list for JK.com and includes allowlists for most common microsoft development URLs, among others.
-! Version: 3.2.1
-! Last modified: 2023-03-30T00:02:28.864Z
+! Version: 3.2.2
+! Last modified: 2023-03-30T00:12:28.864Z
 ! Expires: 1 days (update frequency)
 
 ! Homepage: https://github.com/jaypatrick/ad-blocking
@@ -235,3 +235,10 @@
 ! Amazon AWS
 
 ||analytics.s3.amazonaws.com
+
+! Yandex
+||appmetrica.yandex.ru
+
+! OEMs
+||iot-eu-logser.realme.com
+||bdapi-in-ads.realmemobile.com
