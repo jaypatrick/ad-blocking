@@ -179,9 +179,9 @@
 !(Azure Service Bus)
 @@||servicebus.windows.net^
 !(Azure Service Bus)
-@@||shell.azure.com
+@@||shell.azure.com^
 !(Azure Command Shell)
-@@||sphere.azure.net
+@@||sphere.azure.net^
 !(Azure Sphere)
 @@||azure.status.microsoft^
 !(Azure Status)
@@ -198,47 +198,47 @@
 
 ! Azure AD Sync URLs from https://learn.microsoft.com/en-us/azure/active-directory/devices/howto-hybrid-azure-ad-join
 
-@@!!enterpriseregistration.windows.net
-@@!!login.microsoftonline.com
-@@!!device.login.microsoftonline.com
-@@!!autologon.microsoftazuread-sso.com
-@@!!device.login.microsoftonline.com
+@@!!enterpriseregistration.windows.net^
+@@!!login.microsoftonline.com^
+@@!!device.login.microsoftonline.com^
+@@!!autologon.microsoftazuread-sso.com^
+@@!!device.login.microsoftonline.com^
 
 ! VSCode.dev URLs from https://code.visualstudio.com/docs/setup/network
 
-@@!!update.code.visualstudio.com
-@@!!code.visualstudio.com
-@@!!go.microsoft.com 
-@@!!vscode.blob.core.windows.net
-@@!!marketplace.visualstudio.com
-@@!!gallery.vsassets.io
-@@!!gallerycdn.vsassets.io
-@@!!rink.hockeyapp.net
-@@!!bingsettingssearch.trafficmanager.net
-@@!!vscode.search.windows.net
-@@!!raw.githubusercontent.com
-@@!!vsmarketplacebadges.dev 
-@@!!az764295.vo.msecnd.net
-@@!!download.visualstudio.microsoft.com
-@@!!vscode-sync.trafficmanager.net
-@@!!vscode-sync-insiders.trafficmanager.net
-@@!!vscode.dev
-@@!!default.exp-tas.com
+@@!!update.code.visualstudio.com^
+@@!!code.visualstudio.com^
+@@!!go.microsoft.com^
+@@!!vscode.blob.core.windows.net^
+@@!!marketplace.visualstudio.com^
+@@!!gallery.vsassets.io^
+@@!!gallerycdn.vsassets.io^
+@@!!rink.hockeyapp.net^
+@@!!bingsettingssearch.trafficmanager.net^
+@@!!vscode.search.windows.net^
+@@!!raw.githubusercontent.com^
+@@!!vsmarketplacebadges.dev^ 
+@@!!az764295.vo.msecnd.net^
+@@!!download.visualstudio.microsoft.com^
+@@!!vscode-sync.trafficmanager.net^
+@@!!vscode-sync-insiders.trafficmanager.net^
+@@!!vscode.dev^
+@@!!default.exp-tas.com^
 
 ! GitHub.dev URLs from https://docs.github.com/en/codespaces/the-githubdev-web-based-editor#using-githubdev-behind-a-firewall
 
-@@!!vscode-cdn.net
-@@!!update.code.visualstudio.com
-@@!!api.github.com
-@@!!vscode-sync-insiders.trafficmanager.net
+@@!!vscode-cdn.net^
+@@!!update.code.visualstudio.com^
+@@!!api.github.com^
+@@!!vscode-sync-insiders.trafficmanager.net^
 
 ! Amazon AWS
 
-||analytics.s3.amazonaws.com
+||analytics.s3.amazonaws.com^
 
 ! Yandex
-||appmetrica.yandex.ru
+||appmetrica.yandex.ru^
 
 ! OEMs
-||iot-eu-logser.realme.com
-||bdapi-in-ads.realmemobile.com
+||iot-eu-logser.realme.com^
+||bdapi-in-ads.realmemobile.com^
