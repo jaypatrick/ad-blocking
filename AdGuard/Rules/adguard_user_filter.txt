@@ -1,8 +1,8 @@
 ! Checksum: s8yoqc+UnjP2yG6UuCyjog
 ! Title: JK.com AdGuard Rules
 ! Description: This is the base AdGuard blocking list for JK.com and includes allowlists for most common microsoft development URLs, among others.
-! Version: 3.2.5
-! Last modified: 2023-04-12T00:12:38.864Z
+! Version: 3.2.6
+! Last modified: 2023-04-12T00:14:38.864Z
 ! Expires: 1 days (update frequency)
 
 ! Homepage: https://github.com/jaypatrick/ad-blocking
@@ -211,6 +211,7 @@
 @@!!go.microsoft.com^
 @@!!vscode.blob.core.windows.net^
 @@!!marketplace.visualstudio.com^
+@@!!gallery.vsassets.io^
 @@!!gallery.vsassets.io^
 @@!!gallerycdn.vsassets.io^
 @@!!rink.hockeyapp.net^
