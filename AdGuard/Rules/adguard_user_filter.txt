@@ -32,6 +32,8 @@
 ||analyticsengine.s3.amazonaws.com^
 ||adtago.s3.amazonaws.com^
 ||adservice.google.com^
+||bdapi-ads.realmemobile.com^
+||ck.ads.oppomobile.com^
 @@||servicebus.windows.net^
 @@||msappproxy.net^
 @@||browser.pipe.aria.microsoft.com^
