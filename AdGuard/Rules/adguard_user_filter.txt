@@ -58,6 +58,7 @@
 ||advertising.twitter.com^
 ||ads.tiktok.com^
 ||ads-sg.tiktok.com^
+||business-api.tiktok.com^
 
 ! Azure URL's from https://learn.microsoft.com/en-us/azure/azure-portal/azure-portal-safelist-urls?tabs=public-cloud
 
