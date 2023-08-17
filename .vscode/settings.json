@@ -1,3 +1,4 @@
 {
-  "dotnet.defaultSolution": "AdGuard\\Source\\Code.sln"
+  "dotnet.defaultSolution": "AdGuard\\Source\\Code.sln",
+  "powerShellUniversal.syncSamples": true
 }
