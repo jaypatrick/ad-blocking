@@ -1,8 +1,8 @@
 ! Checksum: s8yoqc+UnjP2yG6UuCyjog
 ! Title: JK.com AdGuard Rules
-! Description: This is the base blocking list for JK.com and includes allowlists for most common microsoft development URLs, among others.
-! Version: 3.1.2
-! Last modified: 2023-02-23T00:02:28.864Z
+! Description: This is the base AdGuard blocking list for JK.com and includes allowlists for most common microsoft development URLs, among others.
+! Version: 3.2.15
+! Last modified: 2023-08-29T00:14:38.864Z
 ! Expires: 1 days (update frequency)
 
 ! Homepage: https://github.com/jaypatrick/ad-blocking
@@ -32,6 +32,8 @@
 ||analyticsengine.s3.amazonaws.com^
 ||adtago.s3.amazonaws.com^
 ||adservice.google.com^
+||bdapi-ads.realmemobile.com^
+||ck.ads.oppomobile.com^
 @@||servicebus.windows.net^
 @@||msappproxy.net^
 @@||browser.pipe.aria.microsoft.com^
@@ -56,6 +58,7 @@
 ||advertising.twitter.com^
 ||ads.tiktok.com^
 ||ads-sg.tiktok.com^
+||business-api.tiktok.com^
 
 ! Azure URL's from https://learn.microsoft.com/en-us/azure/azure-portal/azure-portal-safelist-urls?tabs=public-cloud
 
@@ -179,9 +182,9 @@
 !(Azure Service Bus)
 @@||servicebus.windows.net^
 !(Azure Service Bus)
-@@||shell.azure.com
+@@||shell.azure.com^
 !(Azure Command Shell)
-@@||sphere.azure.net
+@@||sphere.azure.net^
 !(Azure Sphere)
 @@||azure.status.microsoft^
 !(Azure Status)
@@ -198,36 +201,55 @@
 
 ! Azure AD Sync URLs from https://learn.microsoft.com/en-us/azure/active-directory/devices/howto-hybrid-azure-ad-join
 
-@@!!enterpriseregistration.windows.net
-@@!!login.microsoftonline.com
-@@!!device.login.microsoftonline.com
-@@!!autologon.microsoftazuread-sso.com
-@@!!device.login.microsoftonline.com
+@@!!enterpriseregistration.windows.net^
+@@!!login.microsoftonline.com^
+@@!!device.login.microsoftonline.com^
+@@!!autologon.microsoftazuread-sso.com^
+@@!!device.login.microsoftonline.com^
 
 ! VSCode.dev URLs from https://code.visualstudio.com/docs/setup/network
 
-@@!!update.code.visualstudio.com
-@@!!code.visualstudio.com
-@@!!go.microsoft.com 
-@@!!vscode.blob.core.windows.net
-@@!!marketplace.visualstudio.com
-@@!!gallery.vsassets.io
-@@!!gallerycdn.vsassets.io
-@@!!rink.hockeyapp.net
-@@!!bingsettingssearch.trafficmanager.net
-@@!!vscode.search.windows.net
-@@!!raw.githubusercontent.com
-@@!!vsmarketplacebadges.dev 
-@@!!az764295.vo.msecnd.net
-@@!!download.visualstudio.microsoft.com
-@@!!vscode-sync.trafficmanager.net
-@@!!vscode-sync-insiders.trafficmanager.net
-@@!!vscode.dev
-@@!!default.exp-tas.com
+@@!!update.code.visualstudio.com^
+@@!!code.visualstudio.com^
+@@!!go.microsoft.com^
+@@!!vscode.blob.core.windows.net^
+@@!!marketplace.visualstudio.com^
+@@!!gallery.vsassets.io^
+@@!!gallery.vsassets.io^
+@@!!gallerycdn.vsassets.io^
+@@!!rink.hockeyapp.net^
+@@!!bingsettingssearch.trafficmanager.net^
+@@!!vscode.search.windows.net^
+@@!!raw.githubusercontent.com^
+@@!!vsmarketplacebadges.dev^ 
+@@!!az764295.vo.msecnd.net^
+@@!!download.visualstudio.microsoft.com^
+@@!!vscode-sync.trafficmanager.net^
+@@!!vscode-sync-insiders.trafficmanager.net^
+@@!!vscode.dev^
+@@!!default.exp-tas.com^
 
 ! GitHub.dev URLs from https://docs.github.com/en/codespaces/the-githubdev-web-based-editor#using-githubdev-behind-a-firewall
 
-@@!!vscode-cdn.net
-@@!!update.code.visualstudio.com
-@@!!api.github.com
-@@!!vscode-sync-insiders.trafficmanager.net
+@@!!vscode-cdn.net^
+@@!!update.code.visualstudio.com^
+@@!!api.github.com^
+@@!!vscode-sync-insiders.trafficmanager.net^
+
+! Amazon AWS
+
+||analytics.s3.amazonaws.com^
+
+! Apple Ads (IADSDK)
+||news.iadsdk.apple.com^
+||iadsdk.apple.com^
+
+! Yandex
+||appmetrica.yandex.ru^
+
+! OEMs
+||iot-eu-logser.realme.com^
+||bdapi-in-ads.realmemobile.com^
+||data.ads.oppomobile.com^
+||adtech.yahooinc.com^
+||adx.ads.oppomobile.com^
