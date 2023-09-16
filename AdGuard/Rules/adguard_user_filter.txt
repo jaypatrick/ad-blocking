@@ -1,8 +1,8 @@
 ! Checksum: s8yoqc+UnjP2yG6UuCyjog
 ! Title: JK.com AdGuard Rules
 ! Description: This is the base AdGuard blocking list for JK.com and includes allowlists for most common microsoft development URLs, among others.
-! Version: 3.2.15
-! Last modified: 2023-08-29T00:14:38.864Z
+! Version: 3.3.05
+! Last modified: 2023-09-16T00:14:38.864Z
 ! Expires: 1 days (update frequency)
 
 ! Homepage: https://github.com/jaypatrick/ad-blocking
@@ -238,15 +238,28 @@
 @@!!vscode-sync-insiders.trafficmanager.net^
 
 ! Amazon AWS
-
 ||analytics.s3.amazonaws.com^
 
 ! Apple Ads (IADSDK)
 ||news.iadsdk.apple.com^
 ||iadsdk.apple.com^
 
+! TikTok
+||ads-api.tiktok.com^
+
+! Pinterest
+||widgets.pinterest.com^
+||ads.pinterest.com^
+
 ! Yandex
 ||appmetrica.yandex.ru^
+||metrika.yandex.ru^
+
+! Yahoo
+||gemini.yahoo.com^
+||advertising.yahoo.com^
+||udcm.yahoo.com^
+||udc.yahoo.com^
 
 ! OEMs
 ||iot-eu-logser.realme.com^
@@ -254,3 +267,9 @@
 ||data.ads.oppomobile.com^
 ||adtech.yahooinc.com^
 ||adx.ads.oppomobile.com^
+
+! Error Trackers
+||api.bugsnag.com^
+||app.bugsnag.com^
+||browser.sentry-cdn.com^
+||app.getsentry.com^
