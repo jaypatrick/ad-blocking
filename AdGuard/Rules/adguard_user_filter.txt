@@ -1,9 +1,9 @@
 ! Checksum: s8yoqc+UnjP2yG6UuCyjog
 ! Title: JK.com AdGuard Rules
 ! Description: This is the base AdGuard blocking list for JK.com and includes allowlists for most common microsoft development URLs, among others.
-! Version: 3.3.06
-! Last modified: 2023-09-16T00:16:38.864Z
-! Expires: 1 days (update frequency)
+! Version: 3.4.2
+! Last modified: 2023-11-05T00:16:38.864Z
+! Expires: 30 days (update frequency)
 
 ! Homepage: https://github.com/jaypatrick/ad-blocking
 ! License: https://github.com/AdguardTeam/AdguardSDNSFilter/blob/master/LICENSE
@@ -256,12 +256,20 @@
 ! Yandex
 ||appmetrica.yandex.ru^
 ||metrika.yandex.ru^
+||advertising.yandex.ru^
 
 ! Yahoo
 ||gemini.yahoo.com^
 ||advertising.yahoo.com^
 ||udcm.yahoo.com^
 ||udc.yahoo.com^
+||ads.yahoo.com^
+||partnerads.ysm.yahoo.com^
+||log.fc.yahoo.com^
+
+! Google
+||afs.googlesyndication.com^
+||click.googleanalytics.com^
 
 ! OEMs
 ||iot-eu-logser.realme.com^
@@ -275,3 +283,5 @@
 ||app.bugsnag.com^
 ||browser.sentry-cdn.com^
 ||app.getsentry.com^
+||notify.bugsnag.com^
+||sessions.bugsnag.com^
