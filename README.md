@@ -17,4 +17,4 @@ It is, which is why I've done all the hard work for you. So, how do I get to blo
 
 *Please note: [The permalink for the test link page](https://bit.ly/jaysonknight) should be used to quickly run tests.
 
-The rules list [can be found here](/AdGuard/Rules/adguard_user_filter.txt").
+The rules list [can be found here](/AdGuard/Rules/adguard_user_filter.txt).
