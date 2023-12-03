@@ -271,6 +271,9 @@
 ||afs.googlesyndication.com^
 ||click.googleanalytics.com^
 
+! Samsung
+||samsung-com.112.2o7.net^
+
 ! OEMs
 ||iot-eu-logser.realme.com^
 ||bdapi-in-ads.realmemobile.com^
