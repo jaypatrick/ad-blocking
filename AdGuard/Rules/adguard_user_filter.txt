@@ -240,11 +240,12 @@
 ! Amazon AWS
 ||analytics.s3.amazonaws.com^
 
-! Apple Ads (IADSDK)
+! Apple
 ||news.iadsdk.apple.com^
 ||iadsdk.apple.com^
 ||advertising.apple.com^
 ||weather-analytics-events.apple.com^
+@@!!experiments.apple.com^
 
 ! TikTok
 ||ads-api.tiktok.com^
