@@ -290,3 +290,10 @@
 ||app.getsentry.com^
 ||notify.bugsnag.com^
 ||sessions.bugsnag.com^
+
+! Query log observations
+@@||events.data.microsoft.com^
+@@||opinsights.azure.com
+@@||teams-events-data.trafficmanager.NET^
+@@||teams.live.com^
+@@||data.microsoft.com^
