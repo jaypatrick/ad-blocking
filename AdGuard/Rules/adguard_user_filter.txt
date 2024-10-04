@@ -1,8 +1,8 @@
 ! Checksum: s8yoqc+UnjP2yG6UuCyjog
 ! Title: JK.com AdGuard Rules
 ! Description: This is the base AdGuard blocking list for JK.com and includes allowlists for most common microsoft development URLs, among others.
-! Version: 3.7.2
-! Last modified: 2024-09-28T00:12:38.864Z
+! Version: 3.7.4
+! Last modified: 2024-10-03T00:12:38.864Z
 ! Expires: 30 days (update frequency)
 
 ! Homepage: https://github.com/jaypatrick/ad-blocking
@@ -196,7 +196,8 @@
 !(Azure Storage)
 @@||vault.azure.net^
 !(Azure Key Vault Service)
-@@|| trafficmanager.net^
+@@||trafficmanager.net^
+@@||data.trafficmanager.net^
 !(Azure Traffic Manager)
 @@!!umwatson.events.data.microsoft.com^
 !(Microsoft Server Diagnostics)
