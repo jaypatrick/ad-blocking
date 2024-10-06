@@ -1,0 +1,26 @@
+# https://github.com/AdguardTeam/AdGuardHome/wiki/Configuration#configuration-file
+
+'blocked_services':
+    'ids':
+    - 'google'
+    'schedule':
+        'sun':
+            'start': '0s'
+            'end': '24h'
+        'mon':
+            'start': '10m'
+            'end': '23h50m'
+        'tue':
+            'start': '20m'
+            'end': '23h40m'
+        # No schedule for Wednesday.
+        'thu':
+            'start': '40m'
+            'end': '23h20m'
+        'fri':
+            'start': '50m'
+            'end': '23h10m'
+        'sat':
+            'start': '1h'
+            'end': '23h'
+        'time_zone': 'America/New_York'
