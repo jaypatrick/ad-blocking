@@ -1,8 +1,8 @@
 ! Checksum: s8yoqc+UnjP2yG6UuCyjog
 ! Title: JK.com AdGuard Rules
 ! Description: This is the base AdGuard blocking list for JK.com and includes allowlists for most common microsoft development URLs, among others.
-! Version: 3.7.4
-! Last modified: 2024-10-03T00:12:38.864Z
+! Version: 3.7.10
+! Last modified: 2024-10-25T00:12:38.864Z
 ! Expires: 30 days (update frequency)
 
 ! Homepage: https://github.com/jaypatrick/ad-blocking
@@ -13,7 +13,7 @@
 ! Source name: JK.com Base filter ad servers
 ! Source: https://jaypatrick.github.io/ad-blocking/AdGuard/Rules/adguard_user_filter.txt
 !
-@@||ui.com
+@@||ui.com^
 @@||visualstudio.com^
 @@||azureedge.net^
 @@||visualstudio.microsoft.com^
@@ -283,6 +283,7 @@
 ||data.ads.oppomobile.com^
 ||adtech.yahooinc.com^
 ||adx.ads.oppomobile.com^
+@@||dell.com^
 
 ! Error Trackers
 ||api.bugsnag.com^
