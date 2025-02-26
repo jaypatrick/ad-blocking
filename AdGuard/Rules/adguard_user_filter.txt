@@ -1,9 +1,9 @@
 ! Checksum: s8yoqc+UnjP2yG6UuCyjog
 ! Title: JK.com AdGuard Rules
 ! Description: This is the base AdGuard blocking list for JK.com and includes allowlists for most common microsoft development URLs, among others.
-! Version: 3.20.3
-! Last modified: 2025-01-12T00:12:10.864Z
-! Expires: 30 days (update frequency)
+! Version: 3.20.15
+! Last modified: 2025-02-25T00:12:10.864Z
+! Expires: 90 days (update frequency)
 
 ! Homepage: https://github.com/jaypatrick/ad-blocking
 ! License: https://github.com/AdguardTeam/AdguardSDNSFilter/blob/master/LICENSE
@@ -510,3 +510,4 @@
 
 ! Misc
 @@||urb.shop^
+@@||bmtmicro.com^
