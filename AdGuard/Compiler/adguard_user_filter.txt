@@ -1,6 +1,6 @@
 !
 ! Title: JK.com AdGuard Rules
-! Description: This is the base AdGuard blocking list for JK.com
+! Description: This is the base AdGuard blocking list for JK.com and includes allowlists for most common microsoft development URLs, among others.
 ! Version: 4.0.1.35
 ! Homepage: https://github.com/jaypatrick/ad-blocking
 ! License: GPLv3
