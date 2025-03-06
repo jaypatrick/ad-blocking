@@ -1,5 +1,6 @@
 # Welcome to my ad-blocking repository
-Various rules lists, scripts, and other goodies I use to block nuisances from my network
+Various rules lists, scripts, and other goodies I use to block nuisances from my network.
+Note: You will need AdGuard's HostList Compiler as of March 2025: https://github.com/AdguardTeam/HostlistCompiler
 ## Project purpose
 The internet is full of nuisances, and I've been on a quest to eradicate them from my network for decades.
 1. Ads
