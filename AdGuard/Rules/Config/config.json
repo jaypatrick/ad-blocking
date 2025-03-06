@@ -1,0 +1,29 @@
+{
+  "name": "List name",
+  "description": "List description",
+  "homepage": "https://example.org/",
+  "license": "GPLv3",
+  "sources": [
+    {
+      "name": "Local rules",
+      "source": "rules.txt",
+      "type": "adblock",
+      "transformations": ["RemoveComments", "Compress"],
+      "exclusions": ["excluded rule 1"],
+      "exclusions_sources": ["exclusions.txt"],
+      "inclusions": ["*"],
+      "inclusions_sources": ["inclusions.txt"]
+    },
+    {
+      "name": "Remote rules",
+      "source": "https://example.org/rules",
+      "type": "hosts",
+      "exclusions": ["excluded rule 1"]
+    }
+  ],
+  "transformations": ["Deduplicate", "Compress"],
+  "exclusions": ["excluded rule 1", "excluded rule 2"],
+  "exclusions_sources": ["global_exclusions.txt"],
+  "inclusions": ["*"],
+  "inclusions_sources": ["global_inclusions.txt"]
+}
