@@ -447,5 +447,5 @@
 @@||forex.com^
 @@||oanda.com^
 @@||tradestation.com^
-@||tradingview.com^
-@||coinbase.com^
+@@||tradingview.com^
+@@||coinbase.com^
