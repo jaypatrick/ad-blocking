@@ -1,9 +1,9 @@
 import HostlistCompiler, { IConfiguration as HostlistCompilerConfiguration } from '@adguard/hostlist-compiler'
-import { readFileSync, writeFile } from 'fs'
+import { readFileSync, writeFile } from 'node:fs'
 
 ;(async () => {
     // read configuration from file
-    const config: HostlistCompilerConfiguration = JSON.parse(readFileSync('compiler-config.json', 'utf8')) as HostlistCompilerConfiguration;
+    const config: HostlistCompilerConfiguration = JSON.parse(readFileSync('compiler-config.json', 'utf8')) satisfies HostlistCompilerConfiguration;
     
     // const config: HostlistCompilerConfiguration = {
     //     name: 'Your Hostlist',
