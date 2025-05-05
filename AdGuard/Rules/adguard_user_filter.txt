@@ -1,10 +1,10 @@
 !
 ! Title: JK.com AdGuard Rules
 ! Description: This is the base AdGuard blocking list for JK.com
-! Version: 4.0.3.19
+! Version: 4.0.3.26
 ! Homepage: https://github.com/jaypatrick/ad-blocking
 ! License: GPLv3
-! Last modified: 2025-04-30T11:26:13.976Z
+! Last modified: 2025-05-04T11:26:13.976Z
 !
 ! Compiled by @adguard/hostlist-compiler v1.0.37
 !
@@ -441,9 +441,9 @@
 ! Misc
 @@||urb.shop^
 @@||bmtmicro.com^
-@@||app.astra.finance^
+@@||astra.finance^
 ! Trading
-@@||webull.com ^
+@@||webull.com^
 @@||forex.com^
 @@||oanda.com^
 @@||tradestation.com^
