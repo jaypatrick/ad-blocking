@@ -450,3 +450,4 @@
 @@||tradingview.com^
 @@||coinbase.com^
 @@||yodlee.com^
+@@||tradingtechnologies.com^
