@@ -451,3 +451,4 @@
 @@||coinbase.com^
 @@||yodlee.com^
 @@||tradingtechnologies.com^
+@@||benzinga.com^
