@@ -455,4 +455,5 @@
 @@||interactivebrokers.com^
 @@||ninjatrader.com^
 @@||quantconnect.com^
+@@||topstep.com^
 @@||plaid.com^
