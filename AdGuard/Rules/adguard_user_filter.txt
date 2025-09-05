@@ -443,7 +443,7 @@
 @@||bmtmicro.com^
 @@||astra.finance^
 @@||nclottery.com^
-@@||intercome.help^
+@@||intercom.help^
 ! Trading
 @@||webull.com^
 @@||tradestation.com^
