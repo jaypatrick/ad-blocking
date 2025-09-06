@@ -459,9 +459,3 @@
 @@||plaid.com^
 ! Additional block lists
 ||analytics.pinterest.com^
-
-
-
-
-
-yson.knight@jaysonknight.com
