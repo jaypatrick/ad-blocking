@@ -1,7 +1,7 @@
 !
 ! Title: JK.com AdGuard Rules
 ! Description: This is the base AdGuard blocking list for JK.com
-! Version: 4.1.2.2
+! Version: 4.2.1.23
 ! Homepage: https://github.com/jaypatrick/ad-blocking
 ! License: GPLv3
 ! Last modified: 2025-09--4T11:26:13.976Z
@@ -457,3 +457,11 @@
 @@||quantconnect.com^
 @@||topstep.com^
 @@||plaid.com^
+! Additional block lists
+||analytics.pinterest.com^
+
+
+
+
+
+yson.knight@jaysonknight.com
