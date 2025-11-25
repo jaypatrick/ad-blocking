@@ -9,6 +9,18 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
+        // Build configuration first to access settings
+        var configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+            .AddEnvironmentVariables()
+            .Build();
+
+        var webhookUrl = configuration["AdGuardWebHookUrl"] ?? Environment.GetEnvironmentVariable("ADGUARD_WEBHOOK_URL");
+        if (string.IsNullOrEmpty(webhookUrl))
+        {
+            throw new InvalidOperationException("AdGuard webhook URL not configured. Set ADGUARD_WEBHOOK_URL environment variable or configure in appsettings.json");
+        }
+
         var windowOptions = new FixedWindowRateLimiterOptions
         {
             AutoReplenishment = true,
@@ -18,58 +30,15 @@ public class Program
             QueueProcessingOrder = QueueProcessingOrder.OldestFirst
         };
 
-        var tokenOptions = new TokenBucketRateLimiterOptions
-        {
-            TokenLimit = 8,
-            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-            QueueLimit = 3,
-            ReplenishmentPeriod = TimeSpan.FromMilliseconds(1),
-            TokensPerPeriod = 2,
-            AutoReplenishment = true
-        };
-
         using HttpClient httpClient = new(new ClientSideRateLimitedHandler(new FixedWindowRateLimiter(windowOptions)))
-        //handler: new ClientSideRateLimitedHandler(
-        //	limiter: new TokenBucketRateLimiter(tokenOptions)))
         {
-            BaseAddress = new("https://linkip.adguard-dns.com/linkip/db94e3e9/8AdnEQlPCjyMaX74vTDZkraUDUYpCFiZ1tcH8dSk9VH"),
+            BaseAddress = new(webhookUrl),
             Timeout = TimeSpan.FromSeconds(10),
             DefaultRequestVersion = System.Net.HttpVersion.Version11,
             DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher
         };
 
         using var cts = new CancellationTokenSource();
-        using IHost host1 = Host.CreateDefaultBuilder(args)
-            .ConfigureAppConfiguration((hostingContext, configuration) =>
-            {
-                configuration.Sources.Clear();
-
-                IHostEnvironment env = hostingContext.HostingEnvironment;
-
-                configuration
-                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                    .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true, true);
-
-                IConfigurationRoot configurationRoot = configuration.Build();
-            })
-
-            .Build();
-        using IHost host2 = Host.CreateDefaultBuilder(args)
-            .ConfigureAppConfiguration((_, configuration) =>
-                configuration.AddInMemoryCollection(
-                    new Dictionary<string, string?>
-                    {
-                        ["SecretKey"] = "Dictionary MyKey Value",
-                        ["TransientFaultHandlingOptions:Enabled"] = bool.TrueString,
-                        ["TransientFaultHandlingOptions:AutoRetryDelay"] = "00:00:07",
-                        ["Logging:LogLevel:Default"] = "Warning"
-                    }))
-            .Build();
-
-
-
-        await host1.RunAsync(cts.Token);
-
 
         await GetAsync(httpClient, cts);
     }
@@ -81,10 +50,8 @@ public class Program
             using HttpResponseMessage response = await httpClient.GetAsync(httpClient.BaseAddress, cts.Token);
             if (response.IsSuccessStatusCode)
             {
-                response.EnsureSuccessStatusCode().WriteRequestToConsole(cts, Stopwatch.StartNew());
-                await using Stream responseStream = await response.Content.ReadAsStreamAsync();
-                string responseString = await response.Content.ReadAsStringAsync();
-                byte[] responseByteArray = await response.Content.ReadAsByteArrayAsync();
+                response.EnsureSuccessStatusCode();
+                await response.WriteRequestToConsoleAsync(cts, Stopwatch.StartNew());
             }
         }
         catch (TaskCanceledException ex) when (cts.IsCancellationRequested)

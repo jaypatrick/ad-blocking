@@ -1,7 +1,12 @@
 Import-Module $PSScriptRoot\Invoke-Webhook.psm1
 
-[uri]$ShortenedUri = "https://linkip.adguard-dns.com/linkip/db94e3e9/8AdnEQlPCjyMaX74vTDZkraUDUYpCFiZ1tcH8dSk9VH"
-# [uri]$ShortenedUri = "https://bit.ly/jk-adguard-webhook"
+# Get webhook URL from environment variable
+$webhookUrl = $env:ADGUARD_WEBHOOK_URL
+if ([string]::IsNullOrEmpty($webhookUrl)) {
+    Write-Error "ADGUARD_WEBHOOK_URL environment variable is not set"
+    exit 1
+}
+[uri]$ShortenedUri = $webhookUrl
 [int]$Wait = 500
 [int]$Count = 10
 [int]$Interval = 5
@@ -29,7 +34,7 @@ function Get-YesNoResponse {
 }
 try {
     $YesNoResponse = if ($Continuous) { $true } else { Get-YesNoResponse }
-    $ResponseMessage = Invoke-Webhook -WebhookUrl $ShortenedUri -WaitTime $Wait -RetryCount $Count -RetryInterval $Interval -Continous $YesNoResponse
+    $ResponseMessage = Invoke-Webhook -WebhookUrl $ShortenedUri -WaitTime $Wait -RetryCount $Count -RetryInterval $Interval -Continuous $YesNoResponse
     Write-Host "The response message was: $ResponseMessage" -ForegroundColor Cyan
 }
 catch {

@@ -1,14 +1,12 @@
 ﻿function Invoke-Webhook {
     <#
     .SYNOPSIS
-    Returns a list of services that are set to start automatically, are not
-    currently running, excluding the services that are set to delayed start.
+    Invokes an AdGuard webhook endpoint to update the dynamic IP address for the device.
 
     .DESCRIPTION
-    Get-MrAutoStoppedService is a function that returns a list of services from
-    the specified remote computer(s) that are set to start automatically, are not
-    currently running, and it excludes the services that are set to start automatically
-    with a delayed startup.
+    Invoke-Webhook is a function that triggers an AdGuard DNS webhook endpoint to update
+    the linked IP address for the device. It supports automatic retries, configurable wait
+    times, and continuous operation mode for keeping the IP address updated.
 
     .PARAMETER WebhookUrl
     The remote webhook endpoint to trigger
@@ -22,11 +20,11 @@
     .PARAMETER RetryInterval
     In the event the remote endpoint isn't available, how much time to wait to retry invocation. This defaults to 5 seconds between retries.
 
-    .PARAMETER Continous
+    .PARAMETER Continuous
     Should this script be run continuously, or until the user specifies it to stop. This defaults to false. True will run in a loop.
 
     .EXAMPLE
-    Invoke-Webhook -WebhookUrl <url> -Wait 200 -Count 10 -Interval 5 -Continous $True
+    Invoke-Webhook -WebhookUrl <url> -Wait 200 -Count 10 -Interval 5 -Continuous $True
 
     .INPUTS
     Uri, Int, Int, Int
@@ -62,8 +60,8 @@
         [ValidateRange(1, 60)]
         [int]$RetryInterval = 5,
 
-        [Alias("c, Continuous")]
-        [bool]$Continous = $false
+        [Alias("c, Continous")]
+        [bool]$Continuous = $false
     )
 
     BEGIN {
@@ -103,8 +101,9 @@
                 Write-Verbose "Global counter is incremented to track request #'s: $TotalRequests invocations"
                 Start-Sleep -Milliseconds $WaitTime
             }
-            return $Response
-        }until ($Continous)
+        } while ($Continuous)
+
+        return $Response
     }
 
     END {

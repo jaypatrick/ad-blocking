@@ -1,10 +1,10 @@
 !
 ! Title: JK.com AdGuard Rules
-! Description: This is the base AdGuard blocking list for JK.com and includes allowlists for most common microsoft development URLs, among others.
-! Version: 4.0.1.35
+! Description: This is the base AdGuard blocking list for JK.com
+! Version: 4.3.1.5
 ! Homepage: https://github.com/jaypatrick/ad-blocking
 ! License: GPLv3
-! Last modified: 2025-03-05T10:26:13.976Z
+! Last modified: 2025-11--10T11:26:13.976Z
 !
 ! Compiled by @adguard/hostlist-compiler v1.0.37
 !
@@ -259,12 +259,10 @@
 ! Microsoft Purview
 @@||compliancedrive.microsoft.com^
 @@||odc.officeapps.live.com^
-@@||hrd.svc.cloud.microsoft^
 ! Microsoft URLs from https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges
 @@||cloud.microsoft^
 @@||static.microsoft^
 @@||usercontent.microsoft^
-@@||outlook.cloud.microsoft^
 @@||outlook.office.com^
 @@||outlook.office365.com^
 @@||onmicrosoft.com^
@@ -339,6 +337,7 @@
 @@||compliance.microsoft.com^
 @@||defender.microsoft.com^
 @@||protection.office.com^
+@@||webhook.office.com^
 @@||purview.microsoft.com^
 @@||security.microsoft.com^
 @@||portal.cloudappsecurity.com^
@@ -440,3 +439,27 @@
 ! Misc
 @@||urb.shop^
 @@||bmtmicro.com^
+@@||astra.finance^
+@@||nclottery.com^
+@@||intercom.help^
+! Trading
+@@||webull.com^
+@@||tradestation.com^
+@@||tradingview.com^
+@@||coinbase.com^
+@@||yodlee.com^
+@@||tradingtechnologies.com^
+@@||benzinga.com^
+@@||interactivebrokers.com^
+@@||ninjatrader.com^
+@@||quantconnect.com^
+@@||topstep.com^
+@@||topstepx.com^
+@@||projectx.com^
+@@||plaid.com^
+! Additional block lists
+||analytics.pinterest.com^
+@@||anthropic.com^
+@@||claude.io^
+@@||cloudflare.com^
+

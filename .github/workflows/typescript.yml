@@ -1,0 +1,60 @@
+# This workflow will build and test TypeScript projects
+name: TypeScript Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-compiler:
+    name: Build AdGuard Compiler
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./AdGuard/Compiler
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: './AdGuard/Compiler/package-lock.json'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Type check
+      run: npx tsc --noEmit
+
+    - name: Lint
+      run: npx eslint . || true
+
+  build-rules:
+    name: Build Rules API
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./AdGuard/Rules/Api
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install dependencies
+      run: |
+        cd ../../Compiler
+        npm ci
+
+    - name: Type check Rules API
+      run: |
+        cd ../../Compiler
+        npx tsc --noEmit ../Rules/Api/cli.ts
