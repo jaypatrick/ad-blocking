@@ -145,42 +145,42 @@ All URIs are relative to *https://api.adguard-dns.io*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
-*AccountApi* | [**GetAccountLimits**](docs/AccountApi.md#getaccountlimits) | **GET** /oapi/v1/account/limits | Gets account limits
-*AuthenticationApi* | [**AccessToken**](docs/AuthenticationApi.md#accesstoken) | **POST** /oapi/v1/oauth_token | Generates Access and Refresh token
-*DNSServersApi* | [**CreateDNSServer**](docs/DNSServersApi.md#creatednsserver) | **POST** /oapi/v1/dns_servers | Creates a new DNS server
-*DNSServersApi* | [**ListDNSServers**](docs/DNSServersApi.md#listdnsservers) | **GET** /oapi/v1/dns_servers | Lists DNS servers that belong to the user.
-*DedicatedIPAddressesApi* | [**AllocateDedicatedIPv4Address**](docs/DedicatedIPAddressesApi.md#allocatededicatedipv4address) | **POST** /oapi/v1/dedicated_addresses/ipv4 | Allocates new dedicated IPv4
-*DedicatedIPAddressesApi* | [**ListDedicatedIPv4Addresses**](docs/DedicatedIPAddressesApi.md#listdedicatedipv4addresses) | **GET** /oapi/v1/dedicated_addresses/ipv4 | Lists allocated dedicated IPv4 addresses
-*DevicesApi* | [**CreateDevice**](docs/DevicesApi.md#createdevice) | **POST** /oapi/v1/devices | Creates a new device
-*DevicesApi* | [**GetDevice**](docs/DevicesApi.md#getdevice) | **GET** /oapi/v1/devices/{device_id} | Gets an existing device by ID
-*DevicesApi* | [**ListDevices**](docs/DevicesApi.md#listdevices) | **GET** /oapi/v1/devices | Lists devices
-*DevicesApi* | [**RemoveDevice**](docs/DevicesApi.md#removedevice) | **DELETE** /oapi/v1/devices/{device_id} | Removes a device
-*DevicesApi* | [**UpdateDevice**](docs/DevicesApi.md#updatedevice) | **PUT** /oapi/v1/devices/{device_id} | Updates an existing device
-*FilterListsApi* | [**ListFilterLists**](docs/FilterListsApi.md#listfilterlists) | **GET** /oapi/v1/filter_lists | Gets filter lists
-*QueryLogApi* | [**ClearQueryLog**](docs/QueryLogApi.md#clearquerylog) | **DELETE** /oapi/v1/query_log | Clears query log
-*QueryLogApi* | [**GetQueryLog**](docs/QueryLogApi.md#getquerylog) | **GET** /oapi/v1/query_log | Gets query log
-*StatisticsApi* | [**GetTimeQueriesStats**](docs/StatisticsApi.md#gettimequeriesstats) | **GET** /oapi/v1/stats/time | Gets time statistics
-*WebServicesApi* | [**ListWebServices**](docs/WebServicesApi.md#listwebservices) | **GET** /oapi/v1/web_services | Lists web services
+*AccountApi* | [**GetAccountLimits**](../../docs/api/AccountApi.md#getaccountlimits) | **GET** /oapi/v1/account/limits | Gets account limits
+*AuthenticationApi* | [**AccessToken**](../../docs/api/AuthenticationApi.md#accesstoken) | **POST** /oapi/v1/oauth_token | Generates Access and Refresh token
+*DNSServersApi* | [**CreateDNSServer**](../../docs/api/DNSServersApi.md#creatednsserver) | **POST** /oapi/v1/dns_servers | Creates a new DNS server
+*DNSServersApi* | [**ListDNSServers**](../../docs/api/DNSServersApi.md#listdnsservers) | **GET** /oapi/v1/dns_servers | Lists DNS servers that belong to the user.
+*DedicatedIPAddressesApi* | [**AllocateDedicatedIPv4Address**](../../docs/api/DedicatedIPAddressesApi.md#allocatededicatedipv4address) | **POST** /oapi/v1/dedicated_addresses/ipv4 | Allocates new dedicated IPv4
+*DedicatedIPAddressesApi* | [**ListDedicatedIPv4Addresses**](../../docs/api/DedicatedIPAddressesApi.md#listdedicatedipv4addresses) | **GET** /oapi/v1/dedicated_addresses/ipv4 | Lists allocated dedicated IPv4 addresses
+*DevicesApi* | [**CreateDevice**](../../docs/api/DevicesApi.md#createdevice) | **POST** /oapi/v1/devices | Creates a new device
+*DevicesApi* | [**GetDevice**](../../docs/api/DevicesApi.md#getdevice) | **GET** /oapi/v1/devices/{device_id} | Gets an existing device by ID
+*DevicesApi* | [**ListDevices**](../../docs/api/DevicesApi.md#listdevices) | **GET** /oapi/v1/devices | Lists devices
+*DevicesApi* | [**RemoveDevice**](../../docs/api/DevicesApi.md#removedevice) | **DELETE** /oapi/v1/devices/{device_id} | Removes a device
+*DevicesApi* | [**UpdateDevice**](../../docs/api/DevicesApi.md#updatedevice) | **PUT** /oapi/v1/devices/{device_id} | Updates an existing device
+*FilterListsApi* | [**ListFilterLists**](../../docs/api/FilterListsApi.md#listfilterlists) | **GET** /oapi/v1/filter_lists | Gets filter lists
+*QueryLogApi* | [**ClearQueryLog**](../../docs/api/QueryLogApi.md#clearquerylog) | **DELETE** /oapi/v1/query_log | Clears query log
+*QueryLogApi* | [**GetQueryLog**](../../docs/api/QueryLogApi.md#getquerylog) | **GET** /oapi/v1/query_log | Gets query log
+*StatisticsApi* | [**GetTimeQueriesStats**](../../docs/api/StatisticsApi.md#gettimequeriesstats) | **GET** /oapi/v1/stats/time | Gets time statistics
+*WebServicesApi* | [**ListWebServices**](../../docs/api/WebServicesApi.md#listwebservices) | **GET** /oapi/v1/web_services | Lists web services
 
 
 <a id="documentation-for-models"></a>
 ## Documentation for Models
 
- - [Model.AccessTokenErrorResponse](docs/AccessTokenErrorResponse.md)
- - [Model.AccessTokenResponse](docs/AccessTokenResponse.md)
- - [Model.AccountLimits](docs/AccountLimits.md)
- - [Model.DNSServer](docs/DNSServer.md)
- - [Model.DNSServerCreate](docs/DNSServerCreate.md)
- - [Model.DedicatedIPv4Address](docs/DedicatedIPv4Address.md)
- - [Model.Device](docs/Device.md)
- - [Model.DeviceCreate](docs/DeviceCreate.md)
- - [Model.DeviceUpdate](docs/DeviceUpdate.md)
- - [Model.ErrorResponse](docs/ErrorResponse.md)
- - [Model.FilterList](docs/FilterList.md)
- - [Model.Limit](docs/Limit.md)
- - [Model.QueryLogResponse](docs/QueryLogResponse.md)
- - [Model.TimeQueriesStatsList](docs/TimeQueriesStatsList.md)
- - [Model.WebService](docs/WebService.md)
+ - [Model.AccessTokenErrorResponse](../../docs/api/AccessTokenErrorResponse.md)
+ - [Model.AccessTokenResponse](../../docs/api/AccessTokenResponse.md)
+ - [Model.AccountLimits](../../docs/api/AccountLimits.md)
+ - [Model.DNSServer](../../docs/api/DNSServer.md)
+ - [Model.DNSServerCreate](../../docs/api/DNSServerCreate.md)
+ - [Model.DedicatedIPv4Address](../../docs/api/DedicatedIPv4Address.md)
+ - [Model.Device](../../docs/api/Device.md)
+ - [Model.DeviceCreate](../../docs/api/DeviceCreate.md)
+ - [Model.DeviceUpdate](../../docs/api/DeviceUpdate.md)
+ - [Model.ErrorResponse](../../docs/api/ErrorResponse.md)
+ - [Model.FilterList](../../docs/api/FilterList.md)
+ - [Model.Limit](../../docs/api/Limit.md)
+ - [Model.QueryLogResponse](../../docs/api/QueryLogResponse.md)
+ - [Model.TimeQueriesStatsList](../../docs/api/TimeQueriesStatsList.md)
+ - [Model.WebService](../../docs/api/WebService.md)
 
 
 <a id="documentation-for-authorization"></a>
