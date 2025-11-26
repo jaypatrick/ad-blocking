@@ -7,16 +7,15 @@
     "sources": [
       {
         "name": "Local Rules",
-        "source": "../Rules/adguard_user_filter.txt",
+        "source": "../../rules/adguard_user_filter.txt",
         "type": "adblock",
         "inclusions": ["*"]
       },
       {
         "name": "Remote rules",
-        "source": "https://raw.githubusercontent.com/jaypatrick/ad-blocking/refs/heads/main/AdGuard/Rules/adguard_user_filter.txt",
+        "source": "https://raw.githubusercontent.com/jaypatrick/ad-blocking/refs/heads/main/rules/adguard_user_filter.txt",
         "type": "adblock",
         "inclusions": ["*"]
-    
       }
     ],
     "transformations": ["Deduplicate", "Compress", "Validate", "Deduplicate", "RemoveEmptyLines", "TrimLines", "InsertFinalNewLine", "ConvertToAscii"],

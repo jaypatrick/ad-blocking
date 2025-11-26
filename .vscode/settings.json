@@ -1,5 +1,5 @@
 {
-  "dotnet.defaultSolution": "AdGuard\\Source\\Code.sln",
+  "dotnet.defaultSolution": "src/webhook-app/Code.sln",
   "powerShellUniversal.syncSamples": true,
   "sarif-viewer.connectToGithubCodeScanning": "on"
 }
