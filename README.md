@@ -131,8 +131,6 @@ There are plenty of great apps that will help, but there is no one-size-fits-all
 - [AdBlock Tester](https://adblock-tester.com/)
 - [AdGuard Tester](https://d3ward.github.io/toolz/adblock.html)
 
-*Permalink for quick tests: [bit.ly/jaysonknight](https://bit.ly/jaysonknight)*
-
 ## Documentation
 
 - [API Client README](src/api-client/README.md) - API client overview
