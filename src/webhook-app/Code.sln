@@ -5,8 +5,6 @@ VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Code", "Code.csproj", "{F2DC7212-673D-4C09-8E1C-D3E8493267A6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Adguard.WebHook", "Scripts\Modules\Adguard.WebHook.csproj", "{80D46309-8242-4C44-9136-A622701221A5}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,10 +15,6 @@ Global
 		{F2DC7212-673D-4C09-8E1C-D3E8493267A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F2DC7212-673D-4C09-8E1C-D3E8493267A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F2DC7212-673D-4C09-8E1C-D3E8493267A6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{80D46309-8242-4C44-9136-A622701221A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{80D46309-8242-4C44-9136-A622701221A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{80D46309-8242-4C44-9136-A622701221A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{80D46309-8242-4C44-9136-A622701221A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
