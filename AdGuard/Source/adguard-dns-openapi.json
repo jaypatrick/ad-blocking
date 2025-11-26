@@ -1,0 +1,789 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "description": "DNS API documentation",
+    "title": "AdGuard DNS API",
+    "version": "1.11"
+  },
+  "servers": [{
+    "url": "https://api.adguard-dns.io"
+  }],
+  "security": [{
+    "ApiKey": [],
+    "AuthToken": []
+  }],
+  "tags": [
+    {"description": "Web services", "name": "Web services"},
+    {"description": "DNS servers", "name": "DNS servers"},
+    {"description": "Statistics", "name": "Statistics"},
+    {"description": "Dedicated IP addresses", "name": "Dedicated IP addresses"},
+    {"description": "Account", "name": "Account"},
+    {"description": "Authentication", "name": "Authentication"},
+    {"description": "Devices", "name": "Devices"},
+    {"description": "Filter lists", "name": "Filter lists"},
+    {"description": "Query log", "name": "Query log"}
+  ],
+  "paths": {
+    "/oapi/v1/account/limits": {
+      "get": {
+        "operationId": "getAccountLimits",
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountLimits"
+                }
+              }
+            },
+            "description": "Account limits info"
+          }
+        },
+        "summary": "Gets account limits",
+        "tags": ["Account"]
+      }
+    },
+    "/oapi/v1/dedicated_addresses/ipv4": {
+      "get": {
+        "operationId": "listDedicatedIPv4Addresses",
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DedicatedIPv4Address"
+                  }
+                }
+              }
+            },
+            "description": "List of dedicated IPv4 addresses"
+          }
+        },
+        "summary": "Lists allocated dedicated IPv4 addresses",
+        "tags": ["Dedicated IP addresses"]
+      },
+      "post": {
+        "operationId": "allocateDedicatedIPv4Address",
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DedicatedIPv4Address"
+                }
+              }
+            },
+            "description": "New IPv4 successfully allocated"
+          },
+          "429": {
+            "description": "Dedicated IPv4 count reached the limit"
+          }
+        },
+        "summary": "Allocates new dedicated IPv4",
+        "tags": ["Dedicated IP addresses"]
+      }
+    },
+    "/oapi/v1/devices": {
+      "get": {
+        "operationId": "listDevices",
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Device"
+                  }
+                }
+              }
+            },
+            "description": "List of devices"
+          }
+        },
+        "summary": "Lists devices",
+        "tags": ["Devices"]
+      },
+      "post": {
+        "operationId": "createDevice",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeviceCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Device"
+                }
+              }
+            },
+            "description": "Device created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "429": {
+            "description": "Devices count reached the limit"
+          }
+        },
+        "summary": "Creates a new device",
+        "tags": ["Devices"]
+      }
+    },
+    "/oapi/v1/devices/{device_id}": {
+      "delete": {
+        "operationId": "removeDevice",
+        "parameters": [{
+          "in": "path",
+          "name": "device_id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }],
+        "responses": {
+          "200": {
+            "description": "Device deleted"
+          },
+          "404": {
+            "description": "Device not found"
+          }
+        },
+        "summary": "Removes a device",
+        "tags": ["Devices"]
+      },
+      "get": {
+        "operationId": "getDevice",
+        "parameters": [{
+          "in": "path",
+          "name": "device_id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }],
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Device"
+                }
+              }
+            },
+            "description": "Device info"
+          },
+          "404": {
+            "description": "Device not found"
+          }
+        },
+        "summary": "Gets an existing device by ID",
+        "tags": ["Devices"]
+      },
+      "put": {
+        "operationId": "updateDevice",
+        "parameters": [{
+          "in": "path",
+          "name": "device_id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeviceUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Device updated"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "404": {
+            "description": "Device not found"
+          }
+        },
+        "summary": "Updates an existing device",
+        "tags": ["Devices"]
+      }
+    },
+    "/oapi/v1/dns_servers": {
+      "get": {
+        "description": "Lists DNS servers that belong to the user. By default there is at least one default server.",
+        "operationId": "listDNSServers",
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DNSServer"
+                  }
+                }
+              }
+            },
+            "description": "List of DNS servers"
+          }
+        },
+        "summary": "Lists DNS servers that belong to the user.",
+        "tags": ["DNS servers"]
+      },
+      "post": {
+        "description": "Creates a new DNS server. You can attach custom settings, otherwise DNS server will be created with default settings.",
+        "operationId": "createDNSServer",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DNSServerCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DNSServer"
+                }
+              }
+            },
+            "description": "DNS server created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "429": {
+            "description": "DNS servers count reached the limit"
+          }
+        },
+        "summary": "Creates a new DNS server",
+        "tags": ["DNS servers"]
+      }
+    },
+    "/oapi/v1/query_log": {
+      "delete": {
+        "operationId": "clearQueryLog",
+        "responses": {
+          "202": {
+            "description": "Query log was cleared"
+          }
+        },
+        "summary": "Clears query log",
+        "tags": ["Query log"]
+      },
+      "get": {
+        "operationId": "getQueryLog",
+        "parameters": [
+          {
+            "description": "Time from in milliseconds (inclusive)",
+            "in": "query",
+            "name": "time_from_millis",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "description": "Time to in milliseconds (inclusive)",
+            "in": "query",
+            "name": "time_to_millis",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryLogResponse"
+                }
+              }
+            },
+            "description": "Query log"
+          }
+        },
+        "summary": "Gets query log",
+        "tags": ["Query log"]
+      }
+    },
+    "/oapi/v1/oauth_token": {
+      "post": {
+        "operationId": "accessToken",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/AccessTokenCredentials"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessTokenResponse"
+                }
+              }
+            },
+            "description": "Access token issued"
+          },
+          "400": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessTokenResponse"
+                }
+              }
+            },
+            "description": "Missing required parameters"
+          },
+          "401": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessTokenErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid credentials, MFA token or refresh token provided"
+          }
+        },
+        "security": [],
+        "summary": "Generates Access and Refresh token",
+        "tags": ["Authentication"]
+      }
+    },
+    "/oapi/v1/filter_lists": {
+      "get": {
+        "operationId": "listFilterLists",
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FilterList"
+                  }
+                }
+              }
+            },
+            "description": "List of filters"
+          }
+        },
+        "summary": "Gets filter lists",
+        "tags": ["Filter lists"]
+      }
+    },
+    "/oapi/v1/web_services": {
+      "get": {
+        "operationId": "listWebServices",
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WebService"
+                  }
+                }
+              }
+            },
+            "description": "List of web-services"
+          }
+        },
+        "summary": "Lists web services",
+        "tags": ["Web services"]
+      }
+    },
+    "/oapi/v1/stats/time": {
+      "get": {
+        "operationId": "getTimeQueriesStats",
+        "parameters": [
+          {
+            "description": "Time from in milliseconds (inclusive)",
+            "in": "query",
+            "name": "time_from_millis",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "description": "Time to in milliseconds (inclusive)",
+            "in": "query",
+            "name": "time_to_millis",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimeQueriesStatsList"
+                }
+              }
+            },
+            "description": "Time statistics received"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Validation failed"
+          }
+        },
+        "summary": "Gets time statistics",
+        "tags": ["Statistics"]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AccountLimits": {
+        "required": ["access_rules", "dedicated_ipv4", "devices", "dns_servers", "requests", "user_rules"],
+        "type": "object",
+        "properties": {
+          "access_rules": {
+            "$ref": "#/components/schemas/Limit"
+          },
+          "dedicated_ipv4": {
+            "$ref": "#/components/schemas/Limit"
+          },
+          "devices": {
+            "$ref": "#/components/schemas/Limit"
+          },
+          "dns_servers": {
+            "$ref": "#/components/schemas/Limit"
+          },
+          "requests": {
+            "$ref": "#/components/schemas/Limit"
+          },
+          "user_rules": {
+            "$ref": "#/components/schemas/Limit"
+          }
+        },
+        "description": "Account limits"
+      },
+      "Limit": {
+        "required": ["limit", "used"],
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "description": "Max count",
+            "format": "int32"
+          },
+          "used": {
+            "type": "integer",
+            "description": "Used count",
+            "format": "int64"
+          }
+        },
+        "description": "Entity of the limit"
+      },
+      "Device": {
+        "required": ["device_type", "dns_addresses", "dns_server_id", "id", "name", "settings"],
+        "type": "object",
+        "properties": {
+          "device_type": {
+            "type": "string",
+            "enum": ["WINDOWS", "ANDROID", "MAC", "IOS", "LINUX", "ROUTER", "SMART_TV", "GAME_CONSOLE", "UNKNOWN"]
+          },
+          "dns_addresses": {
+            "type": "object"
+          },
+          "dns_server_id": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "settings": {
+            "type": "object"
+          }
+        }
+      },
+      "DeviceCreate": {
+        "required": ["device_type", "dns_server_id", "name"],
+        "type": "object",
+        "properties": {
+          "device_type": {
+            "type": "string"
+          },
+          "dns_server_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "DeviceUpdate": {
+        "type": "object",
+        "properties": {
+          "device_type": {
+            "type": "string"
+          },
+          "dns_server_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "DNSServer": {
+        "required": ["default", "device_ids", "id", "name", "settings"],
+        "type": "object",
+        "properties": {
+          "default": {
+            "type": "boolean"
+          },
+          "device_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "settings": {
+            "type": "object"
+          }
+        }
+      },
+      "DNSServerCreate": {
+        "required": ["name"],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "settings": {
+            "type": "object"
+          }
+        }
+      },
+      "DedicatedIPv4Address": {
+        "required": ["ip"],
+        "type": "object",
+        "properties": {
+          "device_id": {
+            "type": "string"
+          },
+          "ip": {
+            "type": "string"
+          }
+        }
+      },
+      "AccessTokenCredentials": {
+        "type": "object",
+        "properties": {
+          "mfa_token": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "refresh_token": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      },
+      "AccessTokenResponse": {
+        "required": ["expires_in"],
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string"
+          },
+          "expires_in": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "refresh_token": {
+            "type": "string"
+          },
+          "token_type": {
+            "type": "string"
+          }
+        }
+      },
+      "AccessTokenErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "error_code": {
+            "type": "string"
+          },
+          "error_description": {
+            "type": "string"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "required": ["error_code", "fields"],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "FilterList": {
+        "type": "object",
+        "properties": {
+          "filter_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "WebService": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "icon_svg": {
+            "type": "string"
+          }
+        }
+      },
+      "QueryLogResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "pages": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "TimeQueriesStatsList": {
+        "type": "object",
+        "properties": {
+          "stats": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "ApiKey": {
+        "description": "API Key authentication. Enter your key with 'ApiKey ' prefix (e.g., 'ApiKey your-api-key-here')",
+        "in": "header",
+        "name": "Authorization",
+        "type": "apiKey"
+      },
+      "AuthToken": {
+        "description": "Authorization token",
+        "in": "header",
+        "scheme": "Bearer",
+        "type": "http"
+      }
+    }
+  }
+}
