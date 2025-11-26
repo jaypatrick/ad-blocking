@@ -6,19 +6,20 @@
     <AssemblyName>AdGuard.ApiClient</AssemblyName>
     <PackageId>AdGuard.ApiClient</PackageId>
     <OutputType>Library</OutputType>
-    <Authors>OpenAPI</Authors>
-    <Company>OpenAPI</Company>
-    <AssemblyTitle>OpenAPI Library</AssemblyTitle>
-    <Description>A library generated from a OpenAPI doc</Description>
-    <Copyright>No Copyright</Copyright>
+    <Authors>jaypatrick</Authors>
+    <Company>jaypatrick</Company>
+    <AssemblyTitle>AdGuard DNS API Client</AssemblyTitle>
+    <Description>C# client library for AdGuard DNS API v1.11 - Manage DNS servers, devices, query logs, and statistics</Description>
+    <Copyright>Copyright © 2024</Copyright>
     <RootNamespace>AdGuard.ApiClient</RootNamespace>
-    <Version>1.0.0</Version>
+    <Version>1.11.0</Version>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\AdGuard.ApiClient.xml</DocumentationFile>
-    <RepositoryUrl>https://github.com/GIT_USER_ID/GIT_REPO_ID.git</RepositoryUrl>
+    <RepositoryUrl>https://github.com/jaypatrick/ad-blocking.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageReleaseNotes>Minor update</PackageReleaseNotes>
+    <PackageReleaseNotes>Initial release - AdGuard DNS API v1.11 support</PackageReleaseNotes>
     <Nullable>annotations</Nullable>
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,8 +28,4 @@
     <PackageReference Include="Polly" Version="8.1.0" />
   </ItemGroup>
 
-  <ItemGroup>
-  </ItemGroup>
-  <ItemGroup>
-  </ItemGroup>
 </Project>
