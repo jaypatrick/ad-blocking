@@ -9,11 +9,11 @@ on:
 
 jobs:
   build-compiler:
-    name: Build AdGuard Compiler
+    name: Build Filter Compiler
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./AdGuard/Compiler
+        working-directory: ./src/filter-compiler
 
     steps:
     - uses: actions/checkout@v4
@@ -23,7 +23,7 @@ jobs:
       with:
         node-version: '20'
         cache: 'npm'
-        cache-dependency-path: './AdGuard/Compiler/package-lock.json'
+        cache-dependency-path: './src/filter-compiler/package-lock.json'
 
     - name: Install dependencies
       run: npm ci
@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./AdGuard/Rules/Api
+        working-directory: ./rules/Api
 
     steps:
     - uses: actions/checkout@v4
@@ -51,10 +51,10 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cd ../../Compiler
+        cd ../../src/filter-compiler
         npm ci
 
     - name: Type check Rules API
       run: |
-        cd ../../Compiler
-        npx tsc --noEmit ../Rules/Api/cli.ts
+        cd ../../src/filter-compiler
+        npx tsc --noEmit ../../rules/Api/cli.ts

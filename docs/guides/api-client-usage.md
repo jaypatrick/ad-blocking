@@ -14,7 +14,15 @@ Add a reference to the `AdGuard.ApiClient` project in your .csproj file:
 
 ```xml
 <ItemGroup>
-  <ProjectReference Include="..\AdGuard.ApiClient\src\AdGuard.ApiClient\AdGuard.ApiClient.csproj" />
+  <ProjectReference Include="path\to\src\api-client\src\AdGuard.ApiClient\AdGuard.ApiClient.csproj" />
+</ItemGroup>
+```
+
+Or if your project is within this repository:
+
+```xml
+<ItemGroup>
+  <ProjectReference Include="..\..\src\api-client\src\AdGuard.ApiClient\AdGuard.ApiClient.csproj" />
 </ItemGroup>
 ```
 
@@ -331,7 +339,10 @@ catch (ApiException ex)
 
 ## API Documentation
 
-For detailed API documentation, see the `docs/` directory which contains markdown documentation for all models and API endpoints.
+For detailed API documentation, see the [API Reference](../api/) directory which contains markdown documentation for all models and API endpoints.
+
+- [API Endpoints](../README.md#documentation-for-api-endpoints)
+- [Data Models](../README.md#documentation-for-models)
 
 ## Common Use Cases
 
