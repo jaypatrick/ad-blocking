@@ -463,9 +463,6 @@ namespace AdGuard.ApiClient.Test.Helpers
                 {
                     callCount++;
                     throw new ApiException(503, "Service Unavailable");
-                    #pragma warning disable CS0162 // Unreachable code
-                    return Task.FromResult("never");
-                    #pragma warning restore CS0162
                 });
             });
 
