@@ -324,7 +324,7 @@ namespace AdGuard.ApiClient.Helpers
         /// }
         /// </code>
         /// </example>
-        public static bool IsRetryableException(ApiException exception)
+        internal static bool IsRetryableException(ApiException exception)
         {
             if (exception == null)
             {
