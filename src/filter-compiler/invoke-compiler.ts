@@ -12,7 +12,7 @@
 
 import compile, { IConfiguration } from '@adguard/hostlist-compiler';
 import { readFileSync, writeFile, existsSync } from 'fs';
-import { resolve, dirname } from 'path';
+import { dirname } from 'path';
 
 /**
  * Logger utility for consistent console output
