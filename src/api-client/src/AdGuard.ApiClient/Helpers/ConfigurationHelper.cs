@@ -174,15 +174,12 @@ namespace AdGuard.ApiClient.Helpers
                 throw new ArgumentException($"Base path '{basePath}' is not a valid URI.", nameof(basePath));
             }
 
-            if (timeout.HasValue)
+            if (timeout.HasValue && (timeout.Value < MinTimeoutMilliseconds || timeout.Value > MaxTimeoutMilliseconds))
             {
-                if (timeout.Value < MinTimeoutMilliseconds || timeout.Value > MaxTimeoutMilliseconds)
-                {
-                    logger?.LogError("Timeout validation failed: {Timeout}ms is outside valid range ({Min}ms - {Max}ms)",
-                        timeout.Value, MinTimeoutMilliseconds, MaxTimeoutMilliseconds);
-                    throw new ArgumentOutOfRangeException(nameof(timeout),
-                        $"Timeout must be between {MinTimeoutMilliseconds}ms and {MaxTimeoutMilliseconds}ms. Value: {timeout.Value}ms");
-                }
+                logger?.LogError("Timeout validation failed: {Timeout}ms is outside valid range ({Min}ms - {Max}ms)",
+                    timeout.Value, MinTimeoutMilliseconds, MaxTimeoutMilliseconds);
+                throw new ArgumentOutOfRangeException(nameof(timeout),
+                    $"Timeout must be between {MinTimeoutMilliseconds}ms and {MaxTimeoutMilliseconds}ms. Value: {timeout.Value}ms");
             }
 
             if (userAgent != null && string.IsNullOrWhiteSpace(userAgent))
