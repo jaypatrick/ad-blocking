@@ -311,17 +311,12 @@ namespace AdGuard.ApiClient.Helpers
         /// </remarks>
         /// <example>
         /// <code>
-        /// try
-        /// {
-        ///     await api.GetDeviceAsync(deviceId);
-        /// }
-        /// catch (ApiException ex)
-        /// {
-        ///     if (RetryPolicyHelper.IsRetryableException(ex))
-        ///     {
-        ///         // Schedule retry
-        ///     }
-        /// }
+        /// // Create a custom Polly retry policy using IsRetryableException
+        /// var policy = Policy
+        ///     .Handle<ApiException>(ex => RetryPolicyHelper.IsRetryableException(ex))
+        ///     .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+        ///
+        /// var result = await policy.ExecuteAsync(() => api.GetDeviceAsync(deviceId));
         /// </code>
         /// </example>
         internal static bool IsRetryableException(ApiException exception)
