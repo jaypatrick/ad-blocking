@@ -230,6 +230,10 @@ namespace AdGuard.ApiClient.Helpers
         /// var config = new Configuration().WithApiKey("your-api-key");
         /// </code>
         /// </example>
+        public static Configuration WithApiKey(this Configuration configuration, string apiKey)
+        {
+            return WithApiKey(configuration, apiKey, null);
+        }
         public static Configuration WithApiKey(this Configuration configuration, string apiKey, ILogger? logger = null)
         {
             if (configuration == null)
