@@ -40,9 +40,14 @@ public class ApiClientFactory
     public bool IsConfigured => _apiConfiguration != null && !string.IsNullOrEmpty(_currentApiKey);
 
     /// <summary>
-    /// Gets the currently configured API key (masked for security).
+    /// Gets the currently configured API key.
     /// </summary>
-    public string? CurrentApiKey => _currentApiKey != null
+    public string? CurrentApiKey => _currentApiKey;
+
+    /// <summary>
+    /// Gets the masked version of the currently configured API key (for display).
+    /// </summary>
+    public string? MaskedApiKey => _currentApiKey != null
         ? $"{_currentApiKey[..Math.Min(4, _currentApiKey.Length)]}..."
         : null;
 
