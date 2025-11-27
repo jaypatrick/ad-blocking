@@ -1,0 +1,31 @@
+{
+  "name": "linear-import",
+  "version": "1.0.0",
+  "description": "Import documentation into Linear project management",
+  "type": "module",
+  "main": "dist/linear-import.js",
+  "scripts": {
+    "build": "tsc",
+    "import": "node dist/linear-import.js",
+    "import:docs": "node dist/linear-import.js --file ../../docs/LINEAR_DOCUMENTATION.md",
+    "import:dry-run": "node dist/linear-import.js --file ../../docs/LINEAR_DOCUMENTATION.md --dry-run"
+  },
+  "keywords": [
+    "linear",
+    "documentation",
+    "import",
+    "project-management"
+  ],
+  "author": "",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "@linear/sdk": "^24.0.0",
+    "dotenv": "^16.4.5",
+    "marked": "^12.0.2",
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.4.5"
+  }
+}
