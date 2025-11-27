@@ -49,10 +49,10 @@ public static class HttpResponseMessageExtensions
         logger?.LogDebug("Processing response for {Method} {Uri}",
             request?.Method, request?.RequestUri);
 
-        Console.Write($"{request?.Method} ");
-        Console.Write($"{request?.RequestUri} ");
-        Console.Write($"{request?.Content} ");
-        Console.WriteLine($"HTTP/{request?.Version}");
+        Console.WriteLine($"Method: {request?.Method}");
+        Console.WriteLine($"Uri: {request?.RequestUri}");
+        Console.WriteLine($"Content: {request?.Content}");
+        Console.WriteLine($"HTTP Version: {request?.Version}");
         Console.WriteLine($"Status: {response.StatusCode}, via HTTP version: {response.Version}");
 
         try
