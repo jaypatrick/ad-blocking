@@ -462,5 +462,9 @@
 @@||anthropic.com^
 @@||claude.io^
 @@||claude.ai^
+@@||claude.com^
 @@||cloudflare.com^
-
+@@||notion.com^
+@@||notion.so^
+@@||linear.app^
+@@||sentry.io^
