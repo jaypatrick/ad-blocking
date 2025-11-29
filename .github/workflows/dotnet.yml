@@ -10,19 +10,42 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-
+  build-webhook-app:
+    name: Build Webhook App
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./src/webhook-app
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 8.0.x
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore Code.sln
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build Code.sln --no-restore
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test Code.sln --no-build --verbosity normal
+
+  build-api-client:
+    name: Build API Client
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./src/api-client
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - name: Restore dependencies
+      run: dotnet restore AdGuard.ApiClient.sln
+    - name: Build
+      run: dotnet build AdGuard.ApiClient.sln --no-restore
+    - name: Test
+      run: dotnet test AdGuard.ApiClient.sln --no-build --verbosity normal

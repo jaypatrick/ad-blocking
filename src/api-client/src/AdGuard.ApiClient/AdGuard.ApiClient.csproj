@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo><!-- setting GenerateAssemblyInfo to false causes this bug https://github.com/dotnet/project-system/issues/3934 -->
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>AdGuard.ApiClient</AssemblyName>
+    <PackageId>AdGuard.ApiClient</PackageId>
+    <OutputType>Library</OutputType>
+    <Authors>jaypatrick</Authors>
+    <Company>jaypatrick</Company>
+    <AssemblyTitle>AdGuard DNS API Client</AssemblyTitle>
+    <Description>C# client library for AdGuard DNS API v1.11 - Manage DNS servers, devices, query logs, and statistics</Description>
+    <Copyright>Copyright © 2024</Copyright>
+    <RootNamespace>AdGuard.ApiClient</RootNamespace>
+    <Version>1.11.0</Version>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\AdGuard.ApiClient.xml</DocumentationFile>
+    <RepositoryUrl>https://github.com/jaypatrick/ad-blocking.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReleaseNotes>Initial release - AdGuard DNS API v1.11 support</PackageReleaseNotes>
+    <Nullable>annotations</Nullable>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JsonSubTypes" Version="2.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="Polly" Version="8.6.5" />
+  </ItemGroup>
+
+</Project>
