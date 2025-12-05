@@ -1,0 +1,22 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0-jammy
+
+# Install Node.js 20.x LTS via NodeSource
+RUN apt-get update && apt-get install -y curl gnupg && \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs git && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install PowerShell
+RUN apt-get update && \
+    apt-get install -y wget apt-transport-https software-properties-common && \
+    wget -q "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb" && \
+    dpkg -i packages-microsoft-prod.deb && \
+    rm packages-microsoft-prod.deb && \
+    apt-get update && \
+    apt-get install -y powershell && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Verify installations
+RUN dotnet --version && node --version && npm --version && pwsh --version && git --version
+
+WORKDIR /workspace
