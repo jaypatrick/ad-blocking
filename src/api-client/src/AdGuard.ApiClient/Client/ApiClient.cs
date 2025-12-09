@@ -313,7 +313,6 @@ namespace AdGuard.ApiClient.Client
                         multipartContent.Add(content, fileParam.Key, file.Name);
                     }
                 }
-            }
             return multipartContent;
         }
 
@@ -408,14 +407,6 @@ namespace AdGuard.ApiClient.Client
                             "application/json");
                     }
                 }
-            }
-
-
-
-            // TODO provide an alternative that allows cookies per request instead of per API client
-            if (options.Cookies != null && options.Cookies.Count > 0)
-            {
-                request.Properties["CookieContainer"] = options.Cookies;
             }
 
             return request;
