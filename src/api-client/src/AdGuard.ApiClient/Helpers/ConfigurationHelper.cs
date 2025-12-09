@@ -150,7 +150,10 @@ namespace AdGuard.ApiClient.Helpers
         /// </summary>
         /// <remarks>
         /// Use this method when you need to configure authentication separately using extension methods
-        /// like <see cref="WithApiKey"/> or <see cref="WithBearerToken"/>.
+        /// like <see>
+        ///     <cref>WithApiKey</cref>
+        /// </see>
+        /// or <see cref="WithBearerToken"/>.
         /// </remarks>
         /// <param name="basePath">API base path. Defaults to https://api.adguard-dns.io if not specified.</param>
         /// <param name="timeout">Optional timeout in milliseconds. Must be between 1000 and 300000 if specified.</param>
@@ -218,7 +221,6 @@ namespace AdGuard.ApiClient.Helpers
         /// </summary>
         /// <param name="configuration">The configuration to modify. Must not be null.</param>
         /// <param name="apiKey">API key to add. Must not be null, empty, or whitespace.</param>
-        /// <param name="logger">Optional logger for diagnostic output.</param>
         /// <returns>The modified configuration for method chaining.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="configuration"/> is null.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="apiKey"/> is null, empty, or whitespace.</exception>
