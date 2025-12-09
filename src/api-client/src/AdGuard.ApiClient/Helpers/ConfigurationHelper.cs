@@ -199,7 +199,7 @@ namespace AdGuard.ApiClient.Helpers
 
             if (timeout.HasValue)
             {
-                config.Timeout = timeout.Value;
+                config.Timeout = TimeSpan.FromMilliseconds(timeout.Value);
                 logger?.LogDebug("Timeout set to {Timeout}ms", timeout.Value);
             }
 
@@ -231,6 +231,19 @@ namespace AdGuard.ApiClient.Helpers
         {
             return WithApiKey(configuration, apiKey, null);
         }
+
+        /// <summary>
+        /// Adds API key authentication to the specified configuration instance.
+        /// </summary>
+        /// <remarks>This method sets the "Authorization" header in the configuration's API key dictionary
+        /// to use the provided API key. Subsequent requests using this configuration will include the API key for
+        /// authentication.</remarks>
+        /// <param name="configuration"></param>
+        /// <param name="apiKey"></param>
+        /// <param name="logger"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
         public static Configuration WithApiKey(this Configuration configuration, string apiKey, ILogger? logger = null)
         {
             if (configuration == null)
@@ -322,7 +335,7 @@ namespace AdGuard.ApiClient.Helpers
 
             logger?.LogDebug("Setting timeout to {Timeout}ms", timeoutMilliseconds);
 
-            configuration.Timeout = timeoutMilliseconds;
+            configuration.Timeout = TimeSpan.FromMilliseconds(timeoutMilliseconds);
 
             logger?.LogInformation("Timeout set successfully to {Timeout}ms", timeoutMilliseconds);
             return configuration;
