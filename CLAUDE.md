@@ -5,13 +5,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 This repository houses multiple sub-projects for ad-blocking, network protection, and AdGuard DNS management:
-- **Filter Compiler** (TypeScript) - Compiles filter rules using @adguard/hostlist-compiler
+- **Filter Compiler** (TypeScript) - Compiles filter rules using @adguard/hostlist-compiler with JSON/YAML/TOML support
 - **Rules Compiler** (C#/.NET 8) - .NET library and console app for filter rule compilation
+- **Shell Scripts** - Cross-platform Bash and PowerShell Core scripts for compilation
 - **API Client** (C#/.NET 8) - Auto-generated SDK for AdGuard DNS API v1.11
 - **Console UI** (C#/.NET 8) - Spectre.Console menu-driven wrapper for the API client
 - **Webhook App** (C#/.NET 8) - Triggers AdGuard DNS webhooks with rate limiting
 - **Website** (Gatsby) - Static portfolio site deployed to GitHub Pages
-- **PowerShell Scripts** - Automation modules including:
+- **PowerShell Modules** - Automation modules including:
   - **RulesCompiler Module** - Cross-platform PowerShell API for filter rule compilation
   - **Webhook Module** - AdGuard DNS webhook automation
 
@@ -26,7 +27,31 @@ npm test                  # Run Jest tests
 npm run test:coverage     # Run tests with coverage
 npx tsc --noEmit          # Type-check only
 npx eslint .              # Lint
-npm run compile           # Compile filter rules
+npm run compile           # Compile filter rules (JSON config)
+npm run compile:yaml      # Compile using YAML config
+npm run compile:toml      # Compile using TOML config
+npm run compile:copy      # Compile and copy to rules directory
+
+# CLI with options
+npm run compile -- -c config.yaml -r -d
+npm run compile -- --help
+npm run compile -- --version
+```
+
+### Shell Scripts (`scripts/shell/`)
+```bash
+# Bash (Linux/macOS)
+./scripts/shell/compile-rules.sh                    # Use default config
+./scripts/shell/compile-rules.sh -c config.yaml -r  # YAML config, copy to rules
+./scripts/shell/compile-rules.sh -v                 # Show version
+
+# PowerShell Core (all platforms)
+./scripts/shell/compile-rules.ps1
+./scripts/shell/compile-rules.ps1 -ConfigPath config.yaml -CopyToRules
+./scripts/shell/compile-rules.ps1 -Version
+
+# Windows Batch
+scripts\shell\compile-rules.cmd -c config.json -r
 ```
 
 ### .NET Rules Compiler (`src/rules-compiler/`)
@@ -131,8 +156,19 @@ Invoke-Pester -Path ./scripts/powershell/Tests/ -Output Detailed
 
 ### Filter Compiler (`src/filter-compiler/`)
 - TypeScript wrapper around @adguard/hostlist-compiler
-- `invoke-compiler.ts` loads config and writes output
+- Supports JSON, YAML, and TOML configuration formats
+- `src/cli.ts` - Command-line interface with argument parsing
+- `src/config-reader.ts` - Multi-format configuration reader
+- `src/compiler.ts` - Core compilation logic
+- `invoke-compiler.ts` - Legacy entry point (use `src/cli.ts` for new code)
 - ESLint flat config in `eslint.config.mjs`
+
+### Shell Scripts (`scripts/shell/`)
+- Cross-platform shell scripts for filter compilation
+- `compile-rules.sh` - Bash script for Linux/macOS
+- `compile-rules.ps1` - PowerShell Core script (all platforms)
+- `compile-rules.cmd` - Windows batch wrapper
+- Supports JSON, YAML, TOML via external tools (yq, Python)
 
 ### Rules Compiler (`src/rules-compiler/`)
 - .NET 8 library wrapping @adguard/hostlist-compiler
