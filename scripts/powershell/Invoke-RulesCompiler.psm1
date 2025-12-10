@@ -13,17 +13,98 @@
 
     This module mirrors the TypeScript API in invoke-compiler.ts.
 
+    CROSS-PLATFORM SUPPORT:
+    This module is designed to work on Windows, macOS, and Linux with PowerShell 7.0+.
+    - Uses platform-agnostic path handling (Join-Path, [System.IO.Path])
+    - Detects platform via $PSVersionTable.Platform
+    - Handles command invocation consistently across platforms
+    - Uses UTF-8 encoding for all file operations
+
 .NOTES
     Author:  Jayson Knight
     Website: https://jaysonknight.com
     GitHub:  jaypatrick
 
     Prerequisites:
+    - PowerShell 7.0+ (cross-platform)
     - Node.js 18+ installed
     - @adguard/hostlist-compiler installed globally: npm install -g @adguard/hostlist-compiler
+
+    Supported Platforms:
+    - Windows 10/11 with PowerShell 7+
+    - macOS 10.15+ with PowerShell 7+
+    - Linux (Ubuntu 18.04+, Debian 10+, RHEL 8+, etc.) with PowerShell 7+
 #>
 
 #region Private Functions
+
+function Get-PlatformInfo {
+    <#
+    .SYNOPSIS
+    Gets information about the current platform.
+
+    .DESCRIPTION
+    Returns platform-specific information for cross-platform compatibility.
+    This is used internally to handle platform differences.
+    #>
+    [CmdletBinding()]
+    [OutputType([PSCustomObject])]
+    param()
+
+    $platform = $PSVersionTable.Platform
+    $isWindows = $IsWindows -or ($null -eq $platform) -or ($platform -eq 'Win32NT')
+    $isLinux = $IsLinux -or ($platform -eq 'Unix' -and $PSVersionTable.OS -match 'Linux')
+    $isMacOS = $IsMacOS -or ($platform -eq 'Unix' -and $PSVersionTable.OS -match 'Darwin')
+
+    return [PSCustomObject]@{
+        Platform    = if ($isWindows) { 'Windows' } elseif ($isMacOS) { 'macOS' } elseif ($isLinux) { 'Linux' } else { 'Unknown' }
+        IsWindows   = $isWindows
+        IsLinux     = $isLinux
+        IsMacOS     = $isMacOS
+        PathSeparator = [System.IO.Path]::DirectorySeparatorChar
+        OS          = $PSVersionTable.OS
+    }
+}
+
+function Get-CommandPath {
+    <#
+    .SYNOPSIS
+    Gets the path to a command, handling cross-platform differences.
+
+    .DESCRIPTION
+    Locates an executable command across different platforms, checking for
+    platform-specific extensions on Windows (.cmd, .exe, .bat).
+
+    .PARAMETER CommandName
+    The name of the command to locate.
+    #>
+    [CmdletBinding()]
+    [OutputType([string])]
+    param(
+        [Parameter(Mandatory)]
+        [string]$CommandName
+    )
+
+    # Try to find the command directly
+    $command = Get-Command $CommandName -ErrorAction SilentlyContinue
+
+    if ($command) {
+        return $command.Source
+    }
+
+    # On Windows, try with common extensions
+    $platformInfo = Get-PlatformInfo
+    if ($platformInfo.IsWindows) {
+        foreach ($ext in @('.cmd', '.exe', '.bat', '.ps1')) {
+            $command = Get-Command "$CommandName$ext" -ErrorAction SilentlyContinue
+            if ($command) {
+                return $command.Source
+            }
+        }
+    }
+
+    return $null
+}
 
 function Write-CompilerLog {
     <#
@@ -52,7 +133,8 @@ function Write-CompilerLog {
         [object[]]$Arguments
     )
 
-    $timestamp = Get-Date -Format 'yyyy-MM-ddTHH:mm:ss.fffZ'
+    # Use UTC time for consistent cross-platform logging
+    $timestamp = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ss.fffZ')
     $formattedMessage = "[$Level] $timestamp - $Message"
 
     if ($Arguments) {
@@ -222,13 +304,24 @@ function Invoke-FilterCompiler {
         Write-CompilerLog -Level DEBUG -Message "Config file: $ConfigPath"
         Write-CompilerLog -Level DEBUG -Message "Output file: $OutputPath"
 
-        # Verify hostlist-compiler is available
-        $compilerPath = Get-Command 'hostlist-compiler' -ErrorAction SilentlyContinue
+        # Verify hostlist-compiler is available (cross-platform)
+        $compilerPath = Get-CommandPath -CommandName 'hostlist-compiler'
         if (-not $compilerPath) {
-            $errorMessage = "hostlist-compiler not found. Install with: npm install -g @adguard/hostlist-compiler"
-            Write-CompilerLog -Level ERROR -Message $errorMessage
-            throw [System.IO.FileNotFoundException]::new($errorMessage)
+            # Try using npx as fallback (works if hostlist-compiler is installed locally)
+            $npxPath = Get-CommandPath -CommandName 'npx'
+            if ($npxPath) {
+                Write-CompilerLog -Level DEBUG -Message "hostlist-compiler not found globally, will try npx"
+            }
+            else {
+                $errorMessage = "hostlist-compiler not found. Install with: npm install -g @adguard/hostlist-compiler"
+                Write-CompilerLog -Level ERROR -Message $errorMessage
+                throw [System.IO.FileNotFoundException]::new($errorMessage)
+            }
         }
+
+        # Log platform info for debugging
+        $platformInfo = Get-PlatformInfo
+        Write-CompilerLog -Level DEBUG -Message "Platform: $($platformInfo.Platform), OS: $($platformInfo.OS)"
 
         # Save current location and change to working directory
         $originalLocation = Get-Location
@@ -238,9 +331,16 @@ function Invoke-FilterCompiler {
             # Build the full output path for the result object
             $fullOutputPath = Join-Path $WorkingDirectory $OutputPath
 
-            # Run the compiler
+            # Run the compiler (try global install first, then npx)
             Write-CompilerLog -Level INFO -Message "Invoking hostlist-compiler..."
-            $compilerOutput = & hostlist-compiler --config $ConfigPath --output $OutputPath 2>&1
+            if ($compilerPath) {
+                $compilerOutput = & hostlist-compiler --config $ConfigPath --output $OutputPath 2>&1
+            }
+            else {
+                # Use npx to run the compiler
+                Write-CompilerLog -Level DEBUG -Message "Using npx to invoke hostlist-compiler"
+                $compilerOutput = & npx hostlist-compiler --config $ConfigPath --output $OutputPath 2>&1
+            }
 
             if ($LASTEXITCODE -ne 0) {
                 $errorMessage = "Compilation failed with exit code $LASTEXITCODE"
@@ -263,7 +363,8 @@ function Invoke-FilterCompiler {
             $fileHash = $null
 
             if (Test-Path $OutputPath) {
-                $content = Get-Content -Path $OutputPath
+                # Use UTF8 encoding explicitly for cross-platform consistency
+                $content = Get-Content -Path $OutputPath -Encoding UTF8
                 $ruleCount = ($content | Where-Object { $_ -and -not $_.StartsWith('!') }).Count
                 $fileHash = (Get-FileHash -Path $OutputPath -Algorithm SHA384).Hash
             }
@@ -363,7 +464,8 @@ function Write-CompiledOutput {
             Copy-Item -Path $SourcePath -Destination $DestinationPath -Force:$Force
 
             $fileInfo = Get-Item $DestinationPath
-            $lineCount = (Get-Content $DestinationPath).Count
+            # Use UTF8 encoding explicitly for cross-platform consistency
+            $lineCount = (Get-Content $DestinationPath -Encoding UTF8).Count
 
             Write-CompilerLog -Level INFO -Message "Successfully wrote $lineCount lines to $DestinationPath"
 
@@ -549,36 +651,72 @@ function Get-CompilerVersion {
         $moduleVersion = '1.0.0'
         $hostlistVersion = $null
         $nodeVersion = $null
+        $npmVersion = $null
+
+        # Get platform information
+        $platformInfo = Get-PlatformInfo
 
         # Get hostlist-compiler version
-        try {
-            $hostlistVersion = & hostlist-compiler --version 2>&1
-            if ($LASTEXITCODE -ne 0) {
-                $hostlistVersion = 'Not installed'
+        $compilerPath = Get-CommandPath -CommandName 'hostlist-compiler'
+        if ($compilerPath) {
+            try {
+                $hostlistVersion = & hostlist-compiler --version 2>&1
+                if ($LASTEXITCODE -ne 0) {
+                    $hostlistVersion = 'Error getting version'
+                }
+            }
+            catch {
+                $hostlistVersion = 'Error: ' + $_.Exception.Message
             }
         }
-        catch {
-            $hostlistVersion = 'Not available'
+        else {
+            $hostlistVersion = 'Not installed (run: npm install -g @adguard/hostlist-compiler)'
         }
 
         # Get Node.js version
-        try {
-            $nodeVersion = & node --version 2>&1
-            if ($LASTEXITCODE -ne 0) {
-                $nodeVersion = 'Not installed'
+        $nodePath = Get-CommandPath -CommandName 'node'
+        if ($nodePath) {
+            try {
+                $nodeVersion = & node --version 2>&1
+                if ($LASTEXITCODE -ne 0) {
+                    $nodeVersion = 'Error getting version'
+                }
+            }
+            catch {
+                $nodeVersion = 'Error: ' + $_.Exception.Message
             }
         }
-        catch {
-            $nodeVersion = 'Not available'
+        else {
+            $nodeVersion = 'Not installed'
+        }
+
+        # Get npm version
+        $npmPath = Get-CommandPath -CommandName 'npm'
+        if ($npmPath) {
+            try {
+                $npmVersion = & npm --version 2>&1
+                if ($LASTEXITCODE -ne 0) {
+                    $npmVersion = 'Error getting version'
+                }
+            }
+            catch {
+                $npmVersion = 'Error: ' + $_.Exception.Message
+            }
+        }
+        else {
+            $npmVersion = 'Not installed'
         }
 
         return [PSCustomObject]@{
-            ModuleName           = 'Invoke-RulesCompiler'
-            ModuleVersion        = $moduleVersion
+            ModuleName              = 'Invoke-RulesCompiler'
+            ModuleVersion           = $moduleVersion
             HostlistCompilerVersion = $hostlistVersion
-            NodeVersion          = $nodeVersion
-            PowerShellVersion    = $PSVersionTable.PSVersion.ToString()
-            Platform             = $PSVersionTable.Platform
+            NodeVersion             = $nodeVersion
+            NpmVersion              = $npmVersion
+            PowerShellVersion       = $PSVersionTable.PSVersion.ToString()
+            Platform                = $platformInfo.Platform
+            OS                      = $platformInfo.OS
+            PathSeparator           = $platformInfo.PathSeparator
         }
     }
 }

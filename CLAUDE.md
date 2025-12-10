@@ -10,7 +10,9 @@ This repository houses multiple sub-projects for ad-blocking, network protection
 - **Console UI** (C#/.NET 8) - Spectre.Console menu-driven wrapper for the API client
 - **Webhook App** (C#/.NET 8) - Triggers AdGuard DNS webhooks with rate limiting
 - **Website** (Gatsby) - Static portfolio site deployed to GitHub Pages
-- **PowerShell Scripts** - Automation and webhook modules
+- **PowerShell Scripts** - Automation modules including:
+  - **RulesCompiler Module** - Cross-platform PowerShell API for filter rule compilation
+  - **Webhook Module** - AdGuard DNS webhook automation
 
 ## Common Commands
 
@@ -53,8 +55,27 @@ npm run build      # Production build
 npm run serve      # Serve local build
 ```
 
-### PowerShell Scripts
+### PowerShell RulesCompiler Module (`scripts/powershell/`)
 ```powershell
+# Import the module
+Import-Module ./scripts/powershell/Invoke-RulesCompiler.psm1
+
+# Check versions and platform info
+Get-CompilerVersion | Format-List
+
+# Compile filter rules
+Invoke-RulesCompiler
+
+# Compile and copy to rules directory
+Invoke-RulesCompiler -CopyToRules
+
+# Run interactive harness
+./scripts/powershell/RulesCompiler-Harness.ps1
+
+# Run Pester tests
+Invoke-Pester -Path ./scripts/powershell/Tests/RulesCompiler-Tests.ps1
+
+# Lint with PSScriptAnalyzer
 Invoke-ScriptAnalyzer -Path scripts/powershell -Recurse
 ```
 
@@ -72,6 +93,18 @@ npx jest -t "should write rules to a file"    # By test name
 cd src/api-client
 dotnet test AdGuard.ApiClient.sln --filter "FullyQualifiedName~DevicesApiTests"   # By class
 dotnet test AdGuard.ApiClient.sln --filter "Name~GetAccountLimits"                # By method
+```
+
+### PowerShell (Pester)
+```powershell
+# Run all PowerShell tests
+Invoke-Pester -Path ./scripts/powershell/Tests/
+
+# Run specific test file
+Invoke-Pester -Path ./scripts/powershell/Tests/RulesCompiler-Tests.ps1
+
+# Run with detailed output
+Invoke-Pester -Path ./scripts/powershell/Tests/ -Output Detailed
 ```
 
 ## Architecture
@@ -101,11 +134,22 @@ dotnet test AdGuard.ApiClient.sln --filter "Name~GetAccountLimits"              
 - `Infrastructure/ClientSideRateLimitedHandler.cs` - Rate limiting via FixedWindowRateLimiter
 - `Extensions/HttpResponseMessage.cs` - Structured logging helpers
 
+### PowerShell Modules (`scripts/powershell/`)
+- **RulesCompiler Module** - Cross-platform PowerShell API mirroring TypeScript compiler
+  - `Invoke-RulesCompiler.psm1` - Main module with exported functions
+  - `RulesCompiler.psd1` - Module manifest
+  - `RulesCompiler-Harness.ps1` - Interactive test harness
+  - Functions: `Read-CompilerConfiguration`, `Invoke-FilterCompiler`, `Write-CompiledOutput`, `Invoke-RulesCompiler`, `Get-CompilerVersion`
+- **Webhook Module** - AdGuard DNS webhook automation
+  - `Invoke-WebHook.psm1` - Webhook invocation with retry logic
+  - `Webhook-Manifest.psd1` - Module manifest
+
 ## Environment Variables
 
 - `ADGUARD_WEBHOOK_URL` - Required by webhook app (format: `https://linkip.adguard-dns.com/linkip/<DEVICE_ID>/<AUTH_TOKEN>`)
 - `AdGuard:ApiKey` - API credential for console UI (can also prompt interactively)
 - `LINEAR_API_KEY` - For Linear import scripts (`scripts/linear/`)
+- `DEBUG` - Set to any value to enable debug logging in PowerShell modules
 
 ## CI/CD Alignment
 
