@@ -1,0 +1,237 @@
+using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using RulesCompiler.Abstractions;
+using RulesCompiler.Configuration;
+using RulesCompiler.Helpers;
+using RulesCompiler.Models;
+
+namespace RulesCompiler.Services;
+
+/// <summary>
+/// Compiles filter rules using the hostlist-compiler CLI.
+/// </summary>
+public class FilterCompiler : IFilterCompiler
+{
+    private readonly ILogger<FilterCompiler> _logger;
+    private readonly IConfigurationReader _configurationReader;
+    private readonly CommandHelper _commandHelper;
+
+    private const string CompilerCommand = "hostlist-compiler";
+    private const string NpxCommand = "npx";
+    private const string NodeCommand = "node";
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FilterCompiler"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance.</param>
+    /// <param name="configurationReader">The configuration reader.</param>
+    /// <param name="commandHelper">The command helper.</param>
+    public FilterCompiler(
+        ILogger<FilterCompiler> logger,
+        IConfigurationReader configurationReader,
+        CommandHelper commandHelper)
+    {
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _configurationReader = configurationReader ?? throw new ArgumentNullException(nameof(configurationReader));
+        _commandHelper = commandHelper ?? throw new ArgumentNullException(nameof(commandHelper));
+    }
+
+    /// <inheritdoc/>
+    public async Task<CompilerResult> CompileAsync(
+        string configPath,
+        string? outputPath = null,
+        ConfigurationFormat? format = null,
+        CancellationToken cancellationToken = default)
+    {
+        var result = new CompilerResult
+        {
+            StartTime = DateTime.UtcNow
+        };
+
+        var stopwatch = Stopwatch.StartNew();
+        string? tempConfigPath = null;
+
+        try
+        {
+            // Read configuration to get metadata
+            var config = await _configurationReader.ReadConfigurationAsync(configPath, format, cancellationToken);
+            result.ConfigName = config.Name;
+            result.ConfigVersion = config.Version;
+
+            // Determine config path to use (convert to JSON if needed)
+            var actualFormat = format ?? _configurationReader.DetectFormat(configPath);
+            var configToUse = configPath;
+
+            if (actualFormat != ConfigurationFormat.Json)
+            {
+                // hostlist-compiler only supports JSON, create temp file
+                tempConfigPath = Path.Combine(Path.GetTempPath(), $"compiler-config-{Guid.NewGuid()}.json");
+                var jsonContent = _configurationReader.ToJson(config);
+                await File.WriteAllTextAsync(tempConfigPath, jsonContent, cancellationToken);
+                configToUse = tempConfigPath;
+                _logger.LogDebug("Created temporary JSON config at {Path}", tempConfigPath);
+            }
+
+            // Determine output path
+            var actualOutputPath = outputPath ?? Path.Combine(
+                Path.GetDirectoryName(configPath) ?? ".",
+                "output",
+                $"compiled-{DateTime.UtcNow:yyyyMMdd-HHmmss}.txt");
+
+            // Ensure output directory exists
+            var outputDir = Path.GetDirectoryName(actualOutputPath);
+            if (!string.IsNullOrEmpty(outputDir) && !Directory.Exists(outputDir))
+            {
+                Directory.CreateDirectory(outputDir);
+            }
+
+            result.OutputPath = actualOutputPath;
+
+            // Find compiler command
+            var (command, args) = await GetCompilerCommandAsync(configToUse, actualOutputPath, cancellationToken);
+
+            if (string.IsNullOrEmpty(command))
+            {
+                result.Success = false;
+                result.ErrorMessage = "hostlist-compiler not found. Install with: npm install -g @adguard/hostlist-compiler";
+                return result;
+            }
+
+            _logger.LogInformation("Compiling filter rules using {Command}", command);
+
+            // Execute compiler
+            var (exitCode, stdOut, stdErr) = await _commandHelper.ExecuteAsync(
+                command,
+                args,
+                Path.GetDirectoryName(configPath),
+                cancellationToken);
+
+            result.StandardOutput = stdOut;
+            result.StandardError = stdErr;
+
+            if (exitCode != 0)
+            {
+                result.Success = false;
+                result.ErrorMessage = $"Compiler exited with code {exitCode}: {stdErr}";
+                _logger.LogError("Compilation failed with exit code {ExitCode}", exitCode);
+                return result;
+            }
+
+            // Verify output was created
+            if (!File.Exists(actualOutputPath))
+            {
+                result.Success = false;
+                result.ErrorMessage = "Compilation completed but output file was not created";
+                return result;
+            }
+
+            result.Success = true;
+            _logger.LogInformation("Compilation completed successfully: {OutputPath}", actualOutputPath);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Compilation failed");
+            result.Success = false;
+            result.ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            // Clean up temp file
+            if (tempConfigPath != null && File.Exists(tempConfigPath))
+            {
+                try
+                {
+                    File.Delete(tempConfigPath);
+                    _logger.LogDebug("Cleaned up temporary config file");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to clean up temporary config file");
+                }
+            }
+
+            stopwatch.Stop();
+            result.ElapsedMs = stopwatch.ElapsedMilliseconds;
+            result.EndTime = DateTime.UtcNow;
+        }
+
+        return result;
+    }
+
+    /// <inheritdoc/>
+    public async Task<VersionInfo> GetVersionInfoAsync(CancellationToken cancellationToken = default)
+    {
+        var info = new VersionInfo
+        {
+            ModuleVersion = GetType().Assembly.GetName().Version?.ToString() ?? "1.0.0",
+            DotNetVersion = Environment.Version.ToString(),
+            Platform = PlatformHelper.GetPlatformInfo()
+        };
+
+        // Get Node.js version
+        var nodePath = _commandHelper.FindCommand(NodeCommand);
+        if (nodePath != null)
+        {
+            info.NodeVersion = await _commandHelper.GetVersionAsync(nodePath, "--version", cancellationToken);
+        }
+
+        // Get hostlist-compiler version
+        var compilerPath = _commandHelper.FindCommand(CompilerCommand);
+        if (compilerPath != null)
+        {
+            info.HostlistCompilerPath = compilerPath;
+            info.HostlistCompilerVersion = await _commandHelper.GetVersionAsync(compilerPath, "--version", cancellationToken);
+        }
+        else
+        {
+            // Check if available via npx
+            var npxPath = _commandHelper.FindCommand(NpxCommand);
+            if (npxPath != null)
+            {
+                info.HostlistCompilerPath = $"{npxPath} @adguard/hostlist-compiler";
+                var version = await _commandHelper.GetVersionAsync(
+                    npxPath,
+                    "@adguard/hostlist-compiler --version",
+                    cancellationToken);
+                info.HostlistCompilerVersion = version;
+            }
+        }
+
+        return info;
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> IsCompilerAvailableAsync()
+    {
+        var compilerPath = _commandHelper.FindCommand(CompilerCommand);
+        if (compilerPath != null)
+            return true;
+
+        // Check if npx is available as fallback
+        var npxPath = _commandHelper.FindCommand(NpxCommand);
+        return npxPath != null;
+    }
+
+    private async Task<(string Command, string Args)> GetCompilerCommandAsync(
+        string configPath,
+        string outputPath,
+        CancellationToken cancellationToken)
+    {
+        // Try global hostlist-compiler first
+        var compilerPath = _commandHelper.FindCommand(CompilerCommand);
+        if (compilerPath != null)
+        {
+            return (compilerPath, $"--config \"{configPath}\" --output \"{outputPath}\"");
+        }
+
+        // Fall back to npx
+        var npxPath = _commandHelper.FindCommand(NpxCommand);
+        if (npxPath != null)
+        {
+            _logger.LogDebug("Using npx to run hostlist-compiler");
+            return (npxPath, $"@adguard/hostlist-compiler --config \"{configPath}\" --output \"{outputPath}\"");
+        }
+
+        return (string.Empty, string.Empty);
+    }
+}

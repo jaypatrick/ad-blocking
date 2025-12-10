@@ -1,14 +1,21 @@
 {
   "name": "adguard-filter-compiler",
-  "version": "1.0.0",
-  "description": "AdGuard filter list compiler for ad-blocking rules",
-  "main": "invoke-compiler.ts",
+  "version": "2.0.0",
+  "description": "AdGuard filter list compiler for ad-blocking rules with multi-format configuration support",
+  "main": "src/index.ts",
+  "bin": {
+    "filter-compiler": "src/cli.ts"
+  },
   "scripts": {
     "build": "tsc",
-    "compile": "npx ts-node invoke-compiler.ts",
+    "compile": "npx ts-node src/cli.ts",
+    "compile:yaml": "npx ts-node src/cli.ts -c compiler-config.yaml",
+    "compile:toml": "npx ts-node src/cli.ts -c compiler-config.toml",
+    "compile:copy": "npx ts-node src/cli.ts -r",
     "lint": "eslint .",
     "test": "jest",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "legacy": "npx ts-node invoke-compiler.ts"
   },
   "author": "jaypatrick",
   "license": "MIT",
@@ -25,6 +32,8 @@
     "typescript-eslint": "^8.48.0"
   },
   "dependencies": {
-    "@adguard/hostlist-compiler": "^1.0.39"
+    "@adguard/hostlist-compiler": "^1.0.39",
+    "@iarna/toml": "^2.2.5",
+    "yaml": "^2.7.1"
   }
 }
