@@ -1,19 +1,26 @@
+using AdGuard.ConsoleUI.Abstractions;
+using AdGuard.ConsoleUI.Helpers;
 using Spectre.Console;
 
 namespace AdGuard.ConsoleUI.Services;
 
+/// <summary>
+/// Main console application that orchestrates menu navigation.
+/// Uses dependency injection for all menu services.
+/// </summary>
 public class ConsoleApplication
 {
-    private readonly ApiClientFactory _apiClientFactory;
-    private readonly DeviceMenuService _deviceMenu;
-    private readonly DnsServerMenuService _dnsServerMenu;
-    private readonly StatisticsMenuService _statisticsMenu;
-    private readonly AccountMenuService _accountMenu;
-    private readonly FilterListMenuService _filterListMenu;
-    private readonly QueryLogMenuService _queryLogMenu;
+    private readonly IApiClientFactory _apiClientFactory;
+    private readonly IMenuService _deviceMenu;
+    private readonly IMenuService _dnsServerMenu;
+    private readonly IMenuService _statisticsMenu;
+    private readonly IMenuService _accountMenu;
+    private readonly IMenuService _filterListMenu;
+    private readonly IMenuService _queryLogMenu;
+    private readonly Dictionary<string, IMenuService> _menuServices;
 
     public ConsoleApplication(
-        ApiClientFactory apiClientFactory,
+        IApiClientFactory apiClientFactory,
         DeviceMenuService deviceMenu,
         DnsServerMenuService dnsServerMenu,
         StatisticsMenuService statisticsMenu,
@@ -21,13 +28,24 @@ public class ConsoleApplication
         FilterListMenuService filterListMenu,
         QueryLogMenuService queryLogMenu)
     {
-        _apiClientFactory = apiClientFactory;
-        _deviceMenu = deviceMenu;
-        _dnsServerMenu = dnsServerMenu;
-        _statisticsMenu = statisticsMenu;
-        _accountMenu = accountMenu;
-        _filterListMenu = filterListMenu;
-        _queryLogMenu = queryLogMenu;
+        _apiClientFactory = apiClientFactory ?? throw new ArgumentNullException(nameof(apiClientFactory));
+        _deviceMenu = deviceMenu ?? throw new ArgumentNullException(nameof(deviceMenu));
+        _dnsServerMenu = dnsServerMenu ?? throw new ArgumentNullException(nameof(dnsServerMenu));
+        _statisticsMenu = statisticsMenu ?? throw new ArgumentNullException(nameof(statisticsMenu));
+        _accountMenu = accountMenu ?? throw new ArgumentNullException(nameof(accountMenu));
+        _filterListMenu = filterListMenu ?? throw new ArgumentNullException(nameof(filterListMenu));
+        _queryLogMenu = queryLogMenu ?? throw new ArgumentNullException(nameof(queryLogMenu));
+
+        // Register menu services for the Open/Closed principle
+        _menuServices = new Dictionary<string, IMenuService>
+        {
+            { "Devices", _deviceMenu },
+            { "DNS Servers", _dnsServerMenu },
+            { "Statistics", _statisticsMenu },
+            { "Query Log", _queryLogMenu },
+            { "Filter Lists", _filterListMenu },
+            { "Account Info", _accountMenu }
+        };
     }
 
     public async Task RunAsync()
@@ -73,19 +91,18 @@ public class ConsoleApplication
 
         _apiClientFactory.Configure(apiKey);
 
-        await AnsiConsole.Status()
-            .StartAsync("Testing connection...", async ctx =>
+        await ConsoleHelpers.WithStatusAsync("Testing connection...", async () =>
+        {
+            var success = await _apiClientFactory.TestConnectionAsync();
+            if (success)
             {
-                var success = await _apiClientFactory.TestConnectionAsync();
-                if (success)
-                {
-                    AnsiConsole.MarkupLine("[green]Connection successful![/]");
-                }
-                else
-                {
-                    AnsiConsole.MarkupLine("[red]Connection failed. Please check your API key.[/]");
-                }
-            });
+                AnsiConsole.MarkupLine("[green]Connection successful![/]");
+            }
+            else
+            {
+                AnsiConsole.MarkupLine("[red]Connection failed. Please check your API key.[/]");
+            }
+        });
 
         AnsiConsole.WriteLine();
     }
@@ -96,53 +113,30 @@ public class ConsoleApplication
 
         while (running)
         {
+            var choices = _menuServices.Keys.Concat(new[] { "Settings", "Exit" }).ToArray();
+
             var choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("[green]Main Menu[/]")
                     .PageSize(12)
                     .HighlightStyle(new Style(Color.Green))
-                    .AddChoices(new[]
-                    {
-                        "Devices",
-                        "DNS Servers",
-                        "Statistics",
-                        "Query Log",
-                        "Filter Lists",
-                        "Account Info",
-                        "Settings",
-                        "Exit"
-                    }));
+                    .AddChoices(choices));
 
             AnsiConsole.WriteLine();
 
             try
             {
-                switch (choice)
+                if (choice == "Exit")
                 {
-                    case "Devices":
-                        await _deviceMenu.ShowAsync();
-                        break;
-                    case "DNS Servers":
-                        await _dnsServerMenu.ShowAsync();
-                        break;
-                    case "Statistics":
-                        await _statisticsMenu.ShowAsync();
-                        break;
-                    case "Query Log":
-                        await _queryLogMenu.ShowAsync();
-                        break;
-                    case "Filter Lists":
-                        await _filterListMenu.ShowAsync();
-                        break;
-                    case "Account Info":
-                        await _accountMenu.ShowAsync();
-                        break;
-                    case "Settings":
-                        await ShowSettingsMenuAsync();
-                        break;
-                    case "Exit":
-                        running = false;
-                        break;
+                    running = false;
+                }
+                else if (choice == "Settings")
+                {
+                    await ShowSettingsMenuAsync();
+                }
+                else if (_menuServices.TryGetValue(choice, out var menuService))
+                {
+                    await menuService.ShowAsync();
                 }
             }
             catch (Exception ex)
@@ -155,17 +149,11 @@ public class ConsoleApplication
 
     private async Task ShowSettingsMenuAsync()
     {
-        var choice = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .Title("[green]Settings[/]")
-                .PageSize(6)
-                .HighlightStyle(new Style(Color.Green))
-                .AddChoices(new[]
-                {
-                    "Change API Key",
-                    "Test Connection",
-                    "Back"
-                }));
+        var choice = ConsoleHelpers.SelectChoice(
+            "[green]Settings[/]",
+            "Change API Key",
+            "Test Connection",
+            "Back");
 
         switch (choice)
         {
@@ -180,15 +168,14 @@ public class ConsoleApplication
 
     private async Task TestConnectionAsync()
     {
-        await AnsiConsole.Status()
-            .StartAsync("Testing connection...", async ctx =>
+        await ConsoleHelpers.WithStatusAsync("Testing connection...", async () =>
+        {
+            var success = await _apiClientFactory.TestConnectionAsync();
+            if (success)
             {
-                var success = await _apiClientFactory.TestConnectionAsync();
-                if (success)
-                {
-                    AnsiConsole.MarkupLine("[green]Connection is working![/]");
-                }
-            });
+                AnsiConsole.MarkupLine("[green]Connection is working![/]");
+            }
+        });
         AnsiConsole.WriteLine();
     }
 }
