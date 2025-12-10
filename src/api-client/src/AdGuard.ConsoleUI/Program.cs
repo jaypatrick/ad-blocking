@@ -1,4 +1,8 @@
 using AdGuard.ApiClient.Helpers;
+using AdGuard.ApiClient.Model;
+using AdGuard.ConsoleUI.Abstractions;
+using AdGuard.ConsoleUI.Display;
+using AdGuard.ConsoleUI.Repositories;
 using AdGuard.ConsoleUI.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -88,15 +92,36 @@ public class Program
             builder.SetMinimumLevel(LogLevel.Information);
         });
 
-        // Application services
+        // Register API Client Factory (with interface for DI)
         services.AddSingleton<ApiClientFactory>();
-        services.AddSingleton<ConsoleApplication>();
+        services.AddSingleton<IApiClientFactory>(sp => sp.GetRequiredService<ApiClientFactory>());
+
+        // Register Repositories
+        services.AddSingleton<IDeviceRepository, DeviceRepository>();
+        services.AddSingleton<IDnsServerRepository, DnsServerRepository>();
+        services.AddSingleton<IAccountRepository, AccountRepository>();
+        services.AddSingleton<IStatisticsRepository, StatisticsRepository>();
+        services.AddSingleton<IFilterListRepository, FilterListRepository>();
+        services.AddSingleton<IQueryLogRepository, QueryLogRepository>();
+
+        // Register Display Strategies
+        services.AddSingleton<IDisplayStrategy<Device>, DeviceDisplayStrategy>();
+        services.AddSingleton<IDisplayStrategy<DNSServer>, DnsServerDisplayStrategy>();
+        services.AddSingleton<IDisplayStrategy<FilterList>, FilterListDisplayStrategy>();
+        services.AddSingleton<AccountLimitsDisplayStrategy>();
+        services.AddSingleton<StatisticsDisplayStrategy>();
+        services.AddSingleton<QueryLogDisplayStrategy>();
+
+        // Register Menu Services
         services.AddSingleton<DeviceMenuService>();
         services.AddSingleton<DnsServerMenuService>();
         services.AddSingleton<StatisticsMenuService>();
         services.AddSingleton<AccountMenuService>();
         services.AddSingleton<FilterListMenuService>();
         services.AddSingleton<QueryLogMenuService>();
+
+        // Register Main Application
+        services.AddSingleton<ConsoleApplication>();
 
         return services;
     }

@@ -1,253 +1,143 @@
-using AdGuard.ApiClient.Client;
 using AdGuard.ApiClient.Model;
+using AdGuard.ConsoleUI.Display;
+using AdGuard.ConsoleUI.Helpers;
+using AdGuard.ConsoleUI.Repositories;
 using Spectre.Console;
 
 namespace AdGuard.ConsoleUI.Services;
 
-public class DeviceMenuService
+/// <summary>
+/// Menu service for managing devices.
+/// Uses Repository pattern for data access and Strategy pattern for display.
+/// </summary>
+public class DeviceMenuService : BaseMenuService
 {
-    private readonly ApiClientFactory _apiClientFactory;
+    private readonly IDeviceRepository _deviceRepository;
+    private readonly IDnsServerRepository _dnsServerRepository;
+    private readonly IDisplayStrategy<Device> _displayStrategy;
 
-    public DeviceMenuService(ApiClientFactory apiClientFactory)
+    public DeviceMenuService(
+        IDeviceRepository deviceRepository,
+        IDnsServerRepository dnsServerRepository,
+        IDisplayStrategy<Device> displayStrategy)
     {
-        _apiClientFactory = apiClientFactory;
+        _deviceRepository = deviceRepository ?? throw new ArgumentNullException(nameof(deviceRepository));
+        _dnsServerRepository = dnsServerRepository ?? throw new ArgumentNullException(nameof(dnsServerRepository));
+        _displayStrategy = displayStrategy ?? throw new ArgumentNullException(nameof(displayStrategy));
     }
 
-    public async Task ShowAsync()
+    /// <inheritdoc />
+    public override string Title => "Device Management";
+
+    /// <inheritdoc />
+    protected override Dictionary<string, Func<Task>> GetMenuActions() => new()
     {
-        var running = true;
-
-        while (running)
-        {
-            var choice = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("[green]Device Management[/]")
-                    .PageSize(10)
-                    .HighlightStyle(new Style(Color.Green))
-                    .AddChoices(new[]
-                    {
-                        "List Devices",
-                        "View Device Details",
-                        "Create Device",
-                        "Delete Device",
-                        "Back"
-                    }));
-
-            AnsiConsole.WriteLine();
-
-            try
-            {
-                switch (choice)
-                {
-                    case "List Devices":
-                        await ListDevicesAsync();
-                        break;
-                    case "View Device Details":
-                        await ViewDeviceDetailsAsync();
-                        break;
-                    case "Create Device":
-                        await CreateDeviceAsync();
-                        break;
-                    case "Delete Device":
-                        await DeleteDeviceAsync();
-                        break;
-                    case "Back":
-                        running = false;
-                        break;
-                }
-            }
-            catch (ApiException ex)
-            {
-                AnsiConsole.MarkupLine($"[red]API Error ({ex.ErrorCode}): {ex.Message}[/]");
-                AnsiConsole.WriteLine();
-            }
-        }
-    }
+        { "List Devices", ListDevicesAsync },
+        { "View Device Details", ViewDeviceDetailsAsync },
+        { "Create Device", CreateDeviceAsync },
+        { "Delete Device", DeleteDeviceAsync }
+    };
 
     private async Task ListDevicesAsync()
     {
-        var devices = await AnsiConsole.Status()
-            .StartAsync("Fetching devices...", async ctx =>
-            {
-                using var api = _apiClientFactory.CreateDevicesApi();
-                return await api.ListDevicesAsync();
-            });
+        var devices = await ConsoleHelpers.WithStatusAsync(
+            "Fetching devices...",
+            () => _deviceRepository.GetAllAsync());
 
-        if (devices.Count == 0)
-        {
-            AnsiConsole.MarkupLine("[yellow]No devices found.[/]");
-            AnsiConsole.WriteLine();
-            return;
-        }
-
-        var table = new Table()
-            .Border(TableBorder.Rounded)
-            .AddColumn("[green]ID[/]")
-            .AddColumn("[green]Name[/]")
-            .AddColumn("[green]Type[/]")
-            .AddColumn("[green]DNS Server ID[/]");
-
-        foreach (var device in devices)
-        {
-            table.AddRow(
-                device.Id,
-                Markup.Escape(device.Name),
-                device.DeviceType.ToString(),
-                device.DnsServerId);
-        }
-
-        AnsiConsole.Write(table);
-        AnsiConsole.WriteLine();
+        _displayStrategy.Display(devices);
     }
 
     private async Task ViewDeviceDetailsAsync()
     {
-        var devices = await GetDevicesListAsync();
+        var devices = await GetDevicesWithStatusAsync();
         if (devices.Count == 0) return;
 
-        var deviceChoice = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .Title("Select a device:")
-                .PageSize(10)
-                .AddChoices(devices.Select(d => $"{d.Name} ({d.Id})")));
+        var selected = ConsoleHelpers.SelectItem(
+            "Select a device:",
+            devices,
+            d => $"{d.Name} ({d.Id})");
 
-        var selectedId = devices.First(d => $"{d.Name} ({d.Id})" == deviceChoice).Id;
+        if (selected == null) return;
 
-        var device = await AnsiConsole.Status()
-            .StartAsync("Fetching device details...", async ctx =>
-            {
-                using var api = _apiClientFactory.CreateDevicesApi();
-                return await api.GetDeviceAsync(selectedId);
-            });
+        var device = await ConsoleHelpers.WithStatusAsync(
+            "Fetching device details...",
+            () => _deviceRepository.GetByIdAsync(selected.Id));
 
-        DisplayDeviceDetails(device);
-    }
-
-    private static void DisplayDeviceDetails(Device device)
-    {
-        var panel = new Panel(new Rows(
-            new Markup($"[bold]ID:[/] {device.Id}"),
-            new Markup($"[bold]Name:[/] {Markup.Escape(device.Name)}"),
-            new Markup($"[bold]Type:[/] {device.DeviceType}"),
-            new Markup($"[bold]DNS Server ID:[/] {device.DnsServerId}"),
-            new Markup($"[bold]DNS Addresses:[/]"),
-            new Markup($"  {device.DnsAddresses}"),
-            new Markup($"[bold]Settings:[/]"),
-            new Markup($"  {device.Settings}")))
-        {
-            Header = new PanelHeader($"[green]Device: {Markup.Escape(device.Name)}[/]"),
-            Border = BoxBorder.Rounded
-        };
-
-        AnsiConsole.Write(panel);
-        AnsiConsole.WriteLine();
+        _displayStrategy.DisplayDetails(device);
     }
 
     private async Task CreateDeviceAsync()
     {
-        // First get DNS servers to let user select one
-        var dnsServers = await AnsiConsole.Status()
-            .StartAsync("Fetching DNS servers...", async ctx =>
-            {
-                using var api = _apiClientFactory.CreateDnsServersApi();
-                return await api.ListDNSServersAsync();
-            });
+        var dnsServers = await ConsoleHelpers.WithStatusAsync(
+            "Fetching DNS servers...",
+            () => _dnsServerRepository.GetAllAsync());
 
         if (dnsServers.Count == 0)
         {
-            AnsiConsole.MarkupLine("[red]No DNS servers available. Please create a DNS server first.[/]");
-            AnsiConsole.WriteLine();
+            ConsoleHelpers.ShowError("No DNS servers available. Please create a DNS server first.");
             return;
         }
 
         var name = AnsiConsole.Ask<string>("Device [green]name[/]:");
 
-        var deviceType = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .Title("Select device [green]type[/]:")
-                .PageSize(10)
-                .AddChoices(new[]
-                {
-                    "WINDOWS",
-                    "ANDROID",
-                    "MAC",
-                    "IOS",
-                    "LINUX",
-                    "ROUTER",
-                    "SMART_TV",
-                    "GAME_CONSOLE",
-                    "UNKNOWN"
-                }));
+        var deviceType = ConsoleHelpers.SelectChoice(
+            "Select device [green]type[/]:",
+            "WINDOWS", "ANDROID", "MAC", "IOS", "LINUX",
+            "ROUTER", "SMART_TV", "GAME_CONSOLE", "UNKNOWN");
 
-        var dnsServerChoice = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .Title("Select [green]DNS Server[/]:")
-                .PageSize(10)
-                .AddChoices(dnsServers.Select(s => $"{s.Name} ({s.Id})")));
+        var selectedServer = ConsoleHelpers.SelectItem(
+            "Select [green]DNS Server[/]:",
+            dnsServers,
+            s => $"{s.Name} ({s.Id})");
 
-        var selectedDnsServerId = dnsServers.First(s => $"{s.Name} ({s.Id})" == dnsServerChoice).Id;
+        if (selectedServer == null) return;
 
         var deviceCreate = new DeviceCreate(
             deviceType: deviceType,
-            dnsServerId: selectedDnsServerId,
+            dnsServerId: selectedServer.Id,
             name: name);
 
-        var newDevice = await AnsiConsole.Status()
-            .StartAsync("Creating device...", async ctx =>
-            {
-                using var api = _apiClientFactory.CreateDevicesApi();
-                return await api.CreateDeviceAsync(deviceCreate);
-            });
+        var newDevice = await ConsoleHelpers.WithStatusAsync(
+            "Creating device...",
+            () => _deviceRepository.CreateAsync(deviceCreate));
 
-        AnsiConsole.MarkupLine($"[green]Device '{Markup.Escape(newDevice.Name)}' created successfully![/]");
-        AnsiConsole.MarkupLine($"[grey]ID: {newDevice.Id}[/]");
-        AnsiConsole.WriteLine();
+        ConsoleHelpers.ShowSuccessWithId($"Device '{newDevice.Name}' created successfully!", newDevice.Id);
     }
 
     private async Task DeleteDeviceAsync()
     {
-        var devices = await GetDevicesListAsync();
+        var devices = await GetDevicesWithStatusAsync();
         if (devices.Count == 0) return;
 
-        var deviceChoice = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .Title("Select a device to [red]delete[/]:")
-                .PageSize(10)
-                .AddChoices(devices.Select(d => $"{d.Name} ({d.Id})")));
+        var selected = ConsoleHelpers.SelectItem(
+            "Select a device to [red]delete[/]:",
+            devices,
+            d => $"{d.Name} ({d.Id})");
 
-        var selectedDevice = devices.First(d => $"{d.Name} ({d.Id})" == deviceChoice);
+        if (selected == null) return;
 
-        if (!AnsiConsole.Confirm($"Are you sure you want to delete [red]{Markup.Escape(selectedDevice.Name)}[/]?", false))
+        if (!ConsoleHelpers.ConfirmAction($"Are you sure you want to delete [red]{Markup.Escape(selected.Name)}[/]?"))
         {
-            AnsiConsole.MarkupLine("[grey]Deletion cancelled.[/]");
-            AnsiConsole.WriteLine();
+            ConsoleHelpers.ShowCancelled();
             return;
         }
 
-        await AnsiConsole.Status()
-            .StartAsync("Deleting device...", async ctx =>
-            {
-                using var api = _apiClientFactory.CreateDevicesApi();
-                await api.RemoveDeviceAsync(selectedDevice.Id);
-            });
+        await ConsoleHelpers.WithStatusAsync(
+            "Deleting device...",
+            () => _deviceRepository.DeleteAsync(selected.Id));
 
-        AnsiConsole.MarkupLine($"[green]Device '{Markup.Escape(selectedDevice.Name)}' deleted successfully![/]");
-        AnsiConsole.WriteLine();
+        ConsoleHelpers.ShowSuccess($"Device '{selected.Name}' deleted successfully!");
     }
 
-    private async Task<List<Device>> GetDevicesListAsync()
+    private async Task<List<Device>> GetDevicesWithStatusAsync()
     {
-        var devices = await AnsiConsole.Status()
-            .StartAsync("Fetching devices...", async ctx =>
-            {
-                using var api = _apiClientFactory.CreateDevicesApi();
-                return await api.ListDevicesAsync();
-            });
+        var devices = await ConsoleHelpers.WithStatusAsync(
+            "Fetching devices...",
+            () => _deviceRepository.GetAllAsync());
 
         if (devices.Count == 0)
         {
-            AnsiConsole.MarkupLine("[yellow]No devices found.[/]");
-            AnsiConsole.WriteLine();
+            ConsoleHelpers.ShowNoItemsMessage("devices");
         }
 
         return devices;

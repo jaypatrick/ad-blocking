@@ -1,140 +1,62 @@
-using AdGuard.ApiClient.Client;
 using AdGuard.ApiClient.Model;
+using AdGuard.ConsoleUI.Display;
+using AdGuard.ConsoleUI.Helpers;
+using AdGuard.ConsoleUI.Repositories;
 using Spectre.Console;
 
 namespace AdGuard.ConsoleUI.Services;
 
-public class DnsServerMenuService
+/// <summary>
+/// Menu service for managing DNS servers.
+/// Uses Repository pattern for data access and Strategy pattern for display.
+/// </summary>
+public class DnsServerMenuService : BaseMenuService
 {
-    private readonly ApiClientFactory _apiClientFactory;
+    private readonly IDnsServerRepository _dnsServerRepository;
+    private readonly IDisplayStrategy<DNSServer> _displayStrategy;
 
-    public DnsServerMenuService(ApiClientFactory apiClientFactory)
+    public DnsServerMenuService(
+        IDnsServerRepository dnsServerRepository,
+        IDisplayStrategy<DNSServer> displayStrategy)
     {
-        _apiClientFactory = apiClientFactory;
+        _dnsServerRepository = dnsServerRepository ?? throw new ArgumentNullException(nameof(dnsServerRepository));
+        _displayStrategy = displayStrategy ?? throw new ArgumentNullException(nameof(displayStrategy));
     }
 
-    public async Task ShowAsync()
+    /// <inheritdoc />
+    public override string Title => "DNS Server Management";
+
+    /// <inheritdoc />
+    protected override Dictionary<string, Func<Task>> GetMenuActions() => new()
     {
-        var running = true;
-
-        while (running)
-        {
-            var choice = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("[green]DNS Server Management[/]")
-                    .PageSize(10)
-                    .HighlightStyle(new Style(Color.Green))
-                    .AddChoices(new[]
-                    {
-                        "List DNS Servers",
-                        "View Server Details",
-                        "Create DNS Server",
-                        "Delete DNS Server",
-                        "Back"
-                    }));
-
-            AnsiConsole.WriteLine();
-
-            try
-            {
-                switch (choice)
-                {
-                    case "List DNS Servers":
-                        await ListDnsServersAsync();
-                        break;
-                    case "View Server Details":
-                        await ViewServerDetailsAsync();
-                        break;
-                    case "Create DNS Server":
-                        await CreateDnsServerAsync();
-                        break;
-                    case "Delete DNS Server":
-                        await DeleteDnsServerAsync();
-                        break;
-                    case "Back":
-                        running = false;
-                        break;
-                }
-            }
-            catch (ApiException ex)
-            {
-                AnsiConsole.MarkupLine($"[red]API Error ({ex.ErrorCode}): {ex.Message}[/]");
-                AnsiConsole.WriteLine();
-            }
-        }
-    }
+        { "List DNS Servers", ListDnsServersAsync },
+        { "View Server Details", ViewServerDetailsAsync },
+        { "Create DNS Server", CreateDnsServerAsync },
+        { "Delete DNS Server", DeleteDnsServerAsync }
+    };
 
     private async Task ListDnsServersAsync()
     {
-        var servers = await AnsiConsole.Status()
-            .StartAsync("Fetching DNS servers...", async ctx =>
-            {
-                using var api = _apiClientFactory.CreateDnsServersApi();
-                return await api.ListDNSServersAsync();
-            });
+        var servers = await ConsoleHelpers.WithStatusAsync(
+            "Fetching DNS servers...",
+            () => _dnsServerRepository.GetAllAsync());
 
-        if (servers.Count == 0)
-        {
-            AnsiConsole.MarkupLine("[yellow]No DNS servers found.[/]");
-            AnsiConsole.WriteLine();
-            return;
-        }
-
-        var table = new Table()
-            .Border(TableBorder.Rounded)
-            .AddColumn("[green]ID[/]")
-            .AddColumn("[green]Name[/]")
-            .AddColumn("[green]Default[/]")
-            .AddColumn("[green]Devices[/]");
-
-        foreach (var server in servers)
-        {
-            table.AddRow(
-                server.Id,
-                Markup.Escape(server.Name),
-                server.Default ? "[green]Yes[/]" : "No",
-                server.DeviceIds.Count.ToString());
-        }
-
-        AnsiConsole.Write(table);
-        AnsiConsole.WriteLine();
+        _displayStrategy.Display(servers);
     }
 
     private async Task ViewServerDetailsAsync()
     {
-        var servers = await GetServersListAsync();
+        var servers = await GetServersWithStatusAsync();
         if (servers.Count == 0) return;
 
-        var serverChoice = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .Title("Select a DNS server:")
-                .PageSize(10)
-                .AddChoices(servers.Select(s => $"{s.Name} ({s.Id})")));
+        var selected = ConsoleHelpers.SelectItem(
+            "Select a DNS server:",
+            servers,
+            s => $"{s.Name} ({s.Id})");
 
-        var selectedServer = servers.First(s => $"{s.Name} ({s.Id})" == serverChoice);
-        DisplayServerDetails(selectedServer);
-    }
+        if (selected == null) return;
 
-    private static void DisplayServerDetails(DNSServer server)
-    {
-        var deviceList = server.DeviceIds.Count > 0
-            ? string.Join(", ", server.DeviceIds)
-            : "[grey]None[/]";
-
-        var panel = new Panel(new Rows(
-            new Markup($"[bold]ID:[/] {server.Id}"),
-            new Markup($"[bold]Name:[/] {Markup.Escape(server.Name)}"),
-            new Markup($"[bold]Default:[/] {(server.Default ? "[green]Yes[/]" : "No")}"),
-            new Markup($"[bold]Device IDs:[/] {deviceList}"),
-            new Markup($"[bold]Settings:[/]"),
-            new Markup($"  {server.Settings}")))
-        {
-            Header = new PanelHeader($"[green]DNS Server: {Markup.Escape(server.Name)}[/]"),
-            Border = BoxBorder.Rounded
-        };
-
-        AnsiConsole.Write(panel);
-        AnsiConsole.WriteLine();
+        _displayStrategy.DisplayDetails(selected);
     }
 
     private async Task CreateDnsServerAsync()
@@ -143,76 +65,61 @@ public class DnsServerMenuService
 
         var dnsServerCreate = new DNSServerCreate(name: name);
 
-        var newServer = await AnsiConsole.Status()
-            .StartAsync("Creating DNS server...", async ctx =>
-            {
-                using var api = _apiClientFactory.CreateDnsServersApi();
-                return await api.CreateDNSServerAsync(dnsServerCreate);
-            });
+        var newServer = await ConsoleHelpers.WithStatusAsync(
+            "Creating DNS server...",
+            () => _dnsServerRepository.CreateAsync(dnsServerCreate));
 
-        AnsiConsole.MarkupLine($"[green]DNS Server '{Markup.Escape(newServer.Name)}' created successfully![/]");
-        AnsiConsole.MarkupLine($"[grey]ID: {newServer.Id}[/]");
-        AnsiConsole.WriteLine();
+        ConsoleHelpers.ShowSuccessWithId($"DNS Server '{newServer.Name}' created successfully!", newServer.Id);
     }
 
     private async Task DeleteDnsServerAsync()
     {
-        var servers = await GetServersListAsync();
+        var servers = await GetServersWithStatusAsync();
         if (servers.Count == 0) return;
 
         // Filter out default server - can't delete it
         var deletableServers = servers.Where(s => !s.Default).ToList();
         if (deletableServers.Count == 0)
         {
-            AnsiConsole.MarkupLine("[yellow]No deletable DNS servers found. Default server cannot be deleted.[/]");
+            ConsoleHelpers.ShowWarning("No deletable DNS servers found. Default server cannot be deleted.");
             AnsiConsole.WriteLine();
             return;
         }
 
-        var serverChoice = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .Title("Select a DNS server to [red]delete[/]:")
-                .PageSize(10)
-                .AddChoices(deletableServers.Select(s => $"{s.Name} ({s.Id})")));
+        var selected = ConsoleHelpers.SelectItem(
+            "Select a DNS server to [red]delete[/]:",
+            deletableServers,
+            s => $"{s.Name} ({s.Id})");
 
-        var selectedServer = deletableServers.First(s => $"{s.Name} ({s.Id})" == serverChoice);
+        if (selected == null) return;
 
-        if (selectedServer.DeviceIds.Count > 0)
+        if (selected.DeviceIds.Count > 0)
         {
-            AnsiConsole.MarkupLine($"[yellow]Warning: This server has {selectedServer.DeviceIds.Count} device(s) attached.[/]");
+            ConsoleHelpers.ShowWarning($"Warning: This server has {selected.DeviceIds.Count} device(s) attached.");
         }
 
-        if (!AnsiConsole.Confirm($"Are you sure you want to delete [red]{Markup.Escape(selectedServer.Name)}[/]?", false))
+        if (!ConsoleHelpers.ConfirmAction($"Are you sure you want to delete [red]{Markup.Escape(selected.Name)}[/]?"))
         {
-            AnsiConsole.MarkupLine("[grey]Deletion cancelled.[/]");
-            AnsiConsole.WriteLine();
+            ConsoleHelpers.ShowCancelled();
             return;
         }
 
-        await AnsiConsole.Status()
-            .StartAsync("Deleting DNS server...", async ctx =>
-            {
-                using var api = _apiClientFactory.CreateDnsServersApi();
-                await api.RemoveDNSServerAsync(selectedServer.Id);
-            });
+        await ConsoleHelpers.WithStatusAsync(
+            "Deleting DNS server...",
+            () => _dnsServerRepository.DeleteAsync(selected.Id));
 
-        AnsiConsole.MarkupLine($"[green]DNS Server '{Markup.Escape(selectedServer.Name)}' deleted successfully![/]");
-        AnsiConsole.WriteLine();
+        ConsoleHelpers.ShowSuccess($"DNS Server '{selected.Name}' deleted successfully!");
     }
 
-    private async Task<List<DNSServer>> GetServersListAsync()
+    private async Task<List<DNSServer>> GetServersWithStatusAsync()
     {
-        var servers = await AnsiConsole.Status()
-            .StartAsync("Fetching DNS servers...", async ctx =>
-            {
-                using var api = _apiClientFactory.CreateDnsServersApi();
-                return await api.ListDNSServersAsync();
-            });
+        var servers = await ConsoleHelpers.WithStatusAsync(
+            "Fetching DNS servers...",
+            () => _dnsServerRepository.GetAllAsync());
 
         if (servers.Count == 0)
         {
-            AnsiConsole.MarkupLine("[yellow]No DNS servers found.[/]");
-            AnsiConsole.WriteLine();
+            ConsoleHelpers.ShowNoItemsMessage("DNS servers");
         }
 
         return servers;
