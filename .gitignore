@@ -481,3 +481,4 @@ $RECYCLE.BIN/
 .env.*
 !.env.example
 *.env
+src/rules-compiler-typescript/frontend-rust/target/

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://deno.land/x/deno/cli/schemas/config-file.v1.json",
+  "name": "@rules-compiler/typescript",
+  "version": "1.0.0",
+  "exports": "./src/mod.ts",
+  "tasks": {
+    "compile": "deno run --allow-read --allow-write --allow-env --allow-run src/mod.ts",
+    "compile:yaml": "deno run --allow-read --allow-write --allow-env --allow-run src/mod.ts -c compiler-config.yaml",
+    "test": "deno test --allow-read --allow-write --allow-env src/",
+    "check": "deno check src/mod.ts",
+    "lint": "deno lint src/",
+    "fmt": "deno fmt src/"
+  },
+  "imports": {
+    "node:fs": "node:fs",
+    "node:path": "node:path",
+    "node:crypto": "node:crypto",
+    "node:process": "node:process",
+    "yaml": "npm:yaml@^2.7.1",
+    "@iarna/toml": "npm:@iarna/toml@^2.2.5",
+    "@adguard/hostlist-compiler": "npm:@adguard/hostlist-compiler@^1.0.39"
+  },
+  "compilerOptions": {
+    "lib": ["deno.ns", "deno.unstable", "dom"],
+    "strict": true
+  },
+  "nodeModulesDir": "auto"
+}
