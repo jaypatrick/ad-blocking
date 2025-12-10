@@ -1,0 +1,25 @@
+{
+  "name": "AdGuard User Filter",
+  "version": "1.0.0",
+  "description": "Custom filter rules for AdGuard DNS",
+  "license": "MIT",
+  "homepage": "https://github.com/jaypatrick/ad-blocking",
+  "sources": [
+    {
+      "name": "User Rules",
+      "type": "inline",
+      "content": [
+        "! Title: Custom User Rules",
+        "! Description: Personal ad-blocking rules",
+        "! Last modified: 2024-01-01",
+        "||example-ads.com^",
+        "||tracking.example.net^"
+      ]
+    }
+  ],
+  "transformations": [
+    "RemoveComments",
+    "Compress",
+    "Validate"
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "name": "rules-compiler-typescript",
+  "version": "1.0.0",
+  "description": "TypeScript frontend for AdGuard filter rules compiler",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "rules-compiler": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/cli.js",
+    "dev": "ts-node src/cli.ts",
+    "compile": "ts-node src/cli.ts",
+    "compile:yaml": "ts-node src/cli.ts -c compiler-config.yaml",
+    "compile:toml": "ts-node src/cli.ts -c compiler-config.toml",
+    "lint": "eslint src/",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "adguard",
+    "filter",
+    "compiler",
+    "ad-blocking",
+    "rules"
+  ],
+  "author": "jaypatrick",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.11.0",
+    "eslint": "^9.0.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5",
+    "typescript-eslint": "^8.0.0"
+  },
+  "dependencies": {
+    "@adguard/hostlist-compiler": "^1.0.39",
+    "@iarna/toml": "^2.2.5",
+    "yaml": "^2.7.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
