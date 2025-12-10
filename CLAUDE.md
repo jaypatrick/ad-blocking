@@ -7,6 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This repository houses multiple sub-projects for ad-blocking, network protection, and AdGuard DNS management:
 - **Filter Compiler** (TypeScript) - Compiles filter rules using @adguard/hostlist-compiler with JSON/YAML/TOML support
 - **Rules Compiler** (C#/.NET 8) - .NET library and console app for filter rule compilation
+- **Rules Compiler** (Python) - Python package with pip distribution for filter rule compilation
+- **Rules Compiler** (Rust) - High-performance Rust library and CLI for filter rule compilation
 - **Shell Scripts** - Cross-platform Bash and PowerShell Core scripts for compilation
 - **API Client** (C#/.NET 8) - Auto-generated SDK for AdGuard DNS API v1.11
 - **Console UI** (C#/.NET 8) - Spectre.Console menu-driven wrapper for the API client
@@ -66,6 +68,55 @@ dotnet run --project src/RulesCompiler.Console/RulesCompiler.Console.csproj
 dotnet run --project src/RulesCompiler.Console -- --config path/to/config.yaml
 dotnet run --project src/RulesCompiler.Console -- --config config.json --copy
 dotnet run --project src/RulesCompiler.Console -- --version
+```
+
+### Python Rules Compiler (`src/rules-compiler-python/`)
+```bash
+cd src/rules-compiler-python
+
+# Install in development mode
+pip install -e .
+
+# Install with dev dependencies
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+pytest -v                    # Verbose output
+pytest --cov=rules_compiler  # With coverage
+
+# CLI usage
+rules-compiler                           # Use default config
+rules-compiler -c config.yaml            # Specific config
+rules-compiler -c config.json -r         # Compile and copy to rules
+rules-compiler -c config.toml -o out.txt # Custom output
+rules-compiler -V                        # Show version info
+rules-compiler -d                        # Debug output
+rules-compiler --help                    # Show help
+```
+
+### Rust Rules Compiler (`src/rules-compiler-rust/`)
+```bash
+cd src/rules-compiler-rust
+
+# Build
+cargo build              # Debug build
+cargo build --release    # Release build (optimized)
+
+# Run tests
+cargo test
+cargo test -- --nocapture  # With output
+
+# CLI usage
+cargo run -- -c config.yaml              # Specific config
+cargo run -- -c config.json -r           # Compile and copy to rules
+cargo run -- -c config.toml -o out.txt   # Custom output
+cargo run -- -V                          # Show version info
+cargo run -- -d                          # Debug output
+cargo run -- --help                      # Show help
+
+# Release binary
+./target/release/rules-compiler -c config.yaml
 ```
 
 ### .NET API Client + Console UI (`src/api-client/`)
@@ -147,6 +198,25 @@ Invoke-Pester -Path ./scripts/powershell/Tests/RulesCompiler-Tests.ps1
 Invoke-Pester -Path ./scripts/powershell/Tests/ -Output Detailed
 ```
 
+### Python (pytest)
+```bash
+cd src/rules-compiler-python
+pytest                                    # Run all tests
+pytest -v                                 # Verbose output
+pytest tests/test_config.py               # Specific file
+pytest -k "test_read_yaml"                # By test name
+pytest --cov=rules_compiler               # With coverage
+```
+
+### Rust (cargo test)
+```bash
+cd src/rules-compiler-rust
+cargo test                                # Run all tests
+cargo test -- --nocapture                 # With output
+cargo test test_count_rules               # Specific test
+cargo test config::                       # Tests in module
+```
+
 ## Architecture
 
 ### Filter Rules (`rules/`)
@@ -170,13 +240,32 @@ Invoke-Pester -Path ./scripts/powershell/Tests/ -Output Detailed
 - `compile-rules.cmd` - Windows batch wrapper
 - Supports JSON, YAML, TOML via external tools (yq, Python)
 
-### Rules Compiler (`src/rules-compiler/`)
+### Rules Compiler - .NET (`src/rules-compiler/`)
 - .NET 8 library wrapping @adguard/hostlist-compiler
 - Supports JSON, YAML, and TOML configuration formats
 - `RulesCompiler` - Core library with abstractions, models, and services
 - `RulesCompiler.Console` - Spectre.Console interactive and CLI frontend
 - `RulesCompiler.Tests` - xUnit tests
 - Key interfaces: `IRulesCompilerService`, `IConfigurationReader`, `IFilterCompiler`
+
+### Rules Compiler - Python (`src/rules-compiler-python/`)
+- Python 3.9+ package wrapping @adguard/hostlist-compiler
+- Supports JSON, YAML, and TOML configuration formats
+- `rules_compiler/config.py` - Multi-format configuration reader
+- `rules_compiler/compiler.py` - Core `RulesCompiler` class and `compile_rules()` function
+- `rules_compiler/cli.py` - argparse-based CLI
+- Install via `pip install -e .` for development
+- Key classes: `RulesCompiler`, `CompilerConfiguration`, `CompilerResult`
+
+### Rules Compiler - Rust (`src/rules-compiler-rust/`)
+- High-performance Rust library and CLI wrapping @adguard/hostlist-compiler
+- Supports JSON, YAML, and TOML configuration formats
+- `src/config.rs` - Configuration structs and parsing
+- `src/compiler.rs` - `RulesCompiler` struct and `compile_rules()` function
+- `src/main.rs` - clap-based CLI with argument parsing
+- `src/error.rs` - `CompilerError` enum with thiserror
+- Single binary distribution with zero runtime dependencies (except Node.js for hostlist-compiler)
+- Key structs: `RulesCompiler`, `CompilerConfiguration`, `CompilerResult`, `VersionInfo`
 
 ### API Client (`src/api-client/`)
 - Auto-generated from `api/openapi.yaml` (AdGuard DNS API v1.11)
@@ -223,3 +312,6 @@ GitHub Actions workflows validate:
 - .NET 8.0 SDK
 - Node.js 18+ (CI uses Node 20)
 - PowerShell 7+ (for scripts)
+- Python 3.9+ (for Python rules compiler)
+- Rust 1.70+ (for Rust rules compiler, install via rustup)
+- hostlist-compiler: `npm install -g @adguard/hostlist-compiler`
