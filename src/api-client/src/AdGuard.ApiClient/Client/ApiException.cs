@@ -63,6 +63,23 @@ namespace AdGuard.ApiClient.Client
             this.ErrorContent = errorContent;
             this.Headers = headers;
         }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ApiException"/> class.
+        /// </summary>
+        /// <param name="message"></param>
+        public ApiException(string? message) : base(message)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ApiException"/> class.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="innerException"></param>
+        public ApiException(string? message, Exception? innerException) : base(message, innerException)
+        {
+        }
     }
 
 }

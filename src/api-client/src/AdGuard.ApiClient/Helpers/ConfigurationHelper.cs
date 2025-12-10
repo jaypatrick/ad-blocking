@@ -150,7 +150,10 @@ namespace AdGuard.ApiClient.Helpers
         /// </summary>
         /// <remarks>
         /// Use this method when you need to configure authentication separately using extension methods
-        /// like <see cref="WithApiKey"/> or <see cref="WithBearerToken"/>.
+        /// like <see>
+        ///     <cref>WithApiKey</cref>
+        /// </see>
+        /// or <see cref="WithBearerToken"/>.
         /// </remarks>
         /// <param name="basePath">API base path. Defaults to https://api.adguard-dns.io if not specified.</param>
         /// <param name="timeout">Optional timeout in milliseconds. Must be between 1000 and 300000 if specified.</param>
@@ -199,7 +202,7 @@ namespace AdGuard.ApiClient.Helpers
 
             if (timeout.HasValue)
             {
-                config.Timeout = timeout.Value;
+                config.Timeout = TimeSpan.FromMilliseconds(timeout.Value);
                 logger?.LogDebug("Timeout set to {Timeout}ms", timeout.Value);
             }
 
@@ -218,7 +221,6 @@ namespace AdGuard.ApiClient.Helpers
         /// </summary>
         /// <param name="configuration">The configuration to modify. Must not be null.</param>
         /// <param name="apiKey">API key to add. Must not be null, empty, or whitespace.</param>
-        /// <param name="logger">Optional logger for diagnostic output.</param>
         /// <returns>The modified configuration for method chaining.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="configuration"/> is null.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="apiKey"/> is null, empty, or whitespace.</exception>
@@ -231,6 +233,19 @@ namespace AdGuard.ApiClient.Helpers
         {
             return WithApiKey(configuration, apiKey, null);
         }
+
+        /// <summary>
+        /// Adds API key authentication to the specified configuration instance.
+        /// </summary>
+        /// <remarks>This method sets the "Authorization" header in the configuration's API key dictionary
+        /// to use the provided API key. Subsequent requests using this configuration will include the API key for
+        /// authentication.</remarks>
+        /// <param name="configuration"></param>
+        /// <param name="apiKey"></param>
+        /// <param name="logger"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
         public static Configuration WithApiKey(this Configuration configuration, string apiKey, ILogger? logger = null)
         {
             if (configuration == null)
@@ -322,7 +337,7 @@ namespace AdGuard.ApiClient.Helpers
 
             logger?.LogDebug("Setting timeout to {Timeout}ms", timeoutMilliseconds);
 
-            configuration.Timeout = timeoutMilliseconds;
+            configuration.Timeout = TimeSpan.FromMilliseconds(timeoutMilliseconds);
 
             logger?.LogInformation("Timeout set successfully to {Timeout}ms", timeoutMilliseconds);
             return configuration;

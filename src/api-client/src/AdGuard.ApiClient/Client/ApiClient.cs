@@ -274,7 +274,7 @@ namespace AdGuard.ApiClient.Client
         /// </remarks>
         public ApiClient(HttpClient client, string basePath, HttpClientHandler handler = null)
         {
-            if (client == null) throw new ArgumentNullException("client cannot be null");
+            ArgumentNullException.ThrowIfNull(client);
             if (string.IsNullOrEmpty(basePath)) throw new ArgumentException("basePath cannot be empty");
 
             _httpClientHandler = handler;
@@ -292,7 +292,11 @@ namespace AdGuard.ApiClient.Client
             }
         }
 
+        /// <summary>
         /// Prepares multipart/form-data content
+        /// </summary>
+        /// <param name="options"></param>
+        /// <returns></returns>
         HttpContent PrepareMultipartFormDataContent(RequestOptions options)
         {
             string boundary = "---------" + Guid.NewGuid().ToString().ToUpperInvariant();
@@ -302,16 +306,14 @@ namespace AdGuard.ApiClient.Client
                 multipartContent.Add(new StringContent(formParameter.Value), formParameter.Key);
             }
 
-            if (options.FileParameters != null && options.FileParameters.Count > 0)
+            if (!(options.FileParameters?.Count > 0)) return multipartContent;
+            foreach (var fileParam in options.FileParameters)
             {
-                foreach (var fileParam in options.FileParameters)
+                foreach (var file in fileParam.Value)
                 {
-                    foreach (var file in fileParam.Value)
-                    {
-                        var content = new StreamContent(file.Content);
-                        content.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
-                        multipartContent.Add(content, fileParam.Key, file.Name);
-                    }
+                    var content = new StreamContent(file.Content);
+                    content.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+                    multipartContent.Add(content, fileParam.Key, file.Name);
                 }
             }
             return multipartContent;
@@ -335,9 +337,9 @@ namespace AdGuard.ApiClient.Client
             RequestOptions options,
             IReadableConfiguration configuration)
         {
-            if (path == null) throw new ArgumentNullException("path");
-            if (options == null) throw new ArgumentNullException("options");
-            if (configuration == null) throw new ArgumentNullException("configuration");
+            ArgumentNullException.ThrowIfNull(path);
+            ArgumentNullException.ThrowIfNull(options);
+            ArgumentNullException.ThrowIfNull(configuration);
 
             WebRequestPathBuilder builder = new WebRequestPathBuilder(_baseUrl, path);
 
@@ -347,37 +349,27 @@ namespace AdGuard.ApiClient.Client
 
             HttpRequestMessage request = new HttpRequestMessage(method, builder.GetFullUri());
 
-            if (configuration.UserAgent != null)
+            request.Headers.TryAddWithoutValidation("User-Agent", configuration.UserAgent);
+
+            foreach (var headerParam in configuration.DefaultHeaders)
             {
-                request.Headers.TryAddWithoutValidation("User-Agent", configuration.UserAgent);
+                request.Headers.Add(headerParam.Key, headerParam.Value);
             }
 
-            if (configuration.DefaultHeaders != null)
+            foreach (var headerParam in options.HeaderParameters)
             {
-                foreach (var headerParam in configuration.DefaultHeaders)
+                foreach (var value in headerParam.Value)
                 {
-                    request.Headers.Add(headerParam.Key, headerParam.Value);
-                }
-            }
-
-            if (options.HeaderParameters != null)
-            {
-                foreach (var headerParam in options.HeaderParameters)
-                {
-                    foreach (var value in headerParam.Value)
-                    {
-                        // Todo make content headers actually content headers
-                        request.Headers.TryAddWithoutValidation(headerParam.Key, value);
-                    }
+                    // Todo make content headers actually content headers
+                    request.Headers.TryAddWithoutValidation(headerParam.Key, value);
                 }
             }
 
             List<Tuple<HttpContent, string, string>> contentList = new List<Tuple<HttpContent, string, string>>();
 
             string contentType = null;
-            if (options.HeaderParameters != null && options.HeaderParameters.ContainsKey("Content-Type"))
+            if (options.HeaderParameters != null && options.HeaderParameters.TryGetValue("Content-Type", out IList<string>? contentTypes))
             {
-                var contentTypes = options.HeaderParameters["Content-Type"];
                 contentType = contentTypes.FirstOrDefault();
             }
 
@@ -408,14 +400,6 @@ namespace AdGuard.ApiClient.Client
                             "application/json");
                     }
                 }
-            }
-
-
-
-            // TODO provide an alternative that allows cookies per request instead of per API client
-            if (options.Cookies != null && options.Cookies.Count > 0)
-            {
-                request.Properties["CookieContainer"] = options.Cookies;
             }
 
             return request;

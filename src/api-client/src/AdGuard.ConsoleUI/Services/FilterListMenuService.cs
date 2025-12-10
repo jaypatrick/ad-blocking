@@ -1,72 +1,46 @@
 using AdGuard.ApiClient.Client;
 using AdGuard.ApiClient.Model;
-using Spectre.Console;
+using AdGuard.ConsoleUI.Abstractions;
+using AdGuard.ConsoleUI.Display;
+using AdGuard.ConsoleUI.Helpers;
+using AdGuard.ConsoleUI.Repositories;
 
 namespace AdGuard.ConsoleUI.Services;
 
-public class FilterListMenuService
+/// <summary>
+/// Menu service for viewing filter lists.
+/// Uses Repository pattern for data access and Strategy pattern for display.
+/// </summary>
+public class FilterListMenuService : IMenuService
 {
-    private readonly ApiClientFactory _apiClientFactory;
+    private readonly IFilterListRepository _filterListRepository;
+    private readonly IDisplayStrategy<FilterList> _displayStrategy;
 
-    public FilterListMenuService(ApiClientFactory apiClientFactory)
+    public FilterListMenuService(
+        IFilterListRepository filterListRepository,
+        IDisplayStrategy<FilterList> displayStrategy)
     {
-        _apiClientFactory = apiClientFactory;
+        _filterListRepository = filterListRepository ?? throw new ArgumentNullException(nameof(filterListRepository));
+        _displayStrategy = displayStrategy ?? throw new ArgumentNullException(nameof(displayStrategy));
     }
 
+    /// <inheritdoc />
+    public string Title => "Filter Lists";
+
+    /// <inheritdoc />
     public async Task ShowAsync()
     {
         try
         {
-            var filterLists = await AnsiConsole.Status()
-                .StartAsync("Fetching filter lists...", async ctx =>
-                {
-                    using var api = _apiClientFactory.CreateFilterListsApi();
-                    return await api.ListFilterListsAsync();
-                });
+            var filterLists = await ConsoleHelpers.WithStatusAsync(
+                "Fetching filter lists...",
+                () => _filterListRepository.GetAllAsync());
 
-            DisplayFilterLists(filterLists);
+            _displayStrategy.Display(filterLists);
         }
         catch (ApiException ex)
         {
-            AnsiConsole.MarkupLine($"[red]API Error ({ex.ErrorCode}): {ex.Message}[/]");
-            AnsiConsole.WriteLine();
+            ConsoleHelpers.ShowApiError(ex);
         }
-    }
-
-    private static void DisplayFilterLists(List<FilterList> filterLists)
-    {
-        AnsiConsole.Write(new Rule("[green]Available Filter Lists[/]"));
-        AnsiConsole.WriteLine();
-
-        if (filterLists.Count == 0)
-        {
-            AnsiConsole.MarkupLine("[yellow]No filter lists available.[/]");
-            AnsiConsole.WriteLine();
-            return;
-        }
-
-        var table = new Table()
-            .Border(TableBorder.Rounded)
-            .AddColumn("[green]ID[/]")
-            .AddColumn("[green]Name[/]")
-            .AddColumn("[green]Description[/]");
-
-        foreach (var filter in filterLists)
-        {
-            var description = filter.Description ?? "";
-            if (description.Length > 60)
-            {
-                description = description[..57] + "...";
-            }
-
-            table.AddRow(
-                filter.FilterId ?? "N/A",
-                Markup.Escape(filter.Name ?? "N/A"),
-                Markup.Escape(description));
-        }
-
-        AnsiConsole.Write(table);
-        AnsiConsole.MarkupLine($"[grey]Total: {filterLists.Count} filter lists[/]");
-        AnsiConsole.WriteLine();
     }
 }

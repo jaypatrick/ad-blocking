@@ -37,6 +37,37 @@ ad-blocking/
 - [PowerShell 7+](https://github.com/PowerShell/PowerShell) - For automation scripts
 - [AdGuard HostList Compiler](https://github.com/AdguardTeam/HostlistCompiler) - For filter compilation
 
+### Warp Environment
+
+This repository includes a pre-configured Warp environment for development and AI-assisted workflows.
+
+**Environment Details:**
+- **Docker Image:** `jaysonknight/warp-env:ad-blocking`
+  - .NET 8.0 SDK on Ubuntu Jammy
+  - Node.js 20.x LTS
+  - PowerShell 7
+  - Git
+- **Environment ID:** `Egji4sZU4TNIOwNasFU73A`
+
+**Setup Commands (automated):**
+```bash
+cd ad-blocking/src/filter-compiler && npm install
+cd ad-blocking/src/website && npm install
+cd ad-blocking/src/webhook-app && dotnet restore
+cd ad-blocking/src/api-client && dotnet restore
+```
+
+**Using with Integrations:**
+```bash
+# Create a Slack integration
+warp integration create slack --environment Egji4sZU4TNIOwNasFU73A
+
+# Create a Linear integration
+warp integration create linear --environment Egji4sZU4TNIOwNasFU73A
+```
+
+For full repository access (opening PRs, pushing changes), authorize the Warp GitHub app.
+
 ### Configuration
 
 1. **Environment Variables**: Create a `.env` file or set environment variables:
