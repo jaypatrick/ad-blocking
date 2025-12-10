@@ -6,6 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repository houses multiple sub-projects for ad-blocking, network protection, and AdGuard DNS management:
 - **Filter Compiler** (TypeScript) - Compiles filter rules using @adguard/hostlist-compiler
+- **Rules Compiler** (C#/.NET 8) - .NET library and console app for filter rule compilation
 - **API Client** (C#/.NET 8) - Auto-generated SDK for AdGuard DNS API v1.11
 - **Console UI** (C#/.NET 8) - Spectre.Console menu-driven wrapper for the API client
 - **Webhook App** (C#/.NET 8) - Triggers AdGuard DNS webhooks with rate limiting
@@ -26,6 +27,20 @@ npm run test:coverage     # Run tests with coverage
 npx tsc --noEmit          # Type-check only
 npx eslint .              # Lint
 npm run compile           # Compile filter rules
+```
+
+### .NET Rules Compiler (`src/rules-compiler/`)
+```bash
+cd src/rules-compiler
+dotnet restore RulesCompiler.slnx
+dotnet build RulesCompiler.slnx
+dotnet test RulesCompiler.slnx
+dotnet run --project src/RulesCompiler.Console/RulesCompiler.Console.csproj
+
+# Command-line options
+dotnet run --project src/RulesCompiler.Console -- --config path/to/config.yaml
+dotnet run --project src/RulesCompiler.Console -- --config config.json --copy
+dotnet run --project src/RulesCompiler.Console -- --version
 ```
 
 ### .NET API Client + Console UI (`src/api-client/`)
@@ -118,6 +133,14 @@ Invoke-Pester -Path ./scripts/powershell/Tests/ -Output Detailed
 - TypeScript wrapper around @adguard/hostlist-compiler
 - `invoke-compiler.ts` loads config and writes output
 - ESLint flat config in `eslint.config.mjs`
+
+### Rules Compiler (`src/rules-compiler/`)
+- .NET 8 library wrapping @adguard/hostlist-compiler
+- Supports JSON, YAML, and TOML configuration formats
+- `RulesCompiler` - Core library with abstractions, models, and services
+- `RulesCompiler.Console` - Spectre.Console interactive and CLI frontend
+- `RulesCompiler.Tests` - xUnit tests
+- Key interfaces: `IRulesCompilerService`, `IConfigurationReader`, `IFilterCompiler`
 
 ### API Client (`src/api-client/`)
 - Auto-generated from `api/openapi.yaml` (AdGuard DNS API v1.11)
