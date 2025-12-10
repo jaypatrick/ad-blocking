@@ -1,7 +1,11 @@
+using AdGuard.ApiClient.Model;
+using AdGuard.ConsoleUI.Abstractions;
+using AdGuard.ConsoleUI.Display;
+using AdGuard.ConsoleUI.Repositories;
+using AdGuard.ConsoleUI.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using AdGuard.ConsoleUI.Services;
 using Xunit;
 
 namespace AdGuard.ApiClient.Test.ConsoleUI;
@@ -39,15 +43,36 @@ public class ProgramTests
             builder.SetMinimumLevel(LogLevel.Information);
         });
 
-        // Application services
+        // Register API Client Factory (with interface for DI)
         services.AddSingleton<ApiClientFactory>();
-        services.AddSingleton<ConsoleApplication>();
+        services.AddSingleton<IApiClientFactory>(sp => sp.GetRequiredService<ApiClientFactory>());
+
+        // Register Repositories
+        services.AddSingleton<IDeviceRepository, DeviceRepository>();
+        services.AddSingleton<IDnsServerRepository, DnsServerRepository>();
+        services.AddSingleton<IAccountRepository, AccountRepository>();
+        services.AddSingleton<IStatisticsRepository, StatisticsRepository>();
+        services.AddSingleton<IFilterListRepository, FilterListRepository>();
+        services.AddSingleton<IQueryLogRepository, QueryLogRepository>();
+
+        // Register Display Strategies
+        services.AddSingleton<IDisplayStrategy<Device>, DeviceDisplayStrategy>();
+        services.AddSingleton<IDisplayStrategy<DNSServer>, DnsServerDisplayStrategy>();
+        services.AddSingleton<IDisplayStrategy<FilterList>, FilterListDisplayStrategy>();
+        services.AddSingleton<AccountLimitsDisplayStrategy>();
+        services.AddSingleton<StatisticsDisplayStrategy>();
+        services.AddSingleton<QueryLogDisplayStrategy>();
+
+        // Register Menu Services
         services.AddSingleton<DeviceMenuService>();
         services.AddSingleton<DnsServerMenuService>();
         services.AddSingleton<StatisticsMenuService>();
         services.AddSingleton<AccountMenuService>();
         services.AddSingleton<FilterListMenuService>();
         services.AddSingleton<QueryLogMenuService>();
+
+        // Register Main Application
+        services.AddSingleton<ConsoleApplication>();
 
         return services;
     }
@@ -97,6 +122,20 @@ public class ProgramTests
     }
 
     [Fact]
+    public void ConfigureServices_RegistersIApiClientFactory()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var factory = provider.GetService<IApiClientFactory>();
+
+        // Assert
+        Assert.NotNull(factory);
+    }
+
+    [Fact]
     public void ConfigureServices_RegistersConsoleApplication()
     {
         // Arrange
@@ -109,6 +148,195 @@ public class ProgramTests
         // Assert
         Assert.NotNull(app);
     }
+
+    #endregion
+
+    #region Repository Registration Tests
+
+    [Fact]
+    public void ConfigureServices_RegistersDeviceRepository()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var repository = provider.GetService<IDeviceRepository>();
+
+        // Assert
+        Assert.NotNull(repository);
+        Assert.IsType<DeviceRepository>(repository);
+    }
+
+    [Fact]
+    public void ConfigureServices_RegistersDnsServerRepository()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var repository = provider.GetService<IDnsServerRepository>();
+
+        // Assert
+        Assert.NotNull(repository);
+        Assert.IsType<DnsServerRepository>(repository);
+    }
+
+    [Fact]
+    public void ConfigureServices_RegistersAccountRepository()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var repository = provider.GetService<IAccountRepository>();
+
+        // Assert
+        Assert.NotNull(repository);
+        Assert.IsType<AccountRepository>(repository);
+    }
+
+    [Fact]
+    public void ConfigureServices_RegistersStatisticsRepository()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var repository = provider.GetService<IStatisticsRepository>();
+
+        // Assert
+        Assert.NotNull(repository);
+        Assert.IsType<StatisticsRepository>(repository);
+    }
+
+    [Fact]
+    public void ConfigureServices_RegistersFilterListRepository()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var repository = provider.GetService<IFilterListRepository>();
+
+        // Assert
+        Assert.NotNull(repository);
+        Assert.IsType<FilterListRepository>(repository);
+    }
+
+    [Fact]
+    public void ConfigureServices_RegistersQueryLogRepository()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var repository = provider.GetService<IQueryLogRepository>();
+
+        // Assert
+        Assert.NotNull(repository);
+        Assert.IsType<QueryLogRepository>(repository);
+    }
+
+    #endregion
+
+    #region Display Strategy Registration Tests
+
+    [Fact]
+    public void ConfigureServices_RegistersDeviceDisplayStrategy()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var strategy = provider.GetService<IDisplayStrategy<Device>>();
+
+        // Assert
+        Assert.NotNull(strategy);
+        Assert.IsType<DeviceDisplayStrategy>(strategy);
+    }
+
+    [Fact]
+    public void ConfigureServices_RegistersDnsServerDisplayStrategy()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var strategy = provider.GetService<IDisplayStrategy<DNSServer>>();
+
+        // Assert
+        Assert.NotNull(strategy);
+        Assert.IsType<DnsServerDisplayStrategy>(strategy);
+    }
+
+    [Fact]
+    public void ConfigureServices_RegistersFilterListDisplayStrategy()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var strategy = provider.GetService<IDisplayStrategy<FilterList>>();
+
+        // Assert
+        Assert.NotNull(strategy);
+        Assert.IsType<FilterListDisplayStrategy>(strategy);
+    }
+
+    [Fact]
+    public void ConfigureServices_RegistersAccountLimitsDisplayStrategy()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var strategy = provider.GetService<AccountLimitsDisplayStrategy>();
+
+        // Assert
+        Assert.NotNull(strategy);
+    }
+
+    [Fact]
+    public void ConfigureServices_RegistersStatisticsDisplayStrategy()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var strategy = provider.GetService<StatisticsDisplayStrategy>();
+
+        // Assert
+        Assert.NotNull(strategy);
+    }
+
+    [Fact]
+    public void ConfigureServices_RegistersQueryLogDisplayStrategy()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var strategy = provider.GetService<QueryLogDisplayStrategy>();
+
+        // Assert
+        Assert.NotNull(strategy);
+    }
+
+    #endregion
+
+    #region Menu Service Registration Tests
 
     [Fact]
     public void ConfigureServices_RegistersDeviceMenuService()
@@ -214,6 +442,21 @@ public class ProgramTests
     }
 
     [Fact]
+    public void ConfigureServices_IApiClientFactory_ReturnsSameAsApiClientFactory()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var concrete = provider.GetService<ApiClientFactory>();
+        var abstraction = provider.GetService<IApiClientFactory>();
+
+        // Assert
+        Assert.Same(concrete, abstraction);
+    }
+
+    [Fact]
     public void ConfigureServices_ConsoleApplication_IsSingleton()
     {
         // Arrange
@@ -226,6 +469,31 @@ public class ProgramTests
 
         // Assert
         Assert.Same(first, second);
+    }
+
+    [Fact]
+    public void ConfigureServices_Repositories_AreSingletons()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act & Assert
+        Assert.Same(
+            provider.GetService<IDeviceRepository>(),
+            provider.GetService<IDeviceRepository>());
+
+        Assert.Same(
+            provider.GetService<IDnsServerRepository>(),
+            provider.GetService<IDnsServerRepository>());
+
+        Assert.Same(
+            provider.GetService<IAccountRepository>(),
+            provider.GetService<IAccountRepository>());
+
+        Assert.Same(
+            provider.GetService<IStatisticsRepository>(),
+            provider.GetService<IStatisticsRepository>());
     }
 
     [Fact]
@@ -280,14 +548,13 @@ public class ProgramTests
     }
 
     [Fact]
-    public void ConfigureServices_MenuServices_ResolveApiClientFactory()
+    public void ConfigureServices_MenuServices_ResolveDependencies()
     {
         // Arrange
         var services = CreateConfiguredServices();
         var provider = services.BuildServiceProvider();
 
-        // Act - All menu services depend on ApiClientFactory
-        // No exceptions means successful resolution
+        // Act - All menu services depend on repositories and display strategies
         var deviceMenu = provider.GetRequiredService<DeviceMenuService>();
         var dnsServerMenu = provider.GetRequiredService<DnsServerMenuService>();
         var statisticsMenu = provider.GetRequiredService<StatisticsMenuService>();
