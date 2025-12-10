@@ -35,11 +35,26 @@ Import-Module ./scripts/powershell/RulesCompiler.psd1
 
 | Function | Description |
 |----------|-------------|
-| `Read-CompilerConfiguration` | Reads and parses the compiler configuration JSON file |
+| `Read-CompilerConfiguration` | Reads and parses configuration files (JSON, YAML, TOML) |
 | `Invoke-FilterCompiler` | Compiles filter rules using hostlist-compiler CLI |
 | `Write-CompiledOutput` | Copies compiled output to a destination directory |
 | `Invoke-RulesCompiler` | Main orchestration function for the full compilation pipeline |
 | `Get-CompilerVersion` | Returns version information for all components |
+
+#### Supported Configuration Formats
+
+The module supports multiple configuration file formats:
+
+| Format | Extensions | Notes |
+|--------|------------|-------|
+| JSON | `.json` | Native PowerShell support, default format |
+| YAML | `.yaml`, `.yml` | Built-in parser, or install `powershell-yaml` for full support |
+| TOML | `.toml` | Built-in parser |
+
+**Format Detection:**
+- Format is automatically detected from file extension
+- Use `-Format` parameter to override: `-Format 'yaml'`
+- YAML/TOML configs are converted to temporary JSON for hostlist-compiler
 
 #### Usage Examples
 
@@ -47,12 +62,27 @@ Import-Module ./scripts/powershell/RulesCompiler.psd1
 # Check installed versions and platform info
 Get-CompilerVersion | Format-List
 
-# Read and display configuration
+# Read and display configuration (JSON - default)
 $config = Read-CompilerConfiguration
 $config | Format-List
 
-# Compile filter rules
+# Read YAML configuration
+$config = Read-CompilerConfiguration -ConfigPath './compiler-config.yaml'
+
+# Read TOML configuration
+$config = Read-CompilerConfiguration -ConfigPath './compiler-config.toml'
+
+# Explicitly specify format (useful when extension doesn't match)
+$config = Read-CompilerConfiguration -ConfigPath './config.txt' -Format 'yaml'
+
+# Compile filter rules (uses default JSON config)
 Invoke-RulesCompiler
+
+# Compile using YAML configuration
+Invoke-RulesCompiler -ConfigPath 'compiler-config.yaml'
+
+# Compile using TOML configuration
+Invoke-RulesCompiler -ConfigPath 'compiler-config.toml'
 
 # Compile and copy to rules directory
 Invoke-RulesCompiler -CopyToRules

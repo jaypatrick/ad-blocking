@@ -106,6 +106,371 @@ function Get-CommandPath {
     return $null
 }
 
+function ConvertFrom-Yaml {
+    <#
+    .SYNOPSIS
+    Converts YAML content to a PowerShell object.
+
+    .DESCRIPTION
+    Parses YAML content and returns a PowerShell object. Uses the powershell-yaml
+    module if available, otherwise falls back to a basic inline parser for simple YAML.
+
+    .PARAMETER InputObject
+    The YAML string to parse.
+    #>
+    [CmdletBinding()]
+    [OutputType([PSCustomObject])]
+    param(
+        [Parameter(Mandatory, ValueFromPipeline)]
+        [string]$InputObject
+    )
+
+    PROCESS {
+        # Try to use powershell-yaml module if available
+        $yamlModule = Get-Module -Name 'powershell-yaml' -ListAvailable
+        if ($yamlModule) {
+            Import-Module 'powershell-yaml' -ErrorAction SilentlyContinue
+            if (Get-Command 'ConvertFrom-Yaml' -Module 'powershell-yaml' -ErrorAction SilentlyContinue) {
+                return powershell-yaml\ConvertFrom-Yaml -Yaml $InputObject
+            }
+        }
+
+        # Fallback: Basic YAML parser for simple structures
+        # This handles the common compiler config structure
+        Write-CompilerLog -Level DEBUG -Message "Using built-in YAML parser (install powershell-yaml for full support)"
+
+        $result = [ordered]@{}
+        $currentArray = $null
+        $currentArrayName = $null
+        $currentObject = $null
+        $inArray = $false
+        $arrayIndent = 0
+
+        $lines = $InputObject -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
+
+        foreach ($line in $lines) {
+            # Skip empty lines and comments
+            if ($line -match '^\s*$' -or $line -match '^\s*#') {
+                continue
+            }
+
+            # Calculate indentation
+            $indent = 0
+            if ($line -match '^(\s*)') {
+                $indent = $Matches[1].Length
+            }
+
+            $trimmedLine = $line.Trim()
+
+            # Array item
+            if ($trimmedLine -match '^-\s*(.*)$') {
+                $value = $Matches[1].Trim()
+
+                if ($value -match '^(\w+):\s*(.*)$') {
+                    # Array item with object properties
+                    if (-not $currentArray) {
+                        $currentArray = @()
+                    }
+                    $currentObject = [ordered]@{}
+                    $currentObject[$Matches[1]] = $Matches[2].Trim(' "''')
+                }
+                elseif ($value) {
+                    # Simple array item
+                    if (-not $currentArray) {
+                        $currentArray = @()
+                    }
+                    $currentArray += $value.Trim(' "''')
+                }
+                $inArray = $true
+                $arrayIndent = $indent
+                continue
+            }
+
+            # Object property within array item
+            if ($inArray -and $indent -gt $arrayIndent -and $trimmedLine -match '^(\w+):\s*(.*)$') {
+                if ($currentObject) {
+                    $propName = $Matches[1]
+                    $propValue = $Matches[2].Trim(' "''')
+
+                    # Handle array values in brackets
+                    if ($propValue -match '^\[(.+)\]$') {
+                        $propValue = $Matches[1] -split ',\s*' | ForEach-Object { $_.Trim(' "''*') }
+                    }
+
+                    $currentObject[$propName] = $propValue
+                }
+                continue
+            }
+
+            # End of array item - save current object
+            if ($inArray -and $indent -le $arrayIndent -and $currentObject) {
+                $currentArray += [PSCustomObject]$currentObject
+                $currentObject = $null
+            }
+
+            # Top-level key-value pair
+            if ($trimmedLine -match '^(\w+):\s*(.*)$') {
+                $key = $Matches[1]
+                $value = $Matches[2].Trim()
+
+                # Save previous array if we're starting a new key
+                if ($currentArrayName -and $currentArray) {
+                    if ($currentObject) {
+                        $currentArray += [PSCustomObject]$currentObject
+                        $currentObject = $null
+                    }
+                    $result[$currentArrayName] = $currentArray
+                    $currentArray = $null
+                    $currentArrayName = $null
+                    $inArray = $false
+                }
+
+                if ($value -eq '' -or $value -eq $null) {
+                    # This might be the start of a nested structure
+                    $currentArrayName = $key
+                }
+                elseif ($value -match '^\[(.+)\]$') {
+                    # Inline array
+                    $result[$key] = $Matches[1] -split ',\s*' | ForEach-Object { $_.Trim(' "''') }
+                }
+                else {
+                    # Simple value
+                    $result[$key] = $value.Trim(' "''')
+                }
+            }
+        }
+
+        # Save any remaining array
+        if ($currentArrayName -and $currentArray) {
+            if ($currentObject) {
+                $currentArray += [PSCustomObject]$currentObject
+            }
+            $result[$currentArrayName] = $currentArray
+        }
+
+        return [PSCustomObject]$result
+    }
+}
+
+function ConvertFrom-Toml {
+    <#
+    .SYNOPSIS
+    Converts TOML content to a PowerShell object.
+
+    .DESCRIPTION
+    Parses TOML content and returns a PowerShell object.
+    Supports basic TOML structures used in compiler configuration.
+
+    .PARAMETER InputObject
+    The TOML string to parse.
+    #>
+    [CmdletBinding()]
+    [OutputType([PSCustomObject])]
+    param(
+        [Parameter(Mandatory, ValueFromPipeline)]
+        [string]$InputObject
+    )
+
+    PROCESS {
+        Write-CompilerLog -Level DEBUG -Message "Parsing TOML configuration"
+
+        $result = [ordered]@{}
+        $currentSection = $null
+        $currentArraySection = $null
+        $arrayItems = @()
+
+        $lines = $InputObject -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
+
+        foreach ($line in $lines) {
+            $trimmedLine = $line.Trim()
+
+            # Skip empty lines and comments
+            if ($trimmedLine -match '^\s*$' -or $trimmedLine -match '^#') {
+                continue
+            }
+
+            # Array of tables [[section]]
+            if ($trimmedLine -match '^\[\[(.+)\]\]$') {
+                # Save previous array item
+                if ($currentArraySection -and $currentSection) {
+                    $arrayItems += [PSCustomObject]$currentSection
+                }
+
+                $sectionName = $Matches[1].Trim()
+                if ($currentArraySection -ne $sectionName) {
+                    # New array section - save previous if exists
+                    if ($currentArraySection -and $arrayItems.Count -gt 0) {
+                        $result[$currentArraySection] = $arrayItems
+                    }
+                    $currentArraySection = $sectionName
+                    $arrayItems = @()
+                }
+                $currentSection = [ordered]@{}
+                continue
+            }
+
+            # Table [section]
+            if ($trimmedLine -match '^\[(.+)\]$') {
+                # Save previous array section
+                if ($currentArraySection) {
+                    if ($currentSection) {
+                        $arrayItems += [PSCustomObject]$currentSection
+                    }
+                    if ($arrayItems.Count -gt 0) {
+                        $result[$currentArraySection] = $arrayItems
+                    }
+                    $currentArraySection = $null
+                    $arrayItems = @()
+                }
+
+                $sectionName = $Matches[1].Trim()
+                $currentSection = [ordered]@{}
+                $result[$sectionName] = $currentSection
+                continue
+            }
+
+            # Key-value pair
+            if ($trimmedLine -match '^(\w+)\s*=\s*(.+)$') {
+                $key = $Matches[1].Trim()
+                $value = $Matches[2].Trim()
+
+                # Parse the value
+                $parsedValue = $null
+
+                # String (double or single quotes)
+                if ($value -match '^"(.*)"\s*$' -or $value -match "^'(.*)'\s*$") {
+                    $parsedValue = $Matches[1]
+                }
+                # Multi-line basic string
+                elseif ($value -match '^"""') {
+                    $parsedValue = $value -replace '^"""', '' -replace '"""$', ''
+                }
+                # Array
+                elseif ($value -match '^\[(.+)\]$') {
+                    $arrayContent = $Matches[1]
+                    $parsedValue = $arrayContent -split ',\s*' | ForEach-Object {
+                        $item = $_.Trim()
+                        if ($item -match '^"(.*)"\s*$' -or $item -match "^'(.*)'\s*$") {
+                            $Matches[1]
+                        }
+                        else {
+                            $item
+                        }
+                    }
+                }
+                # Boolean
+                elseif ($value -eq 'true') {
+                    $parsedValue = $true
+                }
+                elseif ($value -eq 'false') {
+                    $parsedValue = $false
+                }
+                # Number
+                elseif ($value -match '^-?\d+\.?\d*$') {
+                    $parsedValue = [double]$value
+                }
+                else {
+                    $parsedValue = $value
+                }
+
+                # Add to current section or root
+                if ($currentSection) {
+                    $currentSection[$key] = $parsedValue
+                }
+                else {
+                    $result[$key] = $parsedValue
+                }
+            }
+        }
+
+        # Save final array section
+        if ($currentArraySection) {
+            if ($currentSection) {
+                $arrayItems += [PSCustomObject]$currentSection
+            }
+            if ($arrayItems.Count -gt 0) {
+                $result[$currentArraySection] = $arrayItems
+            }
+        }
+
+        return [PSCustomObject]$result
+    }
+}
+
+function Get-ConfigurationFormat {
+    <#
+    .SYNOPSIS
+    Detects the configuration file format based on file extension.
+
+    .PARAMETER Path
+    Path to the configuration file.
+
+    .OUTPUTS
+    [string] The format: 'json', 'yaml', or 'toml'.
+    #>
+    [CmdletBinding()]
+    [OutputType([string])]
+    param(
+        [Parameter(Mandatory)]
+        [string]$Path
+    )
+
+    $extension = [System.IO.Path]::GetExtension($Path).ToLower()
+
+    switch ($extension) {
+        '.json' { return 'json' }
+        '.yaml' { return 'yaml' }
+        '.yml'  { return 'yaml' }
+        '.toml' { return 'toml' }
+        default {
+            Write-CompilerLog -Level WARN -Message "Unknown file extension '$extension', defaulting to JSON"
+            return 'json'
+        }
+    }
+}
+
+function ConvertTo-JsonConfig {
+    <#
+    .SYNOPSIS
+    Converts a configuration object to JSON format for hostlist-compiler.
+
+    .DESCRIPTION
+    Since hostlist-compiler only accepts JSON configuration, this function
+    converts parsed YAML/TOML configs to a temporary JSON file.
+
+    .PARAMETER Config
+    The configuration object to convert.
+
+    .PARAMETER OutputPath
+    Optional path for the JSON output. If not specified, creates a temp file.
+
+    .OUTPUTS
+    [string] Path to the JSON configuration file.
+    #>
+    [CmdletBinding()]
+    [OutputType([string])]
+    param(
+        [Parameter(Mandatory)]
+        [PSCustomObject]$Config,
+
+        [Parameter()]
+        [string]$OutputPath
+    )
+
+    if (-not $OutputPath) {
+        $OutputPath = [System.IO.Path]::Combine(
+            [System.IO.Path]::GetTempPath(),
+            "compiler-config-$(Get-Date -Format 'yyyyMMddHHmmss').json"
+        )
+    }
+
+    $jsonContent = $Config | ConvertTo-Json -Depth 10
+    $jsonContent | Set-Content -Path $OutputPath -Encoding UTF8 -NoNewline
+
+    Write-CompilerLog -Level DEBUG -Message "Converted configuration to JSON: $OutputPath"
+    return $OutputPath
+}
+
 function Write-CompilerLog {
     <#
     .SYNOPSIS
@@ -160,14 +525,27 @@ function Write-CompilerLog {
 function Read-CompilerConfiguration {
     <#
     .SYNOPSIS
-    Reads and parses the compiler configuration from a JSON file.
+    Reads and parses the compiler configuration from a JSON, YAML, or TOML file.
 
     .DESCRIPTION
-    Reads the compiler configuration JSON file and returns it as a PowerShell object.
+    Reads the compiler configuration file and returns it as a PowerShell object.
+    Supports multiple configuration formats:
+    - JSON (.json) - Native PowerShell support
+    - YAML (.yaml, .yml) - Built-in parser or powershell-yaml module
+    - TOML (.toml) - Built-in parser
+
+    The format is automatically detected from the file extension, or can be
+    explicitly specified using the -Format parameter.
+
     This function mirrors the TypeScript readConfiguration() function.
 
     .PARAMETER ConfigPath
-    Path to the configuration JSON file. Defaults to 'compiler-config.json' in the filter-compiler directory.
+    Path to the configuration file. Defaults to 'compiler-config.json' in the
+    filter-compiler directory. Supports .json, .yaml, .yml, and .toml extensions.
+
+    .PARAMETER Format
+    Explicitly specify the configuration format. If not provided, the format is
+    detected from the file extension. Valid values: 'json', 'yaml', 'toml'.
 
     .OUTPUTS
     [PSCustomObject] The parsed configuration object containing:
@@ -181,18 +559,35 @@ function Read-CompilerConfiguration {
     $config = Read-CompilerConfiguration -ConfigPath './compiler-config.json'
 
     .EXAMPLE
+    $config = Read-CompilerConfiguration -ConfigPath './config.yaml'
+
+    .EXAMPLE
+    $config = Read-CompilerConfiguration -ConfigPath './config.toml'
+
+    .EXAMPLE
+    $config = Read-CompilerConfiguration -ConfigPath './config.txt' -Format 'yaml'
+    # Explicitly specify format when extension doesn't match
+
+    .EXAMPLE
     $config = Read-CompilerConfiguration
-    # Uses default path
+    # Uses default path (compiler-config.json)
 
     .NOTES
-    Throws an error if the file doesn't exist or contains invalid JSON.
+    - For YAML: Install powershell-yaml module for full YAML support:
+      Install-Module -Name powershell-yaml -Force
+    - TOML and basic YAML parsing is built-in and works without external modules.
+    - Throws an error if the file doesn't exist or contains invalid content.
     #>
     [CmdletBinding()]
     [OutputType([PSCustomObject])]
     param(
         [Parameter(Position = 0, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [Alias('Path', 'Config')]
-        [string]$ConfigPath
+        [string]$ConfigPath,
+
+        [Parameter(Position = 1, ValueFromPipelineByPropertyName)]
+        [ValidateSet('json', 'yaml', 'toml')]
+        [string]$Format
     )
 
     BEGIN {
@@ -212,17 +607,43 @@ function Read-CompilerConfiguration {
             throw [System.IO.FileNotFoundException]::new($errorMessage)
         }
 
+        # Detect format if not explicitly specified
+        if (-not $Format) {
+            $Format = Get-ConfigurationFormat -Path $ConfigPath
+        }
+
+        Write-CompilerLog -Level DEBUG -Message "Configuration format: $Format"
+
         try {
             $fileContent = Get-Content -Path $ConfigPath -Raw -Encoding UTF8
-            $config = $fileContent | ConvertFrom-Json
+            $config = $null
 
-            Write-CompilerLog -Level DEBUG -Message "Configuration parsed successfully"
+            switch ($Format) {
+                'json' {
+                    $config = $fileContent | ConvertFrom-Json
+                }
+                'yaml' {
+                    $config = ConvertFrom-Yaml -InputObject $fileContent
+                }
+                'toml' {
+                    $config = ConvertFrom-Toml -InputObject $fileContent
+                }
+                default {
+                    throw "Unsupported configuration format: $Format"
+                }
+            }
+
+            Write-CompilerLog -Level DEBUG -Message "Configuration parsed successfully ($Format format)"
             Write-CompilerLog -Level INFO -Message "Loaded configuration: $($config.name) v$($config.version)"
+
+            # Add metadata about the source format
+            $config | Add-Member -NotePropertyName '_sourceFormat' -NotePropertyValue $Format -Force
+            $config | Add-Member -NotePropertyName '_sourcePath' -NotePropertyValue $ConfigPath -Force
 
             return $config
         }
-        catch [System.ArgumentException] {
-            $errorMessage = "Invalid JSON in configuration file: $($_.Exception.Message)"
+        catch {
+            $errorMessage = "Invalid $Format in configuration file: $($_.Exception.Message)"
             Write-CompilerLog -Level ERROR -Message $errorMessage
             throw [System.FormatException]::new($errorMessage)
         }
@@ -238,14 +659,21 @@ function Invoke-FilterCompiler {
     Invokes the @adguard/hostlist-compiler CLI to compile filter rules based on
     the provided configuration. This function mirrors the TypeScript compileFilters() function.
 
+    Supports configuration files in JSON, YAML, and TOML formats. Non-JSON configs
+    are automatically converted to JSON before being passed to hostlist-compiler.
+
     .PARAMETER ConfigPath
-    Path to the configuration JSON file.
+    Path to the configuration file. Supports .json, .yaml, .yml, and .toml extensions.
 
     .PARAMETER OutputPath
     Path where the compiled output will be written.
 
     .PARAMETER WorkingDirectory
     Working directory for the compiler. Defaults to the filter-compiler directory.
+
+    .PARAMETER Format
+    Explicitly specify the configuration format. If not provided, the format is
+    detected from the file extension. Valid values: 'json', 'yaml', 'toml'.
 
     .OUTPUTS
     [PSCustomObject] An object containing:
@@ -254,15 +682,23 @@ function Invoke-FilterCompiler {
     - OutputPath: Path to the output file
     - Hash: SHA384 hash of the output file
     - ElapsedMs: Time taken in milliseconds
+    - ConfigFormat: The format of the source configuration file
 
     .EXAMPLE
     $result = Invoke-FilterCompiler -ConfigPath './config.json' -OutputPath './output.txt'
+
+    .EXAMPLE
+    $result = Invoke-FilterCompiler -ConfigPath './config.yaml'
+
+    .EXAMPLE
+    $result = Invoke-FilterCompiler -ConfigPath './config.toml'
 
     .EXAMPLE
     Invoke-FilterCompiler | Format-List
 
     .NOTES
     Requires @adguard/hostlist-compiler to be installed globally via npm.
+    YAML and TOML configs are converted to temporary JSON files for compilation.
     #>
     [CmdletBinding()]
     [OutputType([PSCustomObject])]
@@ -277,7 +713,11 @@ function Invoke-FilterCompiler {
 
         [Parameter(ValueFromPipelineByPropertyName)]
         [Alias('WorkDir')]
-        [string]$WorkingDirectory
+        [string]$WorkingDirectory,
+
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [ValidateSet('json', 'yaml', 'toml')]
+        [string]$Format
     )
 
     BEGIN {
@@ -323,6 +763,45 @@ function Invoke-FilterCompiler {
         $platformInfo = Get-PlatformInfo
         Write-CompilerLog -Level DEBUG -Message "Platform: $($platformInfo.Platform), OS: $($platformInfo.OS)"
 
+        # Detect config format and convert to JSON if necessary
+        $fullConfigPath = Join-Path $WorkingDirectory $ConfigPath
+        if (-not $Format) {
+            $Format = Get-ConfigurationFormat -Path $fullConfigPath
+        }
+
+        $configFormat = $Format
+        $tempJsonConfig = $null
+        $effectiveConfigPath = $ConfigPath
+
+        # If not JSON, convert to temporary JSON file for hostlist-compiler
+        if ($Format -ne 'json') {
+            Write-CompilerLog -Level INFO -Message "Converting $Format configuration to JSON for hostlist-compiler..."
+            try {
+                $config = Read-CompilerConfiguration -ConfigPath $fullConfigPath -Format $Format
+
+                # Remove metadata properties before converting
+                $configCopy = $config | Select-Object -Property * -ExcludeProperty '_sourceFormat', '_sourcePath'
+
+                $tempJsonConfig = ConvertTo-JsonConfig -Config $configCopy
+                $effectiveConfigPath = $tempJsonConfig
+                Write-CompilerLog -Level DEBUG -Message "Temporary JSON config: $tempJsonConfig"
+            }
+            catch {
+                $errorMessage = "Failed to convert $Format configuration: $($_.Exception.Message)"
+                Write-CompilerLog -Level ERROR -Message $errorMessage
+                return [PSCustomObject]@{
+                    Success        = $false
+                    RuleCount      = 0
+                    OutputPath     = $null
+                    Hash           = $null
+                    ElapsedMs      = $stopwatch.ElapsedMilliseconds
+                    ErrorMessage   = $errorMessage
+                    CompilerOutput = $null
+                    ConfigFormat   = $configFormat
+                }
+            }
+        }
+
         # Save current location and change to working directory
         $originalLocation = Get-Location
         try {
@@ -334,12 +813,12 @@ function Invoke-FilterCompiler {
             # Run the compiler (try global install first, then npx)
             Write-CompilerLog -Level INFO -Message "Invoking hostlist-compiler..."
             if ($compilerPath) {
-                $compilerOutput = & hostlist-compiler --config $ConfigPath --output $OutputPath 2>&1
+                $compilerOutput = & hostlist-compiler --config $effectiveConfigPath --output $OutputPath 2>&1
             }
             else {
                 # Use npx to run the compiler
                 Write-CompilerLog -Level DEBUG -Message "Using npx to invoke hostlist-compiler"
-                $compilerOutput = & npx hostlist-compiler --config $ConfigPath --output $OutputPath 2>&1
+                $compilerOutput = & npx hostlist-compiler --config $effectiveConfigPath --output $OutputPath 2>&1
             }
 
             if ($LASTEXITCODE -ne 0) {
@@ -348,13 +827,14 @@ function Invoke-FilterCompiler {
                 Write-CompilerLog -Level ERROR -Message "Compiler output: $compilerOutput"
 
                 return [PSCustomObject]@{
-                    Success      = $false
-                    RuleCount    = 0
-                    OutputPath   = $fullOutputPath
-                    Hash         = $null
-                    ElapsedMs    = $stopwatch.ElapsedMilliseconds
-                    ErrorMessage = $errorMessage
+                    Success        = $false
+                    RuleCount      = 0
+                    OutputPath     = $fullOutputPath
+                    Hash           = $null
+                    ElapsedMs      = $stopwatch.ElapsedMilliseconds
+                    ErrorMessage   = $errorMessage
                     CompilerOutput = $compilerOutput
+                    ConfigFormat   = $configFormat
                 }
             }
 
@@ -373,17 +853,24 @@ function Invoke-FilterCompiler {
             Write-CompilerLog -Level INFO -Message "Compilation complete. Generated $ruleCount rules in $($stopwatch.ElapsedMilliseconds)ms"
 
             return [PSCustomObject]@{
-                Success      = $true
-                RuleCount    = $ruleCount
-                OutputPath   = $fullOutputPath
-                Hash         = $fileHash
-                ElapsedMs    = $stopwatch.ElapsedMilliseconds
-                ErrorMessage = $null
+                Success        = $true
+                RuleCount      = $ruleCount
+                OutputPath     = $fullOutputPath
+                Hash           = $fileHash
+                ElapsedMs      = $stopwatch.ElapsedMilliseconds
+                ErrorMessage   = $null
                 CompilerOutput = $compilerOutput
+                ConfigFormat   = $configFormat
             }
         }
         finally {
             Set-Location -Path $originalLocation
+
+            # Clean up temporary JSON config if created
+            if ($tempJsonConfig -and (Test-Path $tempJsonConfig)) {
+                Remove-Item -Path $tempJsonConfig -Force -ErrorAction SilentlyContinue
+                Write-CompilerLog -Level DEBUG -Message "Cleaned up temporary JSON config"
+            }
         }
     }
 }

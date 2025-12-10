@@ -19,6 +19,8 @@ BeforeAll {
 
     # Set up test paths
     $script:TestConfigPath = Join-Path $PSScriptRoot '..' '..' '..' 'src' 'filter-compiler' 'compiler-config.json'
+    $script:TestYamlConfigPath = Join-Path $PSScriptRoot '..' '..' '..' 'src' 'filter-compiler' 'compiler-config.yaml'
+    $script:TestTomlConfigPath = Join-Path $PSScriptRoot '..' '..' '..' 'src' 'filter-compiler' 'compiler-config.toml'
     $script:TestOutputDir = Join-Path $PSScriptRoot 'TestOutput'
 }
 
@@ -66,6 +68,10 @@ Describe "Read-CompilerConfiguration" {
             (Get-Command Read-CompilerConfiguration).Parameters.Keys | Should -Contain "ConfigPath"
         }
 
+        It "Should have Format parameter" {
+            (Get-Command Read-CompilerConfiguration).Parameters.Keys | Should -Contain "Format"
+        }
+
         It "Should have Path alias for ConfigPath" {
             $params = (Get-Command Read-CompilerConfiguration).Parameters
             $aliases = $params['ConfigPath'].Attributes.Where({ $_ -is [System.Management.Automation.AliasAttribute] }).AliasNames
@@ -82,6 +88,14 @@ Describe "Read-CompilerConfiguration" {
             $params = (Get-Command Read-CompilerConfiguration).Parameters
             $attrs = $params['ConfigPath'].Attributes.Where({ $_ -is [System.Management.Automation.ParameterAttribute] })
             $attrs.ValueFromPipeline | Should -BeTrue
+        }
+
+        It "Should validate Format parameter values" {
+            $params = (Get-Command Read-CompilerConfiguration).Parameters
+            $validateSet = $params['Format'].Attributes.Where({ $_ -is [System.Management.Automation.ValidateSetAttribute] })
+            $validateSet.ValidValues | Should -Contain 'json'
+            $validateSet.ValidValues | Should -Contain 'yaml'
+            $validateSet.ValidValues | Should -Contain 'toml'
         }
     }
 
@@ -130,6 +144,95 @@ Describe "Read-CompilerConfiguration" {
             { Read-CompilerConfiguration -ConfigPath $script:InvalidJsonPath } | Should -Throw
         }
     }
+
+    Context "YAML Configuration Support" {
+        It "Should read valid YAML configuration file" -Skip:(-not (Test-Path $script:TestYamlConfigPath)) {
+            $config = Read-CompilerConfiguration -ConfigPath $script:TestYamlConfigPath
+            $config | Should -Not -BeNullOrEmpty
+        }
+
+        It "Should return YAML configuration with name property" -Skip:(-not (Test-Path $script:TestYamlConfigPath)) {
+            $config = Read-CompilerConfiguration -ConfigPath $script:TestYamlConfigPath
+            $config.name | Should -Not -BeNullOrEmpty
+        }
+
+        It "Should return YAML configuration with version property" -Skip:(-not (Test-Path $script:TestYamlConfigPath)) {
+            $config = Read-CompilerConfiguration -ConfigPath $script:TestYamlConfigPath
+            $config.version | Should -Not -BeNullOrEmpty
+        }
+
+        It "Should include _sourceFormat metadata for YAML" -Skip:(-not (Test-Path $script:TestYamlConfigPath)) {
+            $config = Read-CompilerConfiguration -ConfigPath $script:TestYamlConfigPath
+            $config._sourceFormat | Should -Be 'yaml'
+        }
+
+        It "Should allow explicit Format parameter for YAML" -Skip:(-not (Test-Path $script:TestYamlConfigPath)) {
+            $config = Read-CompilerConfiguration -ConfigPath $script:TestYamlConfigPath -Format 'yaml'
+            $config._sourceFormat | Should -Be 'yaml'
+        }
+    }
+
+    Context "TOML Configuration Support" {
+        It "Should read valid TOML configuration file" -Skip:(-not (Test-Path $script:TestTomlConfigPath)) {
+            $config = Read-CompilerConfiguration -ConfigPath $script:TestTomlConfigPath
+            $config | Should -Not -BeNullOrEmpty
+        }
+
+        It "Should return TOML configuration with name property" -Skip:(-not (Test-Path $script:TestTomlConfigPath)) {
+            $config = Read-CompilerConfiguration -ConfigPath $script:TestTomlConfigPath
+            $config.name | Should -Not -BeNullOrEmpty
+        }
+
+        It "Should return TOML configuration with version property" -Skip:(-not (Test-Path $script:TestTomlConfigPath)) {
+            $config = Read-CompilerConfiguration -ConfigPath $script:TestTomlConfigPath
+            $config.version | Should -Not -BeNullOrEmpty
+        }
+
+        It "Should include _sourceFormat metadata for TOML" -Skip:(-not (Test-Path $script:TestTomlConfigPath)) {
+            $config = Read-CompilerConfiguration -ConfigPath $script:TestTomlConfigPath
+            $config._sourceFormat | Should -Be 'toml'
+        }
+
+        It "Should allow explicit Format parameter for TOML" -Skip:(-not (Test-Path $script:TestTomlConfigPath)) {
+            $config = Read-CompilerConfiguration -ConfigPath $script:TestTomlConfigPath -Format 'toml'
+            $config._sourceFormat | Should -Be 'toml'
+        }
+    }
+
+    Context "Format Detection" {
+        BeforeAll {
+            if (-not (Test-Path $script:TestOutputDir)) {
+                New-Item -ItemType Directory -Path $script:TestOutputDir -Force | Out-Null
+            }
+
+            # Create test files with different extensions
+            $script:TestYmlFile = Join-Path $script:TestOutputDir 'test.yml'
+            @"
+name: "Test Config"
+version: "1.0.0"
+"@ | Out-File -FilePath $script:TestYmlFile -Encoding UTF8
+        }
+
+        It "Should detect .yml extension as YAML format" {
+            $config = Read-CompilerConfiguration -ConfigPath $script:TestYmlFile
+            $config._sourceFormat | Should -Be 'yaml'
+        }
+
+        It "Should detect .yaml extension as YAML format" -Skip:(-not (Test-Path $script:TestYamlConfigPath)) {
+            $config = Read-CompilerConfiguration -ConfigPath $script:TestYamlConfigPath
+            $config._sourceFormat | Should -Be 'yaml'
+        }
+
+        It "Should detect .toml extension as TOML format" -Skip:(-not (Test-Path $script:TestTomlConfigPath)) {
+            $config = Read-CompilerConfiguration -ConfigPath $script:TestTomlConfigPath
+            $config._sourceFormat | Should -Be 'toml'
+        }
+
+        It "Should detect .json extension as JSON format" -Skip:(-not (Test-Path $script:TestConfigPath)) {
+            $config = Read-CompilerConfiguration -ConfigPath $script:TestConfigPath
+            $config._sourceFormat | Should -Be 'json'
+        }
+    }
 }
 
 Describe "Invoke-FilterCompiler" {
@@ -144,6 +247,18 @@ Describe "Invoke-FilterCompiler" {
 
         It "Should have WorkingDirectory parameter" {
             (Get-Command Invoke-FilterCompiler).Parameters.Keys | Should -Contain "WorkingDirectory"
+        }
+
+        It "Should have Format parameter" {
+            (Get-Command Invoke-FilterCompiler).Parameters.Keys | Should -Contain "Format"
+        }
+
+        It "Should validate Format parameter values" {
+            $params = (Get-Command Invoke-FilterCompiler).Parameters
+            $validateSet = $params['Format'].Attributes.Where({ $_ -is [System.Management.Automation.ValidateSetAttribute] })
+            $validateSet.ValidValues | Should -Contain 'json'
+            $validateSet.ValidValues | Should -Contain 'yaml'
+            $validateSet.ValidValues | Should -Contain 'toml'
         }
 
         It "Should have Config alias for ConfigPath" {
