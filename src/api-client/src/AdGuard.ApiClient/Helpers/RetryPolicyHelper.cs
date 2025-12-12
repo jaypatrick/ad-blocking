@@ -215,7 +215,7 @@ namespace AdGuard.ApiClient.Helpers
                     .Handle<ApiException>(ex => ex.ErrorCode == 429)
                     .WaitAndRetryAsync(
                         key.maxRetries,
-                        retryAttempt => TimeSpan.FromSeconds(key.delay * retryAttempt),
+                        retryAttempt => TimeSpan.FromSeconds((double)key.delay * retryAttempt),
                         onRetry: (exception, timeSpan, retryCount, context) =>
                         {
                             _logger?.LogWarning("Rate limit hit (429). Retry {RetryCount}/{MaxRetries} after {Delay:F1}s delay",
