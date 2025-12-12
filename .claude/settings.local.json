@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git merge:*)",
+      "Bash(dotnet build:*)",
+      "Bash(cat:*)",
+      "Bash(dotnet test:*)",
+      "Bash(VSTEST_CONNECTION_TIMEOUT=180 dotnet test:*)",
+      "Bash(export VSTEST_CONNECTION_TIMEOUT=180)",
+      "Bash(find:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

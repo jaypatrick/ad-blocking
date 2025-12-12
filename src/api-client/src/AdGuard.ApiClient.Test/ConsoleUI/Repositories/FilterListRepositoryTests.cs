@@ -1,7 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using AdGuard.ApiClient.Api;
 using AdGuard.ApiClient.Model;
 using AdGuard.ConsoleUI.Abstractions;
 using AdGuard.ConsoleUI.Repositories;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -13,15 +17,17 @@ namespace AdGuard.ApiClient.Test.ConsoleUI.Repositories;
 public class FilterListRepositoryTests
 {
     private readonly Mock<IApiClientFactory> _apiClientFactoryMock;
+    private readonly Mock<ILogger<FilterListRepository>> _loggerMock;
 
     public FilterListRepositoryTests()
     {
         _apiClientFactoryMock = new Mock<IApiClientFactory>();
+        _loggerMock = new Mock<ILogger<FilterListRepository>>();
     }
 
     private FilterListRepository CreateRepository()
     {
-        return new FilterListRepository(_apiClientFactoryMock.Object);
+        return new FilterListRepository(_apiClientFactoryMock.Object, _loggerMock.Object);
     }
 
     #region Constructor Tests
@@ -31,9 +37,19 @@ public class FilterListRepositoryTests
     {
         // Act & Assert
         var exception = Assert.Throws<ArgumentNullException>(
-            () => new FilterListRepository(null!));
+            () => new FilterListRepository(null!, _loggerMock.Object));
 
         Assert.Equal("apiClientFactory", exception.ParamName);
+    }
+
+    [Fact]
+    public void Constructor_WithNullLogger_ThrowsArgumentNullException()
+    {
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentNullException>(
+            () => new FilterListRepository(_apiClientFactoryMock.Object, null!));
+
+        Assert.Equal("logger", exception.ParamName);
     }
 
     #endregion
@@ -51,7 +67,7 @@ public class FilterListRepositoryTests
         };
 
         var mockApi = new Mock<FilterListsApi>();
-        mockApi.Setup(a => a.ListFilterListsAsync(0, default))
+        mockApi.Setup(a => a.ListFilterListsAsync(default))
             .ReturnsAsync(expectedFilters);
 
         _apiClientFactoryMock.Setup(f => f.CreateFilterListsApi())
@@ -73,7 +89,7 @@ public class FilterListRepositoryTests
     {
         // Arrange
         var mockApi = new Mock<FilterListsApi>();
-        mockApi.Setup(a => a.ListFilterListsAsync(0, default))
+        mockApi.Setup(a => a.ListFilterListsAsync(default))
             .ReturnsAsync(new List<FilterList>());
 
         _apiClientFactoryMock.Setup(f => f.CreateFilterListsApi())

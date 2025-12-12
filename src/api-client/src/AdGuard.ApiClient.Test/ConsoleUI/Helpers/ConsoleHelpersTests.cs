@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using AdGuard.ConsoleUI.Helpers;
 using Xunit;
 
