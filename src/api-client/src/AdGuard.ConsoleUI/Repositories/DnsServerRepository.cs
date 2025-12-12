@@ -113,34 +113,13 @@ public class DnsServerRepository : IDnsServerRepository
     }
 
     /// <inheritdoc />
-    public async Task DeleteAsync(string id)
+    /// <remarks>
+    /// DNS server deletion is not supported by the AdGuard DNS API v1.11.
+    /// This method will always throw <see cref="NotSupportedException"/>.
+    /// </remarks>
+    public Task DeleteAsync(string id)
     {
-        if (string.IsNullOrWhiteSpace(id))
-        {
-            _logger.LogWarning("Attempted to delete DNS server with null or empty ID");
-            throw new ArgumentException("DNS Server ID cannot be null or empty.", nameof(id));
-        }
-
-        _logger.LogDebug("Deleting DNS server with ID: {ServerId}", id);
-
-        try
-        {
-            using var api = _apiClientFactory.CreateDnsServersApi();
-            await api.RemoveDNSServerAsync(id);
-
-            _logger.LogInformation("Deleted DNS server: {ServerId}", id);
-        }
-        catch (ApiException ex) when (ex.ErrorCode == 404)
-        {
-            _logger.LogWarning("DNS server not found for deletion: {ServerId}", id);
-            throw new EntityNotFoundException("DNSServer", id);
-        }
-        catch (ApiException ex)
-        {
-            _logger.LogError(ex, "API error while deleting DNS server {ServerId}: {ErrorCode} - {Message}",
-                id, ex.ErrorCode, ex.Message);
-            throw new RepositoryException("DnsServerRepository", "Delete",
-                $"Failed to delete DNS server {id}: {ex.Message}", ex);
-        }
+        _logger.LogWarning("DeleteAsync called but DNS server deletion is not supported by the AdGuard DNS API");
+        throw new NotSupportedException("DNS server deletion is not supported by the AdGuard DNS API. DNS servers can only be created and listed.");
     }
 }

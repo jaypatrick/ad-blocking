@@ -1,7 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using AdGuard.ApiClient.Api;
 using AdGuard.ApiClient.Model;
 using AdGuard.ConsoleUI.Abstractions;
 using AdGuard.ConsoleUI.Repositories;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -13,17 +17,17 @@ namespace AdGuard.ApiClient.Test.ConsoleUI.Repositories;
 public class DeviceRepositoryTests
 {
     private readonly Mock<IApiClientFactory> _apiClientFactoryMock;
-    private readonly Mock<DevicesApi> _devicesApiMock;
+    private readonly Mock<ILogger<DeviceRepository>> _loggerMock;
 
     public DeviceRepositoryTests()
     {
         _apiClientFactoryMock = new Mock<IApiClientFactory>();
-        _devicesApiMock = new Mock<DevicesApi>();
+        _loggerMock = new Mock<ILogger<DeviceRepository>>();
     }
 
     private DeviceRepository CreateRepository()
     {
-        return new DeviceRepository(_apiClientFactoryMock.Object);
+        return new DeviceRepository(_apiClientFactoryMock.Object, _loggerMock.Object);
     }
 
     #region Constructor Tests
@@ -33,9 +37,19 @@ public class DeviceRepositoryTests
     {
         // Act & Assert
         var exception = Assert.Throws<ArgumentNullException>(
-            () => new DeviceRepository(null!));
+            () => new DeviceRepository(null!, _loggerMock.Object));
 
         Assert.Equal("apiClientFactory", exception.ParamName);
+    }
+
+    [Fact]
+    public void Constructor_WithNullLogger_ThrowsArgumentNullException()
+    {
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentNullException>(
+            () => new DeviceRepository(_apiClientFactoryMock.Object, null!));
+
+        Assert.Equal("logger", exception.ParamName);
     }
 
     [Fact]
@@ -63,7 +77,7 @@ public class DeviceRepositoryTests
         };
 
         var mockApi = new Mock<DevicesApi>();
-        mockApi.Setup(a => a.ListDevicesAsync(0, default))
+        mockApi.Setup(a => a.ListDevicesAsync(default))
             .ReturnsAsync(expectedDevices);
 
         _apiClientFactoryMock.Setup(f => f.CreateDevicesApi())
@@ -88,7 +102,7 @@ public class DeviceRepositoryTests
     {
         // Arrange
         var mockApi = new Mock<DevicesApi>();
-        mockApi.Setup(a => a.ListDevicesAsync(0, default))
+        mockApi.Setup(a => a.ListDevicesAsync(default))
             .ReturnsAsync(new List<Device>());
 
         _apiClientFactoryMock.Setup(f => f.CreateDevicesApi())
@@ -116,7 +130,7 @@ public class DeviceRepositoryTests
         var expectedDevice = new Device(id: deviceId, name: "Test Device", deviceType: Device.DeviceTypeEnum.WINDOWS, dnsServerId: "srv1");
 
         var mockApi = new Mock<DevicesApi>();
-        mockApi.Setup(a => a.GetDeviceAsync(deviceId, 0, default))
+        mockApi.Setup(a => a.GetDeviceAsync(deviceId, default))
             .ReturnsAsync(expectedDevice);
 
         _apiClientFactoryMock.Setup(f => f.CreateDevicesApi())
@@ -178,7 +192,7 @@ public class DeviceRepositoryTests
         var createdDevice = new Device(id: "new-id", name: "New Device", deviceType: Device.DeviceTypeEnum.WINDOWS, dnsServerId: "srv1");
 
         var mockApi = new Mock<DevicesApi>();
-        mockApi.Setup(a => a.CreateDeviceAsync(deviceCreate, 0, default))
+        mockApi.Setup(a => a.CreateDeviceAsync(deviceCreate, default))
             .ReturnsAsync(createdDevice);
 
         _apiClientFactoryMock.Setup(f => f.CreateDevicesApi())
@@ -216,7 +230,7 @@ public class DeviceRepositoryTests
         // Arrange
         var deviceId = "device-to-delete";
         var mockApi = new Mock<DevicesApi>();
-        mockApi.Setup(a => a.RemoveDeviceAsync(deviceId, 0, default))
+        mockApi.Setup(a => a.RemoveDeviceAsync(deviceId, default))
             .Returns(Task.CompletedTask);
 
         _apiClientFactoryMock.Setup(f => f.CreateDevicesApi())
@@ -228,7 +242,7 @@ public class DeviceRepositoryTests
         await repository.DeleteAsync(deviceId);
 
         // Assert
-        mockApi.Verify(a => a.RemoveDeviceAsync(deviceId, 0, default), Times.Once);
+        mockApi.Verify(a => a.RemoveDeviceAsync(deviceId, default), Times.Once);
     }
 
     [Fact]

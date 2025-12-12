@@ -28,7 +28,7 @@ public class StatisticsRepository : IStatisticsRepository
     }
 
     /// <inheritdoc />
-    public async Task<StatsResponse> GetTimeQueriesStatsAsync(long fromMillis, long toMillis)
+    public async Task<TimeQueriesStatsList> GetTimeQueriesStatsAsync(long fromMillis, long toMillis)
     {
         _logger.LogDebug("Fetching statistics from {FromMillis} to {ToMillis}", fromMillis, toMillis);
 

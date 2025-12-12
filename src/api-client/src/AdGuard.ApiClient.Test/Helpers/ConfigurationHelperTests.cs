@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 /*
  * AdGuard DNS API - Unit Tests
  *
@@ -178,7 +180,7 @@ namespace AdGuard.ApiClient.Test.Helpers
             var config = ConfigurationHelper.CreateCustom(timeout: timeout);
 
             // Assert
-            Assert.Equal(timeout, config.Timeout);
+            Assert.Equal(TimeSpan.FromMilliseconds(timeout), config.Timeout);
         }
 
         [Fact]
@@ -217,7 +219,7 @@ namespace AdGuard.ApiClient.Test.Helpers
             var config = ConfigurationHelper.CreateCustom(timeout: timeout);
 
             // Assert
-            Assert.Equal(timeout, config.Timeout);
+            Assert.Equal(TimeSpan.FromMilliseconds(timeout), config.Timeout);
         }
 
         [Fact]
@@ -342,7 +344,7 @@ namespace AdGuard.ApiClient.Test.Helpers
 
             // Assert
             Assert.Same(config, result);
-            Assert.Equal(timeout, config.Timeout);
+            Assert.Equal(TimeSpan.FromMilliseconds(timeout), config.Timeout);
         }
 
         [Fact]
@@ -536,7 +538,7 @@ namespace AdGuard.ApiClient.Test.Helpers
             // Assert
             Assert.Equal("https://api.example.com", config.BasePath);
             Assert.Equal("ApiKey test-key", config.ApiKey?["Authorization"]);
-            Assert.Equal(60000, config.Timeout);
+            Assert.Equal(TimeSpan.FromMilliseconds(60000), config.Timeout);
             Assert.Equal("TestApp/1.0", config.UserAgent);
         }
 

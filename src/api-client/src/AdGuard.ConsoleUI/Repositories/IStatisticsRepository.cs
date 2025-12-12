@@ -13,5 +13,5 @@ public interface IStatisticsRepository
     /// </summary>
     /// <param name="fromMillis">Start time in milliseconds since Unix epoch.</param>
     /// <param name="toMillis">End time in milliseconds since Unix epoch.</param>
-    Task<StatsResponse> GetTimeQueriesStatsAsync(long fromMillis, long toMillis);
+    Task<TimeQueriesStatsList> GetTimeQueriesStatsAsync(long fromMillis, long toMillis);
 }

@@ -1,7 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using AdGuard.ApiClient.Api;
 using AdGuard.ApiClient.Model;
 using AdGuard.ConsoleUI.Abstractions;
 using AdGuard.ConsoleUI.Repositories;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -16,15 +20,17 @@ namespace AdGuard.ApiClient.Test.ConsoleUI.Repositories;
 public class AccountRepositoryTests
 {
     private readonly Mock<IApiClientFactory> _apiClientFactoryMock;
+    private readonly Mock<ILogger<AccountRepository>> _loggerMock;
 
     public AccountRepositoryTests()
     {
         _apiClientFactoryMock = new Mock<IApiClientFactory>();
+        _loggerMock = new Mock<ILogger<AccountRepository>>();
     }
 
     private AccountRepository CreateRepository()
     {
-        return new AccountRepository(_apiClientFactoryMock.Object);
+        return new AccountRepository(_apiClientFactoryMock.Object, _loggerMock.Object);
     }
 
     #region Constructor Tests
@@ -34,9 +40,19 @@ public class AccountRepositoryTests
     {
         // Act & Assert
         var exception = Assert.Throws<ArgumentNullException>(
-            () => new AccountRepository(null!));
+            () => new AccountRepository(null!, _loggerMock.Object));
 
         Assert.Equal("apiClientFactory", exception.ParamName);
+    }
+
+    [Fact]
+    public void Constructor_WithNullLogger_ThrowsArgumentNullException()
+    {
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentNullException>(
+            () => new AccountRepository(_apiClientFactoryMock.Object, null!));
+
+        Assert.Equal("logger", exception.ParamName);
     }
 
     [Fact]
@@ -62,7 +78,7 @@ public class AccountRepositoryTests
             dnsServers: new Limit(used: 2, varLimit: 5));
 
         var mockApi = new Mock<AccountApi>();
-        mockApi.Setup(a => a.GetAccountLimitsAsync(0, default))
+        mockApi.Setup(a => a.GetAccountLimitsAsync(default))
             .ReturnsAsync(expectedLimits);
 
         _apiClientFactoryMock.Setup(f => f.CreateAccountApi())
@@ -85,7 +101,7 @@ public class AccountRepositoryTests
     {
         // Arrange
         var mockApi = new Mock<AccountApi>();
-        mockApi.Setup(a => a.GetAccountLimitsAsync(0, default))
+        mockApi.Setup(a => a.GetAccountLimitsAsync(default))
             .ReturnsAsync(new AccountLimits());
 
         _apiClientFactoryMock.Setup(f => f.CreateAccountApi())
@@ -98,7 +114,7 @@ public class AccountRepositoryTests
 
         // Assert
         _apiClientFactoryMock.Verify(f => f.CreateAccountApi(), Times.Once);
-        mockApi.Verify(a => a.GetAccountLimitsAsync(0, default), Times.Once);
+        mockApi.Verify(a => a.GetAccountLimitsAsync(default), Times.Once);
     }
 
     #endregion

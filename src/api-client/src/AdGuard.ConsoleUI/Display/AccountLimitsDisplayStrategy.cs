@@ -37,8 +37,8 @@ public class AccountLimitsDisplayStrategy
             return;
         }
 
-        var used = limit.Used ?? 0;
-        var max = limit.VarLimit ?? 0;
+        var used = limit.Used;
+        var max = limit.VarLimit;
         var percentage = max > 0 ? (used * 100.0 / max) : 0;
 
         var usageMarkup = ConsoleHelpers.GetPercentageMarkup(percentage);
