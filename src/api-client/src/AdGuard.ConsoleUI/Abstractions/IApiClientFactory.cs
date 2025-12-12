@@ -1,5 +1,3 @@
-using AdGuard.ApiClient.Api;
-
 namespace AdGuard.ConsoleUI.Abstractions;
 
 /// <summary>

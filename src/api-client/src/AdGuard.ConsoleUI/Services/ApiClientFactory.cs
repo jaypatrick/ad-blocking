@@ -1,11 +1,3 @@
-using AdGuard.ApiClient.Api;
-using AdGuard.ApiClient.Client;
-using AdGuard.ApiClient.Helpers;
-using AdGuard.ConsoleUI.Abstractions;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Spectre.Console;
-
 namespace AdGuard.ConsoleUI.Services;
 
 /// <summary>

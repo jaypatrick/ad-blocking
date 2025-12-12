@@ -1,9 +1,3 @@
-using AdGuard.ApiClient.Client;
-using AdGuard.ConsoleUI.Abstractions;
-using AdGuard.ConsoleUI.Display;
-using AdGuard.ConsoleUI.Helpers;
-using AdGuard.ConsoleUI.Repositories;
-
 namespace AdGuard.ConsoleUI.Services;
 
 /// <summary>

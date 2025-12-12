@@ -1,6 +1,3 @@
-using AdGuard.ApiClient.Client;
-using Spectre.Console;
-
 namespace AdGuard.ConsoleUI.Helpers;
 
 /// <summary>
@@ -16,10 +13,10 @@ public static class ConsoleHelpers
     /// <param name="statusMessage">The message to display during the operation.</param>
     /// <param name="operation">The async operation to execute.</param>
     /// <returns>The result of the operation.</returns>
-    public static async Task<T> WithStatusAsync<T>(string statusMessage, Func<Task<T>> operation)
+    public static Task<T> WithStatusAsync<T>(string statusMessage, Func<Task<T>> operation)
     {
-        return await AnsiConsole.Status()
-            .StartAsync(statusMessage, async ctx => await operation());
+        return AnsiConsole.Status()
+            .StartAsync(statusMessage, _ => operation());
     }
 
     /// <summary>
@@ -27,10 +24,10 @@ public static class ConsoleHelpers
     /// </summary>
     /// <param name="statusMessage">The message to display during the operation.</param>
     /// <param name="operation">The async operation to execute.</param>
-    public static async Task WithStatusAsync(string statusMessage, Func<Task> operation)
+    public static Task WithStatusAsync(string statusMessage, Func<Task> operation)
     {
-        await AnsiConsole.Status()
-            .StartAsync(statusMessage, async ctx => await operation());
+        return AnsiConsole.Status()
+            .StartAsync(statusMessage, _ => operation());
     }
 
     /// <summary>

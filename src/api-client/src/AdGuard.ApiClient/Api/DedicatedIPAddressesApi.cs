@@ -390,7 +390,7 @@ namespace AdGuard.ApiClient.Api
         /// <returns>Task of DedicatedIPv4Address</returns>
         public async System.Threading.Tasks.Task<DedicatedIPv4Address> AllocateDedicatedIPv4AddressAsync(System.Threading.CancellationToken cancellationToken = default)
         {
-            AdGuard.ApiClient.Client.ApiResponse<DedicatedIPv4Address> localVarResponse = await AllocateDedicatedIPv4AddressWithHttpInfoAsync(cancellationToken).ConfigureAwait(false);
+            AdGuard.ApiClient.Client.ApiResponse<DedicatedIPv4Address> localVarResponse = await AllocateDedicatedIPv4AddressWithHttpInfoAsync(cancellationToken);
             return localVarResponse.Data;
         }
 
@@ -435,7 +435,7 @@ namespace AdGuard.ApiClient.Api
 
             // make the HTTP request
 
-            var localVarResponse = await this.AsynchronousClient.PostAsync<DedicatedIPv4Address>("/oapi/v1/dedicated_addresses/ipv4", localVarRequestOptions, this.Configuration, cancellationToken).ConfigureAwait(false);
+            var localVarResponse = await this.AsynchronousClient.PostAsync<DedicatedIPv4Address>("/oapi/v1/dedicated_addresses/ipv4", localVarRequestOptions, this.Configuration, cancellationToken);
 
             if (this.ExceptionFactory != null)
             {
@@ -513,7 +513,7 @@ namespace AdGuard.ApiClient.Api
         /// <returns>Task of List&lt;DedicatedIPv4Address&gt;</returns>
         public async System.Threading.Tasks.Task<List<DedicatedIPv4Address>> ListDedicatedIPv4AddressesAsync(System.Threading.CancellationToken cancellationToken = default)
         {
-            AdGuard.ApiClient.Client.ApiResponse<List<DedicatedIPv4Address>> localVarResponse = await ListDedicatedIPv4AddressesWithHttpInfoAsync(cancellationToken).ConfigureAwait(false);
+            AdGuard.ApiClient.Client.ApiResponse<List<DedicatedIPv4Address>> localVarResponse = await ListDedicatedIPv4AddressesWithHttpInfoAsync(cancellationToken);
             return localVarResponse.Data;
         }
 
@@ -558,7 +558,7 @@ namespace AdGuard.ApiClient.Api
 
             // make the HTTP request
 
-            var localVarResponse = await this.AsynchronousClient.GetAsync<List<DedicatedIPv4Address>>("/oapi/v1/dedicated_addresses/ipv4", localVarRequestOptions, this.Configuration, cancellationToken).ConfigureAwait(false);
+            var localVarResponse = await this.AsynchronousClient.GetAsync<List<DedicatedIPv4Address>>("/oapi/v1/dedicated_addresses/ipv4", localVarRequestOptions, this.Configuration, cancellationToken);
 
             if (this.ExceptionFactory != null)
             {
