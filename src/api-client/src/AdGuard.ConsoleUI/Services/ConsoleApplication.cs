@@ -1,7 +1,3 @@
-using AdGuard.ConsoleUI.Abstractions;
-using AdGuard.ConsoleUI.Helpers;
-using Spectre.Console;
-
 namespace AdGuard.ConsoleUI.Services;
 
 /// <summary>

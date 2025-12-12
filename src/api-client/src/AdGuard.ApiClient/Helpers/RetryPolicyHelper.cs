@@ -8,6 +8,7 @@
  */
 
 using System;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using AdGuard.ApiClient.Client;
 using Microsoft.Extensions.Logging;
@@ -24,6 +25,7 @@ namespace AdGuard.ApiClient.Helpers
     /// This class uses Polly for resilience and transient-fault handling.
     /// It provides policies that handle HTTP 429 (Too Many Requests), server errors (5xx),
     /// and request timeouts (408). All policies use exponential backoff by default.
+    /// Policies are cached to avoid repeated allocation for common configurations.
     /// </remarks>
     /// <example>
     /// Using the retry helper with an API call:
@@ -68,6 +70,16 @@ namespace AdGuard.ApiClient.Helpers
         private static ILogger? _logger;
 
         /// <summary>
+        /// Cache for non-generic retry policies to avoid repeated allocation.
+        /// </summary>
+        private static readonly ConcurrentDictionary<(int maxRetries, int delay), AsyncRetryPolicy> _policyCache = new();
+
+        /// <summary>
+        /// Cache for rate limit retry policies to avoid repeated allocation.
+        /// </summary>
+        private static readonly ConcurrentDictionary<(int maxRetries, int delay), AsyncRetryPolicy> _rateLimitPolicyCache = new();
+
+        /// <summary>
         /// Sets the logger instance for retry operations.
         /// </summary>
         /// <param name="logger">The logger to use for retry operations.</param>
@@ -99,6 +111,7 @@ namespace AdGuard.ApiClient.Helpers
         /// <remarks>
         /// The policy uses exponential backoff: delay = initialDelay * 2^(retryAttempt-1).
         /// For example, with initialDelay=2: 2s, 4s, 8s, etc.
+        /// Policies are cached based on maxRetries and initialDelay to avoid repeated allocation.
         /// </remarks>
         /// <example>
         /// <code>
@@ -110,19 +123,22 @@ namespace AdGuard.ApiClient.Helpers
         {
             ValidateRetryParameters(maxRetries, initialDelay);
 
-            _logger?.LogDebug("Creating default retry policy with maxRetries: {MaxRetries}, initialDelay: {InitialDelay}s",
-                maxRetries, initialDelay);
+            return _policyCache.GetOrAdd((maxRetries, initialDelay), key =>
+            {
+                _logger?.LogDebug("Creating and caching retry policy with maxRetries: {MaxRetries}, initialDelay: {InitialDelay}s",
+                    key.maxRetries, key.delay);
 
-            return Policy
-                .Handle<ApiException>(ex => IsRetryableException(ex))
-                .WaitAndRetryAsync(
-                    maxRetries,
-                    retryAttempt => TimeSpan.FromSeconds(initialDelay * Math.Pow(2, retryAttempt - 1)),
-                    onRetry: (exception, timeSpan, retryCount, context) =>
-                    {
-                        LogRetryAttempt(exception, timeSpan, retryCount, maxRetries);
-                    }
-                );
+                return Policy
+                    .Handle<ApiException>(ex => IsRetryableException(ex))
+                    .WaitAndRetryAsync(
+                        key.maxRetries,
+                        retryAttempt => TimeSpan.FromSeconds(key.delay * Math.Pow(2, retryAttempt - 1)),
+                        onRetry: (exception, timeSpan, retryCount, context) =>
+                        {
+                            LogRetryAttempt(exception, timeSpan, retryCount, key.maxRetries);
+                        }
+                    );
+            });
         }
 
         /// <summary>
@@ -178,6 +194,7 @@ namespace AdGuard.ApiClient.Helpers
         /// <remarks>
         /// Unlike <see cref="CreateDefaultRetryPolicy"/>, this policy uses linear backoff: delay = baseDelay * retryAttempt.
         /// This is more appropriate for rate limiting as the server typically needs consistent cooldown periods.
+        /// Policies are cached based on maxRetries and baseDelay to avoid repeated allocation.
         /// </remarks>
         /// <example>
         /// <code>
@@ -189,20 +206,23 @@ namespace AdGuard.ApiClient.Helpers
         {
             ValidateRetryParameters(maxRetries, baseDelay);
 
-            _logger?.LogDebug("Creating rate limit retry policy with maxRetries: {MaxRetries}, baseDelay: {BaseDelay}s",
-                maxRetries, baseDelay);
+            return _rateLimitPolicyCache.GetOrAdd((maxRetries, baseDelay), key =>
+            {
+                _logger?.LogDebug("Creating and caching rate limit retry policy with maxRetries: {MaxRetries}, baseDelay: {BaseDelay}s",
+                    key.maxRetries, key.delay);
 
-            return Policy
-                .Handle<ApiException>(ex => ex.ErrorCode == 429)
-                .WaitAndRetryAsync(
-                    maxRetries,
-                    retryAttempt => TimeSpan.FromSeconds(baseDelay * retryAttempt),
-                    onRetry: (exception, timeSpan, retryCount, context) =>
-                    {
-                        _logger?.LogWarning("Rate limit hit (429). Retry {RetryCount}/{MaxRetries} after {Delay:F1}s delay",
-                            retryCount, maxRetries, timeSpan.TotalSeconds);
-                    }
-                );
+                return Policy
+                    .Handle<ApiException>(ex => ex.ErrorCode == 429)
+                    .WaitAndRetryAsync(
+                        key.maxRetries,
+                        retryAttempt => TimeSpan.FromSeconds(key.delay * retryAttempt),
+                        onRetry: (exception, timeSpan, retryCount, context) =>
+                        {
+                            _logger?.LogWarning("Rate limit hit (429). Retry {RetryCount}/{MaxRetries} after {Delay:F1}s delay",
+                                retryCount, key.maxRetries, timeSpan.TotalSeconds);
+                        }
+                    );
+            });
         }
 
         /// <summary>

@@ -1,7 +1,3 @@
-using AdGuard.ApiClient.Model;
-using AdGuard.ConsoleUI.Helpers;
-using Spectre.Console;
-
 namespace AdGuard.ConsoleUI.Display;
 
 /// <summary>

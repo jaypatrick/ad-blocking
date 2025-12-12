@@ -1,5 +1,3 @@
-using AdGuard.ApiClient.Model;
-
 namespace AdGuard.ConsoleUI.Repositories;
 
 /// <summary>

@@ -108,8 +108,13 @@ namespace AdGuard.ApiClient.Client
                 return dateOnly.ToString((configuration ?? GlobalConfiguration.Instance).DateTimeFormat);
             if (obj is bool boolean)
                 return boolean ? "true" : "false";
-            if (obj is ICollection collection) {
-                List<string> entries = new List<string>();
+            if (obj is ICollection collection)
+            {
+                var count = collection.Count;
+                if (count == 0)
+                    return string.Empty;
+
+                var entries = new List<string>(count);
                 foreach (var entry in collection)
                     entries.Add(ParameterToString(entry, configuration));
                 return string.Join(",", entries);

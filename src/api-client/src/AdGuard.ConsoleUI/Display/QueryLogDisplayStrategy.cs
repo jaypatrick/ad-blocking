@@ -1,9 +1,3 @@
-using AdGuard.ApiClient.Helpers;
-using AdGuard.ConsoleUI.Helpers;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Spectre.Console;
-
 namespace AdGuard.ConsoleUI.Display;
 
 /// <summary>

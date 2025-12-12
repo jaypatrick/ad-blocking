@@ -1,5 +1,3 @@
-using Spectre.Console;
-
 namespace AdGuard.ConsoleUI.Helpers;
 
 /// <summary>
