@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using AdGuard.ApiClient.Model;
 using AdGuard.ConsoleUI.Abstractions;
 using AdGuard.ConsoleUI.Display;

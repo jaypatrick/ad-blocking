@@ -1,7 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using AdGuard.ApiClient.Api;
 using AdGuard.ApiClient.Model;
 using AdGuard.ConsoleUI.Abstractions;
+using AdGuard.ConsoleUI.Exceptions;
 using AdGuard.ConsoleUI.Repositories;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -13,15 +18,17 @@ namespace AdGuard.ApiClient.Test.ConsoleUI.Repositories;
 public class DnsServerRepositoryTests
 {
     private readonly Mock<IApiClientFactory> _apiClientFactoryMock;
+    private readonly Mock<ILogger<DnsServerRepository>> _loggerMock;
 
     public DnsServerRepositoryTests()
     {
         _apiClientFactoryMock = new Mock<IApiClientFactory>();
+        _loggerMock = new Mock<ILogger<DnsServerRepository>>();
     }
 
     private DnsServerRepository CreateRepository()
     {
-        return new DnsServerRepository(_apiClientFactoryMock.Object);
+        return new DnsServerRepository(_apiClientFactoryMock.Object, _loggerMock.Object);
     }
 
     #region Constructor Tests
@@ -31,9 +38,19 @@ public class DnsServerRepositoryTests
     {
         // Act & Assert
         var exception = Assert.Throws<ArgumentNullException>(
-            () => new DnsServerRepository(null!));
+            () => new DnsServerRepository(null!, _loggerMock.Object));
 
         Assert.Equal("apiClientFactory", exception.ParamName);
+    }
+
+    [Fact]
+    public void Constructor_WithNullLogger_ThrowsArgumentNullException()
+    {
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentNullException>(
+            () => new DnsServerRepository(_apiClientFactoryMock.Object, null!));
+
+        Assert.Equal("logger", exception.ParamName);
     }
 
     [Fact]
@@ -61,7 +78,7 @@ public class DnsServerRepositoryTests
         };
 
         var mockApi = new Mock<DNSServersApi>();
-        mockApi.Setup(a => a.ListDNSServersAsync(0, default))
+        mockApi.Setup(a => a.ListDNSServersAsync(default))
             .ReturnsAsync(expectedServers);
 
         _apiClientFactoryMock.Setup(f => f.CreateDnsServersApi())
@@ -95,7 +112,7 @@ public class DnsServerRepositoryTests
         };
 
         var mockApi = new Mock<DNSServersApi>();
-        mockApi.Setup(a => a.ListDNSServersAsync(0, default))
+        mockApi.Setup(a => a.ListDNSServersAsync(default))
             .ReturnsAsync(servers);
 
         _apiClientFactoryMock.Setup(f => f.CreateDnsServersApi())
@@ -112,7 +129,7 @@ public class DnsServerRepositoryTests
     }
 
     [Fact]
-    public async Task GetByIdAsync_WithNonExistentId_ThrowsKeyNotFoundException()
+    public async Task GetByIdAsync_WithNonExistentId_ThrowsEntityNotFoundException()
     {
         // Arrange
         var servers = new List<DNSServer>
@@ -121,7 +138,7 @@ public class DnsServerRepositoryTests
         };
 
         var mockApi = new Mock<DNSServersApi>();
-        mockApi.Setup(a => a.ListDNSServersAsync(0, default))
+        mockApi.Setup(a => a.ListDNSServersAsync(default))
             .ReturnsAsync(servers);
 
         _apiClientFactoryMock.Setup(f => f.CreateDnsServersApi())
@@ -130,7 +147,7 @@ public class DnsServerRepositoryTests
         var repository = CreateRepository();
 
         // Act & Assert
-        await Assert.ThrowsAsync<KeyNotFoundException>(
+        await Assert.ThrowsAsync<EntityNotFoundException>(
             () => repository.GetByIdAsync("non-existent-id"));
     }
 
@@ -157,7 +174,7 @@ public class DnsServerRepositoryTests
         var createdServer = new DNSServer(id: "new-srv", name: "New Server", varDefault: false);
 
         var mockApi = new Mock<DNSServersApi>();
-        mockApi.Setup(a => a.CreateDNSServerAsync(serverCreate, 0, default))
+        mockApi.Setup(a => a.CreateDNSServerAsync(serverCreate, default))
             .ReturnsAsync(createdServer);
 
         _apiClientFactoryMock.Setup(f => f.CreateDnsServersApi())
@@ -189,35 +206,15 @@ public class DnsServerRepositoryTests
     #region DeleteAsync Tests
 
     [Fact]
-    public async Task DeleteAsync_WithValidId_CallsApi()
-    {
-        // Arrange
-        var serverId = "server-to-delete";
-        var mockApi = new Mock<DNSServersApi>();
-        mockApi.Setup(a => a.RemoveDNSServerAsync(serverId, 0, default))
-            .Returns(Task.CompletedTask);
-
-        _apiClientFactoryMock.Setup(f => f.CreateDnsServersApi())
-            .Returns(mockApi.Object);
-
-        var repository = CreateRepository();
-
-        // Act
-        await repository.DeleteAsync(serverId);
-
-        // Assert
-        mockApi.Verify(a => a.RemoveDNSServerAsync(serverId, 0, default), Times.Once);
-    }
-
-    [Fact]
-    public async Task DeleteAsync_WithNullId_ThrowsArgumentException()
+    public async Task DeleteAsync_ThrowsNotSupportedException()
     {
         // Arrange
         var repository = CreateRepository();
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(
-            () => repository.DeleteAsync(null!));
+        // DNS server deletion is not supported by the AdGuard DNS API
+        await Assert.ThrowsAsync<NotSupportedException>(
+            () => repository.DeleteAsync("any-id"));
     }
 
     #endregion

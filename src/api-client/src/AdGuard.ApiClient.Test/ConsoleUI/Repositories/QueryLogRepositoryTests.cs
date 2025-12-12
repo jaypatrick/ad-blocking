@@ -1,7 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using AdGuard.ApiClient.Api;
 using AdGuard.ApiClient.Model;
 using AdGuard.ConsoleUI.Abstractions;
 using AdGuard.ConsoleUI.Repositories;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -13,15 +17,17 @@ namespace AdGuard.ApiClient.Test.ConsoleUI.Repositories;
 public class QueryLogRepositoryTests
 {
     private readonly Mock<IApiClientFactory> _apiClientFactoryMock;
+    private readonly Mock<ILogger<QueryLogRepository>> _loggerMock;
 
     public QueryLogRepositoryTests()
     {
         _apiClientFactoryMock = new Mock<IApiClientFactory>();
+        _loggerMock = new Mock<ILogger<QueryLogRepository>>();
     }
 
     private QueryLogRepository CreateRepository()
     {
-        return new QueryLogRepository(_apiClientFactoryMock.Object);
+        return new QueryLogRepository(_apiClientFactoryMock.Object, _loggerMock.Object);
     }
 
     #region Constructor Tests
@@ -31,9 +37,19 @@ public class QueryLogRepositoryTests
     {
         // Act & Assert
         var exception = Assert.Throws<ArgumentNullException>(
-            () => new QueryLogRepository(null!));
+            () => new QueryLogRepository(null!, _loggerMock.Object));
 
         Assert.Equal("apiClientFactory", exception.ParamName);
+    }
+
+    [Fact]
+    public void Constructor_WithNullLogger_ThrowsArgumentNullException()
+    {
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentNullException>(
+            () => new QueryLogRepository(_apiClientFactoryMock.Object, null!));
+
+        Assert.Equal("logger", exception.ParamName);
     }
 
     #endregion
@@ -49,7 +65,7 @@ public class QueryLogRepositoryTests
         var expectedResponse = new QueryLogResponse();
 
         var mockApi = new Mock<QueryLogApi>();
-        mockApi.Setup(a => a.GetQueryLogAsync(fromMillis, toMillis, null, null, null, null, null, 0, default))
+        mockApi.Setup(a => a.GetQueryLogAsync(fromMillis, toMillis, default))
             .ReturnsAsync(expectedResponse);
 
         _apiClientFactoryMock.Setup(f => f.CreateQueryLogApi())
@@ -73,7 +89,7 @@ public class QueryLogRepositoryTests
     {
         // Arrange
         var mockApi = new Mock<QueryLogApi>();
-        mockApi.Setup(a => a.ClearQueryLogAsync(0, default))
+        mockApi.Setup(a => a.ClearQueryLogAsync(default))
             .Returns(Task.CompletedTask);
 
         _apiClientFactoryMock.Setup(f => f.CreateQueryLogApi())
@@ -85,7 +101,7 @@ public class QueryLogRepositoryTests
         await repository.ClearAsync();
 
         // Assert
-        mockApi.Verify(a => a.ClearQueryLogAsync(0, default), Times.Once);
+        mockApi.Verify(a => a.ClearQueryLogAsync(default), Times.Once);
     }
 
     #endregion

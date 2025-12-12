@@ -1,7 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using AdGuard.ApiClient.Api;
 using AdGuard.ApiClient.Model;
 using AdGuard.ConsoleUI.Abstractions;
 using AdGuard.ConsoleUI.Repositories;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -13,15 +17,17 @@ namespace AdGuard.ApiClient.Test.ConsoleUI.Repositories;
 public class StatisticsRepositoryTests
 {
     private readonly Mock<IApiClientFactory> _apiClientFactoryMock;
+    private readonly Mock<ILogger<StatisticsRepository>> _loggerMock;
 
     public StatisticsRepositoryTests()
     {
         _apiClientFactoryMock = new Mock<IApiClientFactory>();
+        _loggerMock = new Mock<ILogger<StatisticsRepository>>();
     }
 
     private StatisticsRepository CreateRepository()
     {
-        return new StatisticsRepository(_apiClientFactoryMock.Object);
+        return new StatisticsRepository(_apiClientFactoryMock.Object, _loggerMock.Object);
     }
 
     #region Constructor Tests
@@ -31,9 +37,19 @@ public class StatisticsRepositoryTests
     {
         // Act & Assert
         var exception = Assert.Throws<ArgumentNullException>(
-            () => new StatisticsRepository(null!));
+            () => new StatisticsRepository(null!, _loggerMock.Object));
 
         Assert.Equal("apiClientFactory", exception.ParamName);
+    }
+
+    [Fact]
+    public void Constructor_WithNullLogger_ThrowsArgumentNullException()
+    {
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentNullException>(
+            () => new StatisticsRepository(_apiClientFactoryMock.Object, null!));
+
+        Assert.Equal("logger", exception.ParamName);
     }
 
     #endregion
@@ -46,10 +62,10 @@ public class StatisticsRepositoryTests
         // Arrange
         var fromMillis = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeMilliseconds();
         var toMillis = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        var expectedStats = new StatsResponse();
+        var expectedStats = new TimeQueriesStatsList();
 
         var mockApi = new Mock<StatisticsApi>();
-        mockApi.Setup(a => a.GetTimeQueriesStatsAsync(fromMillis, toMillis, null, null, 0, default))
+        mockApi.Setup(a => a.GetTimeQueriesStatsAsync(fromMillis, toMillis, default))
             .ReturnsAsync(expectedStats);
 
         _apiClientFactoryMock.Setup(f => f.CreateStatisticsApi())

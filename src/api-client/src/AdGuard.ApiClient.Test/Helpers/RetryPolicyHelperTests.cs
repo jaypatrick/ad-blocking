@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 /*
  * AdGuard DNS API - Unit Tests
  *
