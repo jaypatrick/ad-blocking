@@ -327,7 +327,6 @@ There are plenty of great apps that will help, but there is no one-size-fits-all
 - [ConsoleUI README](src/adguard-api-client/src/AdGuard.ConsoleUI/README.md) - Console UI documentation
 
 ### Rules Compilers
-- [TypeScript Compiler README](src/rules-compiler-typescript/README.md) - TypeScript implementation
 - [.NET Compiler README](src/rules-compiler-dotnet/README.md) - Comprehensive .NET implementation with all features
 - [Python Compiler README](src/rules-compiler-python/README.md) - Python implementation
 - [Rust Compiler README](src/rules-compiler-rust/README.md) - Rust implementation
