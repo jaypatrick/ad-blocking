@@ -37,12 +37,31 @@ public class FilterCompiler : IFilterCompiler
     }
 
     /// <inheritdoc/>
-    public async Task<CompilerResult> CompileAsync(
+    public Task<CompilerResult> CompileAsync(
         string configPath,
         string? outputPath = null,
         ConfigurationFormat? format = null,
+        bool verbose = false,
         CancellationToken cancellationToken = default)
     {
+        var options = new CompilerOptions
+        {
+            ConfigPath = configPath,
+            OutputPath = outputPath,
+            Format = format,
+            Verbose = verbose
+        };
+        return CompileAsync(options, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<CompilerResult> CompileAsync(
+        CompilerOptions options,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(options.ConfigPath))
+            throw new ArgumentException("ConfigPath is required", nameof(options));
+
         var result = new CompilerResult
         {
             StartTime = DateTime.UtcNow
@@ -54,13 +73,14 @@ public class FilterCompiler : IFilterCompiler
         try
         {
             // Read configuration to get metadata
-            var config = await _configurationReader.ReadConfigurationAsync(configPath, format, cancellationToken);
+            var config = await _configurationReader.ReadConfigurationAsync(
+                options.ConfigPath, options.Format, cancellationToken);
             result.ConfigName = config.Name;
             result.ConfigVersion = config.Version;
 
             // Determine config path to use (convert to JSON if needed)
-            var actualFormat = format ?? _configurationReader.DetectFormat(configPath);
-            var configToUse = configPath;
+            var actualFormat = options.Format ?? _configurationReader.DetectFormat(options.ConfigPath);
+            var configToUse = options.ConfigPath;
 
             if (actualFormat != ConfigurationFormat.Json)
             {
@@ -73,8 +93,8 @@ public class FilterCompiler : IFilterCompiler
             }
 
             // Determine output path
-            var actualOutputPath = outputPath ?? Path.Combine(
-                Path.GetDirectoryName(configPath) ?? ".",
+            var actualOutputPath = options.OutputPath ?? Path.Combine(
+                Path.GetDirectoryName(options.ConfigPath) ?? ".",
                 "output",
                 $"compiled-{DateTime.UtcNow:yyyyMMdd-HHmmss}.txt");
 
@@ -88,7 +108,8 @@ public class FilterCompiler : IFilterCompiler
             result.OutputPath = actualOutputPath;
 
             // Find compiler command
-            var (command, args) = await GetCompilerCommandAsync(configToUse, actualOutputPath, cancellationToken);
+            var (command, args) = await GetCompilerCommandAsync(
+                configToUse, actualOutputPath, options.Verbose, cancellationToken);
 
             if (string.IsNullOrEmpty(command))
             {
@@ -98,12 +119,16 @@ public class FilterCompiler : IFilterCompiler
             }
 
             _logger.LogInformation("Compiling filter rules using {Command}", command);
+            if (options.Verbose)
+            {
+                _logger.LogInformation("Verbose mode enabled");
+            }
 
             // Execute compiler
             var (exitCode, stdOut, stdErr) = await _commandHelper.ExecuteAsync(
                 command,
                 args,
-                Path.GetDirectoryName(configPath),
+                Path.GetDirectoryName(options.ConfigPath),
                 cancellationToken);
 
             result.StandardOutput = stdOut;
@@ -215,13 +240,16 @@ public class FilterCompiler : IFilterCompiler
     private async Task<(string Command, string Args)> GetCompilerCommandAsync(
         string configPath,
         string outputPath,
+        bool verbose,
         CancellationToken cancellationToken)
     {
+        var verboseFlag = verbose ? " --verbose" : "";
+
         // Try global hostlist-compiler first
         var compilerPath = _commandHelper.FindCommand(CompilerCommand);
         if (compilerPath != null)
         {
-            return (compilerPath, $"--config \"{configPath}\" --output \"{outputPath}\"");
+            return (compilerPath, $"--config \"{configPath}\" --output \"{outputPath}\"{verboseFlag}");
         }
 
         // Fall back to npx
@@ -229,7 +257,7 @@ public class FilterCompiler : IFilterCompiler
         if (npxPath != null)
         {
             _logger.LogDebug("Using npx to run hostlist-compiler");
-            return (npxPath, $"@adguard/hostlist-compiler --config \"{configPath}\" --output \"{outputPath}\"");
+            return (npxPath, $"@adguard/hostlist-compiler --config \"{configPath}\" --output \"{outputPath}\"{verboseFlag}");
         }
 
         return (string.Empty, string.Empty);

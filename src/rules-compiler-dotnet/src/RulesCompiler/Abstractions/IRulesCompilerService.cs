@@ -1,3 +1,4 @@
+using RulesCompiler.Configuration;
 using RulesCompiler.Models;
 
 namespace RulesCompiler.Abstractions;
@@ -26,6 +27,16 @@ public interface IRulesCompilerService
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Executes the full compilation pipeline using compiler options.
+    /// </summary>
+    /// <param name="options">Compiler options including config path, output path, and other settings.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The compilation result.</returns>
+    Task<CompilerResult> RunAsync(
+        CompilerOptions options,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Gets version information for all components.
     /// </summary>
     /// <param name="cancellationToken">Cancellation token.</param>
@@ -33,7 +44,7 @@ public interface IRulesCompilerService
     Task<VersionInfo> GetVersionInfoAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Reads and validates the configuration file.
+    /// Reads the configuration file.
     /// </summary>
     /// <param name="configPath">Path to the configuration file.</param>
     /// <param name="format">Optional format override.</param>
@@ -43,4 +54,23 @@ public interface IRulesCompilerService
         string? configPath = null,
         ConfigurationFormat? format = null,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Validates a configuration and returns any errors or warnings.
+    /// </summary>
+    /// <param name="configPath">Path to the configuration file.</param>
+    /// <param name="format">Optional format override.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Validation result with errors and warnings.</returns>
+    Task<ConfigurationValidator.ValidationResult> ValidateConfigurationAsync(
+        string? configPath = null,
+        ConfigurationFormat? format = null,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Validates a configuration object and returns any errors or warnings.
+    /// </summary>
+    /// <param name="configuration">The configuration to validate.</param>
+    /// <returns>Validation result with errors and warnings.</returns>
+    ConfigurationValidator.ValidationResult ValidateConfiguration(CompilerConfiguration configuration);
 }

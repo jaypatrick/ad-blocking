@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RulesCompiler.Abstractions;
+using RulesCompiler.Configuration;
 using RulesCompiler.Console.Helpers;
 using RulesCompiler.Models;
 using Spectre.Console;
@@ -10,6 +11,17 @@ namespace RulesCompiler.Console.Services;
 /// <summary>
 /// Main console application that provides both interactive and command-line modes.
 /// </summary>
+/// <remarks>
+/// <para>Command-line options:</para>
+/// <list type="bullet">
+///   <item><description>--config, -c: Path to configuration file</description></item>
+///   <item><description>--output, -o: Path to output file</description></item>
+///   <item><description>--copy, --CopyToRules: Copy output to rules directory</description></item>
+///   <item><description>--verbose: Enable verbose output from hostlist-compiler</description></item>
+///   <item><description>--validate: Validate configuration only (no compilation)</description></item>
+///   <item><description>--version, -v: Show version information</description></item>
+/// </list>
+/// </remarks>
 public class ConsoleApplication
 {
     private readonly ILogger<ConsoleApplication> _logger;
@@ -41,9 +53,12 @@ public class ConsoleApplication
     {
         // Check for command-line mode
         var configPath = _configuration["config"] ?? _configuration["c"];
+        var outputPath = _configuration["output"] ?? _configuration["o"];
         var compileOnly = _configuration.GetValue<bool>("compile");
         var copyToRules = _configuration.GetValue<bool>("copy") || _configuration.GetValue<bool>("CopyToRules");
         var showVersion = _configuration.GetValue<bool>("version") || _configuration.GetValue<bool>("v");
+        var verbose = _configuration.GetValue<bool>("verbose");
+        var validateOnly = _configuration.GetValue<bool>("validate");
 
         if (showVersion)
         {
@@ -51,10 +66,15 @@ public class ConsoleApplication
             return 0;
         }
 
+        if (validateOnly)
+        {
+            return await RunValidationAsync(configPath);
+        }
+
         if (compileOnly || !string.IsNullOrEmpty(configPath))
         {
             // Command-line mode
-            return await RunCompilationAsync(configPath, copyToRules);
+            return await RunCompilationAsync(configPath, outputPath, copyToRules, verbose);
         }
 
         // Interactive mode
@@ -73,12 +93,15 @@ public class ConsoleApplication
             var choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("[green]What would you like to do?[/]")
-                    .PageSize(10)
+                    .PageSize(12)
                     .HighlightStyle(new Style(Color.Green))
                     .AddChoices(
                         "View Configuration",
+                        "Validate Configuration",
                         "Compile Rules",
+                        "Compile Rules (Verbose)",
                         "Compile and Copy to Rules",
+                        "Show Available Transformations",
                         "Version Info",
                         "Exit"));
 
@@ -91,11 +114,20 @@ public class ConsoleApplication
                     case "View Configuration":
                         await ViewConfigurationAsync();
                         break;
+                    case "Validate Configuration":
+                        await ValidateConfigurationAsync();
+                        break;
                     case "Compile Rules":
-                        await CompileRulesAsync(copyToRules: false);
+                        await CompileRulesAsync(copyToRules: false, verbose: false);
+                        break;
+                    case "Compile Rules (Verbose)":
+                        await CompileRulesAsync(copyToRules: false, verbose: true);
                         break;
                     case "Compile and Copy to Rules":
-                        await CompileRulesAsync(copyToRules: true);
+                        await CompileRulesAsync(copyToRules: true, verbose: false);
+                        break;
+                    case "Show Available Transformations":
+                        ShowTransformations();
                         break;
                     case "Version Info":
                         await ShowVersionInfoAsync();
@@ -143,7 +175,7 @@ public class ConsoleApplication
             });
     }
 
-    private async Task CompileRulesAsync(bool copyToRules)
+    private async Task CompileRulesAsync(bool copyToRules, bool verbose)
     {
         var configPath = await PromptForConfigPathAsync();
 
@@ -151,34 +183,173 @@ public class ConsoleApplication
             .StartAsync("Compiling rules...", async ctx =>
             {
                 ctx.Status("Reading configuration...");
-                var result = await _compilerService.RunAsync(
-                    configPath,
-                    copyToRules: copyToRules);
+                var options = new CompilerOptions
+                {
+                    ConfigPath = configPath,
+                    CopyToRules = copyToRules,
+                    Verbose = verbose,
+                    ValidateConfig = true
+                };
 
+                var result = await _compilerService.RunAsync(options);
                 DisplayResult(result);
+
+                if (verbose && !string.IsNullOrEmpty(result.StandardOutput))
+                {
+                    AnsiConsole.WriteLine();
+                    AnsiConsole.Write(new Panel(Markup.Escape(result.StandardOutput))
+                        .Header("[yellow]Compiler Output[/]")
+                        .Border(BoxBorder.Rounded));
+                }
             });
     }
 
-    private async Task<int> RunCompilationAsync(string? configPath, bool copyToRules)
+    private async Task<int> RunCompilationAsync(string? configPath, string? outputPath, bool copyToRules, bool verbose)
     {
         try
         {
+            CompilerResult? result = null;
+
             await AnsiConsole.Status()
                 .StartAsync("Compiling rules...", async ctx =>
                 {
-                    var result = await _compilerService.RunAsync(
-                        configPath,
-                        copyToRules: copyToRules);
+                    var options = new CompilerOptions
+                    {
+                        ConfigPath = configPath,
+                        OutputPath = outputPath,
+                        CopyToRules = copyToRules,
+                        Verbose = verbose,
+                        ValidateConfig = true
+                    };
 
+                    result = await _compilerService.RunAsync(options);
                     DisplayResult(result);
+
+                    if (verbose && !string.IsNullOrEmpty(result.StandardOutput))
+                    {
+                        AnsiConsole.WriteLine();
+                        AnsiConsole.Write(new Panel(Markup.Escape(result.StandardOutput))
+                            .Header("[yellow]Compiler Output[/]")
+                            .Border(BoxBorder.Rounded));
+                    }
                 });
 
-            return 0;
+            return result?.Success == true ? 0 : 1;
         }
         catch (Exception ex)
         {
             AnsiConsole.WriteException(ex);
             return 1;
+        }
+    }
+
+    private async Task<int> RunValidationAsync(string? configPath)
+    {
+        try
+        {
+            var result = await _compilerService.ValidateConfigurationAsync(configPath);
+            DisplayValidationResult(result);
+            return result.IsValid ? 0 : 1;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.WriteException(ex);
+            return 1;
+        }
+    }
+
+    private async Task ValidateConfigurationAsync()
+    {
+        var configPath = await PromptForConfigPathAsync();
+
+        await AnsiConsole.Status()
+            .StartAsync("Validating configuration...", async ctx =>
+            {
+                var result = await _compilerService.ValidateConfigurationAsync(configPath);
+                DisplayValidationResult(result);
+            });
+    }
+
+    private static void ShowTransformations()
+    {
+        AnsiConsole.Write(new Rule("[green]Available Transformations[/]").RuleStyle("grey"));
+        AnsiConsole.WriteLine();
+
+        var table = new Table()
+            .Border(TableBorder.Rounded)
+            .AddColumn("[green]Transformation[/]")
+            .AddColumn("[green]Description[/]");
+
+        table.AddRow("RemoveComments", "Removes all comment lines (! or #)");
+        table.AddRow("Compress", "Converts hosts format to adblock syntax");
+        table.AddRow("RemoveModifiers", "Removes unsupported modifiers from rules");
+        table.AddRow("Validate", "Removes dangerous/incompatible rules");
+        table.AddRow("ValidateAllowIp", "Like Validate but allows IP address rules");
+        table.AddRow("Deduplicate", "Removes duplicate rules");
+        table.AddRow("InvertAllow", "Converts @@exceptions to blocking rules");
+        table.AddRow("RemoveEmptyLines", "Removes blank lines");
+        table.AddRow("TrimLines", "Trims whitespace from lines");
+        table.AddRow("InsertFinalNewLine", "Ensures file ends with newline");
+        table.AddRow("ConvertToAscii", "Converts IDN to punycode");
+
+        AnsiConsole.Write(table);
+
+        AnsiConsole.WriteLine();
+        AnsiConsole.MarkupLine("[grey]Note: Transformations are always applied in a fixed order regardless of configuration order.[/]");
+    }
+
+    private static void DisplayValidationResult(ConfigurationValidator.ValidationResult result)
+    {
+        AnsiConsole.WriteLine();
+
+        if (result.IsValid && result.Warnings.Count == 0)
+        {
+            AnsiConsole.MarkupLine("[green]Configuration is valid![/]");
+            return;
+        }
+
+        if (result.IsValid)
+        {
+            AnsiConsole.MarkupLine("[yellow]Configuration is valid but has warnings:[/]");
+        }
+        else
+        {
+            AnsiConsole.MarkupLine("[red]Configuration has errors:[/]");
+        }
+
+        if (result.Errors.Count > 0)
+        {
+            var errorsTable = new Table()
+                .Border(TableBorder.Rounded)
+                .AddColumn("[red]Field[/]")
+                .AddColumn("[red]Error[/]");
+
+            foreach (var error in result.Errors)
+            {
+                errorsTable.AddRow(
+                    Markup.Escape(error.Field),
+                    Markup.Escape(error.Message));
+            }
+
+            AnsiConsole.Write(errorsTable);
+        }
+
+        if (result.Warnings.Count > 0)
+        {
+            AnsiConsole.WriteLine();
+            var warningsTable = new Table()
+                .Border(TableBorder.Rounded)
+                .AddColumn("[yellow]Field[/]")
+                .AddColumn("[yellow]Warning[/]");
+
+            foreach (var warning in result.Warnings)
+            {
+                warningsTable.AddRow(
+                    Markup.Escape(warning.Field),
+                    Markup.Escape(warning.Message));
+            }
+
+            AnsiConsole.Write(warningsTable);
         }
     }
 
@@ -220,11 +391,26 @@ public class ConsoleApplication
             .AddColumn("[green]Value[/]");
 
         table.AddRow("Name", Markup.Escape(config.Name));
-        table.AddRow("Version", config.Version);
-        table.AddRow("License", config.License);
-        table.AddRow("Homepage", Markup.Escape(config.Homepage));
+        table.AddRow("Description", Markup.Escape(config.Description ?? "[grey]Not set[/]"));
+        table.AddRow("Version", config.Version ?? "[grey]Not set[/]");
+        table.AddRow("License", config.License ?? "[grey]Not set[/]");
+        table.AddRow("Homepage", Markup.Escape(config.Homepage ?? "[grey]Not set[/]"));
         table.AddRow("Sources", config.Sources.Count.ToString());
-        table.AddRow("Transformations", string.Join(", ", config.Transformations));
+        table.AddRow("Transformations", config.Transformations.Count > 0
+            ? string.Join(", ", config.Transformations)
+            : "[grey]None[/]");
+        table.AddRow("Inclusions", config.Inclusions.Count > 0
+            ? $"{config.Inclusions.Count} patterns"
+            : "[grey]None[/]");
+        table.AddRow("Inclusion Sources", config.InclusionsSources.Count > 0
+            ? $"{config.InclusionsSources.Count} files"
+            : "[grey]None[/]");
+        table.AddRow("Exclusions", config.Exclusions.Count > 0
+            ? $"{config.Exclusions.Count} patterns"
+            : "[grey]None[/]");
+        table.AddRow("Exclusion Sources", config.ExclusionsSources.Count > 0
+            ? $"{config.ExclusionsSources.Count} files"
+            : "[grey]None[/]");
 
         AnsiConsole.Write(table);
 
@@ -237,16 +423,20 @@ public class ConsoleApplication
                 .Border(TableBorder.Simple)
                 .AddColumn("Name")
                 .AddColumn("Type")
-                .AddColumn("Source");
+                .AddColumn("Source")
+                .AddColumn("Transformations");
 
             foreach (var source in config.Sources)
             {
                 sourcesTable.AddRow(
-                    Markup.Escape(source.Name),
+                    Markup.Escape(source.Name ?? "[unnamed]"),
                     source.Type,
-                    Markup.Escape(source.Source.Length > 60
-                        ? source.Source[..57] + "..."
-                        : source.Source));
+                    Markup.Escape(source.Source.Length > 50
+                        ? source.Source[..47] + "..."
+                        : source.Source),
+                    source.Transformations.Count > 0
+                        ? string.Join(", ", source.Transformations)
+                        : "[grey]None[/]");
             }
 
             AnsiConsole.Write(sourcesTable);
@@ -277,10 +467,12 @@ public class ConsoleApplication
             .AddColumn("[green]Value[/]");
 
         table.AddRow("Config Name", Markup.Escape(result.ConfigName));
-        table.AddRow("Config Version", result.ConfigVersion);
+        table.AddRow("Config Version", result.ConfigVersion ?? "[grey]Not set[/]");
         table.AddRow("Rule Count", result.RuleCount.ToString("N0"));
         table.AddRow("Output Path", Markup.Escape(result.OutputPath));
-        table.AddRow("Output Hash", result.OutputHash[..32] + "...");
+        table.AddRow("Output Hash", !string.IsNullOrEmpty(result.OutputHash) && result.OutputHash.Length >= 32
+            ? result.OutputHash[..32] + "..."
+            : result.OutputHash ?? "[grey]N/A[/]");
         table.AddRow("Elapsed Time", $"{result.ElapsedMs:N0} ms");
 
         if (result.CopiedToRules)

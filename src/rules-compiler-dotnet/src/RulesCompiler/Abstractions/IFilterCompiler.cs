@@ -3,7 +3,7 @@ using RulesCompiler.Models;
 namespace RulesCompiler.Abstractions;
 
 /// <summary>
-/// Interface for compiling filter rules using hostlist-compiler.
+/// Interface for compiling filter rules using @adguard/hostlist-compiler.
 /// </summary>
 public interface IFilterCompiler
 {
@@ -13,12 +13,24 @@ public interface IFilterCompiler
     /// <param name="configPath">Path to the configuration file.</param>
     /// <param name="outputPath">Optional output file path. If null, uses default.</param>
     /// <param name="format">Optional format override for the configuration.</param>
+    /// <param name="verbose">Whether to enable verbose logging.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The compilation result.</returns>
     Task<CompilerResult> CompileAsync(
         string configPath,
         string? outputPath = null,
         ConfigurationFormat? format = null,
+        bool verbose = false,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Compiles filter rules using the provided options.
+    /// </summary>
+    /// <param name="options">Compiler options including config path, output path, and verbose mode.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The compilation result.</returns>
+    Task<CompilerResult> CompileAsync(
+        CompilerOptions options,
         CancellationToken cancellationToken = default);
 
     /// <summary>

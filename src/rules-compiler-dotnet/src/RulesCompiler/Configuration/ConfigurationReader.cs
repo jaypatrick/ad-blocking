@@ -1,8 +1,10 @@
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using RulesCompiler.Abstractions;
 using RulesCompiler.Models;
 using Tomlyn;
+using Tomlyn.Model;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -11,11 +13,26 @@ namespace RulesCompiler.Configuration;
 /// <summary>
 /// Reads compiler configuration from JSON, YAML, or TOML files.
 /// </summary>
+/// <remarks>
+/// <para>
+/// This reader supports all @adguard/hostlist-compiler configuration options
+/// across JSON, YAML, and TOML formats.
+/// </para>
+/// <para>
+/// Property naming conventions:
+/// <list type="bullet">
+///   <item><description>JSON: snake_case (e.g., inclusions_sources)</description></item>
+///   <item><description>YAML: snake_case (e.g., inclusions_sources)</description></item>
+///   <item><description>TOML: snake_case (e.g., inclusions_sources)</description></item>
+/// </list>
+/// </para>
+/// </remarks>
 public class ConfigurationReader : IConfigurationReader
 {
     private readonly ILogger<ConfigurationReader> _logger;
     private readonly IDeserializer _yamlDeserializer;
     private readonly ISerializer _yamlSerializer;
+    private readonly JsonSerializerSettings _jsonSettings;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ConfigurationReader"/> class.
@@ -25,14 +42,28 @@ public class ConfigurationReader : IConfigurationReader
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
+        // YAML uses snake_case naming convention to match hostlist-compiler
         _yamlDeserializer = new DeserializerBuilder()
-            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .WithNamingConvention(UnderscoredNamingConvention.Instance)
             .IgnoreUnmatchedProperties()
             .Build();
 
         _yamlSerializer = new SerializerBuilder()
-            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .WithNamingConvention(UnderscoredNamingConvention.Instance)
+            .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitNull | DefaultValuesHandling.OmitEmptyCollections)
             .Build();
+
+        // JSON settings with snake_case for compatibility with hostlist-compiler
+        _jsonSettings = new JsonSerializerSettings
+        {
+            Formatting = Formatting.Indented,
+            NullValueHandling = NullValueHandling.Ignore,
+            DefaultValueHandling = DefaultValueHandling.Ignore,
+            ContractResolver = new DefaultContractResolver
+            {
+                NamingStrategy = new SnakeCaseNamingStrategy()
+            }
+        };
     }
 
     /// <inheritdoc/>
@@ -52,13 +83,18 @@ public class ConfigurationReader : IConfigurationReader
 
         var content = await File.ReadAllTextAsync(configPath, cancellationToken);
 
-        return detectedFormat switch
+        var config = detectedFormat switch
         {
             ConfigurationFormat.Json => ParseJson(content),
             ConfigurationFormat.Yaml => ParseYaml(content),
             ConfigurationFormat.Toml => ParseToml(content),
             _ => throw new ArgumentException($"Unsupported format: {detectedFormat}")
         };
+
+        _logger.LogDebug("Loaded configuration '{Name}' with {SourceCount} sources and {TransformCount} transformations",
+            config.Name, config.Sources.Count, config.Transformations.Count);
+
+        return config;
     }
 
     /// <inheritdoc/>
@@ -78,16 +114,33 @@ public class ConfigurationReader : IConfigurationReader
     /// <inheritdoc/>
     public string ToJson(CompilerConfiguration configuration)
     {
-        return JsonConvert.SerializeObject(configuration, new JsonSerializerSettings
-        {
-            Formatting = Formatting.Indented,
-            NullValueHandling = NullValueHandling.Ignore
-        });
+        // Use snake_case for output to match hostlist-compiler expectations
+        return JsonConvert.SerializeObject(configuration, _jsonSettings);
+    }
+
+    /// <summary>
+    /// Converts configuration to YAML format.
+    /// </summary>
+    /// <param name="configuration">The configuration to convert.</param>
+    /// <returns>YAML string representation of the configuration.</returns>
+    public string ToYaml(CompilerConfiguration configuration)
+    {
+        return _yamlSerializer.Serialize(configuration);
+    }
+
+    /// <summary>
+    /// Validates the configuration and returns any validation errors.
+    /// </summary>
+    /// <param name="configuration">The configuration to validate.</param>
+    /// <returns>A validation result containing any errors or warnings.</returns>
+    public ConfigurationValidator.ValidationResult ValidateConfiguration(CompilerConfiguration configuration)
+    {
+        return ConfigurationValidator.Validate(configuration);
     }
 
     private CompilerConfiguration ParseJson(string content)
     {
-        var config = JsonConvert.DeserializeObject<CompilerConfiguration>(content);
+        var config = JsonConvert.DeserializeObject<CompilerConfiguration>(content, _jsonSettings);
         return config ?? throw new InvalidOperationException("Failed to parse JSON configuration");
     }
 
@@ -99,8 +152,78 @@ public class ConfigurationReader : IConfigurationReader
 
     private CompilerConfiguration ParseToml(string content)
     {
-        // Use Tomlyn's direct model deserialization instead of double serialization
-        var config = Toml.ToModel<CompilerConfiguration>(content);
-        return config ?? throw new InvalidOperationException("Failed to parse TOML configuration");
+        // Parse TOML to a TomlTable first for flexible property mapping
+        var tomlTable = Toml.ToModel(content);
+        return ParseTomlTable(tomlTable);
+    }
+
+    private CompilerConfiguration ParseTomlTable(TomlTable table)
+    {
+        var config = new CompilerConfiguration();
+
+        // Map root-level properties
+        if (table.TryGetValue("name", out var name))
+            config.Name = name?.ToString() ?? string.Empty;
+
+        if (table.TryGetValue("description", out var desc))
+            config.Description = desc?.ToString();
+
+        if (table.TryGetValue("homepage", out var home))
+            config.Homepage = home?.ToString();
+
+        if (table.TryGetValue("license", out var license))
+            config.License = license?.ToString();
+
+        if (table.TryGetValue("version", out var version))
+            config.Version = version?.ToString();
+
+        // Map array properties
+        config.Transformations = GetStringList(table, "transformations");
+        config.Inclusions = GetStringList(table, "inclusions");
+        config.InclusionsSources = GetStringList(table, "inclusions_sources");
+        config.Exclusions = GetStringList(table, "exclusions");
+        config.ExclusionsSources = GetStringList(table, "exclusions_sources");
+
+        // Map sources array
+        if (table.TryGetValue("sources", out var sourcesObj) && sourcesObj is TomlTableArray sources)
+        {
+            foreach (var sourceTable in sources)
+            {
+                config.Sources.Add(ParseFilterSource(sourceTable));
+            }
+        }
+
+        return config;
+    }
+
+    private FilterSource ParseFilterSource(TomlTable table)
+    {
+        var source = new FilterSource();
+
+        if (table.TryGetValue("name", out var name))
+            source.Name = name?.ToString();
+
+        if (table.TryGetValue("source", out var src))
+            source.Source = src?.ToString() ?? string.Empty;
+
+        if (table.TryGetValue("type", out var type))
+            source.Type = type?.ToString() ?? "adblock";
+
+        source.Transformations = GetStringList(table, "transformations");
+        source.Inclusions = GetStringList(table, "inclusions");
+        source.InclusionsSources = GetStringList(table, "inclusions_sources");
+        source.Exclusions = GetStringList(table, "exclusions");
+        source.ExclusionsSources = GetStringList(table, "exclusions_sources");
+
+        return source;
+    }
+
+    private static List<string> GetStringList(TomlTable table, string key)
+    {
+        if (table.TryGetValue(key, out var value) && value is TomlArray array)
+        {
+            return array.Select(item => item?.ToString() ?? string.Empty).ToList();
+        }
+        return [];
     }
 }

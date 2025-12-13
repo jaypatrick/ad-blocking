@@ -18,7 +18,7 @@ public class CompilerResult
     /// <summary>
     /// Gets or sets the version from the configuration.
     /// </summary>
-    public string ConfigVersion { get; set; } = string.Empty;
+    public string? ConfigVersion { get; set; }
 
     /// <summary>
     /// Gets or sets the number of rules in the output.
