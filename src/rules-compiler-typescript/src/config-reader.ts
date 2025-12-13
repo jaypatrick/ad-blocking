@@ -162,9 +162,7 @@ export function readConfiguration(
  * @returns JSON string
  */
 export function toJson(config: IConfiguration): string {
-  const { _sourceFormat: _sf, _sourcePath: _sp, ...cleanConfig } = config as ExtendedConfiguration;
-  // Variables prefixed with _ to indicate they're intentionally unused
-  void _sf;
-  void _sp;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { _sourceFormat, _sourcePath, ...cleanConfig } = config as ExtendedConfiguration;
   return JSON.stringify(cleanConfig, null, 2);
 }

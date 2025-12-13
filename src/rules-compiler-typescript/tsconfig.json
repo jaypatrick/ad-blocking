@@ -16,5 +16,6 @@
     "moduleResolution": "node"
   },
   "include": ["src/**/*"],
+  // Exclude mod.ts as it's the Deno-specific entry point with Deno APIs
   "exclude": ["node_modules", "dist", "src/mod.ts"]
 }

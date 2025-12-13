@@ -35,6 +35,6 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ['dist/', 'coverage/', 'node_modules/', 'frontend-rust/', '*.config.js'],
+    ignores: ['dist/', 'coverage/', 'node_modules/', 'frontend-rust/', '*.config.js', 'src/mod.ts'],
   },
 );

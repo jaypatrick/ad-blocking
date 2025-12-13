@@ -152,6 +152,21 @@ export function showVersion(): void {
 }
 
 /**
+ * Formats transformations value for display
+ * @param value - Transformations value from config
+ * @returns Formatted string
+ */
+function formatTransformations(value: unknown): string {
+  if (Array.isArray(value)) {
+    return value.join(', ');
+  }
+  if (typeof value === 'string') {
+    return value;
+  }
+  return 'none';
+}
+
+/**
  * Shows configuration details
  * @param configPath - Path to configuration file
  * @param format - Optional format override
@@ -174,14 +189,7 @@ function showConfig(configPath: string, format?: ConfigurationFormat): void {
   console.log(`  License: ${license}`);
   
   console.log(`  Sources: ${config.sources?.length || 0}`);
-  
-  const transformationsValue = configRecord.transformations;
-  const transformations = Array.isArray(transformationsValue) 
-    ? transformationsValue.join(', ') 
-    : typeof transformationsValue === 'string' 
-    ? transformationsValue 
-    : 'none';
-  console.log(`  Transformations: ${transformations}`);
+  console.log(`  Transformations: ${formatTransformations(configRecord.transformations)}`);
   
   console.log('');
   console.log('JSON representation:');
