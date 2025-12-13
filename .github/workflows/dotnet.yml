@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./src/api-client
+        working-directory: ./src/adguard-api-client
 
     steps:
     - uses: actions/checkout@v4

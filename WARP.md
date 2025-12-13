@@ -18,8 +18,8 @@ TypeScript – rules compiler (src/rules-compiler-typescript)
   Notes
   - invoke-compiler.ts reads compiler-config.json in the same folder and writes adguard_user_filter.txt beside it. The canonical list in rules/adguard_user_filter.txt is tracked under rules/.
 
-.NET – API client + console UI (src/api-client)
-- Restore/build/test: cd src/api-client; dotnet restore AdGuard.ApiClient.sln; dotnet build AdGuard.ApiClient.sln; dotnet test AdGuard.ApiClient.sln
+.NET – API client + console UI (src/adguard-api-client)
+- Restore/build/test: cd src/adguard-api-client; dotnet restore AdGuard.ApiClient.sln; dotnet build AdGuard.ApiClient.sln; dotnet test AdGuard.ApiClient.sln
 - Run the console UI: dotnet run --project src/AdGuard.ConsoleUI/AdGuard.ConsoleUI.csproj
   Notes
   - The client targets net8.0 and includes helpers for configuration and Polly-based retry policies (see Helpers/ConfigurationHelper.cs and Helpers/RetryPolicyHelper.cs).
@@ -37,8 +37,8 @@ Running a single test
 - TypeScript (Jest)
   - By file: cd src/rules-compiler-typescript && npx jest cli.test.ts
   - By test name: npx jest -t "should write rules to a file"
-- .NET (xUnit under src/api-client)
-  - By class pattern: cd src/api-client && dotnet test AdGuard.ApiClient.sln --filter "FullyQualifiedName~DevicesApiTests"
+- .NET (xUnit under src/adguard-api-client)
+  - By class pattern: cd src/adguard-api-client && dotnet test AdGuard.ApiClient.sln --filter "FullyQualifiedName~DevicesApiTests"
   - By method pattern: dotnet test AdGuard.ApiClient.sln --filter "Name~GetAccountLimits"
 
 Environment and secrets used by code
@@ -51,7 +51,7 @@ High-level architecture and structure
 - Filter compiler (src/filter-compiler/)
   - TypeScript wrapper around @adguard/hostlist-compiler. invoke-compiler.ts loads compiler-config.json, compiles sources, and writes adguard_user_filter.txt. Jest tests cover config parsing and output writing.
   - eslint.config.mjs configures JS/TS linting via the flat config.
-- API client (src/api-client/)
+- API client (src/adguard-api-client/)
   - Auto-generated C# SDK for AdGuard DNS API v1.11 (see api/openapi.yaml and README.md). Targets net8.0 in AdGuard.ApiClient.csproj; uses Newtonsoft.Json and JsonSubTypes.
   - Helpers/ConfigurationHelper.cs provides fluent auth + timeouts + user agent, and Helpers/RetryPolicyHelper.cs adds Polly-based retry policies for 408/429/5xx.
   - Console UI (src/AdGuard.ConsoleUI/) is a Spectre.Console menu-driven wrapper over the SDK with a small ApiClientFactory to configure the SDK from settings or an interactive prompt.

@@ -28,20 +28,20 @@ AdGuard.ConsoleUI is a .NET 8.0 console application that provides an interactive
 ### Build from Source
 
 ```bash
-cd src/api-client/src/AdGuard.ConsoleUI
+cd src/adguard-api-client/src/AdGuard.ConsoleUI
 dotnet build
 ```
 
 ### Run the Application
 
 ```bash
-dotnet run --project src/api-client/src/AdGuard.ConsoleUI
+dotnet run --project src/adguard-api-client/src/AdGuard.ConsoleUI
 ```
 
 Or after building:
 
 ```bash
-cd src/api-client/src/AdGuard.ConsoleUI/bin/Debug/net8.0
+cd src/adguard-api-client/src/AdGuard.ConsoleUI/bin/Debug/net8.0
 ./AdGuard.ConsoleUI
 ```
 
@@ -201,10 +201,10 @@ Unit tests are located in `AdGuard.ApiClient.Test/ConsoleUI/`:
 
 ```bash
 # Run all tests
-dotnet test src/api-client/src/AdGuard.ApiClient.Test
+dotnet test src/adguard-api-client/src/AdGuard.ApiClient.Test
 
 # Run only ConsoleUI tests
-dotnet test src/api-client/src/AdGuard.ApiClient.Test --filter "FullyQualifiedName~ConsoleUI"
+dotnet test src/adguard-api-client/src/AdGuard.ApiClient.Test --filter "FullyQualifiedName~ConsoleUI"
 ```
 
 ## Contributing

@@ -116,9 +116,9 @@ cargo run -- --help                      # Show help
 ./target/release/rules-compiler -c config.yaml
 ```
 
-### .NET API Client + Console UI (`src/api-client/`)
+### .NET API Client + Console UI (`src/adguard-api-client/`)
 ```bash
-cd src/api-client
+cd src/adguard-api-client
 dotnet restore AdGuard.ApiClient.sln
 dotnet build AdGuard.ApiClient.sln
 dotnet test AdGuard.ApiClient.sln
@@ -169,7 +169,7 @@ npx jest -t "should compile rules"         # By test name
 
 ### .NET (xUnit)
 ```bash
-cd src/api-client
+cd src/adguard-api-client
 dotnet test AdGuard.ApiClient.sln --filter "FullyQualifiedName~DevicesApiTests"   # By class
 dotnet test AdGuard.ApiClient.sln --filter "Name~GetAccountLimits"                # By method
 ```
@@ -257,7 +257,7 @@ cargo test config::                       # Tests in module
 - Single binary distribution with zero runtime dependencies (except Node.js for hostlist-compiler)
 - Key structs: `RulesCompiler`, `CompilerConfiguration`, `CompilerResult`, `VersionInfo`
 
-### API Client (`src/api-client/`)
+### API Client (`src/adguard-api-client/`)
 - Auto-generated from `api/openapi.yaml` (AdGuard DNS API v1.11)
 - `Helpers/ConfigurationHelper.cs` - Fluent auth, timeouts, user agent
 - `Helpers/RetryPolicyHelper.cs` - Polly-based retry for 408/429/5xx

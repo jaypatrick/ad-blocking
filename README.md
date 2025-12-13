@@ -19,7 +19,7 @@ ad-blocking/
 ├── scripts/                    # Automation scripts
 │   └── powershell/             # PowerShell modules
 ├── src/                        # Source code
-│   ├── api-client/             # AdGuard DNS API C# client
+│   ├── adguard-api-client/     # AdGuard DNS API C# client
 │   ├── rules-compiler-typescript/ # TypeScript rules compiler
 │   ├── rules-compiler-dotnet/  # .NET rules compiler
 │   ├── rules-compiler-python/  # Python rules compiler
@@ -55,7 +55,7 @@ This repository includes a pre-configured Warp environment for development and A
 ```bash
 cd ad-blocking/src/rules-compiler-typescript && npm install
 cd ad-blocking/src/website && npm install
-cd ad-blocking/src/api-client && dotnet restore
+cd ad-blocking/src/adguard-api-client && dotnet restore
 ```
 
 **Using with Integrations:**
@@ -82,7 +82,7 @@ For full repository access (opening PRs, pushing changes), authorize the Warp Gi
    npm install
 
    # Restore API client packages
-   cd ../api-client
+   cd ../adguard-api-client
    dotnet restore
    ```
 
@@ -111,7 +111,7 @@ The main AdGuard filter list for blocking ads, trackers, and malware. The rules 
 ### Rules Compiler - TypeScript (`src/rules-compiler-typescript/`)
 TypeScript-based compiler using [@adguard/hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler) to compile and transform filter rules. Includes Deno support and optional Rust CLI frontend.
 
-### API Client (`src/api-client/`)
+### API Client (`src/adguard-api-client/`)
 C# SDK for the [AdGuard DNS API v1.11](https://api.adguard-dns.io/static/swagger/swagger.json). Auto-generated from OpenAPI specification with full async support and Polly resilience.
 
 ### Website (`src/website/`)
@@ -138,7 +138,7 @@ There are plenty of great apps that will help, but there is no one-size-fits-all
 
 ## Documentation
 
-- [API Client README](src/api-client/README.md) - API client overview
+- [API Client README](src/adguard-api-client/README.md) - API client overview
 - [API Client Usage Guide](docs/guides/api-client-usage.md) - Detailed usage instructions
 - [API Client Examples](docs/guides/api-client-examples.md) - Code examples
 - [API Reference](docs/api/) - Full API documentation
