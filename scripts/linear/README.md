@@ -111,7 +111,7 @@ Each documented component creates a detailed documentation issue:
 
 - Filter Rules (`/rules/`)
 - Rules Compiler TypeScript (`/src/rules-compiler-typescript/`)
-- Webhook Application (`/src/webhook-app/`)
+- API Client (`/src/api-client/`)
 - etc.
 
 ### Main Documentation
