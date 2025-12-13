@@ -112,7 +112,7 @@ cargo run -- --help
 ### Website (`src/website/`)
 ```bash
 # Install dependencies
-npm install
+npm ci
 
 # Development server
 npm run develop
