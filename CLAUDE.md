@@ -119,9 +119,9 @@ cargo run -- --help                      # Show help
 ### .NET API Client + Console UI (`src/adguard-api-client/`)
 ```bash
 cd src/adguard-api-client
-dotnet restore AdGuard.ApiClient.sln
-dotnet build AdGuard.ApiClient.sln
-dotnet test AdGuard.ApiClient.sln
+dotnet restore src/AdGuard.ApiClient.sln
+dotnet build src/AdGuard.ApiClient.sln
+dotnet test src/AdGuard.ApiClient.sln
 dotnet run --project src/AdGuard.ConsoleUI/AdGuard.ConsoleUI.csproj
 ```
 
@@ -170,8 +170,8 @@ npx jest -t "should compile rules"         # By test name
 ### .NET (xUnit)
 ```bash
 cd src/adguard-api-client
-dotnet test AdGuard.ApiClient.sln --filter "FullyQualifiedName~DevicesApiTests"   # By class
-dotnet test AdGuard.ApiClient.sln --filter "Name~GetAccountLimits"                # By method
+dotnet test src/AdGuard.ApiClient.sln --filter "FullyQualifiedName~DevicesApiTests"   # By class
+dotnet test src/AdGuard.ApiClient.sln --filter "Name~GetAccountLimits"                # By method
 ```
 
 ### PowerShell (Pester)

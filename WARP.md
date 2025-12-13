@@ -19,7 +19,7 @@ TypeScript – rules compiler (src/rules-compiler-typescript)
   - invoke-compiler.ts reads compiler-config.json in the same folder and writes adguard_user_filter.txt beside it. The canonical list in rules/adguard_user_filter.txt is tracked under rules/.
 
 .NET – API client + console UI (src/adguard-api-client)
-- Restore/build/test: cd src/adguard-api-client; dotnet restore AdGuard.ApiClient.sln; dotnet build AdGuard.ApiClient.sln; dotnet test AdGuard.ApiClient.sln
+- Restore/build/test: cd src/adguard-api-client; dotnet restore src/AdGuard.ApiClient.sln; dotnet build src/AdGuard.ApiClient.sln; dotnet test src/AdGuard.ApiClient.sln
 - Run the console UI: dotnet run --project src/AdGuard.ConsoleUI/AdGuard.ConsoleUI.csproj
   Notes
   - The client targets net8.0 and includes helpers for configuration and Polly-based retry policies (see Helpers/ConfigurationHelper.cs and Helpers/RetryPolicyHelper.cs).
@@ -38,8 +38,8 @@ Running a single test
   - By file: cd src/rules-compiler-typescript && npx jest cli.test.ts
   - By test name: npx jest -t "should write rules to a file"
 - .NET (xUnit under src/adguard-api-client)
-  - By class pattern: cd src/adguard-api-client && dotnet test AdGuard.ApiClient.sln --filter "FullyQualifiedName~DevicesApiTests"
-  - By method pattern: dotnet test AdGuard.ApiClient.sln --filter "Name~GetAccountLimits"
+  - By class pattern: cd src/adguard-api-client && dotnet test src/AdGuard.ApiClient.sln --filter "FullyQualifiedName~DevicesApiTests"
+  - By method pattern: dotnet test src/AdGuard.ApiClient.sln --filter "Name~GetAccountLimits"
 
 Environment and secrets used by code
 - The API client expects an AdGuard API credential. The console UI can prompt for a key or read it from configuration (AdGuard:ApiKey).
