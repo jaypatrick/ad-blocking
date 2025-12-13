@@ -481,4 +481,11 @@ $RECYCLE.BIN/
 .env.*
 !.env.example
 *.env
+
+# TypeScript build output
+src/rules-compiler-typescript/dist/
 src/rules-compiler-typescript/frontend-rust/target/
+
+# Gatsby
+src/website/public/
+src/website/.cache/
