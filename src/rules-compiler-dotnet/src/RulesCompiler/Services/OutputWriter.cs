@@ -46,9 +46,25 @@ public class OutputWriter : IOutputWriter
                 _logger.LogDebug("Created directory: {Directory}", destDir);
             }
 
-            // Copy file with UTF-8 encoding to ensure cross-platform compatibility
-            var content = await File.ReadAllTextAsync(sourcePath, Encoding.UTF8, cancellationToken);
-            await File.WriteAllTextAsync(destinationPath, content, Encoding.UTF8, cancellationToken);
+            // Use streaming copy for better memory efficiency
+            const int bufferSize = 81920; // 80KB buffer
+            await using var sourceStream = new FileStream(
+                sourcePath, 
+                FileMode.Open, 
+                FileAccess.Read, 
+                FileShare.Read, 
+                bufferSize, 
+                FileOptions.Asynchronous | FileOptions.SequentialScan);
+            
+            await using var destStream = new FileStream(
+                destinationPath, 
+                FileMode.Create, 
+                FileAccess.Write, 
+                FileShare.None, 
+                bufferSize, 
+                FileOptions.Asynchronous | FileOptions.SequentialScan);
+
+            await sourceStream.CopyToAsync(destStream, bufferSize, cancellationToken);
 
             _logger.LogInformation("Copied output to {Destination}", destinationPath);
             return true;
@@ -87,21 +103,25 @@ public class OutputWriter : IOutputWriter
         if (!File.Exists(filePath))
             throw new FileNotFoundException($"File not found: {filePath}", filePath);
 
-        var lines = await File.ReadAllLinesAsync(filePath, Encoding.UTF8, cancellationToken);
-
-        // Count non-empty, non-comment lines
-        return lines.Count(line =>
+        int count = 0;
+        
+        // Use streaming to avoid loading entire file into memory
+        using var reader = new StreamReader(filePath, Encoding.UTF8);
+        
+        while (await reader.ReadLineAsync(cancellationToken) is { } line)
         {
             if (string.IsNullOrWhiteSpace(line))
-                return false;
+                continue;
 
-            var trimmed = line.Trim();
+            var trimmed = line.AsSpan().Trim();
 
             // Skip comments (lines starting with ! or #)
-            if (trimmed.StartsWith('!') || trimmed.StartsWith('#'))
-                return false;
+            if (trimmed.Length > 0 && trimmed[0] is not ('!' or '#'))
+            {
+                count++;
+            }
+        }
 
-            return true;
-        });
+        return count;
     }
 }

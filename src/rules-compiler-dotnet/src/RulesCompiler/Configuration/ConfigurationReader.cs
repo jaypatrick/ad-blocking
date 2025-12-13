@@ -99,13 +99,8 @@ public class ConfigurationReader : IConfigurationReader
 
     private CompilerConfiguration ParseToml(string content)
     {
-        var tomlTable = Toml.ToModel(content);
-
-        // Convert TOML model to JSON then deserialize to our model
-        // This ensures consistent handling across all formats
-        var json = JsonConvert.SerializeObject(tomlTable);
-        var config = JsonConvert.DeserializeObject<CompilerConfiguration>(json);
-
+        // Use Tomlyn's direct model deserialization instead of double serialization
+        var config = Toml.ToModel<CompilerConfiguration>(content);
         return config ?? throw new InvalidOperationException("Failed to parse TOML configuration");
     }
 }
