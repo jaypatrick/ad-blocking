@@ -21,21 +21,21 @@ A comprehensive, multi-component ad-blocking solution designed for network-level
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐      │
-│  │   Filter     │    │   Webhook    │    │  API Client  │      │
-│  │  Compiler    │───▶│     App      │───▶│   (SDK)      │      │
-│  │ (TypeScript) │    │   (.NET 8)   │    │    (C#)      │      │
+│  │   Filter     │    │  API Client  │    │  Console UI  │      │
+│  │  Compiler    │    │   (SDK)      │    │   (CLI)      │      │
+│  │ (TypeScript) │    │    (C#)      │    │ (Spectre)    │      │
 │  └──────────────┘    └──────────────┘    └──────────────┘      │
 │         │                   │                   │               │
 │         ▼                   ▼                   ▼               │
 │  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐      │
-│  │ Filter Rules │    │   AdGuard    │    │  Console UI  │      │
-│  │    (.txt)    │    │   DNS API    │    │   (CLI)      │      │
+│  │ Filter Rules │    │   AdGuard    │    │  PowerShell  │      │
+│  │    (.txt)    │    │   DNS API    │    │   Scripts    │      │
 │  └──────────────┘    └──────────────┘    └──────────────┘      │
 │                                                                 │
-│  ┌──────────────┐    ┌──────────────┐                          │
-│  │  PowerShell  │    │   Website    │                          │
-│  │   Scripts    │    │   (Gatsby)   │                          │
-│  └──────────────┘    └──────────────┘                          │
+│  ┌──────────────┐                                               │
+│  │   Website    │                                               │
+│  │   (Gatsby)   │                                               │
+│  └──────────────┘                                               │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -92,36 +92,7 @@ A comprehensive, multi-component ad-blocking solution designed for network-level
 
 ---
 
-### 3. Webhook Application (`/src/webhook-app/`)
-
-**Purpose:** .NET 8.0 application for triggering AdGuard DNS updates via webhooks.
-
-**Technology Stack:**
-- .NET 8.0 (LTS)
-- C# 13
-- Microsoft.Extensions (Configuration, Hosting, Logging)
-- System.Threading.RateLimiting
-
-**Key Features:**
-- Rate limiting (5 requests per 60-second window)
-- Resilience patterns for HTTP calls
-- Dependency injection
-- PowerShell integration
-
-**Directory Structure:**
-| Directory | Purpose |
-|-----------|---------|
-| `Extensions/` | HTTP response extensions, rate limiting handlers |
-| `Infrastructure/` | Client-side rate limiting implementation |
-| `Global/` | Assembly definitions |
-
-**Environment Variables:**
-- `ADGUARD_WEBHOOK_URL` - Target webhook URL
-- `SECRET_KEY` - Authentication key
-
----
-
-### 4. AdGuard DNS API Client (`/src/api-client/`)
+### 3. AdGuard DNS API Client (`/src/api-client/`)
 
 **Purpose:** C# SDK for programmatic access to AdGuard DNS API v1.11.
 
@@ -156,7 +127,7 @@ A comprehensive, multi-component ad-blocking solution designed for network-level
 
 ---
 
-### 5. Console UI (`/src/api-client/src/AdGuard.ConsoleUI/`)
+### 4. Console UI (`/src/api-client/src/AdGuard.ConsoleUI/`)
 
 **Purpose:** Interactive command-line interface for managing AdGuard DNS configurations.
 
@@ -172,7 +143,7 @@ A comprehensive, multi-component ad-blocking solution designed for network-level
 
 ---
 
-### 6. Portfolio Website (`/src/website/`)
+### 5. Portfolio Website (`/src/website/`)
 
 **Purpose:** Gatsby-based portfolio website to showcase the project.
 
@@ -193,16 +164,16 @@ A comprehensive, multi-component ad-blocking solution designed for network-level
 
 ---
 
-### 7. PowerShell Scripts (`/scripts/powershell/`)
+### 6. PowerShell Scripts (`/scripts/powershell/`)
 
-**Purpose:** Automation and orchestration scripts.
+**Purpose:** Automation and orchestration scripts for filter compilation.
 
 **Key Files:**
 | File | Purpose |
 |------|---------|
-| `Webhook-Harness.ps1` | Webhook trigger script |
-| `Invoke-WebHook.psm1` | WebHook PowerShell module |
-| `Webhook-Manifest.psd1` | Module manifest |
+| `Invoke-RulesCompiler.psm1` | Rules compiler PowerShell module |
+| `RulesCompiler.psd1` | Module manifest |
+| `RulesCompiler-Harness.ps1` | Interactive test harness |
 
 ---
 
@@ -226,7 +197,6 @@ ad-blocking/
 ├── src/
 │   ├── api-client/          # AdGuard DNS API C# Client
 │   ├── filter-compiler/     # TypeScript rule compiler
-│   ├── webhook-app/         # .NET 8.0 webhook application
 │   └── website/             # Gatsby portfolio site
 ├── LICENSE                  # GPLv3
 ├── README.md                # Main documentation
@@ -240,7 +210,7 @@ ad-blocking/
 | Workflow | File | Purpose | Triggers |
 |----------|------|---------|----------|
 | TypeScript | `typescript.yml` | Build rules-compiler-typescript, type-check, lint | Push to main, PRs |
-| .NET | `dotnet.yml` | Build webhook-app, API client, run tests | Push to main, PRs |
+| .NET | `dotnet.yml` | Build API client, run tests | Push to main, PRs |
 | Gatsby | `gatsby.yml` | Build website, deploy to GitHub Pages | Push to main |
 | CodeQL | `codeql.yml` | Security static analysis | Push to main, schedule |
 | DevSkim | `devskim.yml` | Security scanning | Schedule |
@@ -328,14 +298,6 @@ npm run build
 npm run compile
 ```
 
-### Webhook App
-```bash
-cd src/webhook-app
-dotnet restore
-dotnet build
-dotnet run
-```
-
 ### API Client
 ```bash
 cd src/api-client
@@ -394,19 +356,12 @@ Invoke-Pester
 }
 ```
 
-### Webhook App (`.env`)
-```env
-ADGUARD_WEBHOOK_URL=https://api.adguard-dns.io/webhook
-SECRET_KEY=your-secret-key
-```
-
 ---
 
 ## Security
 
 - **CodeQL Analysis:** Automated security scanning on all pushes
 - **DevSkim Scanning:** Regular security vulnerability checks
-- **Rate Limiting:** Webhook app limits to 5 requests per 60 seconds
 - **Authentication:** Supports API Key and OAuth Bearer tokens
 
 See `SECURITY.md` for vulnerability reporting guidelines.

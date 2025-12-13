@@ -12,11 +12,9 @@ This repository houses multiple sub-projects for ad-blocking, network protection
 - **Shell Scripts** - Cross-platform Bash and PowerShell Core scripts for compilation
 - **API Client** (C#/.NET 8) - Auto-generated SDK for AdGuard DNS API v1.11
 - **Console UI** (C#/.NET 8) - Spectre.Console menu-driven wrapper for the API client
-- **Webhook App** (C#/.NET 8) - Triggers AdGuard DNS webhooks with rate limiting
 - **Website** (Gatsby) - Static portfolio site deployed to GitHub Pages
 - **PowerShell Modules** - Automation modules including:
   - **RulesCompiler Module** - Cross-platform PowerShell API for filter rule compilation
-  - **Webhook Module** - AdGuard DNS webhook automation
 
 ## Common Commands
 
@@ -125,15 +123,6 @@ dotnet restore AdGuard.ApiClient.sln
 dotnet build AdGuard.ApiClient.sln
 dotnet test AdGuard.ApiClient.sln
 dotnet run --project src/AdGuard.ConsoleUI/AdGuard.ConsoleUI.csproj
-```
-
-### .NET Webhook App (`src/webhook-app/`)
-```bash
-cd src/webhook-app
-dotnet restore Code.sln
-dotnet build Code.sln
-dotnet test Code.sln
-dotnet run    # Requires ADGUARD_WEBHOOK_URL env var
 ```
 
 ### Gatsby Website (`src/website/`)
@@ -278,24 +267,15 @@ cargo test config::                       # Tests in module
 - Spectre.Console menu-driven interface
 - `ApiClientFactory` configures SDK from settings or interactive prompt
 
-### Webhook App (`src/webhook-app/`)
-- `Program.cs` - Main entry, wires logging + configuration
-- `Infrastructure/ClientSideRateLimitedHandler.cs` - Rate limiting via FixedWindowRateLimiter
-- `Extensions/HttpResponseMessage.cs` - Structured logging helpers
-
 ### PowerShell Modules (`scripts/powershell/`)
 - **RulesCompiler Module** - Cross-platform PowerShell API mirroring TypeScript compiler
   - `Invoke-RulesCompiler.psm1` - Main module with exported functions
   - `RulesCompiler.psd1` - Module manifest
   - `RulesCompiler-Harness.ps1` - Interactive test harness
   - Functions: `Read-CompilerConfiguration`, `Invoke-FilterCompiler`, `Write-CompiledOutput`, `Invoke-RulesCompiler`, `Get-CompilerVersion`
-- **Webhook Module** - AdGuard DNS webhook automation
-  - `Invoke-WebHook.psm1` - Webhook invocation with retry logic
-  - `Webhook-Manifest.psd1` - Module manifest
 
 ## Environment Variables
 
-- `ADGUARD_WEBHOOK_URL` - Required by webhook app (format: `https://linkip.adguard-dns.com/linkip/<DEVICE_ID>/<AUTH_TOKEN>`)
 - `AdGuard:ApiKey` - API credential for console UI (can also prompt interactively)
 - `LINEAR_API_KEY` - For Linear import scripts (`scripts/linear/`)
 - `DEBUG` - Set to any value to enable debug logging in PowerShell modules
@@ -303,7 +283,7 @@ cargo test config::                       # Tests in module
 ## CI/CD Alignment
 
 GitHub Actions workflows validate:
-- `.github/workflows/dotnet.yml` - Builds/tests both .NET solutions with .NET 8
+- `.github/workflows/dotnet.yml` - Builds/tests the .NET API client solution with .NET 8
 - `.github/workflows/typescript.yml` - Node 20, tsc --noEmit, eslint for rules-compiler-typescript
 - `.github/workflows/gatsby.yml` - Builds website and deploys to GitHub Pages
 - `.github/workflows/powershell.yml` - PSScriptAnalyzer on PowerShell scripts
