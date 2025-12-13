@@ -88,6 +88,6 @@
   "button": {
     "visible": true,
     "label": "+ Show More Features",
-    "initiallyShownInterests": 8
+    "initiallyShownInterests": 6
   }
 }

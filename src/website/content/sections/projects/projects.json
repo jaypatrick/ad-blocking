@@ -8,8 +8,7 @@
       "tags": ["TypeScript", ".NET", "Python", "Rust", "Cross-Platform"],
       "image": {
         "src": "../../images/clement-h-95YRwf6CNw8-unsplash.jpg",
-        "alt": "Rules Compilers",
-        "linkTo": "https://github.com/jaypatrick/ad-blocking"
+        "alt": "Rules Compilers"
       },
       "links": [
         {
