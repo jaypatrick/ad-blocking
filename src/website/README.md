@@ -1,54 +1,76 @@
-<img src="screenshot.png" alt="Gatsby Theme Portfolio Minimal Screenshot" width="700" />
+# Ad-Blocking Repository Website
 
-<a href="https://www.gatsbyjs.com/dashboard/deploynow?url=https://github.com/konstantinmuenster/gatsby-starter-portfolio-minimal-theme" target="_blank">
-<img src="https://www.gatsbyjs.com/deploynow.svg" alt="Deploy to Gatsby Cloud" />
-</a>
+A Gatsby-based portfolio website for the Ad-Blocking Repository project, showcasing the multi-language toolkit for network protection and DNS management.
 
-# Gatsby Starter Portfolio Minimal Theme
+## Overview
 
-#### A Gatsby Starter Project to easily get started with the Portfolio Minimal Theme.
+This website provides an overview of the Ad-Blocking Repository, including:
+- **Rules Compilers**: Four different language implementations (TypeScript, .NET, Python, Rust)
+- **AdGuard API Client**: Complete C# SDK with interactive console UI
+- **Automation Scripts**: PowerShell and shell scripts for cross-platform automation
+- **Docker Environment**: Pre-configured development container
 
-Portfolio Minimal is a Gatsby Theme that let's you create outstanding one-page portfolios within minutes. This Gatsby Starter is a boilerplate project that has the theme pre-installed and pre-configured.
+## Development
 
-Just clone this Gatsby Starter, add the content. And that's it!
+### Prerequisites
 
-[Live Demo on Gatsby Cloud](https://gatsbystarterportfoliominimalt.gatsbyjs.io/) · [Live Demo on Netlify](https://gatsby-starter-portfolio-minimal-theme.netlify.app/) · [Portfolio Minimal Theme on Github](https://github.com/konstantinmuenster/gatsby-theme-portfolio-minimal)
+- Node.js 18+
+- npm or yarn
 
----
+### Installation
 
-## Installation
+```bash
+npm install
+```
 
-1. Install the Gatsby CLI
+### Running Locally
 
-   ```sh
-   npm install -g gatsby-cli
-   ```
+```bash
+# Development server (hot reload)
+npm run develop
 
-2. Create a new Gatsby site with the Portfolio Minimal Starter.
+# Open http://localhost:8000 in your browser
+```
 
-   ```sh
-   gatsby new portfolio-minimal https://github.com/konstantinmuenster/gatsby-starter-portfolio-minimal-theme
-   ```
+### Building for Production
 
-3. Once installed, you can begin developing your site.
+```bash
+# Build static site
+npm run build
 
-   ```sh
-   cd portfolio-minimal
-   gatsby develop
-   ```
+# Serve the built site locally
+npm run serve
+```
 
-4. By default, the Portfolio Minimal Starter has a `content` directory at the root of your Gatsby site. There, you can edit the theme settings as well as add content for your sections. To learn more about it, have a look at the [Readme of Portfolio Minimal](https://github.com/konstantinmuenster/gatsby-theme-portfolio-minimal/tree/main/gatsby-theme-portfolio-minimal#readme).
+### Cleaning Cache
 
----
+```bash
+npm run clean
+```
 
-## Issues?
+## Content Management
 
-If you find any bugs or have feature suggestions, create a new issue or pull request 🙏
+Content is managed through JSON and Markdown files in the `content/` directory:
 
-Thanks a lot for using this starter! 💪
+- `content/settings.json` - Site metadata and navigation
+- `content/sections/hero/hero.json` - Hero section
+- `content/sections/about/about.md` - About section
+- `content/sections/projects/projects.json` - Projects showcase
+- `content/sections/interests/interests.json` - Features/interests
+- `content/sections/contact/contact.json` - Contact information
 
----
+## Deployment
 
-<a href="https://www.buymeacoffee.com/kmuenster" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
+The website is automatically deployed to GitHub Pages via the GitHub Actions workflow `.github/workflows/gatsby.yml` on pushes to the main branch.
 
-Konstantin Münster – [konstantin.digital](https://konstantin.digital)
+**Live Site**: https://jaypatrick.github.io/ad-blocking/
+
+## Technology
+
+- **Gatsby 5**: React-based static site generator
+- **gatsby-theme-portfolio-minimal**: Portfolio theme for Gatsby
+- **React 18**: UI library
+
+## License
+
+See the main repository LICENSE file.

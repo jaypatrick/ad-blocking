@@ -2,47 +2,77 @@
   "projects": [
     {
       "visible": true,
-      "category": "🕹️ EASY AND QUICK SETUP",
-      "title": "Add content and deploy!",
-      "description": "Get up and running within minutes. Just install the starter, add your content, deploy it, and there you go! This starter works seamlessly with hosts like Netlify. Photo by Clément H on Unsplash.",
-      "tags": ["Content Integration", "Ready-2-Deploy"],
+      "category": "🛠️ RULES COMPILERS",
+      "title": "Multi-Language Filter Compilation",
+      "description": "Choose from four different implementations: TypeScript/Node.js with Deno support, .NET 8 with library and CLI, Python 3.9+ with pip distribution, or Rust with high-performance single binary. All support the same configuration schema with JSON, YAML, and TOML formats.",
+      "tags": ["TypeScript", ".NET", "Python", "Rust", "Cross-Platform"],
       "image": {
         "src": "../../images/clement-h-95YRwf6CNw8-unsplash.jpg",
-        "alt": "Quick Setup",
-        "linkTo": "https://github.com/konstantinmuenster/gatsby-starter-portfolio-minimal-theme"
+        "alt": "Rules Compilers",
+        "linkTo": "https://github.com/jaypatrick/ad-blocking"
       },
       "links": [
         {
           "type": "github",
-          "url": "https://github.com/konstantinmuenster/gatsby-starter-portfolio-minimal-theme"
-        },
-        {
-          "type": "external",
-          "url": "https://www.gatsbyjs.org/docs/mdx/writing-pages/"
+          "url": "https://github.com/jaypatrick/ad-blocking"
         }
       ]
     },
     {
       "visible": true,
-      "category": "🧰 EXTENDABLE LAYOUT",
-      "title": "Add more sections!",
-      "description": "The starter includes predefined sections as well as a template for new, custom sections. Moreover, you can add new projects to this section without additional coding. Photo by Kelly Sikkema on Unsplash.",
-      "tags": ["Custom Sections", "Easy-2-Use"],
+      "category": "🔌 ADGUARD API CLIENT",
+      "title": "Complete C# SDK for AdGuard DNS",
+      "description": "Auto-generated from OpenAPI specification with full async/await support, Polly resilience policies, dependency injection with ILogger support, and fluent configuration helpers. Includes interactive Spectre.Console UI for device management, DNS server operations, statistics, and query logs.",
+      "tags": ["C#", ".NET 8", "API Client", "Console UI"],
       "image": {
         "src": "../../images/kelly-sikkema-Hl3LUdyKRic-unsplash.jpg",
-        "alt": "Extendable Layout"
+        "alt": "AdGuard API Client"
       },
       "links": [
         {
           "type": "github",
-          "url": "https://github.com/konstantinmuenster/gatsby-starter-portfolio-minimal-theme"
+          "url": "https://github.com/jaypatrick/ad-blocking/tree/main/src/adguard-api-client"
+        }
+      ]
+    },
+    {
+      "visible": true,
+      "category": "⚙️ AUTOMATION SCRIPTS",
+      "title": "PowerShell & Shell Scripts",
+      "description": "Cross-platform PowerShell modules with exported functions for compilation pipelines, interactive harness with menu-driven interface, and Pester tests. Also includes Bash scripts for Linux/macOS, PowerShell Core scripts, and Windows batch files for maximum compatibility.",
+      "tags": ["PowerShell", "Bash", "Automation"],
+      "image": {
+        "src": "../../images/joystick.png",
+        "alt": "Automation Scripts"
+      },
+      "links": [
+        {
+          "type": "github",
+          "url": "https://github.com/jaypatrick/ad-blocking/tree/main/scripts"
+        }
+      ]
+    },
+    {
+      "visible": true,
+      "category": "🐳 DOCKER ENVIRONMENT",
+      "title": "Pre-configured Development Container",
+      "description": "Dockerfile with .NET 8.0 SDK, Node.js 20.x LTS, PowerShell 7, and Git pre-installed. Available as jaysonknight/warp-env:ad-blocking for instant development environment setup. Perfect for CI/CD or local development without dependency installation hassles.",
+      "tags": ["Docker", "DevContainer", "CI/CD"],
+      "image": {
+        "src": "../../images/notebook.png",
+        "alt": "Docker Environment"
+      },
+      "links": [
+        {
+          "type": "github",
+          "url": "https://github.com/jaypatrick/ad-blocking"
         }
       ]
     }
   ],
   "button": {
     "visible": true,
-    "label": "Visit on Github",
-    "url": "https://github.com/konstantinmuenster/gatsby-theme-portfolio-minimal"
+    "label": "View on GitHub",
+    "url": "https://github.com/jaypatrick/ad-blocking"
   }
 }

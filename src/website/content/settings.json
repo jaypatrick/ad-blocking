@@ -1,34 +1,31 @@
 {
   "siteMetadata": {
     "language": "en",
-    "siteUrl": "https://gatsby-starter-portfolio-minimal-theme.netlify.app/",
-    "title": "Gatsby Starter for Portfolio Minimal",
-    "titleTemplate": "%s · Portfolio Minimal",
-    "description": "A Gatsby Starter Project to easily get started with Portfolio Minimal theme.",
-    "author": "Konstantin Münster",
+    "siteUrl": "https://jaypatrick.github.io/ad-blocking/",
+    "title": "Ad-Blocking Repository",
+    "titleTemplate": "%s · Ad-Blocking Tools",
+    "description": "A comprehensive multi-language toolkit for ad-blocking, network protection, and AdGuard DNS management.",
+    "author": "jaypatrick",
     "avatar": "../content/images/gatsby.png",
-    "bio": "This biography will be used in the footer area of an article and can contain some more details about the author.",
+    "bio": "Developer of multi-language ad-blocking tools and filter rule compilers for network protection.",
     "social": {
-      "behance": "https://behance.com",
-      "github": "https://github.com/konstantinmuenster",
-      "medium": "https://konstantinmuenster.medium.com",
-      "linkedin": "https://www.linkedin.com/in/konstantin-muenster/",
-      "mail": "mailto:mail@konstantin.digital"
+      "github": "https://github.com/jaypatrick/ad-blocking",
+      "mail": "mailto:github@jaypatrick.com"
     }
   },
   "siteConfiguration": {
-    "logo": { "text": "Portfolio" },
+    "logo": { "text": "Ad-Blocking" },
     "navigation": {
       "header": [
         { "label": "About", "url": "/#about" },
-        { "label": "Blog", "url": "/blog" },
+        { "label": "Projects", "url": "/#projects" },
         { "label": "Features", "url": "/#features" },
-        { "label": "Github", "url": "/#github" }
+        { "label": "GitHub", "url": "https://github.com/jaypatrick/ad-blocking" }
       ],
       "ctaButton": {
         "openNewTab": true,
-        "label": "Resume",
-        "url": "/resume.pdf"
+        "label": "View on GitHub",
+        "url": "https://github.com/jaypatrick/ad-blocking"
       },
       "footer": [
         { "label": "Privacy", "url": "/privacy" },
@@ -36,7 +33,7 @@
       ]
     },
     "featureToggles": {
-      "useDarkModeAsDefault": false,
+      "useDarkModeAsDefault": true,
       "useDarkModeBasedOnUsersPreference": true,
       "useCookieBar": false
     }
