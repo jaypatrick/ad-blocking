@@ -14,7 +14,7 @@ Add a reference to the `AdGuard.ApiClient` project in your .csproj file:
 
 ```xml
 <ItemGroup>
-  <ProjectReference Include="path\to\src\api-client\src\AdGuard.ApiClient\AdGuard.ApiClient.csproj" />
+  <ProjectReference Include="path\to\src\adguard-api-client\src\AdGuard.ApiClient\AdGuard.ApiClient.csproj" />
 </ItemGroup>
 ```
 
@@ -22,7 +22,7 @@ Or if your project is within this repository:
 
 ```xml
 <ItemGroup>
-  <ProjectReference Include="..\..\src\api-client\src\AdGuard.ApiClient\AdGuard.ApiClient.csproj" />
+  <ProjectReference Include="..\..\src\adguard-api-client\src\AdGuard.ApiClient\AdGuard.ApiClient.csproj" />
 </ItemGroup>
 ```
 

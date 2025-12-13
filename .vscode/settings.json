@@ -1,5 +1,5 @@
 {
-  "dotnet.defaultSolution": "src/api-client/AdGuard.ApiClient.sln",
+  "dotnet.defaultSolution": "src/adguard-api-client/src/AdGuard.ApiClient.sln",
   "powerShellUniversal.syncSamples": true,
   "sarif-viewer.connectToGithubCodeScanning": "on"
 }
