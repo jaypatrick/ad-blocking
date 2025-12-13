@@ -10,6 +10,7 @@ This directory contains comprehensive documentation for the ad-blocking reposito
 | [Configuration Reference](configuration-reference.md) | Complete configuration schema |
 | [Docker Guide](docker-guide.md) | Docker development environment |
 | [Compiler Comparison](compiler-comparison.md) | Compare TypeScript, .NET, Python, Rust compilers |
+| [Release Guide](release-guide.md) | Creating releases with automatic binary builds |
 
 ## Contents
 
@@ -21,6 +22,7 @@ This directory contains comprehensive documentation for the ad-blocking reposito
 | [Docker Guide](docker-guide.md) | Using Docker for development |
 | [Configuration Reference](configuration-reference.md) | Full configuration schema documentation |
 | [Compiler Comparison](compiler-comparison.md) | Feature comparison of all compilers |
+| [Release Guide](release-guide.md) | Creating releases with automatic binary builds |
 | [API Client Usage Guide](guides/api-client-usage.md) | AdGuard DNS API client usage |
 | [API Client Examples](guides/api-client-examples.md) | Code examples with helper classes |
 | [ConsoleUI Architecture](guides/consoleui-architecture.md) | Console UI design documentation |
@@ -84,6 +86,7 @@ Auto-generated API documentation for the AdGuard DNS API Client (v1.11).
 | Claude Code Instructions | [CLAUDE.md](../CLAUDE.md) |
 | Copilot Instructions | [.github/copilot-instructions.md](../.github/copilot-instructions.md) |
 | Security Policy | [SECURITY.md](../SECURITY.md) |
+| Release Guide | [release-guide.md](release-guide.md) |
 
 ## API Endpoints Reference
 
