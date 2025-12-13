@@ -111,7 +111,7 @@ Each documented component creates a detailed documentation issue:
 
 - Filter Rules (`/rules/`)
 - Rules Compiler TypeScript (`/src/rules-compiler-typescript/`)
-- API Client (`/src/api-client/`)
+- API Client (`/src/adguard-api-client/`)
 - etc.
 
 ### Main Documentation

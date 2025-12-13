@@ -52,7 +52,7 @@ Auto-generated API documentation for the AdGuard DNS API Client.
 ## Quick Links
 
 - [Main README](../README.md) - Project overview
-- [API Client README](../src/api-client/README.md) - API client overview
+- [API Client README](../src/adguard-api-client/README.md) - API client overview
 - [Security Policy](../SECURITY.md) - Security guidelines
 
 <a id="documentation-for-api-endpoints"></a>

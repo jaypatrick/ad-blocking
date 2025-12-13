@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./src/api-client
+        working-directory: ./src/adguard-api-client
 
     steps:
     - uses: actions/checkout@v4
@@ -24,8 +24,8 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Restore dependencies
-      run: dotnet restore AdGuard.ApiClient.sln
+      run: dotnet restore src/AdGuard.ApiClient.sln
     - name: Build
-      run: dotnet build AdGuard.ApiClient.sln --no-restore
+      run: dotnet build src/AdGuard.ApiClient.sln --no-restore
     - name: Test
-      run: dotnet test AdGuard.ApiClient.sln --no-build --verbosity normal
+      run: dotnet test src/AdGuard.ApiClient.sln --no-build --verbosity normal
