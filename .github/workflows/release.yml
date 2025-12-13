@@ -224,7 +224,7 @@ jobs:
             #### Rules Compiler (Python)
             Install the Python wheel:
             ```bash
-            pip install rules_compiler-1.0.0-py3-none-any.whl
+            pip install rules_compiler-X.Y.Z-py3-none-any.whl
             ```
 
             ### Usage
