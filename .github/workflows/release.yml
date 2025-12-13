@@ -1,0 +1,240 @@
+name: Release Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-dotnet:
+    name: Build .NET Executables
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            runtime: linux-x64
+            artifact: linux
+          - os: windows-latest
+            runtime: win-x64
+            artifact: windows
+          - os: macos-latest
+            runtime: osx-x64
+            artifact: macos
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      # Build AdGuard Console UI
+      - name: Publish AdGuard.ConsoleUI
+        run: |
+          dotnet publish src/adguard-api-client/src/AdGuard.ConsoleUI/AdGuard.ConsoleUI.csproj \
+            --configuration Release \
+            --runtime ${{ matrix.runtime }} \
+            --self-contained true \
+            -p:PublishSingleFile=true \
+            -p:PublishTrimmed=true \
+            -p:IncludeNativeLibrariesForSelfExtract=true \
+            --output ./artifacts/adguard-console-ui
+
+      # Build RulesCompiler Console
+      - name: Publish RulesCompiler.Console
+        run: |
+          dotnet publish src/rules-compiler-dotnet/src/RulesCompiler.Console/RulesCompiler.Console.csproj \
+            --configuration Release \
+            --runtime ${{ matrix.runtime }} \
+            --self-contained true \
+            -p:PublishSingleFile=true \
+            -p:PublishTrimmed=true \
+            -p:IncludeNativeLibrariesForSelfExtract=true \
+            --output ./artifacts/rules-compiler-dotnet
+
+      # Package binaries
+      - name: Package binaries (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          Compress-Archive -Path ./artifacts/adguard-console-ui/* -DestinationPath AdGuard.ConsoleUI-${{ matrix.artifact }}.zip
+          Compress-Archive -Path ./artifacts/rules-compiler-dotnet/* -DestinationPath RulesCompiler.Console-${{ matrix.artifact }}.zip
+        shell: pwsh
+
+      - name: Package binaries (Unix)
+        if: matrix.os != 'windows-latest'
+        run: |
+          cd ./artifacts/adguard-console-ui && tar -czf ../../AdGuard.ConsoleUI-${{ matrix.artifact }}.tar.gz * && cd ../..
+          cd ./artifacts/rules-compiler-dotnet && tar -czf ../../RulesCompiler.Console-${{ matrix.artifact }}.tar.gz * && cd ../..
+
+      # Upload artifacts
+      - name: Upload AdGuard.ConsoleUI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: adguard-console-ui-${{ matrix.artifact }}
+          path: |
+            AdGuard.ConsoleUI-${{ matrix.artifact }}.zip
+            AdGuard.ConsoleUI-${{ matrix.artifact }}.tar.gz
+          if-no-files-found: ignore
+
+      - name: Upload RulesCompiler.Console artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rules-compiler-dotnet-${{ matrix.artifact }}
+          path: |
+            RulesCompiler.Console-${{ matrix.artifact }}.zip
+            RulesCompiler.Console-${{ matrix.artifact }}.tar.gz
+          if-no-files-found: ignore
+
+  build-rust:
+    name: Build Rust Executable
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact: linux
+            ext: ""
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact: windows
+            ext: ".exe"
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            artifact: macos
+            ext: ""
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+
+      - name: Build Rust compiler
+        working-directory: ./src/rules-compiler-rust
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Package binary (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          Compress-Archive -Path ./src/rules-compiler-rust/target/${{ matrix.target }}/release/rules-compiler${{ matrix.ext }} -DestinationPath rules-compiler-rust-${{ matrix.artifact }}.zip
+        shell: pwsh
+
+      - name: Package binary (Unix)
+        if: matrix.os != 'windows-latest'
+        run: |
+          tar -czf rules-compiler-rust-${{ matrix.artifact }}.tar.gz -C ./src/rules-compiler-rust/target/${{ matrix.target }}/release rules-compiler${{ matrix.ext }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rules-compiler-rust-${{ matrix.artifact }}
+          path: |
+            rules-compiler-rust-${{ matrix.artifact }}.zip
+            rules-compiler-rust-${{ matrix.artifact }}.tar.gz
+          if-no-files-found: ignore
+
+  build-python:
+    name: Build Python Wheel
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build wheel
+
+      - name: Build wheel
+        working-directory: ./src/rules-compiler-python
+        run: python -m build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rules-compiler-python
+          path: ./src/rules-compiler-python/dist/*
+
+  create-release:
+    name: Create Release
+    needs: [build-dotnet, build-rust, build-python]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./release-artifacts
+
+      - name: Display structure of downloaded files
+        run: ls -R ./release-artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ./release-artifacts/**/*.zip
+            ./release-artifacts/**/*.tar.gz
+            ./release-artifacts/**/*.whl
+          body: |
+            ## Release ${{ github.ref_name }}
+
+            This release includes pre-built binaries for:
+            - **AdGuard.ConsoleUI** - Console UI for AdGuard DNS API (Windows, Linux, macOS)
+            - **RulesCompiler.Console** - .NET rules compiler (Windows, Linux, macOS)
+            - **rules-compiler** (Rust) - Rust rules compiler (Windows, Linux, macOS)
+            - **rules-compiler** (Python) - Python wheel package
+
+            ### Installation
+
+            #### AdGuard Console UI
+            Download the appropriate archive for your platform and extract it:
+            - Windows: `AdGuard.ConsoleUI-windows.zip`
+            - Linux: `AdGuard.ConsoleUI-linux.tar.gz`
+            - macOS: `AdGuard.ConsoleUI-macos.tar.gz`
+
+            #### Rules Compiler (.NET)
+            Download the appropriate archive for your platform and extract it:
+            - Windows: `RulesCompiler.Console-windows.zip`
+            - Linux: `RulesCompiler.Console-linux.tar.gz`
+            - macOS: `RulesCompiler.Console-macos.tar.gz`
+
+            #### Rules Compiler (Rust)
+            Download the appropriate archive for your platform and extract it:
+            - Windows: `rules-compiler-rust-windows.zip`
+            - Linux: `rules-compiler-rust-linux.tar.gz`
+            - macOS: `rules-compiler-rust-macos.tar.gz`
+
+            #### Rules Compiler (Python)
+            Install the Python wheel:
+            ```bash
+            pip install rules_compiler-X.Y.Z-py3-none-any.whl
+            ```
+
+            ### Usage
+
+            After extraction, run the executables:
+            - Windows: `.\AdGuard.ConsoleUI.exe` or `.\RulesCompiler.Console.exe`
+            - Linux/macOS: `./AdGuard.ConsoleUI` or `./RulesCompiler.Console` or `./rules-compiler`
+
+            For detailed documentation, see the [README](https://github.com/jaypatrick/ad-blocking/blob/main/README.md).
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

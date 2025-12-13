@@ -4,6 +4,7 @@
 [![TypeScript](https://github.com/jaypatrick/ad-blocking/actions/workflows/typescript.yml/badge.svg)](https://github.com/jaypatrick/ad-blocking/actions/workflows/typescript.yml)
 [![PowerShell](https://github.com/jaypatrick/ad-blocking/actions/workflows/powershell.yml/badge.svg)](https://github.com/jaypatrick/ad-blocking/actions/workflows/powershell.yml)
 [![Gatsby](https://github.com/jaypatrick/ad-blocking/actions/workflows/gatsby.yml/badge.svg)](https://github.com/jaypatrick/ad-blocking/actions/workflows/gatsby.yml)
+[![Release](https://github.com/jaypatrick/ad-blocking/actions/workflows/release.yml/badge.svg)](https://github.com/jaypatrick/ad-blocking/actions/workflows/release.yml)
 
 A comprehensive multi-language toolkit for ad-blocking, network protection, and AdGuard DNS management. Includes filter rule compilers in TypeScript, .NET, Python, and Rust, plus a complete C# SDK for the AdGuard DNS API.
 
@@ -718,10 +719,23 @@ GitHub Actions workflows:
 | `typescript.yml` | TypeScript build, lint, and test |
 | `powershell.yml` | PSScriptAnalyzer linting |
 | `gatsby.yml` | Build and deploy website to GitHub Pages |
+| `release.yml` | Build and publish binaries on version tags |
 | `codeql.yml` | CodeQL security scanning |
 | `devskim.yml` | DevSkim security analysis |
 | `claude.yml` | Claude AI integration |
 | `claude-code-review.yml` | Automated code review |
+
+### Releases
+
+The repository automatically builds and publishes binaries when a new version tag is pushed. See the [Release Guide](docs/release-guide.md) for details.
+
+Pre-built binaries are available for:
+- **AdGuard.ConsoleUI** (Windows, Linux, macOS)
+- **RulesCompiler.Console** (Windows, Linux, macOS)
+- **rules-compiler** Rust binary (Windows, Linux, macOS)
+- **rules-compiler** Python wheel (cross-platform)
+
+Download the latest release from the [Releases page](https://github.com/jaypatrick/ad-blocking/releases).
 
 ## Documentation
 
@@ -745,6 +759,7 @@ GitHub Actions workflows:
 - [Copilot Instructions](.github/copilot-instructions.md)
 - [Claude Instructions](CLAUDE.md)
 - [Security Policy](SECURITY.md)
+- [Release Guide](docs/release-guide.md)
 
 ### Test Your Ad Blocking
 
