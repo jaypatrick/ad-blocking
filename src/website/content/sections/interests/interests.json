@@ -1,56 +1,84 @@
 {
   "interests": [
     {
-      "label": "Quick and Easy Setup",
+      "label": "11 Transformations",
       "image": {
         "src": "../../images/joystick.png",
         "alt": ""
       }
     },
     {
-      "label": "Content via Markdown",
+      "label": "Multi-Format Config",
       "image": {
         "src": "../../images/notebook.png",
         "alt": ""
       }
     },
     {
-      "label": "Responsive Design",
+      "label": "Cross-Platform",
       "image": {
         "src": "../../images/nail-polish.png",
         "alt": ""
       }
     },
     {
-      "label": "Medium Integration",
-      "image": {
-        "src": "../../images/medium.png",
-        "alt": ""
-      }
-    },
-    {
-      "label": "Animations",
+      "label": "4 Language Implementations",
       "image": {
         "src": "../../images/gem-stone.png",
         "alt": ""
       }
     },
     {
-      "label": "PWA (Offline Support)",
+      "label": "AdGuard DNS API",
       "image": {
         "src": "../../images/mobile-phone.png",
         "alt": ""
       }
     },
     {
-      "label": "Modern Tech-Stack",
+      "label": "Interactive Console UI",
       "image": {
         "src": "../../images/gatsby.png",
         "alt": ""
       }
     },
     {
-      "label": "Blazing Fast",
+      "label": "CI/CD Integration",
+      "image": {
+        "src": "../../images/high-voltage.png",
+        "alt": ""
+      }
+    },
+    {
+      "label": "Docker Dev Environment",
+      "image": {
+        "src": "../../images/medium.png",
+        "alt": ""
+      }
+    },
+    {
+      "label": "Comprehensive Testing",
+      "image": {
+        "src": "../../images/joystick.png",
+        "alt": ""
+      }
+    },
+    {
+      "label": "OpenAPI Generated",
+      "image": {
+        "src": "../../images/notebook.png",
+        "alt": ""
+      }
+    },
+    {
+      "label": "Polly Resilience",
+      "image": {
+        "src": "../../images/gem-stone.png",
+        "alt": ""
+      }
+    },
+    {
+      "label": "Production Ready",
       "image": {
         "src": "../../images/high-voltage.png",
         "alt": ""
@@ -59,7 +87,7 @@
   ],
   "button": {
     "visible": true,
-    "label": "+ Load More",
-    "initiallyShownInterests": 5
+    "label": "+ Show More Features",
+    "initiallyShownInterests": 6
   }
 }

@@ -1,14 +1,12 @@
 ---
 imageSrc: "../../images/charles-deluvio-DgoyKNgPiFQ-unsplash.jpg"
-imageAlt: "About Gatsby Theme Portfolio Minimal"
+imageAlt: "Ad-Blocking Repository"
 ---
 
-Portfolio Minimal is a Gatsby Theme that creates outstanding one-pages portfolio within minutes!
+The Ad-Blocking Repository is a comprehensive multi-language toolkit for ad-blocking, network protection, and AdGuard DNS management. This project provides filter rule compilers implemented in four different languages (TypeScript, .NET, Python, and Rust), giving developers the flexibility to choose their preferred language and runtime environment.
 
-It has predefined sections for your bio, skills, projects, and contact details. If you are a writer on Medium, you can integrate your latest articles in a distinct section as well. While building the theme, I tried to keep the setup as simple as possible while keeping everything configurable if you like to.
+Each compiler wraps the powerful @adguard/hostlist-compiler and supports all 11 transformations, multi-format configurations (JSON, YAML, TOML), and advanced pattern matching. The repository also includes a complete C# SDK for the AdGuard DNS API v1.11 with Polly resilience policies, an interactive Spectre.Console UI for DNS management, and automation scripts in PowerShell and Bash.
 
-Using theme composition, you can easily customize the CSS theme to your own preferences - e.g. change colors, fonts, etc.
-
-Last but not least, it has some cool features you can opt-in to: Dark Mode, Splash Screen, Cookie Banner, and more to find out :)
+Whether you're managing network-wide ad-blocking, compiling custom filter lists, or integrating with AdGuard DNS, this repository provides production-ready tools with comprehensive testing and CI/CD integration. All components are cross-platform, well-documented, and actively maintained.
 
 Photo by <a href="https://unsplash.com/@charlesdeluvio?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText" target="_blank" rel="nofollow noopener noreferrer" aria-label="External Link"><u>Charles Deluvio</u></a> on Unsplash

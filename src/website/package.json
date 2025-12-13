@@ -1,7 +1,7 @@
 {
-  "name": "gatsby-starter-portfolio-minimal-theme",
+  "name": "ad-blocking-website",
   "version": "1.0.0",
-  "description": "A Gatsby Starter Project to easily get started with the Portfolio Minimal Theme.",
+  "description": "Website for the Ad-Blocking Repository - a multi-language toolkit for network protection and DNS management.",
   "scripts": {
     "clean": "gatsby clean",
     "develop": "gatsby develop",
@@ -17,27 +17,26 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
-  "author": "Konstantin Münster <mail@konstantin.digital>",
-  "license": "0BSD",
-  "starter-name": "gatsby-starter-portfolio-minimal-theme",
-  "homepage": "https://github.com/konstantinmuenster/gatsby-starter-portfolio-minimal-theme#readme",
+  "author": "jaypatrick",
+  "license": "MIT",
+  "homepage": "https://jaypatrick.github.io/ad-blocking/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/konstantinmuenster/gatsby-starter-portfolio-minimal-theme.git"
+    "url": "https://github.com/jaypatrick/ad-blocking.git"
   },
   "bugs": {
-    "url": "https://github.com/konstantinmuenster/gatsby-starter-portfolio-minimal-theme/issues"
+    "url": "https://github.com/jaypatrick/ad-blocking/issues"
   },
   "keywords": [
-    "react",
-    "gatsby",
-    "gatsby-theme",
-    "PWA",
-    "portfolio",
-    "showcase",
-    "minimal",
-    "animations",
-    "dark-mode",
-    "gdpr-compliant"
+    "ad-blocking",
+    "dns",
+    "adguard",
+    "filter-rules",
+    "network-protection",
+    "typescript",
+    "dotnet",
+    "python",
+    "rust",
+    "multi-language"
   ]
 }

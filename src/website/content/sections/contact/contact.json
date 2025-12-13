@@ -1,13 +1,13 @@
 {
-  "name": "Gatsby Starter For Portfolio Minimal",
-  "email": "example@mail.com",
-  "description": "If you have any problems with this theme, create an issue in the GitHub repository.",
+  "name": "Ad-Blocking Repository",
+  "email": "github@jaypatrick.com",
+  "description": "For issues, feature requests, or contributions, please visit the GitHub repository and create an issue or pull request.",
   "image": {
     "src": "../../images/favicon.png",
-    "alt": "Gatsby Logo"
+    "alt": "Ad-Blocking Logo"
   },
   "socialProfiles": {
-    "from": ["LinkedIn", "Medium", "Github", "Mail"],
+    "from": ["Github", "Mail"],
     "showIcons": true
   }
 }

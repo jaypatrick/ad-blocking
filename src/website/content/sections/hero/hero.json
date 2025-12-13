@@ -1,22 +1,22 @@
 {
-  "intro": "Hej",
+  "intro": "Welcome to",
   "heroPhoto": {
     "src": "../../images/lego-dummy.png",
-    "alt": "My Photo"
+    "alt": "Ad-Blocking Tools"
   },
   "image": {
-    "src": "../../images/waving-hand.png",
-    "alt": "Waving Hand Emoji"
+    "src": "../../images/high-voltage.png",
+    "alt": "High Voltage Emoji"
   },
-  "title": "I'm a Gatsby Starter",
+  "title": "Ad-Blocking Repository",
   "subtitle": {
-    "prefix": "I do all the setup ",
-    "highlight": "for you",
-    "suffix": "."
+    "prefix": "Multi-language toolkit for ",
+    "highlight": "network protection",
+    "suffix": " and DNS management."
   },
-  "description": "A Gatsby Starter Project to easily get started with Portfolio Minimal theme.",
+  "description": "A comprehensive collection of filter rule compilers in TypeScript, .NET, Python, and Rust, plus a complete C# SDK for the AdGuard DNS API.",
   "socialProfiles": {
-    "from": ["LinkedIn", "Medium", "Github", "Mail"],
-    "showIcons": false
+    "from": ["Github", "Mail"],
+    "showIcons": true
   }
 }
