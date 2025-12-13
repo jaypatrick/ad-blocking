@@ -1,12 +1,33 @@
 # Documentation
 
-This directory contains documentation for the ad-blocking repository.
+This directory contains comprehensive documentation for the ad-blocking repository.
+
+## Quick Links
+
+| Document | Description |
+|----------|-------------|
+| [Getting Started](getting-started.md) | Installation and first steps |
+| [Configuration Reference](configuration-reference.md) | Complete configuration schema |
+| [Docker Guide](docker-guide.md) | Docker development environment |
+| [Compiler Comparison](compiler-comparison.md) | Compare TypeScript, .NET, Python, Rust compilers |
 
 ## Contents
 
+### Guides
+
+| Guide | Description |
+|-------|-------------|
+| [Getting Started](getting-started.md) | Installation, prerequisites, and quick start |
+| [Docker Guide](docker-guide.md) | Using Docker for development |
+| [Configuration Reference](configuration-reference.md) | Full configuration schema documentation |
+| [Compiler Comparison](compiler-comparison.md) | Feature comparison of all compilers |
+| [API Client Usage Guide](guides/api-client-usage.md) | AdGuard DNS API client usage |
+| [API Client Examples](guides/api-client-examples.md) | Code examples with helper classes |
+| [ConsoleUI Architecture](guides/consoleui-architecture.md) | Console UI design documentation |
+
 ### API Reference (`api/`)
 
-Auto-generated API documentation for the AdGuard DNS API Client.
+Auto-generated API documentation for the AdGuard DNS API Client (v1.11).
 
 #### API Endpoints
 
@@ -42,25 +63,33 @@ Auto-generated API documentation for the AdGuard DNS API Client.
 | [TimeQueriesStatsList](api/TimeQueriesStatsList.md) | Time-based statistics |
 | [WebService](api/WebService.md) | Web service for blocking |
 
-### Usage Guides (`guides/`)
+## Project Documentation
 
-| Guide | Description |
-|-------|-------------|
-| [API Client Usage Guide](guides/api-client-usage.md) | Detailed usage instructions |
-| [API Client Examples](guides/api-client-examples.md) | Code examples with helper classes |
+### Main README Files
 
-## Quick Links
+| Project | Location |
+|---------|----------|
+| Repository Overview | [README.md](../README.md) |
+| API Client | [src/adguard-api-client/README.md](../src/adguard-api-client/README.md) |
+| Console UI | [src/adguard-api-client/src/AdGuard.ConsoleUI/README.md](../src/adguard-api-client/src/AdGuard.ConsoleUI/README.md) |
+| .NET Compiler | [src/rules-compiler-dotnet/README.md](../src/rules-compiler-dotnet/README.md) |
+| Python Compiler | [src/rules-compiler-python/README.md](../src/rules-compiler-python/README.md) |
+| Rust Compiler | [src/rules-compiler-rust/README.md](../src/rules-compiler-rust/README.md) |
+| Shell Scripts | [scripts/shell/README.md](../scripts/shell/README.md) |
 
-- [Main README](../README.md) - Project overview
-- [API Client README](../src/adguard-api-client/README.md) - API client overview
-- [Security Policy](../SECURITY.md) - Security guidelines
+### Development
 
-<a id="documentation-for-api-endpoints"></a>
-## Documentation for API Endpoints
+| Document | Location |
+|----------|----------|
+| Claude Code Instructions | [CLAUDE.md](../CLAUDE.md) |
+| Copilot Instructions | [.github/copilot-instructions.md](../.github/copilot-instructions.md) |
+| Security Policy | [SECURITY.md](../SECURITY.md) |
 
-All URIs are relative to *https://api.adguard-dns.io*
+## API Endpoints Reference
 
-| Class | Method | HTTP request | Description |
+All URIs are relative to `https://api.adguard-dns.io`
+
+| Class | Method | HTTP Request | Description |
 |-------|--------|--------------|-------------|
 | *AccountApi* | **GetAccountLimits** | **GET** /oapi/v1/account/limits | Gets account limits |
 | *AuthenticationApi* | **AccessToken** | **POST** /oapi/v1/oauth_token | Generates tokens |
@@ -79,33 +108,22 @@ All URIs are relative to *https://api.adguard-dns.io*
 | *StatisticsApi* | **GetTimeQueriesStats** | **GET** /oapi/v1/stats/time | Gets statistics |
 | *WebServicesApi* | **ListWebServices** | **GET** /oapi/v1/web_services | Lists web services |
 
-<a id="documentation-for-models"></a>
-## Documentation for Models
+## Authentication
 
-- [AccessTokenErrorResponse](api/AccessTokenErrorResponse.md)
-- [AccessTokenResponse](api/AccessTokenResponse.md)
-- [AccountLimits](api/AccountLimits.md)
-- [DNSServer](api/DNSServer.md)
-- [DNSServerCreate](api/DNSServerCreate.md)
-- [DedicatedIPv4Address](api/DedicatedIPv4Address.md)
-- [Device](api/Device.md)
-- [DeviceCreate](api/DeviceCreate.md)
-- [DeviceUpdate](api/DeviceUpdate.md)
-- [ErrorResponse](api/ErrorResponse.md)
-- [FilterList](api/FilterList.md)
-- [Limit](api/Limit.md)
-- [QueryLogResponse](api/QueryLogResponse.md)
-- [TimeQueriesStatsList](api/TimeQueriesStatsList.md)
-- [WebService](api/WebService.md)
-
-<a id="ApiKey"></a>
-## Authentication: ApiKey
+### ApiKey
 
 - **Type**: API key
 - **API key parameter name**: Authorization
 - **Location**: HTTP header
 
-<a id="AuthToken"></a>
-## Authentication: AuthToken
+### AuthToken
 
 - **Type**: Bearer Authentication
+
+## External Resources
+
+- [AdGuard DNS](https://adguard-dns.io/)
+- [AdGuard DNS API Documentation](https://api.adguard-dns.io/static/swagger/swagger.json)
+- [@adguard/hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler)
+- [AdBlock Tester](https://adblock-tester.com/)
+- [AdGuard Tester](https://d3ward.github.io/toolz/adblock.html)
