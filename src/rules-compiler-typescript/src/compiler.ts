@@ -149,7 +149,9 @@ export async function runCompiler(options: CompileOptions): Promise<CompilerResu
     logger.info(`Loading configuration from: ${options.configPath}`);
     const config = readConfiguration(options.configPath, options.format, logger);
     result.configName = config.name ?? 'unknown';
-    result.configVersion = (config as Record<string, unknown>).version as string ?? 'unknown';
+    const configRecord = config as unknown as Record<string, unknown>;
+    const versionValue = configRecord.version;
+    result.configVersion = typeof versionValue === 'string' ? versionValue : 'unknown';
 
     // Determine output path
     const outputFilename = generateOutputFilename();

@@ -51,7 +51,7 @@ function parseJson(content: string): IConfiguration {
  */
 function parseYamlConfig(content: string): IConfiguration {
   try {
-    const parsed = parseYaml(content);
+    const parsed = parseYaml(content) as unknown;
     if (!parsed || typeof parsed !== 'object') {
       throw new Error('Invalid YAML: parsed result is not an object');
     }
@@ -138,8 +138,10 @@ export function readConfiguration(
     case 'toml':
       config = parseTomlConfig(content);
       break;
-    default:
-      throw new Error(`Unsupported format: ${detectedFormat}`);
+    default: {
+      const exhaustiveCheck: never = detectedFormat;
+      throw new Error(`Unsupported format: ${String(exhaustiveCheck)}`);
+    }
   }
 
   // Add metadata
@@ -147,7 +149,10 @@ export function readConfiguration(
   extendedConfig._sourceFormat = detectedFormat;
   extendedConfig._sourcePath = configPath;
 
-  logger.info(`Loaded configuration: ${config.name} v${(config as Record<string, unknown>).version || 'unknown'}`);
+  const configRecord = config as unknown as Record<string, unknown>;
+  const versionValue = configRecord.version;
+  const version = typeof versionValue === 'string' || typeof versionValue === 'number' ? String(versionValue) : 'unknown';
+  logger.info(`Loaded configuration: ${config.name} v${version}`);
   return extendedConfig;
 }
 
@@ -157,6 +162,9 @@ export function readConfiguration(
  * @returns JSON string
  */
 export function toJson(config: IConfiguration): string {
-  const { _sourceFormat, _sourcePath, ...cleanConfig } = config as ExtendedConfiguration;
+  const { _sourceFormat: _sf, _sourcePath: _sp, ...cleanConfig } = config as ExtendedConfiguration;
+  // Variables prefixed with _ to indicate they're intentionally unused
+  void _sf;
+  void _sp;
   return JSON.stringify(cleanConfig, null, 2);
 }

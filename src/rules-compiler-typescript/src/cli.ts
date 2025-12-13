@@ -163,12 +163,26 @@ function showConfig(configPath: string, format?: ConfigurationFormat): void {
   console.log(`Configuration: ${configPath}`);
   console.log('');
   console.log(`  Name: ${config.name}`);
-  console.log(`  Version: ${(config as Record<string, unknown>).version || 'N/A'}`);
-  console.log(`  License: ${(config as Record<string, unknown>).license || 'N/A'}`);
+  
+  const configRecord = config as unknown as Record<string, unknown>;
+  const versionValue = configRecord.version;
+  const version = typeof versionValue === 'string' || typeof versionValue === 'number' ? String(versionValue) : 'N/A';
+  console.log(`  Version: ${version}`);
+  
+  const licenseValue = configRecord.license;
+  const license = typeof licenseValue === 'string' ? licenseValue : 'N/A';
+  console.log(`  License: ${license}`);
+  
   console.log(`  Sources: ${config.sources?.length || 0}`);
-  console.log(
-    `  Transformations: ${(config as Record<string, unknown>).transformations || 'none'}`
-  );
+  
+  const transformationsValue = configRecord.transformations;
+  const transformations = Array.isArray(transformationsValue) 
+    ? transformationsValue.join(', ') 
+    : typeof transformationsValue === 'string' 
+    ? transformationsValue 
+    : 'none';
+  console.log(`  Transformations: ${transformations}`);
+  
   console.log('');
   console.log('JSON representation:');
   console.log(toJson(config));
@@ -267,5 +281,5 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<numb
 
 // Run if executed directly
 if (require.main === module) {
-  main().then((code) => process.exit(code));
+  void main().then((code) => process.exit(code));
 }
