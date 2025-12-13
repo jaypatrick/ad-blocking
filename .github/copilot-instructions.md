@@ -31,20 +31,20 @@ ad-blocking/
 
 ### C# API Client (`src/api-client/`)
 ```bash
-# From repository root, navigate to api-client
-cd src/api-client
+# Navigate to the solution directory
+cd src/api-client/src
 
 # Restore dependencies
-dotnet restore src/AdGuard.ApiClient.sln
+dotnet restore AdGuard.ApiClient.sln
 
 # Build
-dotnet build src/AdGuard.ApiClient.sln --no-restore
+dotnet build AdGuard.ApiClient.sln --no-restore
 
 # Run tests
-dotnet test src/AdGuard.ApiClient.sln --no-build --verbosity normal
+dotnet test AdGuard.ApiClient.sln --no-build --verbosity normal
 
 # Run specific test project
-dotnet test src/AdGuard.ApiClient.Test/AdGuard.ApiClient.Test.csproj
+dotnet test AdGuard.ApiClient.Test/AdGuard.ApiClient.Test.csproj
 ```
 
 **Requirements**: .NET 8.0 SDK
@@ -260,10 +260,10 @@ npm install <package-name>
 ### Running the Full Test Suite
 ```bash
 # From repository root
-cd src/api-client && dotnet test src/AdGuard.ApiClient.sln
-cd src/rules-compiler-typescript && npm test
-cd src/rules-compiler-python && pytest
-cd src/rules-compiler-rust && cargo test
+cd src/api-client/src && dotnet test AdGuard.ApiClient.sln
+cd ../../rules-compiler-typescript && npm test
+cd ../rules-compiler-python && pytest
+cd ../rules-compiler-rust && cargo test
 ```
 
 ### Compiling Filter Rules
