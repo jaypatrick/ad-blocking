@@ -455,7 +455,7 @@ function Main {
 
     if (-not $OutputPath) {
         $timestamp = (Get-Date).ToUniversalTime().ToString('yyyyMMdd-HHmmss')
-        $OutputPath = Join-Path $ProjectRoot 'src' 'filter-compiler' 'output' "compiled-$timestamp.txt"
+        $OutputPath = Join-Path $ProjectRoot 'src' 'rules-compiler-typescript' 'output' "compiled-$timestamp.txt"
     }
 
     try {

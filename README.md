@@ -20,8 +20,10 @@ ad-blocking/
 │   └── powershell/             # PowerShell modules
 ├── src/                        # Source code
 │   ├── api-client/             # AdGuard DNS API C# client
-│   ├── filter-compiler/        # TypeScript filter compiler
+│   ├── rules-compiler-typescript/ # TypeScript rules compiler
 │   ├── rules-compiler-dotnet/  # .NET rules compiler
+│   ├── rules-compiler-python/  # Python rules compiler
+│   ├── rules-compiler-rust/    # Rust rules compiler
 │   ├── webhook-app/            # C# webhook application
 │   └── website/                # Gatsby portfolio website
 ├── README.md                   # This file
@@ -52,7 +54,7 @@ This repository includes a pre-configured Warp environment for development and A
 
 **Setup Commands (automated):**
 ```bash
-cd ad-blocking/src/filter-compiler && npm install
+cd ad-blocking/src/rules-compiler-typescript && npm install
 cd ad-blocking/src/website && npm install
 cd ad-blocking/src/webhook-app && dotnet restore
 cd ad-blocking/src/api-client && dotnet restore
@@ -82,7 +84,7 @@ For full repository access (opening PRs, pushing changes), authorize the Warp Gi
 2. **Install Dependencies**:
    ```bash
    # Install compiler dependencies
-   cd src/filter-compiler
+   cd src/rules-compiler-typescript
    npm install
 
    # Install website dependencies (optional)
@@ -103,13 +105,13 @@ For full repository access (opening PRs, pushing changes), authorize the Warp Gi
 #### Compile Filter Rules
 ```bash
 # Using TypeScript
-cd src/filter-compiler
+cd src/rules-compiler-typescript
 npm run build
-node invoke-compiler.js
+npm run compile
 
 # Using PowerShell
-cd src/filter-compiler
-./invoke-compiler.ps1
+cd scripts/powershell
+./RulesCompiler-Harness.ps1
 ```
 
 #### Run C# Webhook Application
@@ -132,8 +134,8 @@ See the [API Client Usage Guide](docs/guides/api-client-usage.md) and [Examples]
 ### Filter Rules (`rules/`)
 The main AdGuard filter list for blocking ads, trackers, and malware. The rules list [can be found here](rules/adguard_user_filter.txt).
 
-### Filter Compiler (`src/filter-compiler/`)
-TypeScript-based compiler using [@adguard/hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler) to compile and transform filter rules.
+### Rules Compiler - TypeScript (`src/rules-compiler-typescript/`)
+TypeScript-based compiler using [@adguard/hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler) to compile and transform filter rules. Includes Deno support and optional Rust CLI frontend.
 
 ### Webhook App (`src/webhook-app/`)
 .NET 8.0 application for triggering AdGuard DNS webhooks with built-in rate limiting and resilience patterns.

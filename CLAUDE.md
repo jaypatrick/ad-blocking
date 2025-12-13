@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 This repository houses multiple sub-projects for ad-blocking, network protection, and AdGuard DNS management:
-- **Filter Compiler** (TypeScript) - Compiles filter rules using @adguard/hostlist-compiler with JSON/YAML/TOML support
+- **Rules Compiler** (TypeScript) - Compiles filter rules using @adguard/hostlist-compiler with JSON/YAML/TOML support, Deno support, and optional Rust frontend
 - **Rules Compiler** (C#/.NET 8) - .NET library and console app for filter rule compilation
 - **Rules Compiler** (Python) - Python package with pip distribution for filter rule compilation
 - **Rules Compiler** (Rust) - High-performance Rust library and CLI for filter rule compilation
@@ -20,19 +20,18 @@ This repository houses multiple sub-projects for ad-blocking, network protection
 
 ## Common Commands
 
-### TypeScript Filter Compiler (`src/filter-compiler/`)
+### TypeScript Rules Compiler (`src/rules-compiler-typescript/`)
 ```bash
-cd src/filter-compiler
+cd src/rules-compiler-typescript
 npm ci                    # Install dependencies
 npm run build             # Build TypeScript
 npm test                  # Run Jest tests
 npm run test:coverage     # Run tests with coverage
-npx tsc --noEmit          # Type-check only
-npx eslint .              # Lint
-npm run compile           # Compile filter rules (JSON config)
+npm run lint              # Lint
+npm run compile           # Compile filter rules
 npm run compile:yaml      # Compile using YAML config
 npm run compile:toml      # Compile using TOML config
-npm run compile:copy      # Compile and copy to rules directory
+npm run dev               # Run with ts-node
 
 # CLI with options
 npm run compile -- -c config.yaml -r -d
@@ -174,9 +173,9 @@ Invoke-ScriptAnalyzer -Path scripts/powershell -Recurse
 
 ### TypeScript (Jest)
 ```bash
-cd src/filter-compiler
-npx jest invoke-compiler.test.ts              # By file
-npx jest -t "should write rules to a file"    # By test name
+cd src/rules-compiler-typescript
+npx jest cli.test.ts                       # By file
+npx jest -t "should compile rules"         # By test name
 ```
 
 ### .NET (xUnit)
@@ -224,14 +223,16 @@ cargo test config::                       # Tests in module
 - `rules/Api/cli.ts` - Minimal CLI for compilation
 - `rules/Config/compiler-config.json` - Compiler configuration
 
-### Filter Compiler (`src/filter-compiler/`)
+### Rules Compiler - TypeScript (`src/rules-compiler-typescript/`)
 - TypeScript wrapper around @adguard/hostlist-compiler
 - Supports JSON, YAML, and TOML configuration formats
 - `src/cli.ts` - Command-line interface with argument parsing
 - `src/config-reader.ts` - Multi-format configuration reader
 - `src/compiler.ts` - Core compilation logic
-- `invoke-compiler.ts` - Legacy entry point (use `src/cli.ts` for new code)
-- ESLint flat config in `eslint.config.mjs`
+- `src/mod.ts` - Deno entry point
+- `frontend-rust/` - Optional Rust CLI frontend
+- Deno support via `deno.json`
+- ESLint and Jest for testing
 
 ### Shell Scripts (`scripts/shell/`)
 - Cross-platform shell scripts for filter compilation
@@ -303,7 +304,7 @@ cargo test config::                       # Tests in module
 
 GitHub Actions workflows validate:
 - `.github/workflows/dotnet.yml` - Builds/tests both .NET solutions with .NET 8
-- `.github/workflows/typescript.yml` - Node 20, tsc --noEmit, eslint for filter-compiler
+- `.github/workflows/typescript.yml` - Node 20, tsc --noEmit, eslint for rules-compiler-typescript
 - `.github/workflows/gatsby.yml` - Builds website and deploys to GitHub Pages
 - `.github/workflows/powershell.yml` - PSScriptAnalyzer on PowerShell scripts
 

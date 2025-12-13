@@ -109,7 +109,7 @@ def main(args: list[str] | None = None) -> int:
         # Search for default config
         search_paths = [
             Path.cwd() / "compiler-config.json",
-            Path.cwd() / "src" / "filter-compiler" / "compiler-config.json",
+            Path.cwd() / "src" / "rules-compiler-typescript" / "compiler-config.json",
         ]
 
         config_path = None

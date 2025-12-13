@@ -109,7 +109,7 @@ fn main() -> ExitCode {
                 eprintln!("[ERROR] Configuration file not found.");
                 eprintln!("Searched:");
                 eprintln!("  - compiler-config.json");
-                eprintln!("  - src/filter-compiler/compiler-config.json");
+                eprintln!("  - src/rules-compiler-typescript/compiler-config.json");
                 eprintln!();
                 eprintln!("Specify config path with -c/--config");
                 return ExitCode::FAILURE;

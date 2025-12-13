@@ -593,7 +593,7 @@ function Read-CompilerConfiguration {
     BEGIN {
         # Set default config path if not provided
         if (-not $ConfigPath) {
-            $ConfigPath = Join-Path $PSScriptRoot '..' '..' 'src' 'filter-compiler' 'compiler-config.json'
+            $ConfigPath = Join-Path $PSScriptRoot '..' '..' 'src' 'rules-compiler-typescript' 'compiler-config.json'
             $ConfigPath = [System.IO.Path]::GetFullPath($ConfigPath)
         }
     }
@@ -725,7 +725,7 @@ function Invoke-FilterCompiler {
 
         # Set defaults
         if (-not $WorkingDirectory) {
-            $WorkingDirectory = Join-Path $PSScriptRoot '..' '..' 'src' 'filter-compiler'
+            $WorkingDirectory = Join-Path $PSScriptRoot '..' '..' 'src' 'rules-compiler-typescript'
             $WorkingDirectory = [System.IO.Path]::GetFullPath($WorkingDirectory)
         }
 

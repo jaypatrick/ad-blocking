@@ -36,7 +36,7 @@ chmod +x scripts/shell/compile-rules.sh
 ./scripts/shell/compile-rules.sh
 
 # Use YAML configuration
-./scripts/shell/compile-rules.sh -c src/filter-compiler/compiler-config.yaml
+./scripts/shell/compile-rules.sh -c src/rules-compiler-typescript/compiler-config.yaml
 
 # Compile and copy to rules directory
 ./scripts/shell/compile-rules.sh -r
@@ -55,7 +55,7 @@ chmod +x scripts/shell/compile-rules.sh
 ./scripts/shell/compile-rules.ps1
 
 # Use YAML configuration
-./scripts/shell/compile-rules.ps1 -ConfigPath src/filter-compiler/compiler-config.yaml
+./scripts/shell/compile-rules.ps1 -ConfigPath src/rules-compiler-typescript/compiler-config.yaml
 
 # Compile and copy to rules directory
 ./scripts/shell/compile-rules.ps1 -CopyToRules
@@ -239,7 +239,7 @@ jobs:
 
 ## Related
 
-- [TypeScript API](../../src/filter-compiler/README.md) - Node.js/TypeScript implementation
+- [TypeScript API](../../src/rules-compiler-typescript/README.md) - Node.js/TypeScript implementation
 - [PowerShell Module](../powershell/README.md) - Full-featured PowerShell module
 - [.NET Library](../../src/rules-compiler-dotnet/README.md) - C# class library and console app
 

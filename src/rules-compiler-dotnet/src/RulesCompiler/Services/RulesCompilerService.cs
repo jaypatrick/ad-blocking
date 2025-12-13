@@ -114,9 +114,9 @@ public class RulesCompilerService : IRulesCompilerService
         var searchPaths = new[]
         {
             DefaultConfigFileName,
-            Path.Combine("src", "filter-compiler", DefaultConfigFileName),
-            Path.Combine("..", "filter-compiler", DefaultConfigFileName),
-            Path.Combine("..", "..", "src", "filter-compiler", DefaultConfigFileName)
+            Path.Combine("src", "rules-compiler-typescript", DefaultConfigFileName),
+            Path.Combine("..", "rules-compiler-typescript", DefaultConfigFileName),
+            Path.Combine("..", "..", "src", "rules-compiler-typescript", DefaultConfigFileName)
         };
 
         foreach (var path in searchPaths)

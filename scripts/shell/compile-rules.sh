@@ -40,7 +40,7 @@ readonly NC='\033[0m' # No Color
 # Default paths
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-readonly DEFAULT_CONFIG="${PROJECT_ROOT}/src/filter-compiler/compiler-config.json"
+readonly DEFAULT_CONFIG="${PROJECT_ROOT}/src/rules-compiler-typescript/compiler-config.json"
 readonly DEFAULT_RULES_DIR="${PROJECT_ROOT}/rules"
 readonly DEFAULT_OUTPUT_FILE="adguard_user_filter.txt"
 
@@ -387,7 +387,7 @@ main() {
 
     if [[ -z "${OUTPUT_PATH}" ]]; then
         local timestamp=$(date -u '+%Y%m%d-%H%M%S')
-        OUTPUT_PATH="${PROJECT_ROOT}/src/filter-compiler/output/compiled-${timestamp}.txt"
+        OUTPUT_PATH="${PROJECT_ROOT}/src/rules-compiler-typescript/output/compiled-${timestamp}.txt"
     fi
 
     # Run compilation

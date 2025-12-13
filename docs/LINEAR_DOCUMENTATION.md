@@ -239,7 +239,7 @@ ad-blocking/
 
 | Workflow | File | Purpose | Triggers |
 |----------|------|---------|----------|
-| TypeScript | `typescript.yml` | Build filter-compiler, type-check, lint | Push to main, PRs |
+| TypeScript | `typescript.yml` | Build rules-compiler-typescript, type-check, lint | Push to main, PRs |
 | .NET | `dotnet.yml` | Build webhook-app, API client, run tests | Push to main, PRs |
 | Gatsby | `gatsby.yml` | Build website, deploy to GitHub Pages | Push to main |
 | CodeQL | `codeql.yml` | Security static analysis | Push to main, schedule |

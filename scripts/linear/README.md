@@ -110,7 +110,7 @@ Becomes:
 Each documented component creates a detailed documentation issue:
 
 - Filter Rules (`/rules/`)
-- Filter Compiler (`/src/filter-compiler/`)
+- Rules Compiler TypeScript (`/src/rules-compiler-typescript/`)
 - Webhook Application (`/src/webhook-app/`)
 - etc.
 

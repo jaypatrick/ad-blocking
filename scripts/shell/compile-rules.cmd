@@ -91,7 +91,7 @@ goto :parse_args
 REM Generate default output path if not specified
 if "%OUTPUT_PATH%"=="" (
     for /f "tokens=1-6 delims=/:. " %%a in ("%date% %time%") do (
-        set "OUTPUT_PATH=%PROJECT_ROOT%\src\filter-compiler\output\compiled-%%c%%a%%b-%%d%%e%%f.txt"
+        set "OUTPUT_PATH=%PROJECT_ROOT%\src\rules-compiler-typescript\output\compiled-%%c%%a%%b-%%d%%e%%f.txt"
     )
 )
 

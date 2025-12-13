@@ -7,8 +7,8 @@ Project scope
 - CI pipelines (GitHub Actions) validate the .NET solutions, the TypeScript compiler, and the website using Node 20 and .NET 8. Keep local commands aligned with the workflows below.
 
 Common commands (build, lint, test)
-TypeScript – filter compiler (src/filter-compiler)
-- Install deps: cd src/filter-compiler && npm ci
+TypeScript – rules compiler (src/rules-compiler-typescript)
+- Install deps: cd src/rules-compiler-typescript && npm ci
 - Type-check only: npx tsc --noEmit
 - Lint: npx eslint .
 - Unit tests (Jest): npm test
@@ -41,7 +41,7 @@ PowerShell scripts
 
 Running a single test
 - TypeScript (Jest)
-  - By file: cd src/filter-compiler && npx jest invoke-compiler.test.ts
+  - By file: cd src/rules-compiler-typescript && npx jest cli.test.ts
   - By test name: npx jest -t "should write rules to a file"
 - .NET (xUnit under src/api-client)
   - By class pattern: cd src/api-client && dotnet test AdGuard.ApiClient.sln --filter "FullyQualifiedName~DevicesApiTests"
@@ -76,5 +76,5 @@ Notes pulled from existing docs
 
 Alignment with CI
 - .github/workflows/dotnet.yml builds and tests both solutions with .NET 8.
-- .github/workflows/typescript.yml uses Node 20, performs tsc --noEmit and eslint for the filter-compiler, and type-checks rules/Api/cli.ts via the same toolchain.
+- .github/workflows/typescript.yml uses Node 20, performs tsc --noEmit and eslint for the rules-compiler-typescript, and type-checks rules/Api/cli.ts via the same toolchain.
 - .github/workflows/gatsby.yml builds src/website and deploys to GitHub Pages.
