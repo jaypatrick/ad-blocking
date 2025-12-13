@@ -188,7 +188,7 @@ npm test
 
 **.NET API Client:**
 ```bash
-cd src/adguard-api-client/src
+cd src/adguard-api-client
 dotnet test AdGuard.ApiClient.slnx
 ```
 
