@@ -1,23 +1,15 @@
 # Rules Compiler (.NET)
 
-A .NET 8 library and console application for compiling AdGuard filter rules using `@adguard/hostlist-compiler`.
+A .NET 8 library and console application for compiling AdGuard filter rules using [@adguard/hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler).
 
-## Overview
+## Features
 
-This project provides a C# API and command-line interface that mirrors the functionality of the PowerShell `Invoke-RulesCompiler` module, offering:
-
-- Cross-platform support (Windows, macOS, Linux)
-- Multiple configuration formats (JSON, YAML, TOML)
-- Integration with AdGuard's hostlist-compiler CLI
-- Spectre.Console-based interactive UI
-
-## Projects
-
-| Project | Description |
-|---------|-------------|
-| `RulesCompiler` | Core class library with abstractions, models, and services |
-| `RulesCompiler.Console` | Console application with interactive and CLI modes |
-| `RulesCompiler.Tests` | xUnit tests for the library |
+- **Full hostlist-compiler support**: All configuration options from the underlying @adguard/hostlist-compiler package
+- **Multi-format configuration**: JSON, YAML, and TOML configuration file support
+- **Configuration validation**: Validates configuration before compilation with detailed error/warning reporting
+- **Interactive and CLI modes**: Use interactively with menus or from command line with arguments
+- **Verbose mode**: Detailed output from the compiler for debugging
+- **Cross-platform**: Runs on Windows, Linux, and macOS
 
 ## Prerequisites
 
@@ -37,28 +29,204 @@ dotnet build RulesCompiler.slnx
 
 ## Usage
 
-### Command Line
+### Interactive Mode
+
+Run without arguments to start interactive mode:
 
 ```bash
-# Run interactively
 dotnet run --project src/RulesCompiler.Console
+```
 
-# Compile with specific config
-dotnet run --project src/RulesCompiler.Console -- --config path/to/config.json
+Interactive menu options:
+- **View Configuration** - Display parsed configuration details
+- **Validate Configuration** - Validate configuration without compiling
+- **Compile Rules** - Compile filter rules
+- **Compile Rules (Verbose)** - Compile with detailed output
+- **Compile and Copy to Rules** - Compile and copy output to rules directory
+- **Show Available Transformations** - List all supported transformations
+- **Version Info** - Show version information for all components
+
+### Command-Line Mode
+
+```bash
+# Basic compilation
+dotnet run --project src/RulesCompiler.Console -- --config path/to/config.yaml
+
+# Compile with specific output path
+dotnet run --project src/RulesCompiler.Console -- -c config.json -o output.txt
 
 # Compile and copy to rules directory
-dotnet run --project src/RulesCompiler.Console -- --config config.yaml --copy
+dotnet run --project src/RulesCompiler.Console -- -c config.yaml --copy
 
-# Show version info
+# Verbose output
+dotnet run --project src/RulesCompiler.Console -- -c config.yaml --verbose
+
+# Validate configuration only
+dotnet run --project src/RulesCompiler.Console -- -c config.yaml --validate
+
+# Show version information
 dotnet run --project src/RulesCompiler.Console -- --version
 ```
 
-### Programmatic API
+### Command-Line Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--config` | `-c` | Path to configuration file (JSON, YAML, or TOML) |
+| `--output` | `-o` | Path to output file |
+| `--copy` | | Copy output to rules directory |
+| `--verbose` | | Enable verbose output from hostlist-compiler |
+| `--validate` | | Validate configuration only (no compilation) |
+| `--version` | `-v` | Show version information |
+
+## Configuration
+
+The compiler supports three configuration formats that map directly to the hostlist-compiler configuration schema.
+
+### Configuration Properties
+
+#### Root-Level Properties
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `name` | string | Yes | Name of the filter list |
+| `description` | string | No | Description of the filter list |
+| `homepage` | string | No | Homepage URL |
+| `license` | string | No | License identifier |
+| `version` | string | No | Version number |
+| `sources` | array | Yes | List of filter sources to compile |
+| `transformations` | array | No | Global transformations to apply |
+| `inclusions` | array | No | Global inclusion patterns |
+| `inclusions_sources` | array | No | Files containing inclusion patterns |
+| `exclusions` | array | No | Global exclusion patterns |
+| `exclusions_sources` | array | No | Files containing exclusion patterns |
+
+#### Source Properties
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `source` | string | Yes | URL or local file path |
+| `name` | string | No | Source identifier |
+| `type` | string | No | Format: `adblock` (default) or `hosts` |
+| `transformations` | array | No | Source-specific transformations |
+| `inclusions` | array | No | Source-specific inclusion patterns |
+| `inclusions_sources` | array | No | Files with source inclusions |
+| `exclusions` | array | No | Source-specific exclusion patterns |
+| `exclusions_sources` | array | No | Files with source exclusions |
+
+### Available Transformations
+
+Transformations are always applied in this fixed order regardless of configuration order:
+
+| Transformation | Description |
+|---------------|-------------|
+| `RemoveComments` | Removes all comment lines (! or #) |
+| `Compress` | Converts hosts format to adblock syntax |
+| `RemoveModifiers` | Removes unsupported modifiers from rules |
+| `Validate` | Removes dangerous/incompatible rules |
+| `ValidateAllowIp` | Like Validate but allows IP address rules |
+| `Deduplicate` | Removes duplicate rules |
+| `InvertAllow` | Converts @@exceptions to blocking rules |
+| `RemoveEmptyLines` | Removes blank lines |
+| `TrimLines` | Trims whitespace from lines |
+| `InsertFinalNewLine` | Ensures file ends with newline |
+| `ConvertToAscii` | Converts IDN to punycode |
+
+### Pattern Matching
+
+Inclusion and exclusion patterns support:
+- **Plain strings**: Exact match
+- **Wildcards**: `*.example.com`, `*tracking*`
+- **Regular expressions**: `/pattern/` (case-insensitive by default)
+- **Comments**: Lines starting with `!` are ignored
+
+### Example Configurations
+
+#### JSON (compiler-config.json)
+
+```json
+{
+  "name": "My Filter List",
+  "description": "Custom ad-blocking filter",
+  "version": "1.0.0",
+  "sources": [
+    {
+      "name": "Local Rules",
+      "source": "rules/local.txt",
+      "type": "adblock"
+    },
+    {
+      "name": "EasyList",
+      "source": "https://easylist.to/easylist/easylist.txt",
+      "type": "adblock",
+      "transformations": ["RemoveModifiers", "Validate"]
+    }
+  ],
+  "transformations": ["Deduplicate", "RemoveEmptyLines", "InsertFinalNewLine"],
+  "exclusions": ["*.google.com", "/analytics/"]
+}
+```
+
+#### YAML (compiler-config.yaml)
+
+```yaml
+name: My Filter List
+description: Custom ad-blocking filter
+version: "1.0.0"
+
+sources:
+  - name: Local Rules
+    source: rules/local.txt
+    type: adblock
+
+  - name: EasyList
+    source: https://easylist.to/easylist/easylist.txt
+    type: adblock
+    transformations:
+      - RemoveModifiers
+      - Validate
+
+transformations:
+  - Deduplicate
+  - RemoveEmptyLines
+  - InsertFinalNewLine
+
+exclusions:
+  - "*.google.com"
+  - "/analytics/"
+```
+
+#### TOML (compiler-config.toml)
+
+```toml
+name = "My Filter List"
+description = "Custom ad-blocking filter"
+version = "1.0.0"
+
+transformations = ["Deduplicate", "RemoveEmptyLines", "InsertFinalNewLine"]
+exclusions = ["*.google.com", "/analytics/"]
+
+[[sources]]
+name = "Local Rules"
+source = "rules/local.txt"
+type = "adblock"
+
+[[sources]]
+name = "EasyList"
+source = "https://easylist.to/easylist/easylist.txt"
+type = "adblock"
+transformations = ["RemoveModifiers", "Validate"]
+```
+
+## Library Usage
+
+### Basic Usage
 
 ```csharp
-using Microsoft.Extensions.DependencyInjection;
 using RulesCompiler.Extensions;
+using RulesCompiler.Models;
 using RulesCompiler.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
 
 // Setup DI
 var services = new ServiceCollection();
@@ -66,17 +234,19 @@ services.AddLogging();
 services.AddRulesCompiler();
 var provider = services.BuildServiceProvider();
 
-// Use the service
+// Get compiler service
 var compiler = provider.GetRequiredService<IRulesCompilerService>();
 
-// Read configuration
-var config = await compiler.ReadConfigurationAsync("compiler-config.yaml");
-Console.WriteLine($"Name: {config.Name}, Version: {config.Version}");
+// Compile with options
+var options = new CompilerOptions
+{
+    ConfigPath = "config.yaml",
+    OutputPath = "output.txt",
+    Verbose = true,
+    ValidateConfig = true
+};
 
-// Compile rules
-var result = await compiler.RunAsync(
-    configPath: "compiler-config.json",
-    copyToRules: true);
+var result = await compiler.RunAsync(options);
 
 if (result.Success)
 {
@@ -85,50 +255,54 @@ if (result.Success)
 }
 ```
 
-## Configuration Formats
+### Configuration Validation
 
-### JSON (Default)
+```csharp
+// Validate configuration before compilation
+var validation = await compiler.ValidateConfigurationAsync("config.yaml");
 
-```json
+if (!validation.IsValid)
 {
-  "name": "My Filter Rules",
-  "version": "1.0.0",
-  "sources": [
+    foreach (var error in validation.Errors)
     {
-      "name": "Local Rules",
-      "source": "./rules.txt",
-      "type": "adblock"
+        Console.WriteLine($"Error in {error.Field}: {error.Message}");
     }
-  ],
-  "transformations": ["Deduplicate", "Validate"]
+}
+
+foreach (var warning in validation.Warnings)
+{
+    Console.WriteLine($"Warning in {warning.Field}: {warning.Message}");
 }
 ```
 
-### YAML
+### Reading Configuration
 
-```yaml
-name: My Filter Rules
-version: 1.0.0
-sources:
-  - name: Local Rules
-    source: ./rules.txt
-    type: adblock
-transformations:
-  - Deduplicate
-  - Validate
+```csharp
+var config = await compiler.ReadConfigurationAsync("config.yaml");
+Console.WriteLine($"Filter: {config.Name}");
+Console.WriteLine($"Sources: {config.Sources.Count}");
+Console.WriteLine($"Transformations: {string.Join(", ", config.Transformations)}");
 ```
 
-### TOML
+### Using TransformationHelper
 
-```toml
-name = "My Filter Rules"
-version = "1.0.0"
-transformations = ["Deduplicate", "Validate"]
+```csharp
+using RulesCompiler.Models;
 
-[[sources]]
-name = "Local Rules"
-source = "./rules.txt"
-type = "adblock"
+// Check if transformation is valid
+bool isValid = TransformationHelper.IsValid("Deduplicate"); // true
+
+// Get all transformations
+var all = TransformationHelper.AllTransformations;
+
+// Get recommended transformations for typical use
+var recommended = TransformationHelper.RecommendedTransformations;
+
+// Get transformations optimized for hosts file sources
+var hostsTransforms = TransformationHelper.HostsFileTransformations;
+
+// Validate a list of transformations
+var invalid = TransformationHelper.GetInvalidTransformations(["Valid", "Invalid"]);
 ```
 
 ## Library Architecture
@@ -146,9 +320,12 @@ type = "adblock"
 
 | Model | Description |
 |-------|-------------|
-| `CompilerConfiguration` | Configuration file model |
+| `CompilerConfiguration` | Configuration file model with all hostlist-compiler options |
 | `FilterSource` | Source filter list definition |
 | `CompilerResult` | Compilation result with metrics |
+| `CompilerOptions` | Compilation options (verbose, validate, etc.) |
+| `Transformation` | Enum of all available transformations |
+| `SourceType` | Enum for source types (adblock, hosts) |
 | `VersionInfo` | Component version information |
 | `ConfigurationFormat` | Enum for JSON/YAML/TOML formats |
 
@@ -156,10 +333,11 @@ type = "adblock"
 
 | Service | Description |
 |---------|-------------|
-| `ConfigurationReader` | Parses JSON, YAML, and TOML configs |
-| `FilterCompiler` | Executes hostlist-compiler CLI |
+| `ConfigurationReader` | Parses JSON, YAML, and TOML configs with snake_case support |
+| `ConfigurationValidator` | Validates configuration with error/warning reporting |
+| `FilterCompiler` | Executes hostlist-compiler CLI with verbose support |
 | `OutputWriter` | Copies output, computes hashes, counts rules |
-| `RulesCompilerService` | Orchestrates the full pipeline |
+| `RulesCompilerService` | Orchestrates the full pipeline with validation |
 
 ## Dependency Injection
 
@@ -181,7 +359,13 @@ This registers:
 ```bash
 cd src/rules-compiler-dotnet
 dotnet test RulesCompiler.slnx
+
+# With verbose output
 dotnet test RulesCompiler.slnx --verbosity detailed
+
+# Run specific test class
+dotnet test --filter "FullyQualifiedName~ConfigurationValidatorTests"
+dotnet test --filter "FullyQualifiedName~TransformationTests"
 ```
 
 ## Environment Variables
@@ -191,6 +375,28 @@ dotnet test RulesCompiler.slnx --verbosity detailed
 | `RULESCOMPILER_config` | Default configuration file path |
 | `RULESCOMPILER_Logging__LogLevel__Default` | Log level (Debug, Information, Warning, Error) |
 
+## Project Structure
+
+```
+src/rules-compiler-dotnet/
+├── Config/                          # Default configuration files
+│   ├── compiler-config.json         # JSON format
+│   ├── compiler-config.yaml         # YAML format
+│   ├── compiler-config.toml         # TOML format
+│   └── compiler-config-advanced.yaml # Advanced example
+├── src/
+│   ├── RulesCompiler/               # Core library
+│   │   ├── Abstractions/            # Interfaces
+│   │   ├── Configuration/           # Config reader and validator
+│   │   ├── Extensions/              # DI extensions
+│   │   ├── Helpers/                 # Utility helpers
+│   │   ├── Models/                  # Data models
+│   │   └── Services/                # Service implementations
+│   ├── RulesCompiler.Console/       # Console application
+│   └── RulesCompiler.Tests/         # Unit tests
+└── RulesCompiler.slnx               # Solution file
+```
+
 ## Cross-Platform Notes
 
 - Uses `System.Runtime.InteropServices.RuntimeInformation` for platform detection
@@ -198,25 +404,12 @@ dotnet test RulesCompiler.slnx --verbosity detailed
 - UTF-8 encoding for all file operations
 - Falls back to `npx` if hostlist-compiler not globally installed
 
-## Project Structure
+## Related Projects
 
-```
-src/rules-compiler-dotnet/
-├── RulesCompiler.slnx              # Solution file
-├── README.md                        # This file
-└── src/
-    ├── RulesCompiler/               # Core library
-    │   ├── Abstractions/            # Interfaces
-    │   ├── Configuration/           # Config readers
-    │   ├── Extensions/              # DI extensions
-    │   ├── Helpers/                 # Utility classes
-    │   ├── Models/                  # Data models
-    │   └── Services/                # Implementation
-    ├── RulesCompiler.Console/       # Console app
-    │   ├── Helpers/                 # Console helpers
-    │   └── Services/                # App services
-    └── RulesCompiler.Tests/         # Unit tests
-```
+- [Rules Compiler (TypeScript)](../rules-compiler-typescript/) - TypeScript implementation
+- [Rules Compiler (Python)](../rules-compiler-python/) - Python implementation
+- [Rules Compiler (Rust)](../rules-compiler-rust/) - Rust implementation
+- [@adguard/hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler) - Underlying compiler
 
 ## License
 

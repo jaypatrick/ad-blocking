@@ -106,6 +106,65 @@ public class ConfigurationReaderTests
     }
 
     [Fact]
+    public async Task ReadConfigurationAsync_ParsesJsonWithAllNewProperties()
+    {
+        // Arrange
+        var tempFile = Path.GetTempFileName();
+        var newPath = Path.ChangeExtension(tempFile, ".json");
+        File.Move(tempFile, newPath);
+
+        try
+        {
+            var jsonContent = @"{
+                ""name"": ""Full Feature Test"",
+                ""version"": ""2.0.0"",
+                ""sources"": [
+                    {
+                        ""name"": ""Source1"",
+                        ""source"": ""./rules.txt"",
+                        ""type"": ""adblock"",
+                        ""transformations"": [""RemoveComments""],
+                        ""inclusions"": [""*.example.com""],
+                        ""exclusions"": [""*.google.com""],
+                        ""inclusions_sources"": [""include-patterns.txt""],
+                        ""exclusions_sources"": [""exclude-patterns.txt""]
+                    }
+                ],
+                ""transformations"": [""Deduplicate"", ""Validate""],
+                ""inclusions"": [""pattern1"", ""pattern2""],
+                ""exclusions"": [""/regex/""],
+                ""inclusions_sources"": [""global-includes.txt""],
+                ""exclusions_sources"": [""global-excludes.txt""]
+            }";
+            await File.WriteAllTextAsync(newPath, jsonContent);
+
+            // Act
+            var config = await _reader.ReadConfigurationAsync(newPath);
+
+            // Assert
+            Assert.Equal("Full Feature Test", config.Name);
+            Assert.Equal(2, config.Inclusions.Count);
+            Assert.Single(config.Exclusions);
+            Assert.Single(config.InclusionsSources);
+            Assert.Single(config.ExclusionsSources);
+
+            // Source-level properties
+            var source = config.Sources[0];
+            Assert.Single(source.Transformations);
+            Assert.Equal("RemoveComments", source.Transformations[0]);
+            Assert.Single(source.Inclusions);
+            Assert.Single(source.Exclusions);
+            Assert.Single(source.InclusionsSources);
+            Assert.Single(source.ExclusionsSources);
+        }
+        finally
+        {
+            if (File.Exists(newPath))
+                File.Delete(newPath);
+        }
+    }
+
+    [Fact]
     public async Task ReadConfigurationAsync_ParsesYamlConfig()
     {
         // Arrange

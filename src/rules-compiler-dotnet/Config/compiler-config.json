@@ -1,0 +1,29 @@
+{
+  "$schema": "https://raw.githubusercontent.com/AdguardTeam/HostlistCompiler/master/schemas/configuration.schema.json",
+  "name": "AdGuard User Filter",
+  "description": "Custom filter list compiled from multiple sources",
+  "homepage": "https://github.com/jaypatrick/ad-blocking",
+  "license": "MIT",
+  "version": "1.0.0",
+  "sources": [
+    {
+      "name": "Local User Rules",
+      "source": "rules/adguard_user_filter.txt",
+      "type": "adblock",
+      "transformations": [],
+      "inclusions": [],
+      "exclusions": []
+    }
+  ],
+  "transformations": [
+    "Validate",
+    "Deduplicate",
+    "RemoveEmptyLines",
+    "TrimLines",
+    "InsertFinalNewLine"
+  ],
+  "inclusions": [],
+  "inclusions_sources": [],
+  "exclusions": [],
+  "exclusions_sources": []
+}

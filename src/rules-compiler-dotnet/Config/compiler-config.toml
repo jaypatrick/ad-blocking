@@ -1,0 +1,58 @@
+# AdGuard Hostlist Compiler Configuration
+# See: https://github.com/AdguardTeam/HostlistCompiler
+
+# Required: Name of your filter list
+name = "AdGuard User Filter"
+
+# Optional: Description of the filter list
+description = "Custom filter list compiled from multiple sources"
+
+# Optional: Homepage URL
+homepage = "https://github.com/jaypatrick/ad-blocking"
+
+# Optional: License identifier
+license = "MIT"
+
+# Optional: Version number
+version = "1.0.0"
+
+# Global transformations applied to final output
+# Order in config doesn't matter - they're applied in fixed order:
+# RemoveComments, Compress, RemoveModifiers, Validate, ValidateAllowIp,
+# Deduplicate, InvertAllow, RemoveEmptyLines, TrimLines, InsertFinalNewLine, ConvertToAscii
+transformations = [
+    "Validate",
+    "Deduplicate",
+    "RemoveEmptyLines",
+    "TrimLines",
+    "InsertFinalNewLine"
+]
+
+# Global inclusion patterns (rules not matching will be excluded)
+# Supports: plain strings, wildcards (*.example.com), regex (/pattern/)
+inclusions = []
+
+# Files containing inclusion patterns (one per line)
+inclusions_sources = []
+
+# Global exclusion patterns (rules matching will be removed)
+# Supports: plain strings, wildcards (*.example.com), regex (/pattern/)
+exclusions = []
+
+# Files containing exclusion patterns (one per line)
+exclusions_sources = []
+
+# Filter sources to compile
+# Each source can be a URL or local file path
+
+[[sources]]
+name = "Local User Rules"
+source = "rules/adguard_user_filter.txt"
+# Type: "adblock" (default) or "hosts"
+type = "adblock"
+# Source-specific transformations
+transformations = []
+# Source-specific inclusion patterns
+inclusions = []
+# Source-specific exclusion patterns
+exclusions = []

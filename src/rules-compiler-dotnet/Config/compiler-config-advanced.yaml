@@ -1,0 +1,103 @@
+# AdGuard Hostlist Compiler - Advanced Configuration Example
+# Demonstrates all available features
+# See: https://github.com/AdguardTeam/HostlistCompiler
+
+name: "My Advanced Filter List"
+description: "Comprehensive ad-blocking filter combining multiple sources"
+homepage: "https://github.com/example/my-filter-list"
+license: "GPL-3.0"
+version: "2.0.0"
+
+# Multiple filter sources with different configurations
+sources:
+  # Remote AdBlock-format filter list
+  - name: "EasyList"
+    source: "https://easylist.to/easylist/easylist.txt"
+    type: "adblock"
+    # Remove modifiers not supported by DNS blocking
+    transformations:
+      - "RemoveModifiers"
+      - "Validate"
+    # Only include rules matching these patterns
+    inclusions:
+      - "||*^"  # Only domain blocking rules
+    # Exclude rules matching these patterns
+    exclusions:
+      - "/analytics/"  # Regex pattern
+      - "*.google.com"  # Wildcard pattern
+
+  # Remote hosts-format blocklist
+  - name: "StevenBlack Hosts"
+    source: "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"
+    type: "hosts"
+    # Convert hosts to adblock format and compress
+    transformations:
+      - "Compress"
+      - "RemoveComments"
+
+  # Local custom rules
+  - name: "Custom Rules"
+    source: "rules/custom-rules.txt"
+    type: "adblock"
+    # No source-specific transformations
+    transformations: []
+
+  # Source with external exclusion patterns
+  - name: "AdGuard Base"
+    source: "https://filters.adtidy.org/extension/chromium/filters/2.txt"
+    type: "adblock"
+    transformations:
+      - "Validate"
+      - "RemoveModifiers"
+    exclusions: []
+    exclusions_sources:
+      - "config/adguard-exclusions.txt"
+    inclusions: []
+    inclusions_sources:
+      - "config/adguard-inclusions.txt"
+
+# Global transformations for final output
+# Applied in fixed order regardless of configuration order:
+# 1. RemoveComments - Remove comment lines (! or #)
+# 2. Compress - Convert hosts to adblock format
+# 3. RemoveModifiers - Strip unsupported modifiers
+# 4. Validate - Remove dangerous/incompatible rules
+# 5. ValidateAllowIp - Like Validate but keeps IP rules
+# 6. Deduplicate - Remove duplicate rules
+# 7. InvertAllow - Convert @@exceptions to blocks
+# 8. RemoveEmptyLines - Strip blank lines
+# 9. TrimLines - Trim whitespace
+# 10. InsertFinalNewLine - Ensure trailing newline
+# 11. ConvertToAscii - Convert IDN to punycode
+transformations:
+  - "Deduplicate"      # Remove duplicates from merged sources
+  - "RemoveEmptyLines" # Clean output
+  - "TrimLines"        # Normalize whitespace
+  - "InsertFinalNewLine"  # POSIX compliance
+  - "ConvertToAscii"   # Handle international domains
+
+# Global inclusion patterns
+# Only keep rules matching at least one pattern
+# Empty list = keep all rules
+inclusions: []
+
+# Files containing global inclusion patterns
+inclusions_sources: []
+
+# Global exclusion patterns
+# Remove rules matching any pattern
+exclusions:
+  # Plain string matching
+  - "google.com"
+  # Wildcard patterns
+  - "*.facebook.com"
+  - "*tracking*"
+  # Regular expressions (case-insensitive)
+  - "/^@@/"  # Remove all exception rules
+  - "/localhost/"
+
+# Files containing global exclusion patterns
+# Each file has one pattern per line
+# Lines starting with ! are comments
+exclusions_sources:
+  - "config/global-exclusions.txt"
