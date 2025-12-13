@@ -21,6 +21,7 @@ ad-blocking/
 ├── src/                        # Source code
 │   ├── api-client/             # AdGuard DNS API C# client
 │   ├── filter-compiler/        # TypeScript filter compiler
+│   ├── rules-compiler-dotnet/  # .NET rules compiler
 │   ├── webhook-app/            # C# webhook application
 │   └── website/                # Gatsby portfolio website
 ├── README.md                   # This file

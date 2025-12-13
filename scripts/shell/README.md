@@ -241,7 +241,7 @@ jobs:
 
 - [TypeScript API](../../src/filter-compiler/README.md) - Node.js/TypeScript implementation
 - [PowerShell Module](../powershell/README.md) - Full-featured PowerShell module
-- [.NET Library](../../src/rules-compiler/README.md) - C# class library and console app
+- [.NET Library](../../src/rules-compiler-dotnet/README.md) - C# class library and console app
 
 ## License
 

@@ -30,7 +30,7 @@ This project provides a C# API and command-line interface that mirrors the funct
 ## Installation
 
 ```bash
-cd src/rules-compiler
+cd src/rules-compiler-dotnet
 dotnet restore RulesCompiler.slnx
 dotnet build RulesCompiler.slnx
 ```
@@ -179,7 +179,7 @@ This registers:
 ## Running Tests
 
 ```bash
-cd src/rules-compiler
+cd src/rules-compiler-dotnet
 dotnet test RulesCompiler.slnx
 dotnet test RulesCompiler.slnx --verbosity detailed
 ```
@@ -201,7 +201,7 @@ dotnet test RulesCompiler.slnx --verbosity detailed
 ## Project Structure
 
 ```
-src/rules-compiler/
+src/rules-compiler-dotnet/
 ├── RulesCompiler.slnx              # Solution file
 ├── README.md                        # This file
 └── src/

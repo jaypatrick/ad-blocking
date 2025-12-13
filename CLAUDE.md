@@ -56,9 +56,9 @@ npm run compile -- --version
 scripts\shell\compile-rules.cmd -c config.json -r
 ```
 
-### .NET Rules Compiler (`src/rules-compiler/`)
+### .NET Rules Compiler (`src/rules-compiler-dotnet/`)
 ```bash
-cd src/rules-compiler
+cd src/rules-compiler-dotnet
 dotnet restore RulesCompiler.slnx
 dotnet build RulesCompiler.slnx
 dotnet test RulesCompiler.slnx
@@ -240,7 +240,7 @@ cargo test config::                       # Tests in module
 - `compile-rules.cmd` - Windows batch wrapper
 - Supports JSON, YAML, TOML via external tools (yq, Python)
 
-### Rules Compiler - .NET (`src/rules-compiler/`)
+### Rules Compiler - .NET (`src/rules-compiler-dotnet/`)
 - .NET 8 library wrapping @adguard/hostlist-compiler
 - Supports JSON, YAML, and TOML configuration formats
 - `RulesCompiler` - Core library with abstractions, models, and services
