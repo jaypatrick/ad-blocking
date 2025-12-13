@@ -31,14 +31,17 @@ ad-blocking/
 
 ### C# API Client (`src/api-client/`)
 ```bash
+# From repository root, navigate to api-client
+cd src/api-client
+
 # Restore dependencies
-dotnet restore AdGuard.ApiClient.sln
+dotnet restore src/AdGuard.ApiClient.sln
 
 # Build
-dotnet build AdGuard.ApiClient.sln --no-restore
+dotnet build src/AdGuard.ApiClient.sln --no-restore
 
 # Run tests
-dotnet test AdGuard.ApiClient.sln --no-build --verbosity normal
+dotnet test src/AdGuard.ApiClient.sln --no-build --verbosity normal
 
 # Run specific test project
 dotnet test src/AdGuard.ApiClient.Test/AdGuard.ApiClient.Test.csproj
@@ -257,7 +260,7 @@ npm install <package-name>
 ### Running the Full Test Suite
 ```bash
 # From repository root
-cd src/api-client && dotnet test AdGuard.ApiClient.sln
+cd src/api-client && dotnet test src/AdGuard.ApiClient.sln
 cd src/rules-compiler-typescript && npm test
 cd src/rules-compiler-python && pytest
 cd src/rules-compiler-rust && cargo test
