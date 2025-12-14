@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-compiler:
-    name: Build Rules Compiler
+    name: Build and Test Rules Compiler
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -32,14 +32,20 @@ jobs:
       run: npx tsc --noEmit
 
     - name: Lint
-      run: npx eslint . || true
+      run: npx eslint src/
 
-  build-rules:
-    name: Build Rules API
+    - name: Build
+      run: npm run build
+
+    - name: Test
+      run: npm test
+
+  build-website:
+    name: Build Website
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./rules/Api
+        working-directory: ./src/website
 
     steps:
     - uses: actions/checkout@v4
@@ -48,13 +54,13 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: './src/website/package-lock.json'
 
     - name: Install dependencies
-      run: |
-        cd ../../src/rules-compiler-typescript
-        npm ci
+      run: npm ci
 
-    - name: Type check Rules API
-      run: |
-        cd ../../src/rules-compiler-typescript
-        npx tsc --noEmit ../../rules/Api/cli.ts
+    - name: Build Gatsby site
+      run: npm run build
+      env:
+        NODE_ENV: production

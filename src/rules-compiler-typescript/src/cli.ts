@@ -152,6 +152,21 @@ export function showVersion(): void {
 }
 
 /**
+ * Formats transformations value for display
+ * @param value - Transformations value from config
+ * @returns Formatted string
+ */
+function formatTransformations(value: unknown): string {
+  if (Array.isArray(value)) {
+    return value.join(', ');
+  }
+  if (typeof value === 'string') {
+    return value;
+  }
+  return 'none';
+}
+
+/**
  * Shows configuration details
  * @param configPath - Path to configuration file
  * @param format - Optional format override
@@ -163,12 +178,19 @@ function showConfig(configPath: string, format?: ConfigurationFormat): void {
   console.log(`Configuration: ${configPath}`);
   console.log('');
   console.log(`  Name: ${config.name}`);
-  console.log(`  Version: ${(config as Record<string, unknown>).version || 'N/A'}`);
-  console.log(`  License: ${(config as Record<string, unknown>).license || 'N/A'}`);
+  
+  const configRecord = config as unknown as Record<string, unknown>;
+  const versionValue = configRecord.version;
+  const version = typeof versionValue === 'string' || typeof versionValue === 'number' ? String(versionValue) : 'N/A';
+  console.log(`  Version: ${version}`);
+  
+  const licenseValue = configRecord.license;
+  const license = typeof licenseValue === 'string' ? licenseValue : 'N/A';
+  console.log(`  License: ${license}`);
+  
   console.log(`  Sources: ${config.sources?.length || 0}`);
-  console.log(
-    `  Transformations: ${(config as Record<string, unknown>).transformations || 'none'}`
-  );
+  console.log(`  Transformations: ${formatTransformations(configRecord.transformations)}`);
+  
   console.log('');
   console.log('JSON representation:');
   console.log(toJson(config));
@@ -267,5 +289,5 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<numb
 
 // Run if executed directly
 if (require.main === module) {
-  main().then((code) => process.exit(code));
+  void main().then((code) => process.exit(code));
 }
