@@ -125,6 +125,7 @@ impl MenuHelper {
 
     /// Display a divider
     pub fn divider() {
-        println!("{}", style("─".repeat(80)).dim());
+        const DIVIDER_WIDTH: usize = 80;
+        println!("{}", style("─".repeat(DIVIDER_WIDTH)).dim());
     }
 }

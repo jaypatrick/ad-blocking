@@ -65,11 +65,11 @@ async fn view_queries(app_config: &AppConfig, hours_ago: i64) -> Result<()> {
                 for query in queries.iter().take(50) {
                     let time_millis = query.time_millis;
                     let dt = DateTime::from_timestamp_millis(time_millis)
-                        .unwrap_or_else(|| DateTime::from_timestamp(0, 0).unwrap());
+                        .unwrap_or_else(|| DateTime::UNIX_EPOCH);
                     let time_str = dt.format("%H:%M:%S").to_string();
                     
                     let domain = query.domain.clone();
-                    let device_id = query.device_id.as_ref().map(|s| s.as_str()).unwrap_or("N/A");
+                    let device_id = query.device_id.as_deref().unwrap_or("N/A");
                     let action = query.filtering_info.filtering_status
                         .as_ref()
                         .map(|s| format!("{:?}", s))

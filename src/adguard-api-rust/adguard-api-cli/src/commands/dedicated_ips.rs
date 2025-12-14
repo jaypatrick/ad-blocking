@@ -39,10 +39,10 @@ async fn list_ips(app_config: &AppConfig) -> Result<()> {
                 
                 for addr in &addresses {
                     let ip = addr.ip.clone();
-                    let device_id = addr.device_id.as_ref().unwrap_or(&"Unlinked".to_string()).clone();
+                    let device_id = addr.device_id.as_deref().unwrap_or("Unlinked");
                     let status = if addr.device_id.is_some() { "Linked" } else { "Unlinked" };
                     
-                    MenuHelper::table_row(&[ip, device_id, status.to_string()]);
+                    MenuHelper::table_row(&[ip, device_id.to_string(), status.to_string()]);
                 }
                 
                 MenuHelper::success(&format!("Found {} dedicated IP address(es)", addresses.len()));
