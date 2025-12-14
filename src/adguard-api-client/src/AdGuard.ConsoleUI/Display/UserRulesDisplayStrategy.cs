@@ -9,7 +9,15 @@ public class UserRulesDisplayStrategy : IDisplayStrategy<UserRulesSettings>
     /// <inheritdoc />
     public void Display(IEnumerable<UserRulesSettings> items)
     {
-        if (!items.Any())
+        // Optimize for common collection types to avoid unnecessary enumeration
+        var isEmpty = items switch
+        {
+            ICollection<UserRulesSettings> collection => collection.Count == 0,
+            IReadOnlyCollection<UserRulesSettings> readOnlyCollection => readOnlyCollection.Count == 0,
+            _ => !items.Any()
+        };
+
+        if (isEmpty)
         {
             ConsoleHelpers.ShowNoItemsMessage("user rules");
             return;
