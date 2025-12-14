@@ -484,7 +484,19 @@ $RECYCLE.BIN/
 
 # TypeScript build output
 src/rules-compiler-typescript/dist/
-src/rules-compiler-typescript/frontend-rust/target/
+
+# Rust build output
+**/target/
+
+# Python build output
+**/*.egg-info/
+**/dist/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+*.whl
 
 # Gatsby
 src/website/public/

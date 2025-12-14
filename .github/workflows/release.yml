@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v1.0.0)'
+        required: true
+        default: 'v1.0.0'
 
 permissions:
   contents: write
@@ -177,6 +183,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Validate and set release version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+            
+            # Semver 2.0.0 compliant version pattern
+            # Format: vMAJOR.MINOR.PATCH[-PRERELEASE] where PRERELEASE is dot-separated identifiers
+            # Examples: v1.0.0, v1.0.0-beta, v1.0.0-rc1, v1.0.0-alpha.1
+            SEMVER_PATTERN='^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*)?$'
+            
+            if ! echo "$VERSION" | grep -qE "$SEMVER_PATTERN"; then
+              echo "Error: Version must follow format 'vX.Y.Z' or 'vX.Y.Z-suffix'"
+              echo "Examples: v1.0.0, v1.0.0-beta, v1.0.0-rc1, v1.0.0-alpha.1"
+              exit 1
+            fi
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            
+            # Check if tag exists remotely
+            if git ls-remote --tags origin | grep -q "refs/tags/$VERSION$"; then
+              echo "Tag $VERSION already exists remotely"
+            else
+              echo "Creating tag $VERSION"
+              git config user.name "github-actions[bot]"
+              git config user.email "github-actions[bot]@users.noreply.github.com"
+              git tag -a "$VERSION" -m "Release $VERSION" || { echo "Error: Failed to create tag"; exit 1; }
+              git push origin "$VERSION" || { echo "Error: Failed to push tag"; exit 1; }
+              echo "Tag $VERSION created and pushed successfully"
+            fi
+          else
+            echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
@@ -188,12 +227,13 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.version.outputs.version }}
           files: |
             ./release-artifacts/**/*.zip
             ./release-artifacts/**/*.tar.gz
             ./release-artifacts/**/*.whl
           body: |
-            ## Release ${{ github.ref_name }}
+            ## Release ${{ steps.version.outputs.version }}
 
             This release includes pre-built binaries for:
             - **AdGuard.ConsoleUI** - Console UI for AdGuard DNS API (Windows, Linux, macOS)
