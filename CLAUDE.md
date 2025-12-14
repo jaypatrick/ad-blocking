@@ -301,7 +301,7 @@ cargo test config::                       # Tests in module
 - LTO optimization enabled for small binary size
 
 ### API Client (`src/adguard-api-client/`)
-- Auto-generated from `api/openapi.yaml` (AdGuard DNS API v1.11)
+- Auto-generated from `api/openapi.json` (primary) and `api/openapi.yaml` (optional) - AdGuard DNS API v1.11
 - `Helpers/ConfigurationHelper.cs` - Fluent auth, timeouts, user agent
 - `Helpers/RetryPolicyHelper.cs` - Polly-based retry for 408/429/5xx
 - Uses Newtonsoft.Json and JsonSubTypes

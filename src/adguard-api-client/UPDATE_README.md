@@ -45,8 +45,8 @@ If you already have an updated spec and just want to regenerate the client:
 **Public URL**: https://api.adguard-dns.io/swagger/openapi.json
 
 The specification is stored locally at:
-- `api/openapi.json` - JSON format (downloaded)
-- `api/openapi.yaml` - YAML format (converted for readability)
+- `api/openapi.json` - JSON format (primary)
+- `api/openapi.yaml` - YAML format (optional, for readability)
 
 ## Available Scripts
 
@@ -81,13 +81,13 @@ yq eval -P api/openapi.json > api/openapi.yaml
 npm install -g @stoplight/spectral-cli
 
 # Validate
-spectral lint api/openapi.yaml
+spectral lint api/openapi.json
 ```
 
 ### 3. Review Changes
 
 ```bash
-git diff api/openapi.yaml
+git diff api/openapi.json
 ```
 
 ### 4. Regenerate the API Client
@@ -98,7 +98,7 @@ npm install -g @openapitools/openapi-generator-cli
 
 # Generate C# client
 openapi-generator-cli generate \
-    -i api/openapi.yaml \
+    -i api/openapi.json \
     -g csharp \
     -o . \
     --additional-properties=\
@@ -187,7 +187,7 @@ dotnet run
 3. Dependency version mismatches
 
 **Solutions**:
-1. Review the spec diff: `git diff api/openapi.yaml`
+1. Review the spec diff: `git diff api/openapi.json`
 2. Check backup files in `.backup-*` directories
 3. Manually merge custom modifications from `Helpers/` directory
 4. Update dependencies: `dotnet restore`
@@ -253,8 +253,8 @@ src/AdGuard.ApiClient/Configuration/*
 ```
 src/adguard-api-client/
 ├── api/
-│   ├── openapi.json           # Downloaded OpenAPI spec (JSON)
-│   ├── openapi.yaml           # Converted OpenAPI spec (YAML)
+│   ├── openapi.json           # Primary OpenAPI spec (JSON)
+│   ├── openapi.yaml           # Optional OpenAPI spec (YAML, for readability)
 │   └── README.md              # API spec documentation
 ├── src/
 │   ├── AdGuard.ApiClient/     # Generated API client (auto-generated)
@@ -279,12 +279,12 @@ src/adguard-api-client/
 
 2. **Review changes** after downloading new spec:
    ```bash
-   git diff api/openapi.yaml
+   git diff api/openapi.json
    ```
 
 3. **Validate spec** before regenerating:
    ```bash
-   spectral lint api/openapi.yaml
+   spectral lint api/openapi.json
    ```
 
 4. **Test thoroughly** after regeneration:
@@ -298,7 +298,7 @@ src/adguard-api-client/
    - Document any manual modifications
 
 6. **Version control**:
-   - Commit the OpenAPI spec: `api/openapi.yaml`
+   - Commit the OpenAPI spec: `api/openapi.json`
    - Commit generated code changes
    - Tag releases: `git tag v1.2.0`
 

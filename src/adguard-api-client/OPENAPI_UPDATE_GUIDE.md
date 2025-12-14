@@ -17,7 +17,8 @@ The AdGuard API Client is auto-generated from an OpenAPI (formerly Swagger) spec
 
 The OpenAPI specification is stored at:
 ```
-src/adguard-api-client/api/openapi.yaml
+src/adguard-api-client/api/openapi.json (primary)
+src/adguard-api-client/api/openapi.yaml (optional, for readability)
 ```
 
 ## Obtaining the Latest OpenAPI Spec
@@ -91,8 +92,8 @@ Once you have obtained the latest OpenAPI specification:
 
 2. **Backup the current spec**:
    ```bash
-   cp src/adguard-api-client/api/openapi.yaml \
-      src/adguard-api-client/api/openapi.yaml.backup
+   cp src/adguard-api-client/api/openapi.json \
+      src/adguard-api-client/api/openapi.json.backup
    ```
 
 3. **Convert JSON to YAML** (optional, for readability):
@@ -108,12 +109,12 @@ Once you have obtained the latest OpenAPI specification:
    npm install -g @stoplight/spectral-cli
 
    # Validate the spec
-   spectral lint src/adguard-api-client/api/openapi.yaml
+   spectral lint src/adguard-api-client/api/openapi.json
    ```
 
 5. **Review changes**:
    ```bash
-   git diff src/adguard-api-client/api/openapi.yaml
+   git diff src/adguard-api-client/api/openapi.json
    ```
 
 ## Regenerating the API Client
@@ -157,7 +158,7 @@ cd src/adguard-api-client
 
 # Generate C# client
 openapi-generator-cli generate \
-    -i api/openapi.yaml \
+    -i api/openapi.json \
     -g csharp \
     -o . \
     --additional-properties=\
@@ -178,7 +179,7 @@ cd src/adguard-api-client
 docker run --rm \
     -v "${PWD}:/local" \
     openapitools/openapi-generator-cli generate \
-    -i /local/api/openapi.yaml \
+    -i /local/api/openapi.json \
     -g csharp \
     -o /local \
     --additional-properties=\
@@ -250,7 +251,7 @@ Verify all menu options and API operations work correctly.
 
 ### OpenAPI Spec Not Found
 
-**Error**: `OpenAPI specification not found at: api/openapi.yaml`
+**Error**: `OpenAPI specification not found at: api/openapi.json`
 
 **Solution**: Ensure you have downloaded the latest specification and placed it in the correct location.
 

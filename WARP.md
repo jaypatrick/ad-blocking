@@ -51,7 +51,7 @@ High-level architecture and structure
   - TypeScript wrapper around @adguard/hostlist-compiler. invoke-compiler.ts loads compiler-config.json, compiles sources, and writes adguard_user_filter.txt. Jest tests cover config parsing and output writing.
   - eslint.config.mjs configures JS/TS linting via the flat config.
 - API client (src/adguard-api-client/)
-  - Auto-generated C# SDK for AdGuard DNS API v1.11 (see api/openapi.yaml and README.md). Targets net10.0 in AdGuard.ApiClient.csproj; uses Newtonsoft.Json and JsonSubTypes.
+  - Auto-generated C# SDK for AdGuard DNS API v1.11 (see api/openapi.json (primary) and api/openapi.yaml (optional) and README.md). Targets net10.0 in AdGuard.ApiClient.csproj; uses Newtonsoft.Json and JsonSubTypes.
   - Helpers/ConfigurationHelper.cs provides fluent auth + timeouts + user agent, and Helpers/RetryPolicyHelper.cs adds Polly-based retry policies for 408/429/5xx.
   - Console UI (src/AdGuard.ConsoleUI/) is a Spectre.Console menu-driven wrapper over the SDK with a small ApiClientFactory to configure the SDK from settings or an interactive prompt.
 - Scripts (scripts/)

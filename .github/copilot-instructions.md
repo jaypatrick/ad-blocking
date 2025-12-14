@@ -402,7 +402,7 @@ npm install <package-name>
 # FIntegration Points
 
 ### AdGuard DNS API
-- **OpenAPI spec**: `api/openapi.yaml` (v1.11)
+- **OpenAPI spec**: `api/openapi.json` (v1.11, primary), `api/openapi.yaml` (optional)
 - **Auto-generated client**: `src/adguard-api-client/src/AdGuard.ApiClient/`
 - **Base URL**: Configured via `AdGuard:BaseUrl` in appsettings
 - **Auth**: Bearer token in `Authorization` header

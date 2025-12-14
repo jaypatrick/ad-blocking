@@ -9,7 +9,7 @@
     generates new client code using the specified generator version.
 
 .PARAMETER SpecPath
-    Path to the OpenAPI specification file. Defaults to api/openapi.yaml.
+    Path to the OpenAPI specification file. Defaults to api/openapi.json.
 
 .PARAMETER GeneratorVersion
     OpenAPI Generator version to use. Defaults to 7.16.0.
@@ -21,7 +21,7 @@
     .\Regenerate-Client.ps1
 
 .EXAMPLE
-    .\Regenerate-Client.ps1 -SpecPath "path/to/custom/openapi.yaml"
+    .\Regenerate-Client.ps1 -SpecPath "path/to/custom/openapi.json"
 
 .EXAMPLE
     .\Regenerate-Client.ps1 -SkipBackup
@@ -30,7 +30,7 @@
 [CmdletBinding()]
 param(
     [Parameter()]
-    [string]$SpecPath = "api/openapi.yaml",
+    [string]$SpecPath = "api/openapi.json",
 
     [Parameter()]
     [string]$GeneratorVersion = "7.16.0",
@@ -76,7 +76,7 @@ if (-not $generatorCmd) {
     Write-Host ""
     Write-Host "Or use Docker:"
     Write-Host '  docker run --rm -v "${PWD}:/local" openapitools/openapi-generator-cli generate \'
-    Write-Host '    -i /local/api/openapi.yaml \'
+    Write-Host '    -i /local/api/openapi.json \'
     Write-Host '    -g csharp \'
     Write-Host '    -o /local \'
     Write-Host '    --additional-properties=targetFramework=net10.0,packageName=AdGuard.ApiClient'
