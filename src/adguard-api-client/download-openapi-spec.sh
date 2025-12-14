@@ -6,7 +6,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 API_DIR="${SCRIPT_DIR}/api"
-OPENAPI_SPEC="${API_DIR}/openapi.yaml"
+OPENAPI_JSON="${API_DIR}/openapi.json"
+OPENAPI_YAML="${API_DIR}/openapi.yaml"
 
 # Colors for output
 RED='\033[0;31m'
@@ -24,23 +25,24 @@ echo ""
 try_download() {
     local url=$1
     local description=$2
+    local output_file=$3
     
     echo -e "${YELLOW}Trying: ${description}${NC}"
     echo "  URL: ${url}"
     
-    if curl -f -sL "${url}" -o "${OPENAPI_SPEC}.tmp" 2>/dev/null; then
-        # Check if the downloaded file is valid YAML/JSON
-        if head -n 1 "${OPENAPI_SPEC}.tmp" | grep -qE "(openapi:|swagger:|\{)" 2>/dev/null; then
+    if curl -f -sL "${url}" -o "${output_file}.tmp" 2>/dev/null; then
+        # Check if the downloaded file is valid JSON or YAML
+        if head -n 1 "${output_file}.tmp" | grep -qE "(openapi:|swagger:|\{)" 2>/dev/null; then
             echo -e "${GREEN}  ✓ Successfully downloaded!${NC}"
-            mv "${OPENAPI_SPEC}.tmp" "${OPENAPI_SPEC}"
+            mv "${output_file}.tmp" "${output_file}"
             return 0
         else
             echo -e "${RED}  ✗ Downloaded file doesn't appear to be a valid OpenAPI spec${NC}"
-            rm -f "${OPENAPI_SPEC}.tmp"
+            rm -f "${output_file}.tmp"
         fi
     else
         echo -e "${RED}  ✗ Failed to download${NC}"
-        rm -f "${OPENAPI_SPEC}.tmp"
+        rm -f "${output_file}.tmp"
     fi
     
     echo ""
@@ -50,10 +52,17 @@ try_download() {
 # Ensure API directory exists
 mkdir -p "${API_DIR}"
 
-# Backup existing spec if it exists
-if [ -f "${OPENAPI_SPEC}" ]; then
-    echo -e "${YELLOW}Backing up existing OpenAPI spec...${NC}"
-    cp "${OPENAPI_SPEC}" "${OPENAPI_SPEC}.backup-$(date +%Y%m%d_%H%M%S)"
+# Backup existing specs if they exist
+if [ -f "${OPENAPI_JSON}" ]; then
+    echo -e "${YELLOW}Backing up existing JSON OpenAPI spec...${NC}"
+    cp "${OPENAPI_JSON}" "${OPENAPI_JSON}.backup-$(date +%Y%m%d_%H%M%S)"
+    echo -e "${GREEN}Backup created${NC}"
+    echo ""
+fi
+
+if [ -f "${OPENAPI_YAML}" ]; then
+    echo -e "${YELLOW}Backing up existing YAML OpenAPI spec...${NC}"
+    cp "${OPENAPI_YAML}" "${OPENAPI_YAML}.backup-$(date +%Y%m%d_%H%M%S)"
     echo -e "${GREEN}Backup created${NC}"
     echo ""
 fi
@@ -61,31 +70,64 @@ fi
 # Try various potential URLs
 DOWNLOAD_SUCCESS=false
 
-# Try common OpenAPI endpoint patterns
-URLS=(
+# Try JSON endpoints first (primary format)
+JSON_URLS=(
     "https://api.adguard-dns.io/swagger/openapi.json|Official OpenAPI JSON (Primary)"
-    "https://api.adguard-dns.io/swagger/openapi.yaml|Official OpenAPI YAML"
-    "https://api.adguard-dns.io/static/swagger.yaml|Static Swagger YAML"
-    "https://api.adguard-dns.io/static/swagger.json|Static Swagger JSON"
-    "https://api.adguard-dns.io/static/openapi.yaml|Static OpenAPI YAML"
     "https://api.adguard-dns.io/static/openapi.json|Static OpenAPI JSON"
-    "https://api.adguard-dns.io/swagger/v1/swagger.yaml|Swagger UI YAML"
     "https://api.adguard-dns.io/swagger/v1/swagger.json|Swagger UI JSON"
-    "https://api.adguard-dns.io/api-docs|API Docs endpoint"
-    "https://api.adguard-dns.io/oapi/openapi.yaml|OAPI directory YAML"
-    "https://api.adguard-dns.io/oapi/v1/openapi.yaml|OAPI v1 directory YAML"
-    "https://raw.githubusercontent.com/AdguardTeam/AdGuardDNS/master/openapi/openapi.yaml|GitHub AdGuardDNS repo"
-    "https://raw.githubusercontent.com/AdguardTeam/AdGuardDNS/master/openapi.yaml|GitHub AdGuardDNS repo (root)"
-    "https://raw.githubusercontent.com/AdguardTeam/DnsWebApp/main/api/openapi.yaml|GitHub DnsWebApp repo"
+    "https://api.adguard-dns.io/static/swagger.json|Static Swagger JSON"
 )
 
-for url_entry in "${URLS[@]}"; do
+for url_entry in "${JSON_URLS[@]}"; do
     IFS='|' read -r url description <<< "${url_entry}"
-    if try_download "${url}" "${description}"; then
+    if try_download "${url}" "${description}" "${OPENAPI_JSON}"; then
         DOWNLOAD_SUCCESS=true
+        
+        # Optionally convert to YAML for readability
+        if command -v yq &> /dev/null; then
+            echo -e "${YELLOW}Converting JSON to YAML for readability...${NC}"
+            if yq eval -P "${OPENAPI_JSON}" > "${OPENAPI_YAML}"; then
+                echo -e "${GREEN}  ✓ Converted to YAML format${NC}"
+            fi
+        fi
         break
     fi
 done
+
+# If JSON download failed, try YAML endpoints
+if [ "${DOWNLOAD_SUCCESS}" = false ]; then
+    YAML_URLS=(
+        "https://api.adguard-dns.io/swagger/openapi.yaml|Official OpenAPI YAML"
+        "https://api.adguard-dns.io/static/swagger.yaml|Static Swagger YAML"
+        "https://api.adguard-dns.io/static/openapi.yaml|Static OpenAPI YAML"
+        "https://api.adguard-dns.io/swagger/v1/swagger.yaml|Swagger UI YAML"
+        "https://api.adguard-dns.io/api-docs|API Docs endpoint"
+        "https://api.adguard-dns.io/oapi/openapi.yaml|OAPI directory YAML"
+        "https://api.adguard-dns.io/oapi/v1/openapi.yaml|OAPI v1 directory YAML"
+        "https://raw.githubusercontent.com/AdguardTeam/AdGuardDNS/master/openapi/openapi.yaml|GitHub AdGuardDNS repo"
+        "https://raw.githubusercontent.com/AdguardTeam/AdGuardDNS/master/openapi.yaml|GitHub AdGuardDNS repo (root)"
+        "https://raw.githubusercontent.com/AdguardTeam/DnsWebApp/main/api/openapi.yaml|GitHub DnsWebApp repo"
+    )
+    
+    for url_entry in "${YAML_URLS[@]}"; do
+        IFS='|' read -r url description <<< "${url_entry}"
+        if try_download "${url}" "${description}" "${OPENAPI_YAML}"; then
+            DOWNLOAD_SUCCESS=true
+            
+            # Convert YAML to JSON (primary format)
+            if command -v yq &> /dev/null; then
+                echo -e "${YELLOW}Converting YAML to JSON (primary format)...${NC}"
+                if yq eval -o=json "${OPENAPI_YAML}" > "${OPENAPI_JSON}"; then
+                    echo -e "${GREEN}  ✓ Converted to JSON format${NC}"
+                fi
+            else
+                echo -e "${YELLOW}  ℹ yq not found, using YAML only${NC}"
+                echo "  Install yq to convert to JSON: pip install yq"
+            fi
+            break
+        fi
+    done
+fi
 
 # Check if download was successful
 if [ "${DOWNLOAD_SUCCESS}" = true ]; then
@@ -94,11 +136,14 @@ if [ "${DOWNLOAD_SUCCESS}" = true ]; then
     echo -e "==========================================${NC}"
     echo ""
     echo "OpenAPI specification downloaded to:"
-    echo "  ${OPENAPI_SPEC}"
+    echo "  ${OPENAPI_JSON} (primary)"
+    if [ -f "${OPENAPI_YAML}" ]; then
+        echo "  ${OPENAPI_YAML} (for readability)"
+    fi
     echo ""
     echo "Next steps:"
-    echo "  1. Verify the specification: spectral lint ${OPENAPI_SPEC}"
-    echo "  2. Review changes: git diff ${OPENAPI_SPEC}"
+    echo "  1. Verify the specification: spectral lint ${OPENAPI_JSON}"
+    echo "  2. Review changes: git diff ${OPENAPI_JSON}"
     echo "  3. Regenerate API client: ./regenerate-client.sh"
     echo ""
 else
@@ -119,16 +164,16 @@ else
     echo "3. Check your AdGuard DNS account dashboard for API documentation"
     echo ""
     echo "4. If you have the spec URL, download it manually:"
-    echo "   curl -o ${OPENAPI_SPEC} <URL>"
+    echo "   curl -o ${OPENAPI_JSON} <URL>"
     echo ""
     
     # Restore backup if download failed and backup exists
-    if [ -f "${OPENAPI_SPEC}.backup"* ]; then
+    if [ -f "${OPENAPI_JSON}.backup"* ]; then
         echo -e "${YELLOW}Restoring previous OpenAPI spec...${NC}"
         # Find the most recent backup
-        LATEST_BACKUP=$(ls -t "${OPENAPI_SPEC}.backup"* | head -n 1)
+        LATEST_BACKUP=$(ls -t "${OPENAPI_JSON}.backup"* 2>/dev/null | head -n 1)
         if [ -f "${LATEST_BACKUP}" ]; then
-            cp "${LATEST_BACKUP}" "${OPENAPI_SPEC}"
+            cp "${LATEST_BACKUP}" "${OPENAPI_JSON}"
             echo -e "${GREEN}Previous spec restored${NC}"
         fi
     fi

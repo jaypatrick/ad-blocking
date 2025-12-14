@@ -14,7 +14,7 @@ The AdGuard DNS API OpenAPI specification is publicly available at:
 
 ## About the Specification
 
-The `openapi.yaml` (or `openapi.json`) file defines:
+The `openapi.json` file (primary) and optional `openapi.yaml` file define:
 - All API endpoints (/oapi/v1/*)
 - Request/response schemas
 - Authentication methods (API Key and Bearer Token)
@@ -40,7 +40,7 @@ Use the provided download script:
 Download directly from the public URL:
 
 ```bash
-# Download JSON format
+# Download JSON format (primary)
 curl -o openapi.json https://api.adguard-dns.io/swagger/openapi.json
 
 # Convert to YAML (optional, requires yq)
@@ -53,25 +53,25 @@ If you obtain an updated OpenAPI specification:
 
 1. **Backup the current spec**:
    ```bash
-   cp openapi.yaml openapi.yaml.backup
+   cp openapi.json openapi.json.backup
    ```
 
 2. **Replace with new spec**:
    ```bash
-   cp /path/to/new/spec.yaml openapi.yaml
-   # or
-   cp /path/to/new/spec.json openapi.yaml
+   cp /path/to/new/spec.json openapi.json
+   # or if you have YAML, convert it
+   yq eval -o=json /path/to/new/spec.yaml > openapi.json
    ```
 
 3. **Validate the spec** (optional but recommended):
    ```bash
    npm install -g @stoplight/spectral-cli
-   spectral lint openapi.yaml
+   spectral lint openapi.json
    ```
 
 4. **Review changes**:
    ```bash
-   git diff openapi.yaml
+   git diff openapi.json
    ```
 
 5. **Regenerate the API client**:

@@ -73,7 +73,7 @@ This will:
 cd src/adguard-api-client
 curl -o api/openapi.json https://api.adguard-dns.io/swagger/openapi.json
 
-# 2. Convert to YAML (optional)
+# 2. Convert to YAML (optional, for readability)
 yq eval -P api/openapi.json > api/openapi.yaml
 
 # 3. Regenerate client

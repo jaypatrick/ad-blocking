@@ -61,7 +61,8 @@ ad-blocking/
 │   ├── ISSUE_TEMPLATE/                # Issue templates
 │   └── copilot-instructions.md        # Development guidelines
 ├── api/                               # OpenAPI specifications
-│   └── openapi.yaml                   # AdGuard DNS API v1.11 spec
+│   ├── openapi.json                   # AdGuard DNS API v1.11 spec (primary)
+│   └── openapi.yaml                   # AdGuard DNS API v1.11 spec (optional)
 ├── docs/                              # Documentation
 │   ├── api/                           # API reference docs
 │   ├── guides/                        # Usage guides

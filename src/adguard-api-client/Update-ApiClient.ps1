@@ -50,8 +50,8 @@ $ErrorActionPreference = "Stop"
 
 $scriptDir = $PSScriptRoot
 $apiDir = Join-Path $scriptDir "api"
-$openApiYaml = Join-Path $apiDir "openapi.yaml"
 $openApiJson = Join-Path $apiDir "openapi.json"
+$openApiYaml = Join-Path $apiDir "openapi.yaml"
 
 Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host "AdGuard API Client Update Workflow" -ForegroundColor Cyan
@@ -89,15 +89,14 @@ try {
         $response.Content | Out-File -FilePath $openApiJson -Encoding utf8
         Write-Host "  ✓ Successfully downloaded OpenAPI JSON spec" -ForegroundColor Green
         
-        # Convert JSON to YAML for easier editing/viewing
+        # Convert JSON to YAML for easier editing/viewing (optional)
         if (Get-Command yq -ErrorAction SilentlyContinue) {
-            Write-Host "  Converting JSON to YAML..."
+            Write-Host "  Converting JSON to YAML for readability..."
             yq eval -P $openApiJson | Out-File -FilePath $openApiYaml -Encoding utf8
             Write-Host "  ✓ Converted to YAML format" -ForegroundColor Green
         } else {
-            Write-Host "  ℹ yq not found, using JSON as YAML" -ForegroundColor Yellow
+            Write-Host "  ℹ yq not found, skipping YAML conversion" -ForegroundColor Yellow
             Write-Host "  Install yq: pip install yq"
-            Copy-Item $openApiJson $openApiYaml
         }
     }
     catch {
@@ -128,7 +127,7 @@ if (Get-Command git -ErrorAction SilentlyContinue) {
         $gitRoot = git rev-parse --git-dir 2>$null
         if ($gitRoot) {
             Write-Host "Changes in OpenAPI spec:"
-            git diff --stat $openApiYaml 2>$null
+            git diff --stat $openApiJson 2>$null
             Write-Host ""
         }
     }
@@ -145,7 +144,7 @@ if (-not $SkipValidation) {
     if (Get-Command spectral -ErrorAction SilentlyContinue) {
         Write-Host "Running Spectral validation..."
         try {
-            spectral lint $openApiYaml --quiet
+            spectral lint $openApiJson --quiet
             Write-Host "  ✓ Specification is valid" -ForegroundColor Green
         }
         catch {
@@ -184,7 +183,7 @@ if (Test-Path $regenScript) {
     Write-Host ""
     Write-Host "To regenerate the API client manually:"
     Write-Host "  1. Install OpenAPI Generator: npm install -g @openapitools/openapi-generator-cli"
-    Write-Host "  2. Run: openapi-generator-cli generate -i $openApiYaml -g csharp -o $scriptDir"
+    Write-Host "  2. Run: openapi-generator-cli generate -i $openApiJson -g csharp -o $scriptDir"
 }
 
 Write-Host ""

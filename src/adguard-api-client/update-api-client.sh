@@ -6,8 +6,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 API_DIR="${SCRIPT_DIR}/api"
-OPENAPI_SPEC="${API_DIR}/openapi.yaml"
 OPENAPI_JSON="${API_DIR}/openapi.json"
+OPENAPI_YAML="${API_DIR}/openapi.yaml"
 OPENAPI_URL="https://api.adguard-dns.io/swagger/openapi.json"
 
 # Colors for output
@@ -36,9 +36,9 @@ if [ -f "${OPENAPI_JSON}" ]; then
     cp "${OPENAPI_JSON}" "${OPENAPI_JSON}.backup-$(date +%Y%m%d_%H%M%S)"
 fi
 
-if [ -f "${OPENAPI_SPEC}" ]; then
+if [ -f "${OPENAPI_YAML}" ]; then
     echo "  Backing up existing YAML spec..."
-    cp "${OPENAPI_SPEC}" "${OPENAPI_SPEC}.backup-$(date +%Y%m%d_%H%M%S)"
+    cp "${OPENAPI_YAML}" "${OPENAPI_YAML}.backup-$(date +%Y%m%d_%H%M%S)"
 fi
 
 # Download the spec
@@ -48,16 +48,14 @@ if curl -f -sL "${OPENAPI_URL}" -o "${OPENAPI_JSON}.tmp" 2>/dev/null; then
         mv "${OPENAPI_JSON}.tmp" "${OPENAPI_JSON}"
         echo -e "${GREEN}  ✓ Successfully downloaded OpenAPI JSON spec${NC}"
         
-        # Convert JSON to YAML for easier editing/viewing
+        # Convert JSON to YAML for easier editing/viewing (optional)
         if command -v yq &> /dev/null; then
-            echo "  Converting JSON to YAML..."
-            yq eval -P "${OPENAPI_JSON}" > "${OPENAPI_SPEC}"
+            echo "  Converting JSON to YAML for readability..."
+            yq eval -P "${OPENAPI_JSON}" > "${OPENAPI_YAML}"
             echo -e "${GREEN}  ✓ Converted to YAML format${NC}"
         else
             echo -e "${YELLOW}  ℹ yq not found, skipping YAML conversion${NC}"
             echo "  Install yq: pip install yq"
-            # Use JSON directly
-            cp "${OPENAPI_JSON}" "${OPENAPI_SPEC}"
         fi
     else
         echo -e "${RED}  ✗ Downloaded file is not valid JSON${NC}"
@@ -84,7 +82,7 @@ echo ""
 if command -v git &> /dev/null; then
     if git rev-parse --git-dir > /dev/null 2>&1; then
         echo "Changes in OpenAPI spec:"
-        git diff --stat "${OPENAPI_SPEC}" 2>/dev/null || echo "  (New file or significant changes)"
+        git diff --stat "${OPENAPI_JSON}" 2>/dev/null || echo "  (New file or significant changes)"
         echo ""
     fi
 fi
@@ -95,7 +93,7 @@ echo ""
 
 if command -v spectral &> /dev/null; then
     echo "Running Spectral validation..."
-    if spectral lint "${OPENAPI_SPEC}" --quiet; then
+    if spectral lint "${OPENAPI_JSON}" --quiet; then
         echo -e "${GREEN}  ✓ Specification is valid${NC}"
     else
         echo -e "${YELLOW}  ⚠ Specification has some issues (see above)${NC}"
@@ -132,7 +130,7 @@ else
     echo ""
     echo "To regenerate the API client manually:"
     echo "  1. Install OpenAPI Generator: npm install -g @openapitools/openapi-generator-cli"
-    echo "  2. Run: openapi-generator-cli generate -i ${OPENAPI_SPEC} -g csharp -o ${SCRIPT_DIR}"
+    echo "  2. Run: openapi-generator-cli generate -i ${OPENAPI_JSON} -g csharp -o ${SCRIPT_DIR}"
 fi
 
 echo ""
