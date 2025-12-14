@@ -167,6 +167,10 @@ pub fn get_version_info() -> VersionInfo {
 }
 
 /// Count non-empty, non-comment lines in a file.
+///
+/// Uses `map_while` to stop iteration on the first I/O error rather than
+/// continuing indefinitely. This prevents infinite loops on persistent read
+/// errors and ensures we only count lines from successfully read data.
 #[must_use]
 pub fn count_rules<P: AsRef<Path>>(file_path: P) -> usize {
     let file = match File::open(file_path.as_ref()) {
