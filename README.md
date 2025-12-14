@@ -19,7 +19,7 @@ A comprehensive multi-language toolkit for ad-blocking, network protection, and 
   - [.NET](#net-compiler)
   - [Python](#python-compiler)
   - [Rust](#rust-compiler)
-  - [Shell Scripts](#shell-scripts)
+  - [Shell Scripts (rules-compiler-shell)](#shell-scripts-rules-compiler-shell)
   - [PowerShell Module](#powershell-module)
 - [AdGuard API Client](#adguard-api-client)
 - [Console UI](#console-ui)
@@ -83,7 +83,7 @@ ad-blocking/
 │   │   ├── RulesCompiler.psd1         # Module manifest
 │   │   ├── RulesCompiler-Harness.ps1  # Interactive harness
 │   │   └── Tests/                     # Pester tests
-│   ├── shell/                         # Shell scripts
+│   ├── rules-compiler-shell/          # Shell scripts
 │   │   ├── compile-rules.sh           # Bash (Linux/macOS)
 │   │   ├── compile-rules.ps1          # PowerShell Core
 │   │   └── compile-rules.cmd          # Windows batch
@@ -153,7 +153,7 @@ Import-Module ./src/powershell/Invoke-RulesCompiler.psm1
 Invoke-RulesCompiler
 
 # Bash
-./src/shell/compile-rules.sh
+./src/rules-compiler-shell/compile-rules.sh
 ```
 
 ## Docker Development Environment
@@ -383,32 +383,32 @@ let result = compiler.compile("config.yaml", None)?;
 println!("Compiled {} rules", result.rule_count);
 ```
 
-### Shell Scripts
+### Shell Scripts (rules-compiler-shell)
 
-**Location**: `src/shell/`
+**Location**: `src/rules-compiler-shell/`
 
 #### Bash (Linux/macOS)
 
 ```bash
-./src/shell/compile-rules.sh                    # Default config
-./src/shell/compile-rules.sh -c config.yaml     # YAML config
-./src/shell/compile-rules.sh -c config.yaml -r  # Copy to rules
-./src/shell/compile-rules.sh -v                 # Show version
+./src/rules-compiler-shell/compile-rules.sh                    # Default config
+./src/rules-compiler-shell/compile-rules.sh -c config.yaml     # YAML config
+./src/rules-compiler-shell/compile-rules.sh -c config.yaml -r  # Copy to rules
+./src/rules-compiler-shell/compile-rules.sh -v                 # Show version
 ```
 
 #### PowerShell Core (Cross-platform)
 
 ```powershell
-./src/shell/compile-rules.ps1
-./src/shell/compile-rules.ps1 -ConfigPath config.yaml
-./src/shell/compile-rules.ps1 -ConfigPath config.yaml -CopyToRules
-./src/shell/compile-rules.ps1 -Version
+./src/rules-compiler-shell/compile-rules.ps1
+./src/rules-compiler-shell/compile-rules.ps1 -ConfigPath config.yaml
+./src/rules-compiler-shell/compile-rules.ps1 -ConfigPath config.yaml -CopyToRules
+./src/rules-compiler-shell/compile-rules.ps1 -Version
 ```
 
 #### Windows Batch
 
 ```cmd
-src\shell\compile-rules.cmd -c config.json -r
+src\rules-compiler-shell\compile-rules.cmd -c config.json -r
 ```
 
 ### PowerShell Module
@@ -752,7 +752,7 @@ Download the latest release from the [Releases page](https://github.com/jaypatri
 - [.NET Compiler README](src/rules-compiler-dotnet/README.md)
 - [Python Compiler README](src/rules-compiler-python/README.md)
 - [Rust Compiler README](src/rules-compiler-rust/README.md)
-- [Shell Scripts README](src/shell/README.md)
+- [Shell Scripts README](src/rules-compiler-shell/README.md)
 
 ### Development
 
