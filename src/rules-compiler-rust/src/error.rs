@@ -4,6 +4,7 @@ use thiserror::Error;
 
 /// Errors that can occur during compilation.
 #[derive(Error, Debug)]
+#[non_exhaustive]
 pub enum CompilerError {
     /// Configuration file not found
     #[error("Configuration file not found: {0}")]

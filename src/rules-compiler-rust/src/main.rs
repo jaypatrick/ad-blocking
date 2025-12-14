@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use std::process::ExitCode;
 
 use rules_compiler::{
-    compile_rules, get_version_info, read_configuration, ConfigurationFormat, VERSION,
+    ConfigurationFormat, VERSION, compile_rules, get_version_info, read_configuration,
 };
 
 /// AdGuard Filter Rules Compiler - Rust CLI
@@ -32,7 +32,7 @@ struct Cli {
     format: Option<String>,
 
     /// Show version information
-    #[arg(short = 'V', long = "version-info")]
+    #[arg(long = "version-info")]
     version_info: bool,
 
     /// Enable debug output
@@ -82,13 +82,7 @@ fn find_default_config() -> Option<PathBuf> {
         PathBuf::from("src/filter-compiler/compiler-config.json"),
     ];
 
-    for path in search_paths {
-        if path.exists() {
-            return Some(path);
-        }
-    }
-
-    None
+    search_paths.into_iter().find(|path| path.exists())
 }
 
 fn main() -> ExitCode {
@@ -130,10 +124,7 @@ fn main() -> ExitCode {
                 println!("  Version: {}", config.version);
                 println!("  License: {}", config.license);
                 println!("  Sources: {}", config.sources.len());
-                println!(
-                    "  Transformations: {}",
-                    config.transformations.join(", ")
-                );
+                println!("  Transformations: {}", config.transformations.join(", "));
                 return ExitCode::SUCCESS;
             }
             Err(e) => {
@@ -144,7 +135,10 @@ fn main() -> ExitCode {
     }
 
     // Run compilation
-    println!("[INFO] Starting compilation with config: {}", config_path.display());
+    println!(
+        "[INFO] Starting compilation with config: {}",
+        config_path.display()
+    );
 
     match compile_rules(
         &config_path,
