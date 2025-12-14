@@ -13,6 +13,8 @@ AdGuard.ConsoleUI is a .NET 10 console application that provides an interactive 
 - **Statistics Viewing**: View query statistics for 24 hours, 7 days, 30 days, or custom time ranges
 - **Query Log**: View recent queries and clear query log
 - **Filter Lists**: View available filter lists
+- **Web Services**: Browse available web services for blocking
+- **Dedicated IP Addresses**: List and allocate dedicated IPv4 addresses
 - **Account Information**: Display account limits and usage with visual progress bars
 - **Connection Testing**: Test API connectivity
 - **API Key Configuration**: Configure API key interactively or via settings
@@ -84,6 +86,8 @@ After launching, you'll see the main menu with the following options:
 | Statistics | View query statistics for various time ranges |
 | Query Log | View recent queries and clear logs |
 | Filter Lists | View available filter lists |
+| Web Services | Browse available web services for blocking |
+| Dedicated IP Addresses | List and allocate dedicated IPv4 addresses |
 | Account Info | Display account limits and usage |
 | Settings | Change API key, test connection |
 | Exit | Close the application |
@@ -119,6 +123,19 @@ Statistics include total queries, blocked queries, and block rate percentage.
 - **View Custom Time Range**: Specify hours ago to view
 - **Clear Query Log**: Permanently delete all query logs
 
+### Web Services
+
+- **List Web Services**: Browse all available web services that can be blocked
+  - View service ID and name
+  - Useful for identifying services to block in DNS server settings
+
+### Dedicated IP Addresses
+
+- **List All IP Addresses**: View all allocated dedicated IPv4 addresses
+  - Shows IP address, linked device ID, and status (linked/unlinked)
+- **Allocate New IP Address**: Allocate a new dedicated IPv4 address to your account
+  - Useful for dedicated DNS filtering
+
 ### Settings
 
 - **Change API Key**: Enter a new API key
@@ -140,7 +157,9 @@ AdGuard.ConsoleUI/
     ├── DnsServerMenuService.cs  # DNS server CRUD operations
     ├── FilterListMenuService.cs # Filter list display
     ├── QueryLogMenuService.cs   # Query log viewing and clearing
-    └── StatisticsMenuService.cs # Statistics display
+    ├── StatisticsMenuService.cs # Statistics display
+    ├── WebServiceMenuService.cs # Web services browsing
+    └── DedicatedIPMenuService.cs # Dedicated IP address management
 ```
 
 ## Dependencies
