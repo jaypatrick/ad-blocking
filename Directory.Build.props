@@ -1,8 +1,8 @@
 <Project>
 
   <PropertyGroup>
-    <!-- C# Language Version: Use 'latest' for .NET 10 which supports C# 13 features -->
-    <LangVersion>latest</LangVersion>
+    <!-- C# Language Version: Use 'preview' for C# 14 features in .NET 10 -->
+    <LangVersion>preview</LangVersion>
 
     <!-- Enable nullable reference types for better null safety -->
     <Nullable>enable</Nullable>
