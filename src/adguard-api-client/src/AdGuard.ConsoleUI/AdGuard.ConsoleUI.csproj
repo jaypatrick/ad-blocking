@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AdGuard.ApiClient\AdGuard.ApiClient.csproj" />
+    <ProjectReference Include="..\AdGuard.Repositories\AdGuard.Repositories.csproj" />
   </ItemGroup>
 
   <ItemGroup>
