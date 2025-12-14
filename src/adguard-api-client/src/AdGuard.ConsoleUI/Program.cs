@@ -1,3 +1,7 @@
+using AdGuard.Repositories.Abstractions;
+using AdGuard.Repositories.Extensions;
+using RepoImpl = AdGuard.Repositories.Implementations;
+
 namespace AdGuard.ConsoleUI;
 
 /// <summary>
@@ -85,7 +89,7 @@ public class Program
         services.AddSingleton<ApiClientFactory>();
         services.AddSingleton<IApiClientFactory>(sp => sp.GetRequiredService<ApiClientFactory>());
 
-        // Register Repositories
+        // Register ConsoleUI-specific Repositories (existing implementation)
         services.AddSingleton<IDeviceRepository, DeviceRepository>();
         services.AddSingleton<IDnsServerRepository, DnsServerRepository>();
         services.AddSingleton<IAccountRepository, AccountRepository>();
@@ -95,6 +99,20 @@ public class Program
         services.AddSingleton<IWebServiceRepository, WebServiceRepository>();
         services.AddSingleton<IDedicatedIPRepository, DedicatedIPRepository>();
         services.AddSingleton<IUserRulesRepository, UserRulesRepository>();
+
+        // Register shared repository abstractions (Unit of Work pattern)
+        // This provides IUnitOfWork for code that wants to use the shared repository pattern
+        services.AddSingleton<Repositories.Abstractions.IApiClientFactory, RepoImpl.ApiClientFactory>();
+        services.AddSingleton<Repositories.Contracts.IDeviceRepository, RepoImpl.DeviceRepository>();
+        services.AddSingleton<Repositories.Contracts.IDnsServerRepository, RepoImpl.DnsServerRepository>();
+        services.AddSingleton<Repositories.Contracts.IAccountRepository, RepoImpl.AccountRepository>();
+        services.AddSingleton<Repositories.Contracts.IStatisticsRepository, RepoImpl.StatisticsRepository>();
+        services.AddSingleton<Repositories.Contracts.IQueryLogRepository, RepoImpl.QueryLogRepository>();
+        services.AddSingleton<Repositories.Contracts.IFilterListRepository, RepoImpl.FilterListRepository>();
+        services.AddSingleton<Repositories.Contracts.IWebServiceRepository, RepoImpl.WebServiceRepository>();
+        services.AddSingleton<Repositories.Contracts.IDedicatedIpRepository, RepoImpl.DedicatedIpRepository>();
+        services.AddSingleton<Repositories.Contracts.IUserRulesRepository, RepoImpl.UserRulesRepository>();
+        services.AddSingleton<IUnitOfWork, RepoImpl.UnitOfWork>();
 
         // Register Display Strategies
         services.AddSingleton<IDisplayStrategy<Device>, DeviceDisplayStrategy>();
