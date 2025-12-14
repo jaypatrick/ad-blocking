@@ -47,7 +47,6 @@ Environment and secrets used by code
 High-level architecture and structure
 - Filter rules (rules/)
   - rules/adguard_user_filter.txt is the tracked output list consumed by AdGuard DNS.
-  - rules/Api/cli.ts provides a minimal CLI that compiles using @adguard/hostlist-compiler and writes to rules/. CI type-checks this file using the filter-compiler TypeScript toolchain.
 - Filter compiler (src/filter-compiler/)
   - TypeScript wrapper around @adguard/hostlist-compiler. invoke-compiler.ts loads compiler-config.json, compiles sources, and writes adguard_user_filter.txt. Jest tests cover config parsing and output writing.
   - eslint.config.mjs configures JS/TS linting via the flat config.
@@ -67,5 +66,5 @@ Notes pulled from existing docs
 
 Alignment with CI
 - .github/workflows/dotnet.yml builds and tests the API client solution with .NET 8.
-- .github/workflows/typescript.yml uses Node 20, performs tsc --noEmit and eslint for the rules-compiler-typescript, and type-checks rules/Api/cli.ts via the same toolchain.
+- .github/workflows/typescript.yml uses Node 20, performs tsc --noEmit and eslint for the rules-compiler-typescript.
 - .github/workflows/gatsby.yml builds src/website and deploys to GitHub Pages.

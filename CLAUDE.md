@@ -251,8 +251,6 @@ cargo test config::                       # Tests in module
 
 ### Filter Rules (`rules/`)
 - `rules/adguard_user_filter.txt` - Main tracked filter list consumed by AdGuard DNS
-- `rules/Api/cli.ts` - Minimal CLI for compilation
-- `rules/Config/compiler-config.json` - Compiler configuration
 
 ### Rules Compiler - TypeScript (`src/rules-compiler-typescript/`)
 - TypeScript wrapper around @adguard/hostlist-compiler
@@ -388,7 +386,7 @@ GitHub Actions workflows validate:
 ## Key File Locations
 
 - **Main filter list**: `rules/adguard_user_filter.txt`
-- **Compiler configs**: `rules/Config/`, `src/rules-compiler-*/`
+- **Compiler configs**: `src/rules-compiler-*/`
 - **OpenAPI spec**: `api/openapi.yaml`
 - **Docker config**: `Dockerfile.warp`
 - **Documentation**: `docs/`
