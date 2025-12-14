@@ -11,6 +11,9 @@ Example:
     >>> print(f"Compiled {result.rule_count} rules")
 """
 
+# Define __version__ early to avoid circular imports (cli.py imports __version__)
+__version__ = "1.0.0"
+
 from rules_compiler.config import (
     ConfigurationFormat,
     CompilerConfiguration,
@@ -29,7 +32,6 @@ from rules_compiler.compiler import (
 )
 from rules_compiler.cli import main
 
-__version__ = "1.0.0"
 __all__ = [
     # Config
     "ConfigurationFormat",
