@@ -17,10 +17,10 @@ A cross-platform PowerShell API for compiling AdGuard filter rules using `@adgua
 
 ```powershell
 # Import the module
-Import-Module ./scripts/powershell/Invoke-RulesCompiler.psm1
+Import-Module ./src/powershell/Invoke-RulesCompiler.psm1
 
 # Or import using the manifest
-Import-Module ./scripts/powershell/RulesCompiler.psd1
+Import-Module ./src/powershell/RulesCompiler.psd1
 ```
 
 #### Prerequisites
@@ -150,7 +150,7 @@ A PowerShell module for triggering AdGuard DNS webhooks to update device IP addr
 
 ```powershell
 # Import the module
-Import-Module ./scripts/powershell/Invoke-WebHook.psm1
+Import-Module ./src/powershell/Invoke-WebHook.psm1
 
 # Set the webhook URL (from AdGuard DNS dashboard)
 $webhookUrl = $env:ADGUARD_WEBHOOK_URL
@@ -176,13 +176,13 @@ Invoke-Webhook -WebhookUrl $webhookUrl -Continuous $true -WaitTime 500
 Install-Module -Name Pester -Force -SkipPublisherCheck
 
 # Run all tests
-Invoke-Pester -Path ./scripts/powershell/Tests/
+Invoke-Pester -Path ./src/powershell/Tests/
 
 # Run specific test file
-Invoke-Pester -Path ./scripts/powershell/Tests/RulesCompiler-Tests.ps1
+Invoke-Pester -Path ./src/powershell/Tests/RulesCompiler-Tests.ps1
 
 # Run with verbose output
-Invoke-Pester -Path ./scripts/powershell/Tests/ -Output Detailed
+Invoke-Pester -Path ./src/powershell/Tests/ -Output Detailed
 ```
 
 ### Running PSScriptAnalyzer
@@ -192,10 +192,10 @@ Invoke-Pester -Path ./scripts/powershell/Tests/ -Output Detailed
 Install-Module -Name PSScriptAnalyzer -Force
 
 # Analyze all scripts
-Invoke-ScriptAnalyzer -Path ./scripts/powershell -Recurse
+Invoke-ScriptAnalyzer -Path ./src/powershell -Recurse
 
 # Analyze specific file
-Invoke-ScriptAnalyzer -Path ./scripts/powershell/Invoke-RulesCompiler.psm1
+Invoke-ScriptAnalyzer -Path ./src/powershell/Invoke-RulesCompiler.psm1
 ```
 
 ---
@@ -203,7 +203,7 @@ Invoke-ScriptAnalyzer -Path ./scripts/powershell/Invoke-RulesCompiler.psm1
 ## Directory Structure
 
 ```
-scripts/powershell/
+src/powershell/
 ├── README.md                    # This file
 ├── Invoke-RulesCompiler.psm1    # Rules compiler module
 ├── RulesCompiler.psd1           # Rules compiler manifest
@@ -245,7 +245,7 @@ npm install -g @adguard/hostlist-compiler
 
 ```bash
 # Make sure scripts are executable
-chmod +x ./scripts/powershell/*.ps1
+chmod +x ./src/powershell/*.ps1
 ```
 
 ### Module not loading
@@ -255,7 +255,7 @@ chmod +x ./scripts/powershell/*.ps1
 $PSVersionTable.PSVersion
 
 # Force reimport
-Import-Module ./scripts/powershell/Invoke-RulesCompiler.psm1 -Force
+Import-Module ./src/powershell/Invoke-RulesCompiler.psm1 -Force
 ```
 
 ### Get diagnostic information

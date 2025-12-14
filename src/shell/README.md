@@ -30,44 +30,44 @@ Cross-platform shell scripts for compiling AdGuard filter rules using `@adguard/
 
 ```bash
 # Make executable (first time only)
-chmod +x scripts/shell/compile-rules.sh
+chmod +x src/shell/compile-rules.sh
 
 # Run with defaults
-./scripts/shell/compile-rules.sh
+./src/shell/compile-rules.sh
 
 # Use YAML configuration
-./scripts/shell/compile-rules.sh -c src/rules-compiler-typescript/compiler-config.yaml
+./src/shell/compile-rules.sh -c src/rules-compiler-typescript/compiler-config.yaml
 
 # Compile and copy to rules directory
-./scripts/shell/compile-rules.sh -r
+./src/shell/compile-rules.sh -r
 
 # Show version info
-./scripts/shell/compile-rules.sh -v
+./src/shell/compile-rules.sh -v
 
 # Show help
-./scripts/shell/compile-rules.sh -h
+./src/shell/compile-rules.sh -h
 ```
 
 ### PowerShell Core (All Platforms)
 
 ```powershell
 # Run with defaults
-./scripts/shell/compile-rules.ps1
+./src/shell/compile-rules.ps1
 
 # Use YAML configuration
-./scripts/shell/compile-rules.ps1 -ConfigPath src/rules-compiler-typescript/compiler-config.yaml
+./src/shell/compile-rules.ps1 -ConfigPath src/rules-compiler-typescript/compiler-config.yaml
 
 # Compile and copy to rules directory
-./scripts/shell/compile-rules.ps1 -CopyToRules
+./src/shell/compile-rules.ps1 -CopyToRules
 
 # Short form
-./scripts/shell/compile-rules.ps1 -c config.yaml -r
+./src/shell/compile-rules.ps1 -c config.yaml -r
 
 # Show version info
-./scripts/shell/compile-rules.ps1 -Version
+./src/shell/compile-rules.ps1 -Version
 
 # Show help
-./scripts/shell/compile-rules.ps1 -Help
+./src/shell/compile-rules.ps1 -Help
 ```
 
 ### Windows Batch
@@ -200,7 +200,7 @@ which npx
 
 ### Permission denied (Unix)
 ```bash
-chmod +x scripts/shell/compile-rules.sh
+chmod +x src/shell/compile-rules.sh
 ```
 
 ### YAML parsing fails
@@ -234,7 +234,7 @@ jobs:
         with:
           node-version: '20'
       - run: npm install -g @adguard/hostlist-compiler
-      - run: ./scripts/shell/compile-rules.sh -c src/filter-compiler/compiler-config.json -r
+      - run: ./src/shell/compile-rules.sh -c src/filter-compiler/compiler-config.json -r
 ```
 
 ## Related

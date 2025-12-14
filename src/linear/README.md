@@ -20,7 +20,7 @@ This tool parses the repository's Linear documentation (`docs/LINEAR_DOCUMENTATI
 ## Installation
 
 ```bash
-cd scripts/linear
+cd src/linear
 npm install
 npm run build
 ```
@@ -121,7 +121,7 @@ The full documentation content is imported as a comprehensive reference issue.
 ## Project Structure
 
 ```
-scripts/linear/
+src/linear/
 ├── src/
 │   ├── types.ts          # TypeScript interfaces
 │   ├── parser.ts         # Markdown parsing logic

@@ -84,14 +84,14 @@ cargo build --release
 #### PowerShell
 
 ```powershell
-Import-Module ./scripts/powershell/Invoke-RulesCompiler.psm1
+Import-Module ./src/powershell/Invoke-RulesCompiler.psm1
 Invoke-RulesCompiler
 ```
 
 #### Bash/Shell
 
 ```bash
-./scripts/shell/compile-rules.sh
+./src/shell/compile-rules.sh
 ```
 
 ## First Compilation
@@ -223,7 +223,7 @@ npm install -g @adguard/hostlist-compiler
 Make shell scripts executable:
 
 ```bash
-chmod +x scripts/shell/compile-rules.sh
+chmod +x src/shell/compile-rules.sh
 ```
 
 ### Python package not found

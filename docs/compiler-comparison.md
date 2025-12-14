@@ -177,7 +177,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 **Best for**: Windows administrators, automation scripts, cross-platform PowerShell users
 
 ```powershell
-Import-Module ./scripts/powershell/Invoke-RulesCompiler.psm1
+Import-Module ./src/powershell/Invoke-RulesCompiler.psm1
 Invoke-RulesCompiler -CopyToRules
 ```
 
@@ -222,7 +222,7 @@ Get-CompilerVersion | Format-List
 **Best for**: Simple automation, CI/CD, Unix environments
 
 ```bash
-./scripts/shell/compile-rules.sh -c config.yaml -r
+./src/shell/compile-rules.sh -c config.yaml -r
 ```
 
 **Pros**:

@@ -37,14 +37,16 @@ ad-blocking/
 ├── .github/              # GitHub configuration and workflows
 ├── docs/                 # Documentation (API docs, guides)
 ├── rules/                # Filter rules and compilation configs
-├── scripts/              # PowerShell automation scripts
 ├── src/
 │   ├── api-client/              # C# AdGuard DNS API client
 │   ├── rules-compiler-typescript/  # TypeScript rules compiler
 │   ├── rules-compiler-dotnet/      # .NET rules compiler
 │   ├── rules-compiler-python/      # Python rules compiler
 │   ├── rules-compiler-rust/        # Rust rules compiler
-│   └── website/                    # Gatsby website
+│   ├── website/                    # Gatsby website
+│   ├── powershell/       # PowerShell automation scripts
+│   ├── shell/            # Shell scripts (bash, ps1, cmd)
+│   └── linear/           # Linear integration
 └── README.md
 ```
 
@@ -211,7 +213,7 @@ npm run build
 
 **Requirements**: Node.js 18+, Gatsby CLI
 
-### PowerShell Scripts (`scripts/powershell/`)
+### PowerShell Scripts (`src/powershell/`)
 ```bash
 # Run PSScriptAnalyzer
 pwsh -Command "Invoke-ScriptAnalyzer -Path . -Recurse"
@@ -271,7 +273,7 @@ pwsh -Command "Invoke-ScriptAnalyzer -Path . -Recurse"
   - Use secure input or environment variables
 - **Testing**: Pester v5 tests in `Tests/` folders
 - **Linting**: PSScriptAnalyzer enforced in CI (`.github/workflows/powershell.yml`)
-- **RulesCompiler module** (`scripts/powershell/`):
+- **RulesCompiler module** (`src/powershell/`):
   - `Invoke-FilterComp (CRITICAL)
 **NEVER commit**:
 - API keys, tokens, passwords
@@ -280,7 +282,7 @@ pwsh -Command "Invoke-ScriptAnalyzer -Path . -Recurse"
 **Environment variables**:
 - `ADGUARD_WEBHOOK_URL` - Webhook endpoint for notifications
 - `ADGUARD_API_KEY` - AdGuard DNS API authentication
-- `LINEAR_API_KEY` - Linear integration (scripts/linear/)
+- `LINEAR_API_KEY` - Linear integration (src/linear/)
 - `SECRET_KEY` - Encryption keys
 
 **Configuration priority** (ConsoleUI):
@@ -346,7 +348,7 @@ Supports 3 formats (JSON/YAML/TOML), mirrors `@adguard/hostlist-compiler`:
 |----------|------|----------|---------|
 | .NET | `dotnet.yml` | Push to main, PRs | Build/test API client (`dotnet test AdGuard.ApiClient.sln`) |
 | TypeScript | `typescript.yml` | Push to main, PRs | Type-check, lint, test (`tsc --noEmit`, `eslint`, `jest`) |
-| PowerShell | `powershell.yml` | On-demand | PSScriptAnalyzer on `scripts/powershell/` |
+| PowerShell | `powershell.yml` | On-demand | PSScriptAnalyzer on `src/powershell/` |
 | Gatsby | `gatsby.yml` | Push to main | Build and deploy to GitHub Pages |
 | CodeQL | `codeql.yml` | Schedule, push to main | Security scanning (breaks on high/critical) |
 | DevSkim | `devskim.yml` | Schedule | Additional security analysis |
@@ -431,7 +433,7 @@ npm install <package-name>
 | `src/rules-compiler-typescript/compiler-config.json` | **Primary config** for rule compilation | To change filter sources or transformations |
 | `api/openapi.yaml` | AdGuard DNS API spec (v1.11) | Never (upstream dependency) |
 | `src/adguard-api-client/src/AdGuard.ApiClient/` | **Auto-generated** API client | Never (regenerate from spec instead) |
-| `scripts/powershell/Invoke-RulesCompiler.psm1` | PowerShell wrapper for compiler | Extending PowerShell automation |
+| `src/powershell/Invoke-RulesCompiler.psm1` | PowerShell wrapper for compiler | Extending PowerShell automation |
 | `docs/compiler-comparison.md` | **Decision guide** for choosing compiler | When adding features to compilers |
 
 ## Common Gotchas
@@ -450,7 +452,7 @@ npm install <package-name>
 
 5. **CI vs Local**: Always use `npm ci` in CI (lockfile-driven), `npm install` locally
 
-## Linear Integration (`scripts/linear/`)
+## Linear Integration (`src/linear/`)
 
 **Purpose**: Import repository documentation into Linear for project management tracking.
 
@@ -462,7 +464,7 @@ npm install <package-name>
 
 ### Setup
 ```bash
-cd scripts/linear
+cd src/linear
 npm install
 npm run build
 
@@ -494,7 +496,7 @@ npm run import -- --list-projects
 - **Component Docs**: Each major component becomes a documentation issue
 - **Architecture Info**: CI/CD pipelines, dependencies, tech stack
 
-See `scripts/linear/README.md` for full documentation.
+See `src/linear/README.md` for full documentation.
 
 ## Release Workflow
 
