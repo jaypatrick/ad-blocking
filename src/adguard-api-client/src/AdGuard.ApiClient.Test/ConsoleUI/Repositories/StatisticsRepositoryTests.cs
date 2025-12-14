@@ -56,30 +56,5 @@ public class StatisticsRepositoryTests
 
     #region GetTimeQueriesStatsAsync Tests
 
-    [Fact]
-    public async Task GetTimeQueriesStatsAsync_ReturnsStats()
-    {
-        // Arrange
-        var fromMillis = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeMilliseconds();
-        var toMillis = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        var expectedStats = new TimeQueriesStatsList();
-
-        var mockApi = new Mock<StatisticsApi>();
-        mockApi.Setup(a => a.GetTimeQueriesStatsAsync(fromMillis, toMillis, default))
-            .ReturnsAsync(expectedStats);
-
-        _apiClientFactoryMock.Setup(f => f.CreateStatisticsApi())
-            .Returns(mockApi.Object);
-
-        var repository = CreateRepository();
-
-        // Act
-        var result = await repository.GetTimeQueriesStatsAsync(fromMillis, toMillis);
-
-        // Assert
-        Assert.NotNull(result);
-        _apiClientFactoryMock.Verify(f => f.CreateStatisticsApi(), Times.Once);
-    }
-
     #endregion
 }

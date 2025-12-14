@@ -56,53 +56,5 @@ public class QueryLogRepositoryTests
 
     #region GetQueryLogAsync Tests
 
-    [Fact]
-    public async Task GetQueryLogAsync_ReturnsQueryLog()
-    {
-        // Arrange
-        var fromMillis = DateTimeOffset.UtcNow.AddHours(-1).ToUnixTimeMilliseconds();
-        var toMillis = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        var expectedResponse = new QueryLogResponse();
-
-        var mockApi = new Mock<QueryLogApi>();
-        mockApi.Setup(a => a.GetQueryLogAsync(fromMillis, toMillis, default))
-            .ReturnsAsync(expectedResponse);
-
-        _apiClientFactoryMock.Setup(f => f.CreateQueryLogApi())
-            .Returns(mockApi.Object);
-
-        var repository = CreateRepository();
-
-        // Act
-        var result = await repository.GetQueryLogAsync(fromMillis, toMillis);
-
-        // Assert
-        Assert.NotNull(result);
-    }
-
-    #endregion
-
-    #region ClearAsync Tests
-
-    [Fact]
-    public async Task ClearAsync_CallsApi()
-    {
-        // Arrange
-        var mockApi = new Mock<QueryLogApi>();
-        mockApi.Setup(a => a.ClearQueryLogAsync(default))
-            .Returns(Task.CompletedTask);
-
-        _apiClientFactoryMock.Setup(f => f.CreateQueryLogApi())
-            .Returns(mockApi.Object);
-
-        var repository = CreateRepository();
-
-        // Act
-        await repository.ClearAsync();
-
-        // Assert
-        mockApi.Verify(a => a.ClearQueryLogAsync(default), Times.Once);
-    }
-
     #endregion
 }

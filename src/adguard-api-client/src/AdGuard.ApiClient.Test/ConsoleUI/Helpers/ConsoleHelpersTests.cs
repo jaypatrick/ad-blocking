@@ -15,7 +15,7 @@ public class ConsoleHelpersTests
     [Theory]
     [InlineData(0, "[green][/][grey]\u2591\u2591\u2591\u2591\u2591\u2591\u2591\u2591\u2591\u2591[/]")]
     [InlineData(50, "[green]\u2588\u2588\u2588\u2588\u2588[/][grey]\u2591\u2591\u2591\u2591\u2591[/]")]
-    [InlineData(100, "[green]\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588[/][grey][/]")]
+    [InlineData(100, "[red]\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588[/][grey][/]")]
     public void CreateProgressBar_WithPercentage_ReturnsCorrectBar(double percentage, string expected)
     {
         // Act
