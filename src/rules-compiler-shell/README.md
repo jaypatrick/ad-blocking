@@ -74,16 +74,16 @@ chmod +x src/rules-compiler-shell/compile-rules.sh
 
 ```cmd
 REM Run with defaults
-scripts\shell\compile-rules.cmd
+src\rules-compiler-shell\compile-rules.cmd
 
 REM Use specific configuration
-scripts\shell\compile-rules.cmd -c config.json
+src\rules-compiler-shell\compile-rules.cmd -c config.json
 
 REM Compile and copy to rules
-scripts\shell\compile-rules.cmd -c config.json -r
+src\rules-compiler-shell\compile-rules.cmd -c config.json -r
 
 REM Show version
-scripts\shell\compile-rules.cmd -v
+src\rules-compiler-shell\compile-rules.cmd -v
 ```
 
 ## Command-Line Options
@@ -234,7 +234,7 @@ jobs:
         with:
           node-version: '20'
       - run: npm install -g @adguard/hostlist-compiler
-      - run: ./src/rules-compiler-shell/compile-rules.sh -c src/filter-compiler/compiler-config.json -r
+      - run: ./src/rules-compiler-shell/compile-rules.sh -c src/rules-compiler-typescript/compiler-config.json -r
 ```
 
 ## Related

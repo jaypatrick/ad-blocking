@@ -79,7 +79,7 @@ $ScriptVersion = '1.0.0'
 # Paths
 $ScriptDir = $PSScriptRoot
 $ProjectRoot = Split-Path -Parent (Split-Path -Parent $ScriptDir)
-$DefaultConfig = Join-Path $ProjectRoot 'src' 'filter-compiler' 'compiler-config.json'
+$DefaultConfig = Join-Path $ProjectRoot 'src' 'rules-compiler-typescript' 'compiler-config.json'
 $DefaultRulesDir = Join-Path $ProjectRoot 'rules'
 $DefaultOutputFile = 'adguard_user_filter.txt'
 
