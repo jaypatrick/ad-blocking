@@ -7,7 +7,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 API_DIR="${SCRIPT_DIR}/api"
 SRC_DIR="${SCRIPT_DIR}/src"
-OPENAPI_SPEC="${API_DIR}/openapi.yaml"
+OPENAPI_SPEC="${API_DIR}/openapi.json"
 OUTPUT_DIR="${SCRIPT_DIR}"
 GENERATOR_VERSION="7.16.0"
 
