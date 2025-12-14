@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace RulesCompiler.Models;
 
@@ -27,38 +27,38 @@ public class CompilerConfiguration
     /// Gets or sets the name of the filter list.
     /// </summary>
     /// <remarks>This is a mandatory field.</remarks>
-    [JsonProperty("name")]
+    [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the description of the filter list.
     /// </summary>
-    [JsonProperty("description")]
+    [JsonPropertyName("description")]
     public string? Description { get; set; }
 
     /// <summary>
     /// Gets or sets the homepage URL for the filter list.
     /// </summary>
-    [JsonProperty("homepage")]
+    [JsonPropertyName("homepage")]
     public string? Homepage { get; set; }
 
     /// <summary>
     /// Gets or sets the license identifier for the filter list.
     /// </summary>
-    [JsonProperty("license")]
+    [JsonPropertyName("license")]
     public string? License { get; set; }
 
     /// <summary>
     /// Gets or sets the version of the filter list.
     /// </summary>
-    [JsonProperty("version")]
+    [JsonPropertyName("version")]
     public string? Version { get; set; }
 
     /// <summary>
     /// Gets or sets the list of source filter lists to compile.
     /// </summary>
     /// <remarks>This is a mandatory field. At least one source must be specified.</remarks>
-    [JsonProperty("sources")]
+    [JsonPropertyName("sources")]
     public List<FilterSource> Sources { get; set; } = [];
 
     /// <summary>
@@ -72,7 +72,7 @@ public class CompilerConfiguration
     /// </para>
     /// <para>See <see cref="Transformation"/> for available transformation values.</para>
     /// </remarks>
-    [JsonProperty("transformations")]
+    [JsonPropertyName("transformations")]
     public List<string> Transformations { get; set; } = [];
 
     /// <summary>
@@ -82,7 +82,7 @@ public class CompilerConfiguration
     /// Rules not matching any inclusion pattern will be excluded.
     /// Supports plain strings, wildcards, and regex patterns.
     /// </remarks>
-    [JsonProperty("inclusions")]
+    [JsonPropertyName("inclusions")]
     public List<string> Inclusions { get; set; } = [];
 
     /// <summary>
@@ -92,7 +92,7 @@ public class CompilerConfiguration
     /// Each file should contain one pattern per line.
     /// Lines starting with "!" are treated as comments.
     /// </remarks>
-    [JsonProperty("inclusions_sources")]
+    [JsonPropertyName("inclusions_sources")]
     public List<string> InclusionsSources { get; set; } = [];
 
     /// <summary>
@@ -102,7 +102,7 @@ public class CompilerConfiguration
     /// Rules matching any exclusion pattern will be removed.
     /// Supports plain strings, wildcards, and regex patterns.
     /// </remarks>
-    [JsonProperty("exclusions")]
+    [JsonPropertyName("exclusions")]
     public List<string> Exclusions { get; set; } = [];
 
     /// <summary>
@@ -112,7 +112,7 @@ public class CompilerConfiguration
     /// Each file should contain one pattern per line.
     /// Lines starting with "!" are treated as comments.
     /// </remarks>
-    [JsonProperty("exclusions_sources")]
+    [JsonPropertyName("exclusions_sources")]
     public List<string> ExclusionsSources { get; set; } = [];
 }
 
@@ -128,14 +128,14 @@ public class FilterSource
     /// <summary>
     /// Gets or sets the name of the source (for identification purposes).
     /// </summary>
-    [JsonProperty("name")]
+    [JsonPropertyName("name")]
     public string? Name { get; set; }
 
     /// <summary>
     /// Gets or sets the source URL or file path.
     /// </summary>
     /// <remarks>This is a mandatory field.</remarks>
-    [JsonProperty("source")]
+    [JsonPropertyName("source")]
     public string Source { get; set; } = string.Empty;
 
     /// <summary>
@@ -148,7 +148,7 @@ public class FilterSource
     ///   <item><description>"hosts" - /etc/hosts format</description></item>
     /// </list>
     /// </remarks>
-    [JsonProperty("type")]
+    [JsonPropertyName("type")]
     public string Type { get; set; } = "adblock";
 
     /// <summary>
@@ -158,7 +158,7 @@ public class FilterSource
     /// These transformations are applied to this source before merging with other sources.
     /// See <see cref="Transformation"/> for available transformation values.
     /// </remarks>
-    [JsonProperty("transformations")]
+    [JsonPropertyName("transformations")]
     public List<string> Transformations { get; set; } = [];
 
     /// <summary>
@@ -167,13 +167,13 @@ public class FilterSource
     /// <remarks>
     /// Rules not matching any inclusion pattern will be excluded from this source.
     /// </remarks>
-    [JsonProperty("inclusions")]
+    [JsonPropertyName("inclusions")]
     public List<string> Inclusions { get; set; } = [];
 
     /// <summary>
     /// Gets or sets file paths or URLs containing source-specific inclusion patterns.
     /// </summary>
-    [JsonProperty("inclusions_sources")]
+    [JsonPropertyName("inclusions_sources")]
     public List<string> InclusionsSources { get; set; } = [];
 
     /// <summary>
@@ -182,12 +182,12 @@ public class FilterSource
     /// <remarks>
     /// Rules matching any exclusion pattern will be removed from this source.
     /// </remarks>
-    [JsonProperty("exclusions")]
+    [JsonPropertyName("exclusions")]
     public List<string> Exclusions { get; set; } = [];
 
     /// <summary>
     /// Gets or sets file paths or URLs containing source-specific exclusion patterns.
     /// </summary>
-    [JsonProperty("exclusions_sources")]
+    [JsonPropertyName("exclusions_sources")]
     public List<string> ExclusionsSources { get; set; } = [];
 }

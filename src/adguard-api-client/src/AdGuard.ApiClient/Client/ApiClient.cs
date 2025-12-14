@@ -20,12 +20,11 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters;
 using System.Text;
 using System.Threading;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using ErrorEventArgs = Newtonsoft.Json.Serialization.ErrorEventArgs;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Polly;
@@ -39,17 +38,11 @@ namespace AdGuard.ApiClient.Client
     {
         private readonly IReadableConfiguration _configuration;
         private static readonly string _contentType = "application/json";
-        private readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings
+        private readonly JsonSerializerOptions _serializerOptions = new JsonSerializerOptions
         {
-            // OpenAPI generated types generally hide default constructors.
-            ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
-            ContractResolver = new DefaultContractResolver
-            {
-                NamingStrategy = new CamelCaseNamingStrategy
-                {
-                    OverrideSpecifiedNames = false
-                }
-            }
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            PropertyNameCaseInsensitive = true
         };
 
         public CustomJsonCodec(IReadableConfiguration configuration)
@@ -57,9 +50,9 @@ namespace AdGuard.ApiClient.Client
             _configuration = configuration;
         }
 
-        public CustomJsonCodec(JsonSerializerSettings serializerSettings, IReadableConfiguration configuration)
+        public CustomJsonCodec(JsonSerializerOptions serializerOptions, IReadableConfiguration configuration)
         {
-            _serializerSettings = serializerSettings;
+            _serializerOptions = serializerOptions;
             _configuration = configuration;
         }
 
@@ -77,7 +70,7 @@ namespace AdGuard.ApiClient.Client
             }
             else
             {
-                return JsonConvert.SerializeObject(obj, _serializerSettings);
+                return JsonSerializer.Serialize(obj, _serializerOptions);
             }
         }
 
@@ -168,7 +161,7 @@ namespace AdGuard.ApiClient.Client
             // at this point, it must be a model (json)
             try
             {
-                return JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync().ConfigureAwait(false), type, _serializerSettings);
+                return JsonSerializer.Deserialize(await response.Content.ReadAsStringAsync().ConfigureAwait(false), type, _serializerOptions);
             }
             catch (Exception e)
             {
@@ -202,20 +195,14 @@ namespace AdGuard.ApiClient.Client
         private readonly bool _disposeClient;
 
         /// <summary>
-        /// Specifies the settings on a <see cref="JsonSerializer" /> object.
-        /// These settings can be adjusted to accommodate custom serialization rules.
+        /// Specifies the options on a <see cref="JsonSerializer" /> object.
+        /// These options can be adjusted to accommodate custom serialization rules.
         /// </summary>
-        public JsonSerializerSettings SerializerSettings { get; set; } = new JsonSerializerSettings
+        public JsonSerializerOptions SerializerOptions { get; set; } = new JsonSerializerOptions
         {
-            // OpenAPI generated types generally hide default constructors.
-            ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
-            ContractResolver = new DefaultContractResolver
-            {
-                NamingStrategy = new CamelCaseNamingStrategy
-                {
-                    OverrideSpecifiedNames = false
-                }
-            }
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            PropertyNameCaseInsensitive = true
         };
 
         /// <summary>
@@ -395,7 +382,7 @@ namespace AdGuard.ApiClient.Client
                     }
                     else
                     {
-                        var serializer = new CustomJsonCodec(SerializerSettings, configuration);
+                        var serializer = new CustomJsonCodec(SerializerOptions, configuration);
                         request.Content = new StringContent(serializer.Serialize(options.Data), new UTF8Encoding(),
                             "application/json");
                     }
@@ -462,7 +449,7 @@ namespace AdGuard.ApiClient.Client
         {
             CancellationTokenSource timeoutTokenSource = null;
             CancellationTokenSource finalTokenSource = null;
-            var deserializer = new CustomJsonCodec(SerializerSettings, configuration);
+            var deserializer = new CustomJsonCodec(SerializerOptions, configuration);
             var finalToken = cancellationToken;
 
             try

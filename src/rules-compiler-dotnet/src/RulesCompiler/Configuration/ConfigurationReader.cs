@@ -1,6 +1,6 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using RulesCompiler.Abstractions;
 using RulesCompiler.Models;
 using Tomlyn;
@@ -32,7 +32,7 @@ public class ConfigurationReader : IConfigurationReader
     private readonly ILogger<ConfigurationReader> _logger;
     private readonly IDeserializer _yamlDeserializer;
     private readonly ISerializer _yamlSerializer;
-    private readonly JsonSerializerSettings _jsonSettings;
+    private readonly JsonSerializerOptions _jsonOptions;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ConfigurationReader"/> class.
@@ -53,16 +53,12 @@ public class ConfigurationReader : IConfigurationReader
             .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitNull | DefaultValuesHandling.OmitEmptyCollections)
             .Build();
 
-        // JSON settings with snake_case for compatibility with hostlist-compiler
-        _jsonSettings = new JsonSerializerSettings
+        // JSON options with snake_case for compatibility with hostlist-compiler
+        _jsonOptions = new JsonSerializerOptions
         {
-            Formatting = Formatting.Indented,
-            NullValueHandling = NullValueHandling.Ignore,
-            DefaultValueHandling = DefaultValueHandling.Ignore,
-            ContractResolver = new DefaultContractResolver
-            {
-                NamingStrategy = new SnakeCaseNamingStrategy()
-            }
+            WriteIndented = true,
+            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
     }
 
@@ -115,7 +111,7 @@ public class ConfigurationReader : IConfigurationReader
     public string ToJson(CompilerConfiguration configuration)
     {
         // Use snake_case for output to match hostlist-compiler expectations
-        return JsonConvert.SerializeObject(configuration, _jsonSettings);
+        return JsonSerializer.Serialize(configuration, _jsonOptions);
     }
 
     /// <summary>
@@ -140,7 +136,7 @@ public class ConfigurationReader : IConfigurationReader
 
     private CompilerConfiguration ParseJson(string content)
     {
-        var config = JsonConvert.DeserializeObject<CompilerConfiguration>(content, _jsonSettings);
+        var config = JsonSerializer.Deserialize<CompilerConfiguration>(content, _jsonOptions);
         return config ?? throw new InvalidOperationException("Failed to parse JSON configuration");
     }
 
