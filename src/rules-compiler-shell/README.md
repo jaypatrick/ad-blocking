@@ -30,44 +30,44 @@ Cross-platform shell scripts for compiling AdGuard filter rules using `@adguard/
 
 ```bash
 # Make executable (first time only)
-chmod +x src/shell/compile-rules.sh
+chmod +x src/rules-compiler-shell/compile-rules.sh
 
 # Run with defaults
-./src/shell/compile-rules.sh
+./src/rules-compiler-shell/compile-rules.sh
 
 # Use YAML configuration
-./src/shell/compile-rules.sh -c src/rules-compiler-typescript/compiler-config.yaml
+./src/rules-compiler-shell/compile-rules.sh -c src/rules-compiler-typescript/compiler-config.yaml
 
 # Compile and copy to rules directory
-./src/shell/compile-rules.sh -r
+./src/rules-compiler-shell/compile-rules.sh -r
 
 # Show version info
-./src/shell/compile-rules.sh -v
+./src/rules-compiler-shell/compile-rules.sh -v
 
 # Show help
-./src/shell/compile-rules.sh -h
+./src/rules-compiler-shell/compile-rules.sh -h
 ```
 
 ### PowerShell Core (All Platforms)
 
 ```powershell
 # Run with defaults
-./src/shell/compile-rules.ps1
+./src/rules-compiler-shell/compile-rules.ps1
 
 # Use YAML configuration
-./src/shell/compile-rules.ps1 -ConfigPath src/rules-compiler-typescript/compiler-config.yaml
+./src/rules-compiler-shell/compile-rules.ps1 -ConfigPath src/rules-compiler-typescript/compiler-config.yaml
 
 # Compile and copy to rules directory
-./src/shell/compile-rules.ps1 -CopyToRules
+./src/rules-compiler-shell/compile-rules.ps1 -CopyToRules
 
 # Short form
-./src/shell/compile-rules.ps1 -c config.yaml -r
+./src/rules-compiler-shell/compile-rules.ps1 -c config.yaml -r
 
 # Show version info
-./src/shell/compile-rules.ps1 -Version
+./src/rules-compiler-shell/compile-rules.ps1 -Version
 
 # Show help
-./src/shell/compile-rules.ps1 -Help
+./src/rules-compiler-shell/compile-rules.ps1 -Help
 ```
 
 ### Windows Batch
@@ -200,7 +200,7 @@ which npx
 
 ### Permission denied (Unix)
 ```bash
-chmod +x src/shell/compile-rules.sh
+chmod +x src/rules-compiler-shell/compile-rules.sh
 ```
 
 ### YAML parsing fails
@@ -234,7 +234,7 @@ jobs:
         with:
           node-version: '20'
       - run: npm install -g @adguard/hostlist-compiler
-      - run: ./src/shell/compile-rules.sh -c src/filter-compiler/compiler-config.json -r
+      - run: ./src/rules-compiler-shell/compile-rules.sh -c src/filter-compiler/compiler-config.json -r
 ```
 
 ## Related
