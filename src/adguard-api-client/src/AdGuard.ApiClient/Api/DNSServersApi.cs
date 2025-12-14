@@ -67,6 +67,28 @@ namespace AdGuard.ApiClient.Api
         /// <exception cref="AdGuard.ApiClient.Client.ApiException">Thrown when fails to make API call</exception>
         /// <returns>ApiResponse of List&lt;DNSServer&gt;</returns>
         ApiResponse<List<DNSServer>> ListDNSServersWithHttpInfo();
+        /// <summary>
+        /// Updates DNS server settings
+        /// </summary>
+        /// <remarks>
+        /// Updates the settings for a specific DNS server including user rules.
+        /// </remarks>
+        /// <exception cref="AdGuard.ApiClient.Client.ApiException">Thrown when fails to make API call</exception>
+        /// <param name="dnsServerId">The DNS server ID.</param>
+        /// <param name="dnsServerSettingsUpdate">The settings update payload.</param>
+        void UpdateDNSServerSettings(string dnsServerId, DNSServerSettingsUpdate dnsServerSettingsUpdate);
+
+        /// <summary>
+        /// Updates DNS server settings
+        /// </summary>
+        /// <remarks>
+        /// Updates the settings for a specific DNS server including user rules.
+        /// </remarks>
+        /// <exception cref="AdGuard.ApiClient.Client.ApiException">Thrown when fails to make API call</exception>
+        /// <param name="dnsServerId">The DNS server ID.</param>
+        /// <param name="dnsServerSettingsUpdate">The settings update payload.</param>
+        /// <returns>ApiResponse of Object(void)</returns>
+        ApiResponse<Object> UpdateDNSServerSettingsWithHttpInfo(string dnsServerId, DNSServerSettingsUpdate dnsServerSettingsUpdate);
         #endregion Synchronous Operations
     }
 
@@ -120,6 +142,31 @@ namespace AdGuard.ApiClient.Api
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
         /// <returns>Task of ApiResponse (List&lt;DNSServer&gt;)</returns>
         System.Threading.Tasks.Task<ApiResponse<List<DNSServer>>> ListDNSServersWithHttpInfoAsync(System.Threading.CancellationToken cancellationToken = default);
+        /// <summary>
+        /// Updates DNS server settings
+        /// </summary>
+        /// <remarks>
+        /// Updates the settings for a specific DNS server including user rules.
+        /// </remarks>
+        /// <exception cref="AdGuard.ApiClient.Client.ApiException">Thrown when fails to make API call</exception>
+        /// <param name="dnsServerId">The DNS server ID.</param>
+        /// <param name="dnsServerSettingsUpdate">The settings update payload.</param>
+        /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
+        /// <returns>Task of void</returns>
+        System.Threading.Tasks.Task UpdateDNSServerSettingsAsync(string dnsServerId, DNSServerSettingsUpdate dnsServerSettingsUpdate, System.Threading.CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Updates DNS server settings
+        /// </summary>
+        /// <remarks>
+        /// Updates the settings for a specific DNS server including user rules.
+        /// </remarks>
+        /// <exception cref="AdGuard.ApiClient.Client.ApiException">Thrown when fails to make API call</exception>
+        /// <param name="dnsServerId">The DNS server ID.</param>
+        /// <param name="dnsServerSettingsUpdate">The settings update payload.</param>
+        /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
+        /// <returns>Task of ApiResponse</returns>
+        System.Threading.Tasks.Task<ApiResponse<Object>> UpdateDNSServerSettingsWithHttpInfoAsync(string dnsServerId, DNSServerSettingsUpdate dnsServerSettingsUpdate, System.Threading.CancellationToken cancellationToken = default);
         #endregion Asynchronous Operations
     }
 
@@ -591,6 +638,153 @@ namespace AdGuard.ApiClient.Api
             if (this.ExceptionFactory != null)
             {
                 Exception _exception = this.ExceptionFactory("ListDNSServers", localVarResponse);
+                if (_exception != null) throw _exception;
+            }
+
+            return localVarResponse;
+        }
+
+        /// <summary>
+        /// Updates DNS server settings Updates the settings for a specific DNS server including user rules.
+        /// </summary>
+        /// <exception cref="AdGuard.ApiClient.Client.ApiException">Thrown when fails to make API call</exception>
+        /// <param name="dnsServerId">The DNS server ID.</param>
+        /// <param name="dnsServerSettingsUpdate">The settings update payload.</param>
+        public void UpdateDNSServerSettings(string dnsServerId, DNSServerSettingsUpdate dnsServerSettingsUpdate)
+        {
+            UpdateDNSServerSettingsWithHttpInfo(dnsServerId, dnsServerSettingsUpdate);
+        }
+
+        /// <summary>
+        /// Updates DNS server settings Updates the settings for a specific DNS server including user rules.
+        /// </summary>
+        /// <exception cref="AdGuard.ApiClient.Client.ApiException">Thrown when fails to make API call</exception>
+        /// <param name="dnsServerId">The DNS server ID.</param>
+        /// <param name="dnsServerSettingsUpdate">The settings update payload.</param>
+        /// <returns>ApiResponse of Object(void)</returns>
+        public AdGuard.ApiClient.Client.ApiResponse<Object> UpdateDNSServerSettingsWithHttpInfo(string dnsServerId, DNSServerSettingsUpdate dnsServerSettingsUpdate)
+        {
+            // verify the required parameter 'dnsServerId' is set
+            if (dnsServerId == null)
+                throw new AdGuard.ApiClient.Client.ApiException(400, "Missing required parameter 'dnsServerId' when calling DNSServersApi->UpdateDNSServerSettings");
+
+            // verify the required parameter 'dnsServerSettingsUpdate' is set
+            if (dnsServerSettingsUpdate == null)
+                throw new AdGuard.ApiClient.Client.ApiException(400, "Missing required parameter 'dnsServerSettingsUpdate' when calling DNSServersApi->UpdateDNSServerSettings");
+
+            AdGuard.ApiClient.Client.RequestOptions localVarRequestOptions = new AdGuard.ApiClient.Client.RequestOptions();
+
+            string[] _contentTypes = new string[] {
+                "application/json"
+            };
+
+            // to determine the Accept header
+            string[] _accepts = new string[] {
+                "application/json"
+            };
+
+            var localVarContentType = AdGuard.ApiClient.Client.ClientUtils.SelectHeaderContentType(_contentTypes);
+            if (localVarContentType != null) localVarRequestOptions.HeaderParameters.Add("Content-Type", localVarContentType);
+
+            var localVarAccept = AdGuard.ApiClient.Client.ClientUtils.SelectHeaderAccept(_accepts);
+            if (localVarAccept != null) localVarRequestOptions.HeaderParameters.Add("Accept", localVarAccept);
+
+            localVarRequestOptions.PathParameters.Add("dns_server_id", AdGuard.ApiClient.Client.ClientUtils.ParameterToString(dnsServerId));
+            localVarRequestOptions.Data = dnsServerSettingsUpdate;
+
+            // authentication (ApiKey) required
+            if (!string.IsNullOrEmpty(this.Configuration.GetApiKeyWithPrefix("Authorization")))
+            {
+                localVarRequestOptions.HeaderParameters.Add("Authorization", this.Configuration.GetApiKeyWithPrefix("Authorization"));
+            }
+            // authentication (AuthToken) required
+            // bearer authentication required
+            if (!string.IsNullOrEmpty(this.Configuration.AccessToken) && !localVarRequestOptions.HeaderParameters.ContainsKey("Authorization"))
+            {
+                localVarRequestOptions.HeaderParameters.Add("Authorization", "Bearer " + this.Configuration.AccessToken);
+            }
+
+            // make the HTTP request
+            var localVarResponse = this.Client.Put<Object>("/oapi/v1/dns_servers/{dns_server_id}/settings", localVarRequestOptions, this.Configuration);
+
+            if (this.ExceptionFactory != null)
+            {
+                Exception _exception = this.ExceptionFactory("UpdateDNSServerSettings", localVarResponse);
+                if (_exception != null) throw _exception;
+            }
+
+            return localVarResponse;
+        }
+
+        /// <summary>
+        /// Updates DNS server settings Updates the settings for a specific DNS server including user rules.
+        /// </summary>
+        /// <exception cref="AdGuard.ApiClient.Client.ApiException">Thrown when fails to make API call</exception>
+        /// <param name="dnsServerId">The DNS server ID.</param>
+        /// <param name="dnsServerSettingsUpdate">The settings update payload.</param>
+        /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
+        /// <returns>Task of void</returns>
+        public async System.Threading.Tasks.Task UpdateDNSServerSettingsAsync(string dnsServerId, DNSServerSettingsUpdate dnsServerSettingsUpdate, System.Threading.CancellationToken cancellationToken = default)
+        {
+            await UpdateDNSServerSettingsWithHttpInfoAsync(dnsServerId, dnsServerSettingsUpdate, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Updates DNS server settings Updates the settings for a specific DNS server including user rules.
+        /// </summary>
+        /// <exception cref="AdGuard.ApiClient.Client.ApiException">Thrown when fails to make API call</exception>
+        /// <param name="dnsServerId">The DNS server ID.</param>
+        /// <param name="dnsServerSettingsUpdate">The settings update payload.</param>
+        /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
+        /// <returns>Task of ApiResponse</returns>
+        public async System.Threading.Tasks.Task<AdGuard.ApiClient.Client.ApiResponse<Object>> UpdateDNSServerSettingsWithHttpInfoAsync(string dnsServerId, DNSServerSettingsUpdate dnsServerSettingsUpdate, System.Threading.CancellationToken cancellationToken = default)
+        {
+            // verify the required parameter 'dnsServerId' is set
+            if (dnsServerId == null)
+                throw new AdGuard.ApiClient.Client.ApiException(400, "Missing required parameter 'dnsServerId' when calling DNSServersApi->UpdateDNSServerSettings");
+
+            // verify the required parameter 'dnsServerSettingsUpdate' is set
+            if (dnsServerSettingsUpdate == null)
+                throw new AdGuard.ApiClient.Client.ApiException(400, "Missing required parameter 'dnsServerSettingsUpdate' when calling DNSServersApi->UpdateDNSServerSettings");
+
+            AdGuard.ApiClient.Client.RequestOptions localVarRequestOptions = new AdGuard.ApiClient.Client.RequestOptions();
+
+            string[] _contentTypes = new string[] {
+                "application/json"
+            };
+
+            // to determine the Accept header
+            string[] _accepts = new string[] {
+                "application/json"
+            };
+
+            var localVarContentType = AdGuard.ApiClient.Client.ClientUtils.SelectHeaderContentType(_contentTypes);
+            if (localVarContentType != null) localVarRequestOptions.HeaderParameters.Add("Content-Type", localVarContentType);
+
+            var localVarAccept = AdGuard.ApiClient.Client.ClientUtils.SelectHeaderAccept(_accepts);
+            if (localVarAccept != null) localVarRequestOptions.HeaderParameters.Add("Accept", localVarAccept);
+
+            localVarRequestOptions.PathParameters.Add("dns_server_id", AdGuard.ApiClient.Client.ClientUtils.ParameterToString(dnsServerId));
+            localVarRequestOptions.Data = dnsServerSettingsUpdate;
+
+            // authentication (ApiKey) required
+            if (!string.IsNullOrEmpty(this.Configuration.GetApiKeyWithPrefix("Authorization")))
+            {
+                localVarRequestOptions.HeaderParameters.Add("Authorization", this.Configuration.GetApiKeyWithPrefix("Authorization"));
+            }
+            // authentication (AuthToken) required
+            // bearer authentication required
+            if (!string.IsNullOrEmpty(this.Configuration.AccessToken) && !localVarRequestOptions.HeaderParameters.ContainsKey("Authorization"))
+            {
+                localVarRequestOptions.HeaderParameters.Add("Authorization", "Bearer " + this.Configuration.AccessToken);
+            }
+
+            // make the HTTP request
+            var localVarResponse = await this.AsynchronousClient.PutAsync<Object>("/oapi/v1/dns_servers/{dns_server_id}/settings", localVarRequestOptions, this.Configuration, cancellationToken).ConfigureAwait(false);
+
+            if (this.ExceptionFactory != null)
+            {
+                Exception _exception = this.ExceptionFactory("UpdateDNSServerSettings", localVarResponse);
                 if (_exception != null) throw _exception;
             }
 

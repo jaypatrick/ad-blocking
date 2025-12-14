@@ -15,6 +15,7 @@ public class ConsoleApplication
     private readonly IMenuService _queryLogMenu;
     private readonly IMenuService _webServiceMenu;
     private readonly IMenuService _dedicatedIPMenu;
+    private readonly IMenuService _userRulesMenu;
     private readonly Dictionary<string, IMenuService> _menuServices;
 
     public ConsoleApplication(
@@ -26,7 +27,8 @@ public class ConsoleApplication
         FilterListMenuService filterListMenu,
         QueryLogMenuService queryLogMenu,
         WebServiceMenuService webServiceMenu,
-        DedicatedIPMenuService dedicatedIPMenu)
+        DedicatedIPMenuService dedicatedIPMenu,
+        UserRulesMenuService userRulesMenu)
     {
         _apiClientFactory = apiClientFactory ?? throw new ArgumentNullException(nameof(apiClientFactory));
         _deviceMenu = deviceMenu ?? throw new ArgumentNullException(nameof(deviceMenu));
@@ -37,12 +39,14 @@ public class ConsoleApplication
         _queryLogMenu = queryLogMenu ?? throw new ArgumentNullException(nameof(queryLogMenu));
         _webServiceMenu = webServiceMenu ?? throw new ArgumentNullException(nameof(webServiceMenu));
         _dedicatedIPMenu = dedicatedIPMenu ?? throw new ArgumentNullException(nameof(dedicatedIPMenu));
+        _userRulesMenu = userRulesMenu ?? throw new ArgumentNullException(nameof(userRulesMenu));
 
         // Register menu services for the Open/Closed principle
         _menuServices = new Dictionary<string, IMenuService>
         {
             { "Devices", _deviceMenu },
             { "DNS Servers", _dnsServerMenu },
+            { "User Rules", _userRulesMenu },
             { "Statistics", _statisticsMenu },
             { "Query Log", _queryLogMenu },
             { "Filter Lists", _filterListMenu },
