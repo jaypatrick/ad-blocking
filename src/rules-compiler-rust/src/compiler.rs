@@ -8,11 +8,12 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::Instant;
 
-use crate::config::{read_configuration, to_json, CompilerConfiguration, ConfigurationFormat};
+use crate::config::{CompilerConfiguration, ConfigurationFormat, read_configuration, to_json};
 use crate::error::{CompilerError, Result};
 
 /// Platform-specific information.
 #[derive(Debug, Clone, Default)]
+#[must_use]
 pub struct PlatformInfo {
     /// Operating system name
     pub os_name: String,
@@ -30,6 +31,7 @@ pub struct PlatformInfo {
 
 /// Version information for all components.
 #[derive(Debug, Clone, Default)]
+#[must_use]
 pub struct VersionInfo {
     /// Module version
     pub module_version: String,
@@ -47,6 +49,7 @@ pub struct VersionInfo {
 
 /// Result of a compilation operation.
 #[derive(Debug, Clone)]
+#[must_use]
 pub struct CompilerResult {
     /// Whether compilation was successful
     pub success: bool,
@@ -145,14 +148,17 @@ pub fn get_version_info() -> VersionInfo {
 
     // Check Node.js
     if let Some(node_path) = find_command("node") {
-        info.node_version = get_command_version(node_path.to_str().unwrap_or("node"), &["--version"]);
+        info.node_version =
+            get_command_version(node_path.to_str().unwrap_or("node"), &["--version"]);
     }
 
     // Check hostlist-compiler
     if let Some(compiler_path) = find_command("hostlist-compiler") {
         info.hostlist_compiler_path = Some(compiler_path.display().to_string());
-        info.hostlist_compiler_version =
-            get_command_version(compiler_path.to_str().unwrap_or("hostlist-compiler"), &["--version"]);
+        info.hostlist_compiler_version = get_command_version(
+            compiler_path.to_str().unwrap_or("hostlist-compiler"),
+            &["--version"],
+        );
     } else if find_command("npx").is_some() {
         info.hostlist_compiler_path = Some("npx @adguard/hostlist-compiler".to_string());
     }
@@ -161,6 +167,7 @@ pub fn get_version_info() -> VersionInfo {
 }
 
 /// Count non-empty, non-comment lines in a file.
+#[must_use]
 pub fn count_rules<P: AsRef<Path>>(file_path: P) -> usize {
     let file = match File::open(file_path.as_ref()) {
         Ok(f) => f,
@@ -169,7 +176,7 @@ pub fn count_rules<P: AsRef<Path>>(file_path: P) -> usize {
 
     BufReader::new(file)
         .lines()
-        .filter_map(|l| l.ok())
+        .map_while(|line| line.ok())
         .filter(|line| {
             let trimmed = line.trim();
             !trimmed.is_empty() && !trimmed.starts_with('!') && !trimmed.starts_with('#')
@@ -225,6 +232,17 @@ fn get_compiler_command(config_path: &str, output_path: &str) -> Result<(String,
 }
 
 /// Main compiler for AdGuard filter rules.
+///
+/// # Examples
+///
+/// ```no_run
+/// use rules_compiler::RulesCompiler;
+///
+/// let compiler = RulesCompiler::new();
+/// let result = compiler.compile("config.json", None, false, None, None)?;
+/// assert!(result.success);
+/// # Ok::<(), rules_compiler::CompilerError>(())
+/// ```
 #[derive(Debug, Default)]
 pub struct RulesCompiler {
     /// Enable debug output
@@ -304,7 +322,10 @@ pub fn compile_rules<P: AsRef<Path>>(
         Some(p) => p.to_path_buf(),
         None => {
             let timestamp = Utc::now().format("%Y%m%d-%H%M%S");
-            let output_dir = config_path.parent().unwrap_or(Path::new(".")).join("output");
+            let output_dir = config_path
+                .parent()
+                .unwrap_or(Path::new("."))
+                .join("output");
             fs::create_dir_all(&output_dir)?;
             output_dir.join(format!("compiled-{}.txt", timestamp))
         }
@@ -313,10 +334,8 @@ pub fn compile_rules<P: AsRef<Path>>(
 
     // Convert to JSON if needed
     let compile_config_path = if config.source_format != Some(ConfigurationFormat::Json) {
-        let temp_path = std::env::temp_dir().join(format!(
-            "compiler-config-{}.json",
-            uuid::Uuid::new_v4()
-        ));
+        let temp_path =
+            std::env::temp_dir().join(format!("compiler-config-{}.json", uuid::Uuid::new_v4()));
         let json = to_json(&config)?;
         fs::write(&temp_path, json)?;
         temp_config_path = Some(temp_path.clone());
@@ -367,7 +386,8 @@ pub fn compile_rules<P: AsRef<Path>>(
 
     // Verify output was created
     if !actual_output.exists() {
-        result.error_message = Some("Compilation completed but output file was not created".to_string());
+        result.error_message =
+            Some("Compilation completed but output file was not created".to_string());
         result.end_time = Utc::now();
         result.elapsed_ms = start.elapsed().as_millis() as u64;
         return Ok(result);
@@ -380,18 +400,16 @@ pub fn compile_rules<P: AsRef<Path>>(
 
     // Copy to rules directory if requested
     if copy_to_rules {
-        let rules_dir = rules_directory
-            .map(|p| p.to_path_buf())
-            .unwrap_or_else(|| {
-                config_path
-                    .parent()
-                    .unwrap_or(Path::new("."))
-                    .parent()
-                    .unwrap_or(Path::new("."))
-                    .parent()
-                    .unwrap_or(Path::new("."))
-                    .join("rules")
-            });
+        let rules_dir = rules_directory.map(|p| p.to_path_buf()).unwrap_or_else(|| {
+            config_path
+                .parent()
+                .unwrap_or(Path::new("."))
+                .parent()
+                .unwrap_or(Path::new("."))
+                .parent()
+                .unwrap_or(Path::new("."))
+                .join("rules")
+        });
 
         fs::create_dir_all(&rules_dir)?;
         let dest_path = rules_dir.join("adguard_user_filter.txt");
@@ -409,8 +427,8 @@ pub fn compile_rules<P: AsRef<Path>>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempfile::TempDir;
     use std::io::Write;
+    use tempfile::TempDir;
 
     #[test]
     fn test_count_rules() {

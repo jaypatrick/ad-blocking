@@ -1,7 +1,7 @@
 [package]
 name = "rules-compiler"
 version = "1.0.0"
-edition = "2021"
+edition = "2024"
 authors = ["jaypatrick"]
 description = "Rust API for compiling AdGuard filter rules using hostlist-compiler"
 license = "GPL-3.0"

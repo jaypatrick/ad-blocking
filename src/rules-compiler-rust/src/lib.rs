@@ -16,28 +16,18 @@
 //! # Ok::<(), rules_compiler::CompilerError>(())
 //! ```
 
-pub mod config;
 pub mod compiler;
+pub mod config;
 pub mod error;
 
 pub use config::{
-    CompilerConfiguration,
-    ConfigurationFormat,
-    FilterSource,
-    read_configuration,
-    detect_format,
+    CompilerConfiguration, ConfigurationFormat, FilterSource, detect_format, read_configuration,
     to_json,
 };
 
 pub use compiler::{
-    CompilerResult,
-    VersionInfo,
-    PlatformInfo,
-    RulesCompiler,
-    compile_rules,
-    get_version_info,
-    count_rules,
-    compute_hash,
+    CompilerResult, PlatformInfo, RulesCompiler, VersionInfo, compile_rules, compute_hash,
+    count_rules, get_version_info,
 };
 
 pub use error::CompilerError;

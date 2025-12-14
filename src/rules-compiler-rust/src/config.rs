@@ -8,6 +8,7 @@ use crate::error::{CompilerError, Result};
 
 /// Supported configuration file formats.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[must_use]
 pub enum ConfigurationFormat {
     /// JSON format (.json)
     Json,
@@ -29,6 +30,7 @@ impl std::fmt::Display for ConfigurationFormat {
 
 /// Represents a source filter list to compile.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[must_use]
 pub struct FilterSource {
     /// Name of the source
     #[serde(default)]
@@ -58,6 +60,7 @@ fn default_source_type() -> String {
 
 /// Configuration for the hostlist-compiler.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[must_use]
 pub struct CompilerConfiguration {
     /// Name of the filter list
     #[serde(default)]
@@ -146,12 +149,11 @@ pub fn read_configuration<P: AsRef<Path>>(
     let path = config_path.as_ref();
 
     if !path.exists() {
-        return Err(CompilerError::ConfigNotFound(
-            path.display().to_string(),
-        ));
+        return Err(CompilerError::ConfigNotFound(path.display().to_string()));
     }
 
-    let detected_format = format.unwrap_or_else(|| detect_format(path).unwrap_or(ConfigurationFormat::Json));
+    let detected_format =
+        format.unwrap_or_else(|| detect_format(path).unwrap_or(ConfigurationFormat::Json));
     let content = fs::read_to_string(path)?;
 
     let mut config: CompilerConfiguration = match detected_format {
@@ -182,30 +184,48 @@ pub fn to_json(config: &CompilerConfiguration) -> Result<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempfile::TempDir;
     use std::fs::File;
     use std::io::Write;
+    use tempfile::TempDir;
 
     #[test]
     fn test_detect_format_json() {
-        assert!(matches!(detect_format("config.json"), Ok(ConfigurationFormat::Json)));
-        assert!(matches!(detect_format("path/to/config.JSON"), Ok(ConfigurationFormat::Json)));
+        assert!(matches!(
+            detect_format("config.json"),
+            Ok(ConfigurationFormat::Json)
+        ));
+        assert!(matches!(
+            detect_format("path/to/config.JSON"),
+            Ok(ConfigurationFormat::Json)
+        ));
     }
 
     #[test]
     fn test_detect_format_yaml() {
-        assert!(matches!(detect_format("config.yaml"), Ok(ConfigurationFormat::Yaml)));
-        assert!(matches!(detect_format("config.yml"), Ok(ConfigurationFormat::Yaml)));
+        assert!(matches!(
+            detect_format("config.yaml"),
+            Ok(ConfigurationFormat::Yaml)
+        ));
+        assert!(matches!(
+            detect_format("config.yml"),
+            Ok(ConfigurationFormat::Yaml)
+        ));
     }
 
     #[test]
     fn test_detect_format_toml() {
-        assert!(matches!(detect_format("config.toml"), Ok(ConfigurationFormat::Toml)));
+        assert!(matches!(
+            detect_format("config.toml"),
+            Ok(ConfigurationFormat::Toml)
+        ));
     }
 
     #[test]
     fn test_detect_format_unknown() {
-        assert!(matches!(detect_format("config.txt"), Err(CompilerError::UnknownExtension(_))));
+        assert!(matches!(
+            detect_format("config.txt"),
+            Err(CompilerError::UnknownExtension(_))
+        ));
     }
 
     #[test]
