@@ -79,7 +79,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## CLI (adguard-api-cli)
 
-Command-line interface for the AdGuard DNS API.
+**Interactive menu-driven interface** for the AdGuard DNS API, similar to the C# ConsoleUI application.
+
+### Features
+
+The CLI provides an interactive, user-friendly interface with the following capabilities:
+
+- **Account Information**: View account limits and usage statistics
+- **Device Management**: List and view device details
+- **DNS Server Management**: List and view DNS server details with settings
+- **User Rules Management**: View, upload, add, enable/disable, and clear user rules (placeholder)
+- **Query Log**: View recent queries with time ranges and clear query log
+- **Statistics**: View query statistics for 24h, 7d, or 30d periods
+- **Filter Lists**: Browse available filter lists with descriptions
+- **Web Services**: List available web services for blocking
+- **Dedicated IP Addresses**: List allocated IPs and allocate new ones
+- **Settings**: Configure API key, test connection, view current configuration
 
 ### Installation
 
@@ -92,74 +107,143 @@ cargo install --path adguard-api-cli
 Or run directly:
 
 ```bash
-cargo run --bin adguard-api-cli -- --help
+cargo run --bin adguard-api-cli
+```
+
+For release build:
+
+```bash
+cargo build --release
+./target/release/adguard-api-cli
 ```
 
 ### Configuration
 
-The CLI can be configured via command-line arguments or environment variables:
+The CLI supports multiple configuration methods (in order of precedence):
 
-- `--api-url` or `ADGUARD_API_URL`: API base URL (default: https://api.adguard-dns.io)
-- `--api-token` or `ADGUARD_API_TOKEN`: Authentication token (required for most operations)
+1. **Configuration File**: `~/.config/adguard-api-cli/config.toml`
+   ```toml
+   api_url = "https://api.adguard-dns.io"
+   api_token = "your-api-token-here"
+   ```
 
-### Commands
+2. **Environment Variables**:
+   - `ADGUARD_API_URL`: API base URL (default: https://api.adguard-dns.io)
+   - `ADGUARD_API_TOKEN`: Authentication token
 
-#### Account Operations
+3. **Interactive Prompt**: If no API token is configured, the CLI will prompt you on first run
 
-```bash
-# Get account limits
-adguard-api-cli --api-token YOUR_TOKEN account limits
-```
+### Interactive Mode (Default)
 
-#### Device Operations
-
-```bash
-# List all devices
-adguard-api-cli --api-token YOUR_TOKEN devices list
-
-# Get specific device
-adguard-api-cli --api-token YOUR_TOKEN devices get DEVICE_ID
-
-# Remove a device
-adguard-api-cli --api-token YOUR_TOKEN devices remove DEVICE_ID
-```
-
-#### DNS Server Operations
+Simply run the CLI without arguments to enter interactive mode:
 
 ```bash
-# List DNS servers
-adguard-api-cli --api-token YOUR_TOKEN dns-servers list
+adguard-api-cli
 ```
 
-#### Filter Lists
+You'll be presented with a menu-driven interface:
 
-```bash
-# List available filter lists
-adguard-api-cli --api-token YOUR_TOKEN filter-lists list
 ```
+╔══════════════════════════════════════════╗
+║       AdGuard DNS - Console CLI         ║
+╚══════════════════════════════════════════╝
+
+? Main Menu 
+  ❯ Account Info
+    Devices
+    DNS Servers
+    User Rules
+    Query Log
+    Statistics
+    Filter Lists
+    Web Services
+    Dedicated IP Addresses
+    Settings
+    Exit
+```
+
+### Menu Options
+
+#### Account Info
+Displays comprehensive account limits including:
+- Access rules limits
+- Device limits and usage
+- DNS server limits
+- Request quotas
+- User rules limits
+- Dedicated IPv4 limits
+
+#### Devices
+- **List Devices**: View all devices with ID, name, and type
+- **View Device Details**: See detailed information for a specific device
+
+#### DNS Servers
+- **List DNS Servers**: View all DNS servers with device counts
+- **View Server Details**: See detailed settings including user rules and filter lists
+
+#### User Rules
+Placeholder for future implementation:
+- View current rules
+- Upload rules from file
+- Add/remove rules
+- Enable/disable rules
+
+#### Query Log
+- **View Recent Queries (Last Hour)**: See queries from the last hour
+- **View Today's Queries**: See all queries from today
+- **View Custom Time Range**: Specify hours ago
+- **Clear Query Log**: Permanently delete all query logs
 
 #### Statistics
+View query statistics for different time periods:
+- Last 24 hours
+- Last 7 days
+- Last 30 days
 
-```bash
-# Get time-based statistics (last 24 hours)
-adguard-api-cli --api-token YOUR_TOKEN statistics time
-```
+Displays total queries, blocked queries, and block rate percentage.
+
+#### Filter Lists
+Browse all available AdGuard filter lists with:
+- Filter ID
+- Name and description
+- Categories
 
 #### Web Services
+List all available web services that can be blocked, useful for configuring DNS server parental controls.
 
-```bash
-# List web services
-adguard-api-cli --api-token YOUR_TOKEN web-services list
-```
+#### Dedicated IP Addresses
+- **List All IP Addresses**: View allocated dedicated IPv4 addresses
+- **Allocate New IP Address**: Allocate a new dedicated IPv4 to your account
+
+#### Settings
+- **Change API Key**: Update your API authentication token
+- **Test Connection**: Verify API connectivity
+- **View Current Configuration**: Display current API URL and token status
 
 ### Using Environment Variables
 
-Set the token once:
+Set the token once to avoid repeated prompts:
 
 ```bash
 export ADGUARD_API_TOKEN="your-token-here"
-adguard-api-cli devices list
+adguard-api-cli
 ```
+
+Or set both URL and token:
+
+```bash
+export ADGUARD_API_URL="https://api.adguard-dns.io"
+export ADGUARD_API_TOKEN="your-token-here"
+adguard-api-cli
+```
+
+### Configuration File Location
+
+The configuration file is stored at:
+- **Linux/macOS**: `~/.config/adguard-api-cli/config.toml`
+- **Windows**: `%APPDATA%\adguard-api-cli\config.toml`
+
+The file is automatically created when you configure an API key through the Settings menu.
 
 ## Architecture
 
@@ -230,20 +314,49 @@ Release binaries will be in `target/release/`.
 
 ## Comparison with Other Implementations
 
-This Rust implementation follows the same patterns as the other language implementations in the repository:
+This Rust implementation now provides feature parity with the C# ConsoleUI application:
 
 - **C# (src/adguard-api-client)**: Full-featured with ConsoleUI, repositories, and data access layers
+  - Interactive menu-driven interface using Spectre.Console
+  - Configuration management, connection testing
+  - Full API coverage with rich display formatting
+  
+- **Rust (this)**: API client library + **Interactive CLI**, follows Rust ecosystem conventions
+  - **Interactive menu-driven interface** using dialoguer and console crates
+  - **Configuration file support** (TOML format)
+  - **Full API coverage** matching C# functionality
+  - Account info, devices, DNS servers, query log, statistics, filter lists, web services, dedicated IPs
+  - Settings management (API key configuration, connection testing)
+
 - **TypeScript (src/rules-compiler-typescript)**: Rules compilation focus
 - **Python (src/rules-compiler-python)**: Rules compilation focus
-- **Rust (this)**: API client library + CLI, follows Rust ecosystem conventions
 
-### Advantages
+### Key Features Matching C# ConsoleUI
+
+Both implementations now provide:
+
+✅ **Interactive Menu System**: Navigate through options using arrow keys
+✅ **Account Limits Display**: View comprehensive account usage and limits
+✅ **Device Management**: List and view device details
+✅ **DNS Server Management**: List and view server configurations
+✅ **Query Log**: View queries with time range filters and clear functionality
+✅ **Statistics**: View query statistics for multiple time periods
+✅ **Filter Lists**: Browse available filter lists
+✅ **Web Services**: List blockable web services  
+✅ **Dedicated IPs**: List and allocate dedicated IPv4 addresses
+✅ **Settings Menu**: Configure API key, test connection, view configuration
+✅ **Configuration Persistence**: Save settings to file for reuse
+✅ **Connection Testing**: Verify API connectivity
+
+### Advantages of Rust Implementation
 
 - **Memory safety**: Rust's ownership system prevents common bugs
 - **Performance**: Compiled to native code, efficient async runtime
+- **Single binary**: No runtime dependencies, easy distribution
 - **Type safety**: Strong typing with excellent error messages
 - **Modern patterns**: Uses Rust 2024 edition with latest features
 - **Zero-cost abstractions**: High-level code compiles to efficient machine code
+- **Cross-platform**: Works on Linux, macOS, and Windows without modification
 
 ## Contributing
 
