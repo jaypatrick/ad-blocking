@@ -16,9 +16,6 @@
     <RepositoryUrl>https://github.com/jaypatrick/ad-blocking.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>Initial release - AdGuard hostlist-compiler .NET wrapper</PackageReleaseNotes>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,0 +1,24 @@
+<Project>
+
+  <PropertyGroup>
+    <!-- C# Language Version: Use 'preview' for C# 14 features in .NET 10 -->
+    <LangVersion>preview</LangVersion>
+
+    <!-- Enable nullable reference types for better null safety -->
+    <Nullable>enable</Nullable>
+
+    <!-- Enable implicit usings for cleaner code -->
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Enable latest .NET analyzers -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+
+    <!-- Treat nullable warnings as errors -->
+    <WarningsAsErrors>nullable</WarningsAsErrors>
+
+    <!-- Enable deterministic builds for reproducibility -->
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+</Project>

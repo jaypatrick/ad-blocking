@@ -5,8 +5,6 @@
     <RootNamespace>AdGuard.ApiClient.Test</RootNamespace>
     <TargetFramework>net10.0</TargetFramework>
     <IsPackable>false</IsPackable>
-    <Nullable>annotations</Nullable>
-    <LangVersion>14</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
