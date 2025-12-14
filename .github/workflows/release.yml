@@ -182,12 +182,28 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Set release version
+      - name: Validate and set release version
         id: version
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+            VERSION="${{ github.event.inputs.version }}"
+            # Validate version format (must start with 'v' and follow semver)
+            if ! echo "$VERSION" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?$'; then
+              echo "Error: Version must follow format 'vX.Y.Z' or 'vX.Y.Z-suffix' (e.g., v1.0.0, v1.0.0-beta)"
+              exit 1
+            fi
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            
+            # Create tag if it doesn't exist
+            if ! git rev-parse "$VERSION" >/dev/null 2>&1; then
+              git config user.name "github-actions[bot]"
+              git config user.email "github-actions[bot]@users.noreply.github.com"
+              git tag -a "$VERSION" -m "Release $VERSION"
+              git push origin "$VERSION"
+            fi
           else
             echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
           fi
