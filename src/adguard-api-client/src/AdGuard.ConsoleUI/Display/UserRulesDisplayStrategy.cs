@@ -7,15 +7,17 @@ namespace AdGuard.ConsoleUI.Display;
 public class UserRulesDisplayStrategy : IDisplayStrategy<UserRulesSettings>
 {
     /// <inheritdoc />
-    public void Display(IReadOnlyList<UserRulesSettings> items)
+    public void Display(IEnumerable<UserRulesSettings> items)
     {
-        if (items.Count == 0)
+        var itemList = items.ToList();
+        
+        if (itemList.Count == 0)
         {
             ConsoleHelpers.ShowNoItemsMessage("user rules");
             return;
         }
 
-        foreach (var settings in items)
+        foreach (var settings in itemList)
         {
             DisplayDetails(settings);
         }

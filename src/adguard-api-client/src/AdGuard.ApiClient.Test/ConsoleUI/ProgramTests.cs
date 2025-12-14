@@ -58,6 +58,7 @@ public class ProgramTests
         services.AddSingleton<IQueryLogRepository, QueryLogRepository>();
         services.AddSingleton<IWebServiceRepository, WebServiceRepository>();
         services.AddSingleton<IDedicatedIPRepository, DedicatedIPRepository>();
+        services.AddSingleton<IUserRulesRepository, UserRulesRepository>();
 
         // Register Display Strategies
         services.AddSingleton<IDisplayStrategy<Device>, DeviceDisplayStrategy>();
@@ -68,6 +69,7 @@ public class ProgramTests
         services.AddSingleton<AccountLimitsDisplayStrategy>();
         services.AddSingleton<StatisticsDisplayStrategy>();
         services.AddSingleton<QueryLogDisplayStrategy>();
+        services.AddSingleton<UserRulesDisplayStrategy>();
 
         // Register Menu Services
         services.AddSingleton<DeviceMenuService>();
@@ -78,6 +80,7 @@ public class ProgramTests
         services.AddSingleton<QueryLogMenuService>();
         services.AddSingleton<WebServiceMenuService>();
         services.AddSingleton<DedicatedIPMenuService>();
+        services.AddSingleton<UserRulesMenuService>();
 
         // Register Main Application
         services.AddSingleton<ConsoleApplication>();
