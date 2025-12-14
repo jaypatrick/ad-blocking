@@ -234,7 +234,7 @@ jobs:
         with:
           node-version: '20'
       - run: npm install -g @adguard/hostlist-compiler
-      - run: ./src/rules-compiler-shell/compile-rules.sh -c src/filter-compiler/compiler-config.json -r
+      - run: ./src/rules-compiler-shell/compile-rules.sh -c src/rules-compiler-typescript/compiler-config.json -r
 ```
 
 ## Related
