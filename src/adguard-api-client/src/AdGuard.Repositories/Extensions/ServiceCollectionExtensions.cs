@@ -1,6 +1,8 @@
 using AdGuard.Repositories.Abstractions;
 using AdGuard.Repositories.Contracts;
 using AdGuard.Repositories.Implementations;
+using AdGuard.Repositories.Options;
+using Microsoft.Extensions.Configuration;
 
 namespace AdGuard.Repositories.Extensions;
 
@@ -37,6 +39,47 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
+    /// Adds AdGuard repository services to the service collection with configuration options.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The configuration to bind options from.</param>
+    /// <returns>The service collection for chaining.</returns>
+    /// <remarks>
+    /// This method binds <see cref="AdGuardApiOptions"/> and <see cref="CacheOptions"/>
+    /// from the configuration and registers them with the Options pattern.
+    /// </remarks>
+    public static IServiceCollection AddAdGuardRepositories(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        // Configure options from configuration
+        services.Configure<AdGuardApiOptions>(
+            configuration.GetSection(AdGuardApiOptions.SectionName));
+        services.Configure<CacheOptions>(
+            configuration.GetSection(CacheOptions.SectionName));
+
+        // Register repositories
+        return services.AddAdGuardRepositories();
+    }
+
+    /// <summary>
+    /// Adds AdGuard repository services with custom options configuration.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configureOptions">Action to configure API options.</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddAdGuardRepositories(
+        this IServiceCollection services,
+        Action<AdGuardApiOptions> configureOptions)
+    {
+        // Configure options via action
+        services.Configure(configureOptions);
+
+        // Register repositories
+        return services.AddAdGuardRepositories();
+    }
+
+    /// <summary>
     /// Adds AdGuard repository services to the service collection with scoped lifetime.
     /// Use this when you need per-request isolation (e.g., in web applications).
     /// </summary>
@@ -62,5 +105,25 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;
+    }
+
+    /// <summary>
+    /// Adds AdGuard repository services with scoped lifetime and configuration options.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The configuration to bind options from.</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddAdGuardRepositoriesScoped(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        // Configure options from configuration
+        services.Configure<AdGuardApiOptions>(
+            configuration.GetSection(AdGuardApiOptions.SectionName));
+        services.Configure<CacheOptions>(
+            configuration.GetSection(CacheOptions.SectionName));
+
+        // Register repositories with scoped lifetime
+        return services.AddAdGuardRepositoriesScoped();
     }
 }

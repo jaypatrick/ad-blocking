@@ -1,7 +1,3 @@
-using AdGuard.Repositories.Abstractions;
-using AdGuard.Repositories.Extensions;
-using RepoImpl = AdGuard.Repositories.Implementations;
-
 namespace AdGuard.ConsoleUI;
 
 /// <summary>
@@ -71,6 +67,10 @@ public class Program
     /// </summary>
     /// <param name="configuration">The application configuration.</param>
     /// <returns>The configured service collection.</returns>
+    /// <remarks>
+    /// Uses <see cref="ServiceCollectionExtensions.AddAdGuardConsoleUI"/> to register all services
+    /// including repositories, display strategies, menu services, and the main application.
+    /// </remarks>
     private static IServiceCollection ConfigureServices(IConfiguration configuration)
     {
         var services = new ServiceCollection();
@@ -85,59 +85,8 @@ public class Program
             builder.SetMinimumLevel(LogLevel.Information);
         });
 
-        // Register API Client Factory (with interface for DI)
-        services.AddSingleton<ApiClientFactory>();
-        services.AddSingleton<IApiClientFactory>(sp => sp.GetRequiredService<ApiClientFactory>());
-
-        // Register ConsoleUI-specific Repositories (existing implementation)
-        services.AddSingleton<IDeviceRepository, DeviceRepository>();
-        services.AddSingleton<IDnsServerRepository, DnsServerRepository>();
-        services.AddSingleton<IAccountRepository, AccountRepository>();
-        services.AddSingleton<IStatisticsRepository, StatisticsRepository>();
-        services.AddSingleton<IFilterListRepository, FilterListRepository>();
-        services.AddSingleton<IQueryLogRepository, QueryLogRepository>();
-        services.AddSingleton<IWebServiceRepository, WebServiceRepository>();
-        services.AddSingleton<IDedicatedIPRepository, DedicatedIPRepository>();
-        services.AddSingleton<IUserRulesRepository, UserRulesRepository>();
-
-        // Register shared repository abstractions (Unit of Work pattern)
-        // This provides IUnitOfWork for code that wants to use the shared repository pattern
-        services.AddSingleton<Repositories.Abstractions.IApiClientFactory, RepoImpl.ApiClientFactory>();
-        services.AddSingleton<Repositories.Contracts.IDeviceRepository, RepoImpl.DeviceRepository>();
-        services.AddSingleton<Repositories.Contracts.IDnsServerRepository, RepoImpl.DnsServerRepository>();
-        services.AddSingleton<Repositories.Contracts.IAccountRepository, RepoImpl.AccountRepository>();
-        services.AddSingleton<Repositories.Contracts.IStatisticsRepository, RepoImpl.StatisticsRepository>();
-        services.AddSingleton<Repositories.Contracts.IQueryLogRepository, RepoImpl.QueryLogRepository>();
-        services.AddSingleton<Repositories.Contracts.IFilterListRepository, RepoImpl.FilterListRepository>();
-        services.AddSingleton<Repositories.Contracts.IWebServiceRepository, RepoImpl.WebServiceRepository>();
-        services.AddSingleton<Repositories.Contracts.IDedicatedIpRepository, RepoImpl.DedicatedIpRepository>();
-        services.AddSingleton<Repositories.Contracts.IUserRulesRepository, RepoImpl.UserRulesRepository>();
-        services.AddSingleton<IUnitOfWork, RepoImpl.UnitOfWork>();
-
-        // Register Display Strategies
-        services.AddSingleton<IDisplayStrategy<Device>, DeviceDisplayStrategy>();
-        services.AddSingleton<IDisplayStrategy<DNSServer>, DnsServerDisplayStrategy>();
-        services.AddSingleton<IDisplayStrategy<FilterList>, FilterListDisplayStrategy>();
-        services.AddSingleton<IDisplayStrategy<WebService>, WebServiceDisplayStrategy>();
-        services.AddSingleton<IDisplayStrategy<DedicatedIPv4Address>, DedicatedIPDisplayStrategy>();
-        services.AddSingleton<AccountLimitsDisplayStrategy>();
-        services.AddSingleton<StatisticsDisplayStrategy>();
-        services.AddSingleton<QueryLogDisplayStrategy>();
-        services.AddSingleton<UserRulesDisplayStrategy>();
-
-        // Register Menu Services (as IMenuService for collection injection)
-        services.AddSingleton<IMenuService, DeviceMenuService>();
-        services.AddSingleton<IMenuService, DnsServerMenuService>();
-        services.AddSingleton<IMenuService, StatisticsMenuService>();
-        services.AddSingleton<IMenuService, AccountMenuService>();
-        services.AddSingleton<IMenuService, FilterListMenuService>();
-        services.AddSingleton<IMenuService, QueryLogMenuService>();
-        services.AddSingleton<IMenuService, WebServiceMenuService>();
-        services.AddSingleton<IMenuService, DedicatedIPMenuService>();
-        services.AddSingleton<IMenuService, UserRulesMenuService>();
-
-        // Register Main Application
-        services.AddSingleton<ConsoleApplication>();
+        // Register all Console UI services (repositories, display strategies, menu services)
+        services.AddAdGuardConsoleUI();
 
         return services;
     }

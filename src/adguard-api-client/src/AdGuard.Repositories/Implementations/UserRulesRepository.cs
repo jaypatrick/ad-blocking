@@ -24,7 +24,7 @@ public partial class UserRulesRepository : IUserRulesRepository
     }
 
     /// <inheritdoc />
-    public async Task<UserRulesSettings> GetByDnsServerIdAsync(string dnsServerId, CancellationToken cancellationToken = default)
+    public async Task<UserRulesSettings> GetAsync(string dnsServerId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(dnsServerId);
 
@@ -52,8 +52,8 @@ public partial class UserRulesRepository : IUserRulesRepository
         }
         catch (ApiException ex)
         {
-            LogApiError("GetByDnsServerId", ex.ErrorCode, ex.Message, ex);
-            throw new RepositoryException("UserRulesRepository", "GetByDnsServerId", $"Failed to fetch user rules: {ex.Message}", ex);
+            LogApiError("GetAsync", ex.ErrorCode, ex.Message, ex);
+            throw new RepositoryException("UserRulesRepository", "GetAsync", $"Failed to fetch user rules: {ex.Message}", ex);
         }
     }
 
@@ -87,6 +87,88 @@ public partial class UserRulesRepository : IUserRulesRepository
     }
 
     /// <inheritdoc />
+    public async Task<int> UpdateFromFileAsync(string dnsServerId, string filePath, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(dnsServerId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+
+        LogUpdatingRulesFromFile(dnsServerId, filePath);
+
+        if (!File.Exists(filePath))
+        {
+            throw new FileNotFoundException($"Rules file not found: {filePath}", filePath);
+        }
+
+        try
+        {
+            var lines = await File.ReadAllLinesAsync(filePath, cancellationToken).ConfigureAwait(false);
+            var rules = lines
+                .Where(line => !string.IsNullOrWhiteSpace(line))
+                .ToList();
+
+            var existingRules = await GetAsync(dnsServerId, cancellationToken).ConfigureAwait(false);
+            var userRulesUpdate = new UserRulesSettingsUpdate(enabled: existingRules.Enabled, rules: rules);
+            await UpdateAsync(dnsServerId, userRulesUpdate, cancellationToken).ConfigureAwait(false);
+
+            LogRulesUpdatedFromFile(dnsServerId, rules.Count);
+            return rules.Count;
+        }
+        catch (EntityNotFoundException)
+        {
+            throw;
+        }
+        catch (IOException ex)
+        {
+            LogFileReadError(filePath, ex.Message, ex);
+            throw new RepositoryException("UserRulesRepository", "UpdateFromFile", $"Failed to read rules file: {ex.Message}", ex);
+        }
+        catch (ApiException ex)
+        {
+            LogApiError("UpdateFromFile", ex.ErrorCode, ex.Message, ex);
+            throw new RepositoryException("UserRulesRepository", "UpdateFromFile", $"Failed to update rules from file: {ex.Message}", ex);
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task SetEnabledAsync(string dnsServerId, bool enabled, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(dnsServerId);
+
+        LogSettingRulesEnabled(dnsServerId, enabled);
+
+        try
+        {
+            var existingRules = await GetAsync(dnsServerId, cancellationToken).ConfigureAwait(false);
+            var userRulesUpdate = new UserRulesSettingsUpdate(enabled: enabled, rules: existingRules.Rules?.ToList());
+            await UpdateAsync(dnsServerId, userRulesUpdate, cancellationToken).ConfigureAwait(false);
+
+            LogRulesEnabledSet(dnsServerId, enabled);
+        }
+        catch (EntityNotFoundException)
+        {
+            throw;
+        }
+        catch (ApiException ex)
+        {
+            LogApiError("SetEnabled", ex.ErrorCode, ex.Message, ex);
+            throw new RepositoryException("UserRulesRepository", "SetEnabled", $"Failed to set rules enabled state: {ex.Message}", ex);
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task AddRuleAsync(string dnsServerId, string rule, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(dnsServerId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(rule);
+
+        LogAddingRule(dnsServerId, rule);
+
+        await AppendRulesAsync(dnsServerId, [rule], cancellationToken).ConfigureAwait(false);
+
+        LogRuleAdded(dnsServerId);
+    }
+
+    /// <inheritdoc />
     public async Task<DNSServer> AppendRulesAsync(string dnsServerId, IEnumerable<string> rulesToAdd, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(dnsServerId);
@@ -96,7 +178,7 @@ public partial class UserRulesRepository : IUserRulesRepository
         LogAppendingUserRules(dnsServerId, rulesList.Count);
 
         // Get existing rules
-        var existingRules = await GetByDnsServerIdAsync(dnsServerId, cancellationToken).ConfigureAwait(false);
+        var existingRules = await GetAsync(dnsServerId, cancellationToken).ConfigureAwait(false);
         var currentRules = existingRules.Rules?.ToList() ?? [];
 
         // Append new rules
@@ -105,5 +187,31 @@ public partial class UserRulesRepository : IUserRulesRepository
         // Update with combined rules
         var userRulesUpdate = new UserRulesSettingsUpdate(enabled: existingRules.Enabled, rules: currentRules);
         return await UpdateAsync(dnsServerId, userRulesUpdate, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task ClearRulesAsync(string dnsServerId, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(dnsServerId);
+
+        LogClearingRules(dnsServerId);
+
+        try
+        {
+            var existingRules = await GetAsync(dnsServerId, cancellationToken).ConfigureAwait(false);
+            var userRulesUpdate = new UserRulesSettingsUpdate(enabled: existingRules.Enabled, rules: []);
+            await UpdateAsync(dnsServerId, userRulesUpdate, cancellationToken).ConfigureAwait(false);
+
+            LogRulesCleared(dnsServerId);
+        }
+        catch (EntityNotFoundException)
+        {
+            throw;
+        }
+        catch (ApiException ex)
+        {
+            LogApiError("ClearRules", ex.ErrorCode, ex.Message, ex);
+            throw new RepositoryException("UserRulesRepository", "ClearRules", $"Failed to clear rules: {ex.Message}", ex);
+        }
     }
 }
