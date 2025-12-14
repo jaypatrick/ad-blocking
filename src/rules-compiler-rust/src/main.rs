@@ -32,7 +32,7 @@ struct Cli {
     format: Option<String>,
 
     /// Show version information
-    #[arg(short = 'V', long = "version-info")]
+    #[arg(long = "version-info")]
     version_info: bool,
 
     /// Enable debug output
