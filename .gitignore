@@ -488,7 +488,6 @@ src/rules-compiler-typescript/frontend-rust/target/
 
 # Rust build output
 **/target/
-Cargo.lock
 
 # Python build output
 **/*.egg-info/
