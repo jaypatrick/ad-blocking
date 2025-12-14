@@ -242,32 +242,48 @@ public partial class UserRulesRepository : IUserRulesRepository
 
         try
         {
-            // The settings object is a JObject, parse it
-            if (settings is JObject jSettings)
+            // The settings object is a JsonElement, parse it
+            if (settings is JsonElement jSettings)
             {
-                var userRulesToken = jSettings["user_rules_settings"];
-                if (userRulesToken != null)
+                if (jSettings.TryGetProperty("user_rules_settings", out var userRulesToken))
                 {
-                    var enabled = userRulesToken["enabled"]?.Value<bool>() ?? false;
-                    var rules = userRulesToken["rules"]?.ToObject<List<string>>() ?? new List<string>();
-                    var rulesCount = userRulesToken["rules_count"]?.Value<int>() ?? rules.Count;
+                    var enabled = userRulesToken.TryGetProperty("enabled", out var enabledProp) && enabledProp.GetBoolean();
+                    var rules = new List<string>();
+                    if (userRulesToken.TryGetProperty("rules", out var rulesProp) && rulesProp.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var rule in rulesProp.EnumerateArray())
+                        {
+                            if (rule.ValueKind == JsonValueKind.String)
+                            {
+                                rules.Add(rule.GetString() ?? string.Empty);
+                            }
+                        }
+                    }
+                    var rulesCount = userRulesToken.TryGetProperty("rules_count", out var rulesCountProp) ? rulesCountProp.GetInt32() : rules.Count;
                     return new UserRulesSettings(enabled, rules, rulesCount);
                 }
             }
 
             // Try direct deserialization
-            var json = JsonConvert.SerializeObject(settings);
-            var parsed = JsonConvert.DeserializeObject<JObject>(json);
-            if (parsed != null)
+            var json = JsonSerializer.Serialize(settings);
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+            if (root.TryGetProperty("user_rules_settings", out var userRulesNode))
             {
-                var userRulesToken = parsed["user_rules_settings"];
-                if (userRulesToken != null)
+                var enabled = userRulesNode.TryGetProperty("enabled", out var enabledProp) && enabledProp.GetBoolean();
+                var rules = new List<string>();
+                if (userRulesNode.TryGetProperty("rules", out var rulesProp) && rulesProp.ValueKind == JsonValueKind.Array)
                 {
-                    var enabled = userRulesToken["enabled"]?.Value<bool>() ?? false;
-                    var rules = userRulesToken["rules"]?.ToObject<List<string>>() ?? new List<string>();
-                    var rulesCount = userRulesToken["rules_count"]?.Value<int>() ?? rules.Count;
-                    return new UserRulesSettings(enabled, rules, rulesCount);
+                    foreach (var rule in rulesProp.EnumerateArray())
+                    {
+                        if (rule.ValueKind == JsonValueKind.String)
+                        {
+                            rules.Add(rule.GetString() ?? string.Empty);
+                        }
+                    }
                 }
+                var rulesCount = userRulesNode.TryGetProperty("rules_count", out var rulesCountProp) ? rulesCountProp.GetInt32() : rules.Count;
+                return new UserRulesSettings(enabled, rules, rulesCount);
             }
         }
         catch (JsonException)

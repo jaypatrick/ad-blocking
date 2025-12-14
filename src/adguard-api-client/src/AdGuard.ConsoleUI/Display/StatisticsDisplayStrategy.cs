@@ -33,12 +33,13 @@ public class StatisticsDisplayStrategy
         {
             try
             {
-                var json = JsonConvert.SerializeObject(stat);
-                var jObj = JObject.Parse(json);
+                var json = JsonSerializer.Serialize(stat);
+                using var doc = JsonDocument.Parse(json);
+                var jObj = doc.RootElement;
 
-                var time = jObj["time"]?.Value<long>() ?? 0;
-                var queries = jObj["queries"]?.Value<long>() ?? 0;
-                var blocked = jObj["blocked"]?.Value<long>() ?? 0;
+                var time = jObj.TryGetProperty("time", out var timeProp) ? timeProp.GetInt64() : 0;
+                var queries = jObj.TryGetProperty("queries", out var queriesProp) ? queriesProp.GetInt64() : 0;
+                var blocked = jObj.TryGetProperty("blocked", out var blockedProp) ? blockedProp.GetInt64() : 0;
                 var percentBlocked = queries > 0 ? (blocked * 100.0 / queries) : 0;
 
                 totalQueries += queries;

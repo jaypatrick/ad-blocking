@@ -33,14 +33,15 @@ public class QueryLogDisplayStrategy
         {
             try
             {
-                var json = JsonConvert.SerializeObject(items[i]);
-                var jObj = JObject.Parse(json);
+                var json = JsonSerializer.Serialize(items[i]);
+                using var doc = JsonDocument.Parse(json);
+                var jObj = doc.RootElement;
 
-                var time = jObj["time"]?.Value<long>() ?? 0;
-                var domain = jObj["domain"]?.Value<string>() ?? "N/A";
-                var queryType = jObj["type"]?.Value<string>() ?? "N/A";
-                var deviceName = jObj["device_name"]?.Value<string>() ?? "N/A";
-                var status = jObj["status"]?.Value<string>() ?? "N/A";
+                var time = jObj.TryGetProperty("time", out var timeProp) ? timeProp.GetInt64() : 0;
+                var domain = jObj.TryGetProperty("domain", out var domainProp) ? domainProp.GetString() ?? "N/A" : "N/A";
+                var queryType = jObj.TryGetProperty("type", out var typeProp) ? typeProp.GetString() ?? "N/A" : "N/A";
+                var deviceName = jObj.TryGetProperty("device_name", out var deviceProp) ? deviceProp.GetString() ?? "N/A" : "N/A";
+                var status = jObj.TryGetProperty("status", out var statusProp) ? statusProp.GetString() ?? "N/A" : "N/A";
 
                 var timeStr = DateTimeExtensions.FromUnixMilliseconds(time).ToString("HH:mm:ss");
                 var statusMarkup = GetStatusMarkup(status);

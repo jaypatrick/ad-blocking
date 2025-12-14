@@ -13,6 +13,6 @@ global using AdGuard.ConsoleUI.Services;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
-global using Newtonsoft.Json;
-global using Newtonsoft.Json.Linq;
+global using System.Text.Json;
+global using System.Text.Json.Nodes;
 global using Spectre.Console;
