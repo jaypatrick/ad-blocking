@@ -4,7 +4,7 @@ A console-based user interface for managing AdGuard DNS accounts, devices, DNS s
 
 ## Overview
 
-AdGuard.ConsoleUI is a .NET 8.0 console application that provides an interactive menu-driven interface for the AdGuard DNS API. It uses [Spectre.Console](https://spectreconsole.net/) for rich terminal UI elements including colored text, tables, panels, and interactive prompts.
+AdGuard.ConsoleUI is a .NET 10 console application that provides an interactive menu-driven interface for the AdGuard DNS API. It uses [Spectre.Console](https://spectreconsole.net/) for rich terminal UI elements including colored text, tables, panels, and interactive prompts.
 
 ## Features
 
@@ -19,7 +19,7 @@ AdGuard.ConsoleUI is a .NET 8.0 console application that provides an interactive
 
 ## Prerequisites
 
-- .NET 8.0 SDK or runtime
+- .NET 10 SDK or runtime
 - AdGuard DNS account with API access
 - API key from [AdGuard DNS Dashboard](https://adguard-dns.io/dashboard/#/settings/api)
 
@@ -41,7 +41,7 @@ dotnet run --project src/adguard-api-client/src/AdGuard.ConsoleUI
 Or after building:
 
 ```bash
-cd src/adguard-api-client/src/AdGuard.ConsoleUI/bin/Debug/net8.0
+cd src/adguard-api-client/src/AdGuard.ConsoleUI/bin/Debug/net10.0
 ./AdGuard.ConsoleUI
 ```
 

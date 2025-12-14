@@ -3,10 +3,11 @@
   <PropertyGroup>
     <AssemblyName>RulesCompiler.Tests</AssemblyName>
     <RootNamespace>RulesCompiler.Tests</RootNamespace>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>14</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
