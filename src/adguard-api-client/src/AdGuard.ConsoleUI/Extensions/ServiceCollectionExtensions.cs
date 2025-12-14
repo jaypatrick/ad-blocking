@@ -1,4 +1,8 @@
+using AdGuard.ConsoleUI.Abstractions;
+using AdGuard.ConsoleUI.Rendering;
+using AdGuard.ConsoleUI.Services;
 using AdGuard.Repositories.Extensions;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AdGuard.ConsoleUI.Extensions;
 
@@ -21,6 +25,13 @@ public static class ServiceCollectionExtensions
         // Register shared repository services (includes IApiClientFactory and all repositories)
         services.AddAdGuardRepositories();
 
+        // Register rendering abstractions (default: Spectre.Console)
+        services.TryAddSingleton<IConsoleRenderer, SpectreConsoleRenderer>();
+        services.TryAddSingleton<IConsolePrompter, SpectreConsolePrompter>();
+
+        // Register menu service factory
+        services.TryAddSingleton<IMenuServiceFactory, MenuServiceFactory>();
+
         // Register Display Strategies
         services.AddDisplayStrategies();
 
@@ -28,8 +39,62 @@ public static class ServiceCollectionExtensions
         services.AddMenuServices();
 
         // Register Main Application
-        services.AddSingleton<ConsoleApplication>();
+        services.TryAddSingleton<ConsoleApplication>();
 
+        return services;
+    }
+
+    /// <summary>
+    /// Adds AdGuard Console UI with custom renderer.
+    /// </summary>
+    /// <typeparam name="TRenderer">The renderer type.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddAdGuardConsoleUIWithRenderer<TRenderer>(
+        this IServiceCollection services)
+        where TRenderer : class, IConsoleRenderer
+    {
+        services.AddSingleton<IConsoleRenderer, TRenderer>();
+        return services.AddAdGuardConsoleUI();
+    }
+
+    /// <summary>
+    /// Adds AdGuard Console UI with custom prompter.
+    /// </summary>
+    /// <typeparam name="TPrompter">The prompter type.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddAdGuardConsoleUIWithPrompter<TPrompter>(
+        this IServiceCollection services)
+        where TPrompter : class, IConsolePrompter
+    {
+        services.AddSingleton<IConsolePrompter, TPrompter>();
+        return services.AddAdGuardConsoleUI();
+    }
+
+    /// <summary>
+    /// Adds a custom console renderer.
+    /// </summary>
+    /// <typeparam name="T">The renderer type.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddConsoleRenderer<T>(this IServiceCollection services)
+        where T : class, IConsoleRenderer
+    {
+        services.AddSingleton<IConsoleRenderer, T>();
+        return services;
+    }
+
+    /// <summary>
+    /// Adds a custom console prompter.
+    /// </summary>
+    /// <typeparam name="T">The prompter type.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddConsolePrompter<T>(this IServiceCollection services)
+        where T : class, IConsolePrompter
+    {
+        services.AddSingleton<IConsolePrompter, T>();
         return services;
     }
 
@@ -41,18 +106,32 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddDisplayStrategies(this IServiceCollection services)
     {
         // Generic display strategies
-        services.AddSingleton<IDisplayStrategy<Device>, DeviceDisplayStrategy>();
-        services.AddSingleton<IDisplayStrategy<DNSServer>, DnsServerDisplayStrategy>();
-        services.AddSingleton<IDisplayStrategy<FilterList>, FilterListDisplayStrategy>();
-        services.AddSingleton<IDisplayStrategy<WebService>, WebServiceDisplayStrategy>();
-        services.AddSingleton<IDisplayStrategy<DedicatedIPv4Address>, DedicatedIPDisplayStrategy>();
+        services.TryAddSingleton<IDisplayStrategy<Device>, DeviceDisplayStrategy>();
+        services.TryAddSingleton<IDisplayStrategy<DNSServer>, DnsServerDisplayStrategy>();
+        services.TryAddSingleton<IDisplayStrategy<FilterList>, FilterListDisplayStrategy>();
+        services.TryAddSingleton<IDisplayStrategy<WebService>, WebServiceDisplayStrategy>();
+        services.TryAddSingleton<IDisplayStrategy<DedicatedIPv4Address>, DedicatedIPDisplayStrategy>();
 
         // Specialized display strategies
-        services.AddSingleton<AccountLimitsDisplayStrategy>();
-        services.AddSingleton<StatisticsDisplayStrategy>();
-        services.AddSingleton<QueryLogDisplayStrategy>();
-        services.AddSingleton<UserRulesDisplayStrategy>();
+        services.TryAddSingleton<AccountLimitsDisplayStrategy>();
+        services.TryAddSingleton<StatisticsDisplayStrategy>();
+        services.TryAddSingleton<QueryLogDisplayStrategy>();
+        services.TryAddSingleton<UserRulesDisplayStrategy>();
 
+        return services;
+    }
+
+    /// <summary>
+    /// Adds a custom display strategy.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity type.</typeparam>
+    /// <typeparam name="TStrategy">The strategy type.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddDisplayStrategy<TEntity, TStrategy>(this IServiceCollection services)
+        where TStrategy : class, IDisplayStrategy<TEntity>
+    {
+        services.AddSingleton<IDisplayStrategy<TEntity>, TStrategy>();
         return services;
     }
 
@@ -77,6 +156,19 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IMenuService, DedicatedIPMenuService>();
         services.AddSingleton<IMenuService, UserRulesMenuService>();
 
+        return services;
+    }
+
+    /// <summary>
+    /// Adds a custom menu service.
+    /// </summary>
+    /// <typeparam name="T">The menu service type.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddMenuService<T>(this IServiceCollection services)
+        where T : class, IMenuService
+    {
+        services.AddSingleton<IMenuService, T>();
         return services;
     }
 }
