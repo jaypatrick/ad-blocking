@@ -1,18 +1,16 @@
 using System;
 using System.Collections.Generic;
-/*
- * AdGuard DNS API - Unit Tests
- *
- * Tests for ConfigurationHelper class
- */
-
-using System;
-using System.Collections.Generic;
 using AdGuard.ApiClient.Client;
 using AdGuard.ApiClient.Helpers;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
+
+/*
+ * AdGuard DNS API - Unit Tests
+ *
+ * Tests for ConfigurationHelper class
+ */
 
 namespace AdGuard.ApiClient.Test.Helpers
 {
