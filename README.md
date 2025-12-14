@@ -78,7 +78,7 @@ ad-blocking/
 │   ├── rules-compiler-python/         # Python rules compiler
 │   ├── rules-compiler-rust/           # Rust rules compiler
 │   ├── website/                       # Gatsby portfolio website
-│   ├── powershell/                    # PowerShell modules
+│   ├── adguard-api-powershell/        # PowerShell modules
 │   │   ├── Invoke-RulesCompiler.psm1  # Main module
 │   │   ├── RulesCompiler.psd1         # Module manifest
 │   │   ├── RulesCompiler-Harness.ps1  # Interactive harness
@@ -149,7 +149,7 @@ cd src/rules-compiler-python && rules-compiler
 cd src/rules-compiler-rust && cargo run --release
 
 # PowerShell
-Import-Module ./src/powershell/Invoke-RulesCompiler.psm1
+Import-Module ./src/adguard-api-powershell/Invoke-RulesCompiler.psm1
 Invoke-RulesCompiler
 
 # Bash
@@ -413,11 +413,11 @@ src\shell\compile-rules.cmd -c config.json -r
 
 ### PowerShell Module
 
-**Location**: `src/powershell/`
+**Location**: `src/adguard-api-powershell/`
 
 ```powershell
 # Import module
-Import-Module ./src/powershell/Invoke-RulesCompiler.psm1
+Import-Module ./src/adguard-api-powershell/Invoke-RulesCompiler.psm1
 
 # Available functions
 Get-CompilerVersion | Format-List           # Version info
@@ -425,13 +425,13 @@ Invoke-RulesCompiler                         # Compile rules
 Invoke-RulesCompiler -CopyToRules            # Compile and copy
 
 # Interactive harness
-./src/powershell/RulesCompiler-Harness.ps1
+./src/adguard-api-powershell/RulesCompiler-Harness.ps1
 
 # Run Pester tests
-Invoke-Pester -Path ./src/powershell/Tests/
+Invoke-Pester -Path ./src/adguard-api-powershell/Tests/
 
 # Lint with PSScriptAnalyzer
-Invoke-ScriptAnalyzer -Path src/powershell -Recurse
+Invoke-ScriptAnalyzer -Path src/adguard-api-powershell -Recurse
 ```
 
 **Exported Functions**:
@@ -704,9 +704,9 @@ cargo test config::                 # Module tests
 ### PowerShell
 
 ```powershell
-Invoke-Pester -Path ./src/powershell/Tests/
-Invoke-Pester -Path ./src/powershell/Tests/ -Output Detailed
-Invoke-ScriptAnalyzer -Path src/powershell -Recurse
+Invoke-Pester -Path ./src/adguard-api-powershell/Tests/
+Invoke-Pester -Path ./src/adguard-api-powershell/Tests/ -Output Detailed
+Invoke-ScriptAnalyzer -Path src/adguard-api-powershell -Recurse
 ```
 
 ## CI/CD

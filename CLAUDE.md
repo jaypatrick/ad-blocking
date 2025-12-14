@@ -18,7 +18,7 @@ This repository is a comprehensive multi-language toolkit for ad-blocking, netwo
 - **Windows Batch** (`src/shell/compile-rules.cmd`) - Windows wrapper
 
 ### PowerShell Module
-- **RulesCompiler Module** (`src/powershell/`) - Full-featured PowerShell API with Pester tests
+- **RulesCompiler Module** (`src/adguard-api-powershell/`) - Full-featured PowerShell API with Pester tests
 
 ### API Client & Tools
 - **AdGuard API Client** (`src/adguard-api-client/`) - C# SDK for AdGuard DNS API v1.11
@@ -171,10 +171,10 @@ npm run build      # Production build
 npm run serve      # Serve local build
 ```
 
-### PowerShell RulesCompiler Module (`src/powershell/`)
+### PowerShell RulesCompiler Module (`src/adguard-api-powershell/`)
 ```powershell
 # Import the module
-Import-Module ./src/powershell/Invoke-RulesCompiler.psm1
+Import-Module ./src/adguard-api-powershell/Invoke-RulesCompiler.psm1
 
 # Check versions and platform info
 Get-CompilerVersion | Format-List
@@ -186,13 +186,13 @@ Invoke-RulesCompiler
 Invoke-RulesCompiler -CopyToRules
 
 # Run interactive harness
-./src/powershell/RulesCompiler-Harness.ps1
+./src/adguard-api-powershell/RulesCompiler-Harness.ps1
 
 # Run Pester tests
-Invoke-Pester -Path ./src/powershell/Tests/RulesCompiler-Tests.ps1
+Invoke-Pester -Path ./src/adguard-api-powershell/Tests/RulesCompiler-Tests.ps1
 
 # Lint with PSScriptAnalyzer
-Invoke-ScriptAnalyzer -Path src/powershell -Recurse
+Invoke-ScriptAnalyzer -Path src/adguard-api-powershell -Recurse
 ```
 
 ## Running Individual Tests
@@ -219,13 +219,13 @@ dotnet test RulesCompiler.slnx --filter "FullyQualifiedName~TransformationTests"
 ### PowerShell (Pester)
 ```powershell
 # Run all PowerShell tests
-Invoke-Pester -Path ./src/powershell/Tests/
+Invoke-Pester -Path ./src/adguard-api-powershell/Tests/
 
 # Run specific test file
-Invoke-Pester -Path ./src/powershell/Tests/RulesCompiler-Tests.ps1
+Invoke-Pester -Path ./src/adguard-api-powershell/Tests/RulesCompiler-Tests.ps1
 
 # Run with detailed output
-Invoke-Pester -Path ./src/powershell/Tests/ -Output Detailed
+Invoke-Pester -Path ./src/adguard-api-powershell/Tests/ -Output Detailed
 ```
 
 ### Python (pytest)
@@ -312,7 +312,7 @@ cargo test config::                       # Tests in module
 - `ApiClientFactory` configures SDK from settings or interactive prompt
 - Features: Device management, DNS servers, statistics, query logs, filter lists
 
-### PowerShell Modules (`src/powershell/`)
+### PowerShell Modules (`src/adguard-api-powershell/`)
 - **RulesCompiler Module** - Cross-platform PowerShell API mirroring TypeScript compiler
   - `Invoke-RulesCompiler.psm1` - Main module with exported functions
   - `RulesCompiler.psd1` - Module manifest

@@ -240,7 +240,7 @@ jobs:
 ## Related
 
 - [TypeScript API](../../src/rules-compiler-typescript/README.md) - Node.js/TypeScript implementation
-- [PowerShell Module](../powershell/README.md) - Full-featured PowerShell module
+- [PowerShell Module](../adguard-api-powershell/README.md) - Full-featured PowerShell module
 - [.NET Library](../../src/rules-compiler-dotnet/README.md) - C# class library and console app
 
 ## License

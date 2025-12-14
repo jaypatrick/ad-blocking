@@ -164,7 +164,7 @@ A comprehensive, multi-component ad-blocking solution designed for network-level
 
 ---
 
-### 6. PowerShell Scripts (`/src/powershell/`)
+### 6. PowerShell Scripts (`/src/adguard-api-powershell/`)
 
 **Purpose:** Automation and orchestration scripts for filter compilation.
 
@@ -195,7 +195,7 @@ ad-blocking/
 ├── src/
 │   ├── adguard-api-client/  # AdGuard DNS API C# Client
 │   ├── filter-compiler/     # TypeScript rule compiler
-│   ├── powershell/          # PowerShell modules
+│   ├── adguard-api-powershell/  # PowerShell modules
 │   └── website/             # Gatsby portfolio site
 ├── LICENSE                  # GPLv3
 ├── README.md                # Main documentation
@@ -330,7 +330,7 @@ dotnet test
 
 ### PowerShell Tests
 ```bash
-cd src/powershell
+cd src/adguard-api-powershell
 Invoke-Pester
 ```
 
