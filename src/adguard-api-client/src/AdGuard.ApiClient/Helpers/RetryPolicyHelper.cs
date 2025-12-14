@@ -333,7 +333,7 @@ namespace AdGuard.ApiClient.Helpers
         /// <code>
         /// // Create a custom Polly retry policy using IsRetryableException
         /// var policy = Policy
-        ///     .Handle<ApiException>(ex => RetryPolicyHelper.IsRetryableException(ex))
+        ///     .Handle&lt;ApiException&gt;(ex => RetryPolicyHelper.IsRetryableException(ex))
         ///     .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
         ///
         /// var result = await policy.ExecuteAsync(() => api.GetDeviceAsync(deviceId));
