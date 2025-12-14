@@ -81,8 +81,3 @@ public abstract class BaseMenuService : IMenuService
         AnsiConsole.WriteLine();
     }
 }
-
-/// <summary>
-/// A menu action representing a named action that can be executed.
-/// </summary>
-public record MenuAction(string Name, Func<Task> Action);

@@ -125,16 +125,16 @@ public class Program
         services.AddSingleton<QueryLogDisplayStrategy>();
         services.AddSingleton<UserRulesDisplayStrategy>();
 
-        // Register Menu Services
-        services.AddSingleton<DeviceMenuService>();
-        services.AddSingleton<DnsServerMenuService>();
-        services.AddSingleton<StatisticsMenuService>();
-        services.AddSingleton<AccountMenuService>();
-        services.AddSingleton<FilterListMenuService>();
-        services.AddSingleton<QueryLogMenuService>();
-        services.AddSingleton<WebServiceMenuService>();
-        services.AddSingleton<DedicatedIPMenuService>();
-        services.AddSingleton<UserRulesMenuService>();
+        // Register Menu Services (as IMenuService for collection injection)
+        services.AddSingleton<IMenuService, DeviceMenuService>();
+        services.AddSingleton<IMenuService, DnsServerMenuService>();
+        services.AddSingleton<IMenuService, StatisticsMenuService>();
+        services.AddSingleton<IMenuService, AccountMenuService>();
+        services.AddSingleton<IMenuService, FilterListMenuService>();
+        services.AddSingleton<IMenuService, QueryLogMenuService>();
+        services.AddSingleton<IMenuService, WebServiceMenuService>();
+        services.AddSingleton<IMenuService, DedicatedIPMenuService>();
+        services.AddSingleton<IMenuService, UserRulesMenuService>();
 
         // Register Main Application
         services.AddSingleton<ConsoleApplication>();
