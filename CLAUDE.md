@@ -13,9 +13,9 @@ This repository is a comprehensive multi-language toolkit for ad-blocking, netwo
 - **Rust** (`src/rules-compiler-rust/`) - High-performance single binary with zero runtime deps
 
 ### Shell Scripts
-- **Bash** (`src/shell/compile-rules.sh`) - Linux/macOS
-- **PowerShell Core** (`src/shell/compile-rules.ps1`) - Cross-platform
-- **Windows Batch** (`src/shell/compile-rules.cmd`) - Windows wrapper
+- **Bash** (`src/rules-compiler-shell/compile-rules.sh`) - Linux/macOS
+- **PowerShell Core** (`src/rules-compiler-shell/compile-rules.ps1`) - Cross-platform
+- **Windows Batch** (`src/rules-compiler-shell/compile-rules.cmd`) - Windows wrapper
 
 ### PowerShell Module
 - **RulesCompiler Module** (`src/adguard-api-powershell/`) - Full-featured PowerShell API with Pester tests
@@ -69,20 +69,20 @@ npm run compile -- --help
 npm run compile -- --version
 ```
 
-### Shell Scripts (`src/shell/`)
+### Shell Scripts (`src/rules-compiler-shell/`)
 ```bash
 # Bash (Linux/macOS)
-./src/shell/compile-rules.sh                    # Use default config
-./src/shell/compile-rules.sh -c config.yaml -r  # YAML config, copy to rules
-./src/shell/compile-rules.sh -v                 # Show version
+./src/rules-compiler-shell/compile-rules.sh                    # Use default config
+./src/rules-compiler-shell/compile-rules.sh -c config.yaml -r  # YAML config, copy to rules
+./src/rules-compiler-shell/compile-rules.sh -v                 # Show version
 
 # PowerShell Core (all platforms)
-./src/shell/compile-rules.ps1
-./src/shell/compile-rules.ps1 -ConfigPath config.yaml -CopyToRules
-./src/shell/compile-rules.ps1 -Version
+./src/rules-compiler-shell/compile-rules.ps1
+./src/rules-compiler-shell/compile-rules.ps1 -ConfigPath config.yaml -CopyToRules
+./src/rules-compiler-shell/compile-rules.ps1 -Version
 
 # Windows Batch
-src\shell\compile-rules.cmd -c config.json -r
+src\rules-compiler-shell\compile-rules.cmd -c config.json -r
 ```
 
 ### .NET Rules Compiler (`src/rules-compiler-dotnet/`)
@@ -263,7 +263,7 @@ cargo test config::                       # Tests in module
 - Deno support via `deno.json`
 - ESLint and Jest for testing
 
-### Shell Scripts (`src/shell/`)
+### Shell Scripts (`src/rules-compiler-shell/`)
 - Cross-platform shell scripts for filter compilation
 - `compile-rules.sh` - Bash script for Linux/macOS
 - `compile-rules.ps1` - PowerShell Core script (all platforms)

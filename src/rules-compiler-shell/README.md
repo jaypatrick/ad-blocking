@@ -30,60 +30,60 @@ Cross-platform shell scripts for compiling AdGuard filter rules using `@adguard/
 
 ```bash
 # Make executable (first time only)
-chmod +x src/shell/compile-rules.sh
+chmod +x src/rules-compiler-shell/compile-rules.sh
 
 # Run with defaults
-./src/shell/compile-rules.sh
+./src/rules-compiler-shell/compile-rules.sh
 
 # Use YAML configuration
-./src/shell/compile-rules.sh -c src/rules-compiler-typescript/compiler-config.yaml
+./src/rules-compiler-shell/compile-rules.sh -c src/rules-compiler-typescript/compiler-config.yaml
 
 # Compile and copy to rules directory
-./src/shell/compile-rules.sh -r
+./src/rules-compiler-shell/compile-rules.sh -r
 
 # Show version info
-./src/shell/compile-rules.sh -v
+./src/rules-compiler-shell/compile-rules.sh -v
 
 # Show help
-./src/shell/compile-rules.sh -h
+./src/rules-compiler-shell/compile-rules.sh -h
 ```
 
 ### PowerShell Core (All Platforms)
 
 ```powershell
 # Run with defaults
-./src/shell/compile-rules.ps1
+./src/rules-compiler-shell/compile-rules.ps1
 
 # Use YAML configuration
-./src/shell/compile-rules.ps1 -ConfigPath src/rules-compiler-typescript/compiler-config.yaml
+./src/rules-compiler-shell/compile-rules.ps1 -ConfigPath src/rules-compiler-typescript/compiler-config.yaml
 
 # Compile and copy to rules directory
-./src/shell/compile-rules.ps1 -CopyToRules
+./src/rules-compiler-shell/compile-rules.ps1 -CopyToRules
 
 # Short form
-./src/shell/compile-rules.ps1 -c config.yaml -r
+./src/rules-compiler-shell/compile-rules.ps1 -c config.yaml -r
 
 # Show version info
-./src/shell/compile-rules.ps1 -Version
+./src/rules-compiler-shell/compile-rules.ps1 -Version
 
 # Show help
-./src/shell/compile-rules.ps1 -Help
+./src/rules-compiler-shell/compile-rules.ps1 -Help
 ```
 
 ### Windows Batch
 
 ```cmd
 REM Run with defaults
-scripts\shell\compile-rules.cmd
+src\rules-compiler-shell\compile-rules.cmd
 
 REM Use specific configuration
-scripts\shell\compile-rules.cmd -c config.json
+src\rules-compiler-shell\compile-rules.cmd -c config.json
 
 REM Compile and copy to rules
-scripts\shell\compile-rules.cmd -c config.json -r
+src\rules-compiler-shell\compile-rules.cmd -c config.json -r
 
 REM Show version
-scripts\shell\compile-rules.cmd -v
+src\rules-compiler-shell\compile-rules.cmd -v
 ```
 
 ## Command-Line Options
@@ -200,7 +200,7 @@ which npx
 
 ### Permission denied (Unix)
 ```bash
-chmod +x src/shell/compile-rules.sh
+chmod +x src/rules-compiler-shell/compile-rules.sh
 ```
 
 ### YAML parsing fails
@@ -234,13 +234,13 @@ jobs:
         with:
           node-version: '20'
       - run: npm install -g @adguard/hostlist-compiler
-      - run: ./src/shell/compile-rules.sh -c src/filter-compiler/compiler-config.json -r
+      - run: ./src/rules-compiler-shell/compile-rules.sh -c src/rules-compiler-typescript/compiler-config.json -r
 ```
 
 ## Related
 
 - [TypeScript API](../../src/rules-compiler-typescript/README.md) - Node.js/TypeScript implementation
-- [PowerShell Module](../adguard-api-powershell/README.md) - Full-featured PowerShell module
+- [PowerShell Module](../../src/adguard-api-powershell/README.md) - Full-featured PowerShell module
 - [.NET Library](../../src/rules-compiler-dotnet/README.md) - C# class library and console app
 
 ## License

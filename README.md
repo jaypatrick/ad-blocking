@@ -153,7 +153,7 @@ Import-Module ./src/adguard-api-powershell/Invoke-RulesCompiler.psm1
 Invoke-RulesCompiler
 
 # Bash
-./src/shell/compile-rules.sh
+./src/rules-compiler-shell/compile-rules.sh
 ```
 
 ## Docker Development Environment
@@ -385,24 +385,24 @@ println!("Compiled {} rules", result.rule_count);
 
 ### Shell Scripts
 
-**Location**: `src/shell/`
+**Location**: `src/rules-compiler-shell/`
 
 #### Bash (Linux/macOS)
 
 ```bash
-./src/shell/compile-rules.sh                    # Default config
-./src/shell/compile-rules.sh -c config.yaml     # YAML config
-./src/shell/compile-rules.sh -c config.yaml -r  # Copy to rules
-./src/shell/compile-rules.sh -v                 # Show version
+./src/rules-compiler-shell/compile-rules.sh                    # Default config
+./src/rules-compiler-shell/compile-rules.sh -c config.yaml     # YAML config
+./src/rules-compiler-shell/compile-rules.sh -c config.yaml -r  # Copy to rules
+./src/rules-compiler-shell/compile-rules.sh -v                 # Show version
 ```
 
 #### PowerShell Core (Cross-platform)
 
 ```powershell
-./src/shell/compile-rules.ps1
-./src/shell/compile-rules.ps1 -ConfigPath config.yaml
-./src/shell/compile-rules.ps1 -ConfigPath config.yaml -CopyToRules
-./src/shell/compile-rules.ps1 -Version
+./src/rules-compiler-shell/compile-rules.ps1
+./src/rules-compiler-shell/compile-rules.ps1 -ConfigPath config.yaml
+./src/rules-compiler-shell/compile-rules.ps1 -ConfigPath config.yaml -CopyToRules
+./src/rules-compiler-shell/compile-rules.ps1 -Version
 ```
 
 #### Windows Batch
@@ -752,7 +752,7 @@ Download the latest release from the [Releases page](https://github.com/jaypatri
 - [.NET Compiler README](src/rules-compiler-dotnet/README.md)
 - [Python Compiler README](src/rules-compiler-python/README.md)
 - [Rust Compiler README](src/rules-compiler-rust/README.md)
-- [Shell Scripts README](src/shell/README.md)
+- [Shell Scripts README](src/rules-compiler-shell/README.md)
 
 ### Development
 

@@ -43,7 +43,7 @@ if "%1"=="-h" goto :help
 if "%1"=="--help" goto :help
 
 REM Default config path
-set "CONFIG_PATH=%PROJECT_ROOT%\src\filter-compiler\compiler-config.json"
+set "CONFIG_PATH=%PROJECT_ROOT%\src\rules-compiler-typescript\compiler-config.json"
 set "OUTPUT_PATH="
 set "COPY_TO_RULES="
 
