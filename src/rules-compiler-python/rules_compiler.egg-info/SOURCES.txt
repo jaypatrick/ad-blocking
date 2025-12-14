@@ -1,0 +1,16 @@
+README.md
+pyproject.toml
+rules_compiler/__init__.py
+rules_compiler/cli.py
+rules_compiler/compiler.py
+rules_compiler/config.py
+rules_compiler.egg-info/PKG-INFO
+rules_compiler.egg-info/SOURCES.txt
+rules_compiler.egg-info/dependency_links.txt
+rules_compiler.egg-info/entry_points.txt
+rules_compiler.egg-info/requires.txt
+rules_compiler.egg-info/top_level.txt
+tests/__init__.py
+tests/test_cli.py
+tests/test_compiler.py
+tests/test_config.py

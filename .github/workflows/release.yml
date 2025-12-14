@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v1.0.0)'
+        required: true
+        default: 'v1.0.0'
 
 permissions:
   contents: write
@@ -177,6 +183,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set release version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
@@ -188,12 +203,13 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.version.outputs.version }}
           files: |
             ./release-artifacts/**/*.zip
             ./release-artifacts/**/*.tar.gz
             ./release-artifacts/**/*.whl
           body: |
-            ## Release ${{ github.ref_name }}
+            ## Release ${{ steps.version.outputs.version }}
 
             This release includes pre-built binaries for:
             - **AdGuard.ConsoleUI** - Console UI for AdGuard DNS API (Windows, Linux, macOS)
