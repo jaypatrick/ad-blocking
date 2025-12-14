@@ -201,20 +201,16 @@ jobs:
             fi
             echo "version=$VERSION" >> $GITHUB_OUTPUT
             
-            # Fetch tags efficiently (refs only, shallow)
-            # Note: --depth=1 is sufficient since we only check tag existence
-            git fetch --tags --depth=1 || { echo "Error: Failed to fetch tags"; exit 1; }
-            
-            # Create and push tag if it doesn't exist
-            if ! git rev-parse "$VERSION" >/dev/null 2>&1; then
+            # Check if tag exists remotely
+            if git ls-remote --tags origin | grep -q "refs/tags/$VERSION$"; then
+              echo "Tag $VERSION already exists remotely"
+            else
               echo "Creating tag $VERSION"
               git config user.name "github-actions[bot]"
               git config user.email "github-actions[bot]@users.noreply.github.com"
               git tag -a "$VERSION" -m "Release $VERSION" || { echo "Error: Failed to create tag"; exit 1; }
               git push origin "$VERSION" || { echo "Error: Failed to push tag"; exit 1; }
               echo "Tag $VERSION created and pushed successfully"
-            else
-              echo "Tag $VERSION already exists"
             fi
           else
             echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
