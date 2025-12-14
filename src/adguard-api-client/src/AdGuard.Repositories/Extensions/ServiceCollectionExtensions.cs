@@ -3,6 +3,7 @@ using AdGuard.Repositories.Contracts;
 using AdGuard.Repositories.Implementations;
 using AdGuard.Repositories.Options;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AdGuard.Repositories.Extensions;
 
@@ -19,21 +20,25 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddAdGuardRepositories(this IServiceCollection services)
     {
         // Register API Client Factory
-        services.AddSingleton<IApiClientFactory, ApiClientFactory>();
+        services.TryAddSingleton<IApiClientFactory, ApiClientFactory>();
+
+        // Register extensibility services
+        services.TryAddSingleton<ICacheProvider, InMemoryCacheProvider>();
+        services.TryAddSingleton<IAuthenticationProvider, ApiKeyAuthenticationProvider>();
 
         // Register Repositories
-        services.AddSingleton<IDeviceRepository, DeviceRepository>();
-        services.AddSingleton<IDnsServerRepository, DnsServerRepository>();
-        services.AddSingleton<IAccountRepository, AccountRepository>();
-        services.AddSingleton<IStatisticsRepository, StatisticsRepository>();
-        services.AddSingleton<IQueryLogRepository, QueryLogRepository>();
-        services.AddSingleton<IFilterListRepository, FilterListRepository>();
-        services.AddSingleton<IWebServiceRepository, WebServiceRepository>();
-        services.AddSingleton<IDedicatedIpRepository, DedicatedIpRepository>();
-        services.AddSingleton<IUserRulesRepository, UserRulesRepository>();
+        services.TryAddSingleton<IDeviceRepository, DeviceRepository>();
+        services.TryAddSingleton<IDnsServerRepository, DnsServerRepository>();
+        services.TryAddSingleton<IAccountRepository, AccountRepository>();
+        services.TryAddSingleton<IStatisticsRepository, StatisticsRepository>();
+        services.TryAddSingleton<IQueryLogRepository, QueryLogRepository>();
+        services.TryAddSingleton<IFilterListRepository, FilterListRepository>();
+        services.TryAddSingleton<IWebServiceRepository, WebServiceRepository>();
+        services.TryAddSingleton<IDedicatedIpRepository, DedicatedIpRepository>();
+        services.TryAddSingleton<IUserRulesRepository, UserRulesRepository>();
 
         // Register Unit of Work
-        services.AddSingleton<IUnitOfWork, UnitOfWork>();
+        services.TryAddSingleton<IUnitOfWork, UnitOfWork>();
 
         return services;
     }
@@ -80,6 +85,73 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
+    /// Adds AdGuard repository services with custom cache provider.
+    /// </summary>
+    /// <typeparam name="TCacheProvider">The cache provider type.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddAdGuardRepositoriesWithCache<TCacheProvider>(
+        this IServiceCollection services)
+        where TCacheProvider : class, ICacheProvider
+    {
+        services.AddSingleton<ICacheProvider, TCacheProvider>();
+        return services.AddAdGuardRepositories();
+    }
+
+    /// <summary>
+    /// Adds AdGuard repository services with custom authentication provider.
+    /// </summary>
+    /// <typeparam name="TAuthProvider">The authentication provider type.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddAdGuardRepositoriesWithAuth<TAuthProvider>(
+        this IServiceCollection services)
+        where TAuthProvider : class, IAuthenticationProvider
+    {
+        services.AddSingleton<IAuthenticationProvider, TAuthProvider>();
+        return services.AddAdGuardRepositories();
+    }
+
+    /// <summary>
+    /// Adds a custom cache provider.
+    /// </summary>
+    /// <typeparam name="T">The cache provider type.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddCacheProvider<T>(this IServiceCollection services)
+        where T : class, ICacheProvider
+    {
+        services.AddSingleton<ICacheProvider, T>();
+        return services;
+    }
+
+    /// <summary>
+    /// Adds a custom authentication provider.
+    /// </summary>
+    /// <typeparam name="T">The authentication provider type.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddAuthenticationProvider<T>(this IServiceCollection services)
+        where T : class, IAuthenticationProvider
+    {
+        services.AddSingleton<IAuthenticationProvider, T>();
+        return services;
+    }
+
+    /// <summary>
+    /// Adds a custom retry policy provider.
+    /// </summary>
+    /// <typeparam name="T">The retry policy provider type.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddRetryPolicyProvider<T>(this IServiceCollection services)
+        where T : class, IRetryPolicyProvider
+    {
+        services.AddSingleton<IRetryPolicyProvider, T>();
+        return services;
+    }
+
+    /// <summary>
     /// Adds AdGuard repository services to the service collection with scoped lifetime.
     /// Use this when you need per-request isolation (e.g., in web applications).
     /// </summary>
@@ -88,7 +160,11 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddAdGuardRepositoriesScoped(this IServiceCollection services)
     {
         // Register API Client Factory as singleton (shared configuration)
-        services.AddSingleton<IApiClientFactory, ApiClientFactory>();
+        services.TryAddSingleton<IApiClientFactory, ApiClientFactory>();
+
+        // Register extensibility services as singleton
+        services.TryAddSingleton<ICacheProvider, InMemoryCacheProvider>();
+        services.TryAddSingleton<IAuthenticationProvider, ApiKeyAuthenticationProvider>();
 
         // Register Repositories as scoped
         services.AddScoped<IDeviceRepository, DeviceRepository>();
