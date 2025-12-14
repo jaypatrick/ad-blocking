@@ -91,7 +91,7 @@ Invoke-RulesCompiler
 #### Bash/Shell
 
 ```bash
-./src/shell/compile-rules.sh
+./src/rules-compiler-shell/compile-rules.sh
 ```
 
 ## First Compilation
@@ -223,7 +223,7 @@ npm install -g @adguard/hostlist-compiler
 Make shell scripts executable:
 
 ```bash
-chmod +x src/shell/compile-rules.sh
+chmod +x src/rules-compiler-shell/compile-rules.sh
 ```
 
 ### Python package not found

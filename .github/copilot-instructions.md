@@ -45,7 +45,7 @@ ad-blocking/
 │   ├── rules-compiler-rust/        # Rust rules compiler
 │   ├── website/                    # Gatsby website
 │   ├── powershell/       # PowerShell automation scripts
-│   ├── shell/            # Shell scripts (bash, ps1, cmd)
+│   ├── rules-compiler-shell/      # Shell scripts (bash, ps1, cmd)
 │   └── linear/           # Linear integration
 └── README.md
 ```
