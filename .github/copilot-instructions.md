@@ -2,12 +2,33 @@
 
 ## Repository Overview
 
-This is a multi-language repository for ad-blocking and DNS filtering tools, including:
-- **Filter Rules**: AdGuard filter lists for blocking ads, trackers, and malware
-- **API Client**: C# SDK for AdGuard DNS API
-- **Rules Compilers**: Multiple implementations (TypeScript, C#, Python, Rust) for compiling filter rules
-- **Website**: Gatsby-based portfolio website
-- **Scripts**: PowerShell automation scripts
+Multi-language toolkit for ad-blocking and AdGuard DNS management with **identical output** across all compilers. Key principle: **Four languages, one schema, same SHA-384 hash**.
+
+**Components**:
+- **Filter Rules**: AdGuard filter lists (`rules/adguard_user_filter.txt`)
+- **API Client**: C# SDK for AdGuard DNS API v1.11 with Polly resilience
+- **Rules Compilers**: TypeScript, C#, Python, Rust - all produce identical output
+- **ConsoleUI**: Spectre.Console menu-driven interface with DI architecture
+- **Website**: Gatsby portfolio site deployed to GitHub Pages
+- **Scripts**: PowerShell modules and cross-platform shell scripts
+
+## Architecture Principles
+
+### Compiler Equivalence
+All four compilers (TypeScript, .NET, Python, Rust) wrap `@adguard/hostlist-compiler` and **must**:
+- Support JSON, YAML, TOML config formats (except PowerShell: JSON only)
+- Count rules identically (exclude empty lines and `!`/`#` comments)
+- Compute SHA-384 hash of output (96 hex chars)
+- Return same result structure: `{ success, ruleCount, hash, elapsedMs, outputPath }`
+
+### ConsoleUI DI Pattern
+`src/adguard-api-client/src/AdGuard.ConsoleUI/` uses service-oriented architecture:
+```
+Program.cs → ConsoleApplication → [DeviceMenu, DnsServerMenu, StatisticsMenu] → ApiClientFactory → AdGuard.ApiClient
+```
+- **ApiClientFactory**: Manages API configuration, creates clients, tests connectivity
+- All services registered via DI (`services.AddSingleton<T>()`)
+- Configuration sources (priority): appsettings.json → environment vars (`ADGUARD_*`) → user secrets
 
 ## Project Structure
 
@@ -27,9 +48,73 @@ ad-blocking/
 └── README.md
 ```
 
+## Critical Workflows
+
+### Compiling Filter Rules (Core Workflow)
+**Goal**: Generate `rules/adguard_user_filter.txt` with verified output
+
+```bash
+# TypeScript (primary method)
+cd src/rules-compiler-typescript && npm run compile
+
+# Validates against compiler-config.json, writes output, computes SHA-384
+# CI: .github/workflows/typescript.yml runs this with type-checking
+```
+
+**Why four compilers?** Provides language flexibility while ensuring identical output. Use `docs/compiler-comparison.md` to choose based on runtime requirements.
+
+### API Client Development Pattern
+When working with `src/adguard-api-client/`:
+1. **Never modify auto-generated files** in `src/AdGuard.ApiClient/` (regenerated from `api/openapi.yaml`)
+2. Place customizations in `Helpers/` (e.g., `ConfigurationHelper.cs`, `RetryPolicyHelper.cs`)
+3. ConsoleUI services inherit from menu base classes, inject `ApiClientFactory`
+
+### Testing Strategy
+- **TypeScript**: Jest with coverage (`npm test`, `npm run test:coverage`)
+- **.NET**: xUnit (`dotnet test`), filter by class: `--filter "FullyQualifiedName~DevicesApiTests"`
+- **Python**: pytest, mypy for type checking
+- **Rust**: cargo test
+- **PowerShell**: PSScriptAnalyzer (CI enforced)
+
+### Compiler Output Verification
+**Cross-compiler testing workflow** (ensuring identical output):
+
+1. **Compile with all four compilers** using the same config:
+   ```bash
+   # TypeScript
+   cd src/rules-compiler-typescript && npm run compile
+   
+   # .NET
+   cd src/rules-compiler-dotnet && dotnet run --project src/RulesCompiler.Console
+   
+   # Python
+   cd src/rules-compiler-python && rules-compiler
+   
+   # Rust
+   cd src/rules-compiler-rust && cargo run --release
+   ```
+
+2. **Compare SHA-384 hashes** - all must produce identical 96-char hash:
+   ```bash
+   # Each compiler outputs: { hash: "abc123...", ruleCount: 1234, ... }
+   # Verify: hash1 === hash2 === hash3 === hash4
+   ```
+
+3. **Verify rule counts match** - all compilers must report same number after filtering
+
+4. **Test with different configs** (JSON, YAML, TOML where supported)
+
+**Test file patterns** that verify this:
+- TypeScript: `src/rules-compiler-typescript/src/__tests__/compiler.test.ts`
+- .NET: `src/rules-compiler-dotnet/src/RulesCompiler.Tests/OutputWriterTests.cs`
+- Python: `src/rules-compiler-python/tests/test_compiler.py`
+- Rust: `src/rules-compiler-rust/src/compiler.rs` (integration tests)
+
+All test suites assert `hash.length === 96` and verify consistent hashing.
+
 ## Build and Test Commands
 
-### C# API Client (`src/api-client/`)
+### C# API Client (`src/adguard-api-client/`)
 ```bash
 # Navigate to the solution directory
 cd src/api-client/src
@@ -143,22 +228,26 @@ pwsh -Command "Invoke-ScriptAnalyzer -Path . -Recurse"
 - Add comments only when code intent is not obvious
 
 ### C# (.NET)
-- Use **C# 12** features with **.NET 8.0**
-- Follow Microsoft C# coding conventions
-- Use **async/await** for I/O operations
-- Dependency injection for services (especially `ILogger`)
-- Use nullable reference types (`#nullable enable`)
-- Test with **xUnit** framework
-- Use **Polly** for resilience and retry policies
+- Use **C# 12** features with **.NET 8.0** (see `<TargetFramework>net8.0</TargetFramework>`)
+- **Nullable reference types**: Always `#nullable enable` (enforced project-wide)
+- **DI Pattern**: Constructor injection for all services (`ILogger<T>`, `IConfiguration`)
+  - Register in `Program.cs` or `ServiceCollectionExtensions`
+- **Async/Await**: Required for all I/O (file, network, database)
+- **Polly**: Use `RetryPolicyHelper` for 408/429/5xx HTTP retries (see `Helpers/RetryPolicyHelper.cs`)
+  - API client has built-in retry with exponential backoff
+- **Auto-generated code**: Never edit `src/AdGuard.ApiClient/` directly
+  - Customizations go in `Helpers/` or ConsoleUI services
+- Test with **xUnit**, use `ITestOutputHelper` for test logging
 
 ### TypeScript
-- **Target**: ES2022, Node.js 18+
-- **Strict mode** enabled (`"strict": true`)
-- Use **node:** prefixed imports for Node.js built-ins (e.g., `node:fs`, `node:path`, `node:crypto`)
-- Follow functional programming patterns where appropriate
-- Use **JSDoc** comments for exported functions
-- Test with **Jest**
-- Use **ESLint** for linting
+- **Target**: ES2022, Node.js 18+ (see `package.json` engines)
+- **Strict mode** enabled (`"strict": true` in tsconfig.json)
+- **Critical**: Use **node:** prefixed imports for built-ins (`node:fs`, `node:path`, `node:crypto`)
+  - Why: Explicit Node.js imports vs. polyfills; required for Deno compatibility
+- **Hashing**: Use `node:crypto` createHash('sha384') - never SHA-256
+- JSDoc for exported functions
+- Test with **Jest** (coverage >80% expected)
+- ESLint with flat config (`eslint.config.js` not `.eslintrc`)
 
 ### Python
 - **Python 3.9+** compatibility
@@ -175,25 +264,40 @@ pwsh -Command "Invoke-ScriptAnalyzer -Path . -Recurse"
 - Use **serde** for serialization
 - Use **clap** for CLI argument parsing
 - Use **thiserror/anyhow** for error handling
-- Use **sha2** for SHA-384 hashing
+- **Version**: PowerShell 7+ (Core, not Windows PowerShell 5.1)
+- **Module structure**: `.psm1` (implementation) + `.psd1` (manifest)
+- Use approved verbs (Get-, Set-, New-, Invoke-, etc.)
+- **Critical**: Never use `ConvertTo-SecureString` with `-AsPlainText` and plaintext secrets
+  - Use secure input or environment variables
+- **Testing**: Pester v5 tests in `Tests/` folders
+- **Linting**: PSScriptAnalyzer enforced in CI (`.github/workflows/powershell.yml`)
+- **RulesCompiler module** (`scripts/powershell/`):
+  - `Invoke-FilterComp (CRITICAL)
+**NEVER commit**:
+- API keys, tokens, passwords
+- `.env` files (only commit `.env.example` templates)
 
-### PowerShell
-- Follow PowerShell best practices
-- Use approved verbs (Get-, Set-, New-, etc.)
-- Avoid global aliases
-- Never use `ConvertTo-SecureString` with plain text
-- Test with **PSScriptAnalyzer**
+**Environment variables**:
+- `ADGUARD_WEBHOOK_URL` - Webhook endpoint for notifications
+- `ADGUARD_API_KEY` - AdGuard DNS API authentication
+- `LINEAR_API_KEY` - Linear integration (scripts/linear/)
+- `SECRET_KEY` - Encryption keys
 
-## Security Best Practices
+**Configuration priority** (ConsoleUI):
+1. `appsettings.json` (checked into repo, no secrets)
+2. Environment variables with `ADGUARD_` prefix
+3. User secrets (`dotnet user-secrets set "AdGuard:ApiKey" "value"`)
 
-### Secrets Management
-- **NEVER commit sensitive data** to the repository
-- Use environment variables for secrets:
-  - `ADGUARD_WEBHOOK_URL`
-  - `SECRET_KEY`
-  - API tokens and keys
-- Check `.env.example` files for configuration templates
+### Dependencies & Scanning
+- **CodeQL**: Security scanning (`.github/workflows/codeql.yml`)
+- **DevSkim**: Additional security analysis
+- Update deps regularly; CI breaks on high-severity vulnerabilities
+- API client uses **Polly** for rate limiting and retry strategies
 
+### Filter Rules Security
+- Validate sources before adding to `sources[]` in config
+- Test rule changes locally before committing to `rules/adguard_user_filter.txt`
+- Rules deployed to AdGuard DNS affect real traffic filtering
 ### Dependencies
 - Regularly update dependencies to patch vulnerabilities
 - Review security advisories (CodeQL, DevSkim run in CI)
@@ -203,21 +307,57 @@ pwsh -Command "Invoke-ScriptAnalyzer -Path . -Recurse"
 - Be cautious when adding rules from untrusted sources
 - Validate and test new filter rules before deployment
 
-## Rules Compilation
+## Rules Compilation Standards
 
-### Rule Counting
-- Filter out empty lines
-- Filter out lines starting with `!` (comments)
-- Filter out lines starting with `#` (comments)
+### Rule Counting (Cross-Language Contract)
+**Must be identical across all compilers**:
+```typescript
+// Filter logic (pseudocode)
+validRules = lines
+  .filter(line => line.trim() !== '')        // No empty lines
+  .filter(line => !line.startsWith('!'))     // No ! comments
+  .filter(line => !line.startsWith('#'))     // No # comments
+```
 
-### Hashing
-- Use **SHA-384** for computing output file hashes
-- Hash the compiled output file content
+### Hashing (SHA-384 Contract)
+- **Algorithm**: SHA-384 (produces 96 hex characters)
+- **Input**: Compiled output file content (after writing to disk)
+- **Why SHA-384**: Balance of security and performance
+- **Verification**: Test suites assert `hash.length === 96`
 
-### Compilation Results
-- Track success/failure status
-- Record metrics: rule count, hash, elapsed time
-- Include timestamps for compilation
+### Result Structure
+All compilers return/output:
+```typescript
+{
+  success: boolean,
+  ruleCount: number,     // After filtering
+  outputPath: string,
+  hash: string,          // SHA-384 (96 chars)
+  elapsedMs: number,
+  configFormat?: string  // 'json' | 'yaml' | 'toml'
+}
+```
+
+### Configuration Schema
+Supports 3 formats (JSON/YAML/TOML), mirrors `@adguard/hostlist-compiler`:
+```json
+{ (GitHub Actions)
+| Workflow | File | Triggers | Purpose |
+|----------|------|----------|---------|
+| .NET | `dotnet.yml` | Push to main, PRs | Build/test API client (`dotnet test AdGuard.ApiClient.sln`) |
+| TypeScript | `typescript.yml` | Push to main, PRs | Type-check, lint, test (`tsc --noEmit`, `eslint`, `jest`) |
+| PowerShell | `powershell.yml` | On-demand | PSScriptAnalyzer on `scripts/powershell/` |
+| Gatsby | `gatsby.yml` | Push to main | Build and deploy to GitHub Pages |
+| CodeQL | `codeql.yml` | Schedule, push to main | Security scanning (breaks on high/critical) |
+| DevSkim | `devskim.yml` | Schedule | Additional security analysis |
+| Release | `release.yml` | Version tags | Build binaries for distribution |
+
+**CI Alignment**: Local commands should match CI workflows
+- TypeScript: `npm ci` (not `npm install`) for reproducible builds
+- .NET: `dotnet restore` → `dotnet build --no-restore` → `dotnet test --no-build`ments", "Compress", "Validate"]
+}
+```
+See `src/rules-compiler-typescript/compiler-config.json` for reference.
 
 ## Development Workflow
 
@@ -259,37 +399,145 @@ npm install <package-name>
 
 ### Running the Full Test Suite
 ```bash
-# From repository root
-cd src/api-client/src && dotnet test AdGuard.ApiClient.sln
-cd ../../rules-compiler-typescript && npm test
-cd ../rules-compiler-python && pytest
-cd ../rules-compiler-rust && cargo test
-```
+# FIntegration Points
 
-### Compiling Filter Rules
+### AdGuard DNS API
+- **OpenAPI spec**: `api/openapi.yaml` (v1.11)
+- **Auto-generated client**: `src/adguard-api-client/src/AdGuard.ApiClient/`
+- **Base URL**: Configured via `AdGuard:BaseUrl` in appsettings
+- **Auth**: Bearer token in `Authorization` header
+- **Retry logic**: 3 attempts with exponential backoff (408, 429, 5xx)
+
+### @adguard/hostlist-compiler
+- **All compilers depend on this**: npm package must be globally installed
+- **Installation**: `npm install -g @adguard/hostlist-compiler`
+- Provides 11 transformations (RemoveComments, Compress, Validate, etc.)
+- Compilers wrap this, handling config parsing and result formatting
+
+### Docker Development
+- **Dockerfile**: `Dockerfile.warp` (multi-stage with .NET 8 SDK + Node 20 + PowerShell 7)
+- **Warp image**: `jaysonknight/warp-env:ad-blocking` (pre-configured)
+- **Usage**:
+  ```bash
+  docker build -f Dockerfile.warp -t ad-blocking-dev .
+  docker run -it -v $(pwd):/workspace ad-blocking-dev
+  ```
+
+## Key Files & Their Roles
+
+| File/Folder | Purpose | When to Modify |
+|-------------|---------|----------------|
+| `rules/adguard_user_filter.txt` | **Production filter list** | After successful compilation and testing |
+| `src/rules-compiler-typescript/compiler-config.json` | **Primary config** for rule compilation | To change filter sources or transformations |
+| `api/openapi.yaml` | AdGuard DNS API spec (v1.11) | Never (upstream dependency) |
+| `src/adguard-api-client/src/AdGuard.ApiClient/` | **Auto-generated** API client | Never (regenerate from spec instead) |
+| `scripts/powershell/Invoke-RulesCompiler.psm1` | PowerShell wrapper for compiler | Extending PowerShell automation |
+| `docs/compiler-comparison.md` | **Decision guide** for choosing compiler | When adding features to compilers |
+
+## Common Gotchas
+
+1. **Hash Mismatches**: If compilers produce different hashes, check:
+   - Rule counting logic (empty lines, comment filters)
+   - SHA-384 algorithm (not SHA-256)
+   - Output file encoding (UTF-8 without BOM)
+
+2. **ConsoleUI Config**: Configuration sources cascade; environment vars override appsettings
+   - Debug with: `dotnet run -- --verbose` to see loaded config
+
+3. **TypeScript `node:` Prefix**: Required for Deno compatibility; ESLint enforces this
+
+4. **PowerShell JSON-Only**: Unlike other compilers, PowerShell module doesn't support YAML/TOML
+
+5. **CI vs Local**: Always use `npm ci` in CI (lockfile-driven), `npm install` locally
+
+## Linear Integration (`scripts/linear/`)
+
+**Purpose**: Import repository documentation into Linear for project management tracking.
+
+### When to Use
+- Creating Linear project for tracking repository features
+- Importing roadmap items as Linear issues
+- Syncing documentation structure to Linear
+- Setting up project management workflow
+
+### Setup
 ```bash
-# TypeScript compiler
-cd src/rules-compiler-typescript
-npm run compile
+cd scripts/linear
+npm install
+npm run build
 
-# PowerShell harness
-cd scripts/powershell
-./RulesCompiler-Harness.ps1
+# Configure .env (never commit this!)
+LINEAR_API_KEY=lin_api_your_key_here
+LINEAR_TEAM_ID=optional_team_id
+LINEAR_PROJECT_NAME=Ad-Blocking Documentation
 ```
+
+### Usage
+```bash
+# Full import with default settings
+npm run import:docs
+
+# Dry run (preview without making changes)
+npm run import:dry-run
+
+# Custom file and project
+npm run import -- --file /path/to/docs.md --project "My Project"
+
+# List available teams/projects
+npm run import -- --list-teams
+npm run import -- --list-projects
+```
+
+### What Gets Imported
+- **Project**: Creates Linear project for tracking
+- **Roadmap Issues**: Checkbox lists converted to Linear issues
+- **Component Docs**: Each major component becomes a documentation issue
+- **Architecture Info**: CI/CD pipelines, dependencies, tech stack
+
+See `scripts/linear/README.md` for full documentation.
+
+## Release Workflow
+
+**Trigger**: Push a version tag (e.g., `v1.0.0`) to automatically build and release binaries.
+
+### Creating a Release
+
+1. **Update version numbers** in project files:
+   - `src/adguard-api-client/src/AdGuard.ConsoleUI/AdGuard.ConsoleUI.csproj`
+   - `src/rules-compiler-dotnet/src/RulesCompiler.Console/RulesCompiler.Console.csproj`
+   - `src/rules-compiler-rust/Cargo.toml`
+   - `src/rules-compiler-python/pyproject.toml`
+
+2. **Create and push tag**:
+   ```bash
+   git tag -a v1.0.0 -m "Release version 1.0.0"
+   git push origin v1.0.0
+   ```
+
+3. **Wait for workflow** (`.github/workflows/release.yml`):
+   - Builds .NET executables (Windows, Linux, macOS)
+   - Builds Rust binaries (Windows, Linux, macOS)
+   - Builds Python wheel package
+   - Creates GitHub release with all binaries attached
+   - Takes ~15-20 minutes
+
+4. **Verify release** at `https://github.com/jaypatrick/ad-blocking/releases`:
+   - `AdGuard.ConsoleUI-{windows,linux,macos}.{zip,tar.gz}`
+   - `RulesCompiler.Console-{windows,linux,macos}.{zip,tar.gz}`
+   - `rules-compiler-rust-{windows,linux,macos}.{zip,tar.gz}`
+   - `rules_compiler-*.whl` (Python wheel)
+
+### Build Characteristics
+- **.NET**: Self-contained, single-file, trimmed (no runtime required)
+- **Rust**: LTO enabled, debug symbols stripped, optimized size
+- **Python**: Universal wheel (cross-platform)
+
+See `docs/release-guide.md` for full process.
 
 ## Documentation
 
-- **API Client**: See `src/api-client/README.md` and `docs/api/`
-- **Usage Guides**: See `docs/guides/`
-- **Security Policy**: See `SECURITY.md`
-- **Main README**: See `README.md`
-
-## Additional Notes
-
-- Repository uses **GitHub Actions** for CI/CD
-- **Warp environment** available with pre-configured Docker image: `jaysonknight/warp-env:ad-blocking`
-- Filter rules list: `rules/adguard_user_filter.txt`
-- Website deployed to **GitHub Pages**
-
-## Azure-Specific Rule
-- @azure Rule - Use Azure Best Practices: When generating code for Azure, running terminal commands for Azure, or performing operations related to Azure, invoke your `get_azure_best_practices` tool if available.
+- **API Reference**: `docs/api/` - Generated from OpenAPI spec
+- **Guides**: `docs/guides/` - consoleui-architecture.md, api-client-usage.md
+- **Comparison**: `docs/compiler-comparison.md` - Choose the right compiler
+- **Docker**: `docs/docker-guide.md` - Container development setup
+````
