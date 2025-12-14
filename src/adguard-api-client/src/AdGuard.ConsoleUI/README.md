@@ -167,12 +167,12 @@ AdGuard.ConsoleUI/
 | Package | Version | Description |
 |---------|---------|-------------|
 | Spectre.Console | 0.49.1 | Rich console UI library |
-| Microsoft.Extensions.Configuration | 9.0.0 | Configuration abstractions |
-| Microsoft.Extensions.Configuration.Json | 9.0.0 | JSON configuration provider |
-| Microsoft.Extensions.Configuration.EnvironmentVariables | 9.0.0 | Environment variables provider |
-| Microsoft.Extensions.DependencyInjection | 9.0.0 | Dependency injection container |
-| Microsoft.Extensions.Logging | 9.0.0 | Logging abstractions |
-| Microsoft.Extensions.Hosting | 9.0.0 | Generic host services |
+| Microsoft.Extensions.Configuration | 8.0.0 | Configuration abstractions |
+| Microsoft.Extensions.Configuration.Json | 8.0.0 | JSON configuration provider |
+| Microsoft.Extensions.Configuration.EnvironmentVariables | 8.0.0 | Environment variables provider |
+| Microsoft.Extensions.DependencyInjection | 8.0.0 | Dependency injection container |
+| Microsoft.Extensions.Logging | 8.0.0 | Logging abstractions |
+| Microsoft.Extensions.Hosting | 8.0.0 | Generic host services |
 | AdGuard.ApiClient | (project ref) | AdGuard DNS API client |
 
 ## Architecture

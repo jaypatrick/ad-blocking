@@ -7,53 +7,57 @@ namespace AdGuard.ConsoleUI.Services;
 public class ConsoleApplication
 {
     private readonly IApiClientFactory _apiClientFactory;
-    private readonly IMenuService _deviceMenu;
-    private readonly IMenuService _dnsServerMenu;
-    private readonly IMenuService _statisticsMenu;
-    private readonly IMenuService _accountMenu;
-    private readonly IMenuService _filterListMenu;
-    private readonly IMenuService _queryLogMenu;
-    private readonly IMenuService _webServiceMenu;
-    private readonly IMenuService _dedicatedIPMenu;
-    private readonly IMenuService _userRulesMenu;
     private readonly Dictionary<string, IMenuService> _menuServices;
 
+    /// <summary>
+    /// Defines the display order for menu items.
+    /// Services not in this list will be appended alphabetically at the end.
+    /// </summary>
+    private static readonly string[] MenuOrder =
+    [
+        "Devices",
+        "DNS Servers",
+        "User Rules",
+        "Statistics",
+        "Query Log",
+        "Filter Lists",
+        "Web Services",
+        "Dedicated IP Addresses",
+        "Account Info"
+    ];
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ConsoleApplication"/> class.
+    /// </summary>
+    /// <param name="apiClientFactory">The API client factory.</param>
+    /// <param name="menuServices">Collection of menu services to display.</param>
+    /// <exception cref="ArgumentNullException">Thrown when apiClientFactory or menuServices is null.</exception>
     public ConsoleApplication(
         IApiClientFactory apiClientFactory,
-        DeviceMenuService deviceMenu,
-        DnsServerMenuService dnsServerMenu,
-        StatisticsMenuService statisticsMenu,
-        AccountMenuService accountMenu,
-        FilterListMenuService filterListMenu,
-        QueryLogMenuService queryLogMenu,
-        WebServiceMenuService webServiceMenu,
-        DedicatedIPMenuService dedicatedIPMenu,
-        UserRulesMenuService userRulesMenu)
+        IEnumerable<IMenuService> menuServices)
     {
         _apiClientFactory = apiClientFactory ?? throw new ArgumentNullException(nameof(apiClientFactory));
-        _deviceMenu = deviceMenu ?? throw new ArgumentNullException(nameof(deviceMenu));
-        _dnsServerMenu = dnsServerMenu ?? throw new ArgumentNullException(nameof(dnsServerMenu));
-        _statisticsMenu = statisticsMenu ?? throw new ArgumentNullException(nameof(statisticsMenu));
-        _accountMenu = accountMenu ?? throw new ArgumentNullException(nameof(accountMenu));
-        _filterListMenu = filterListMenu ?? throw new ArgumentNullException(nameof(filterListMenu));
-        _queryLogMenu = queryLogMenu ?? throw new ArgumentNullException(nameof(queryLogMenu));
-        _webServiceMenu = webServiceMenu ?? throw new ArgumentNullException(nameof(webServiceMenu));
-        _dedicatedIPMenu = dedicatedIPMenu ?? throw new ArgumentNullException(nameof(dedicatedIPMenu));
-        _userRulesMenu = userRulesMenu ?? throw new ArgumentNullException(nameof(userRulesMenu));
+        ArgumentNullException.ThrowIfNull(menuServices);
 
-        // Register menu services for the Open/Closed principle
-        _menuServices = new Dictionary<string, IMenuService>
+        // Build menu dictionary from Title property, maintaining desired order
+        var servicesByTitle = menuServices.ToDictionary(s => s.Title, s => s);
+        _menuServices = new Dictionary<string, IMenuService>();
+
+        // Add services in defined order
+        foreach (var title in MenuOrder)
         {
-            { "Devices", _deviceMenu },
-            { "DNS Servers", _dnsServerMenu },
-            { "User Rules", _userRulesMenu },
-            { "Statistics", _statisticsMenu },
-            { "Query Log", _queryLogMenu },
-            { "Filter Lists", _filterListMenu },
-            { "Web Services", _webServiceMenu },
-            { "Dedicated IP Addresses", _dedicatedIPMenu },
-            { "Account Info", _accountMenu }
-        };
+            if (servicesByTitle.TryGetValue(title, out var service))
+            {
+                _menuServices[title] = service;
+                servicesByTitle.Remove(title);
+            }
+        }
+
+        // Add any remaining services alphabetically
+        foreach (var kvp in servicesByTitle.OrderBy(kvp => kvp.Key))
+        {
+            _menuServices[kvp.Key] = kvp.Value;
+        }
     }
 
     public async Task RunAsync()

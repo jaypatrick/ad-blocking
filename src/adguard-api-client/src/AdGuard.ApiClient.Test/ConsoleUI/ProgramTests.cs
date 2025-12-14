@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AdGuard.ApiClient.Model;
 using AdGuard.ConsoleUI.Abstractions;
 using AdGuard.ConsoleUI.Display;
@@ -71,16 +72,16 @@ public class ProgramTests
         services.AddSingleton<QueryLogDisplayStrategy>();
         services.AddSingleton<UserRulesDisplayStrategy>();
 
-        // Register Menu Services
-        services.AddSingleton<DeviceMenuService>();
-        services.AddSingleton<DnsServerMenuService>();
-        services.AddSingleton<StatisticsMenuService>();
-        services.AddSingleton<AccountMenuService>();
-        services.AddSingleton<FilterListMenuService>();
-        services.AddSingleton<QueryLogMenuService>();
-        services.AddSingleton<WebServiceMenuService>();
-        services.AddSingleton<DedicatedIPMenuService>();
-        services.AddSingleton<UserRulesMenuService>();
+        // Register Menu Services (as IMenuService for collection injection)
+        services.AddSingleton<IMenuService, DeviceMenuService>();
+        services.AddSingleton<IMenuService, DnsServerMenuService>();
+        services.AddSingleton<IMenuService, StatisticsMenuService>();
+        services.AddSingleton<IMenuService, AccountMenuService>();
+        services.AddSingleton<IMenuService, FilterListMenuService>();
+        services.AddSingleton<IMenuService, QueryLogMenuService>();
+        services.AddSingleton<IMenuService, WebServiceMenuService>();
+        services.AddSingleton<IMenuService, DedicatedIPMenuService>();
+        services.AddSingleton<IMenuService, UserRulesMenuService>();
 
         // Register Main Application
         services.AddSingleton<ConsoleApplication>();
@@ -350,87 +351,50 @@ public class ProgramTests
     #region Menu Service Registration Tests
 
     [Fact]
-    public void ConfigureServices_RegistersDeviceMenuService()
+    public void ConfigureServices_RegistersMenuServicesAsIMenuService()
     {
         // Arrange
         var services = CreateConfiguredServices();
         var provider = services.BuildServiceProvider();
 
         // Act
-        var service = provider.GetService<DeviceMenuService>();
+        var menuServices = provider.GetServices<IMenuService>().ToList();
 
         // Assert
-        Assert.NotNull(service);
+        Assert.Equal(9, menuServices.Count);
+        Assert.Contains(menuServices, s => s is DeviceMenuService);
+        Assert.Contains(menuServices, s => s is DnsServerMenuService);
+        Assert.Contains(menuServices, s => s is StatisticsMenuService);
+        Assert.Contains(menuServices, s => s is AccountMenuService);
+        Assert.Contains(menuServices, s => s is FilterListMenuService);
+        Assert.Contains(menuServices, s => s is QueryLogMenuService);
+        Assert.Contains(menuServices, s => s is WebServiceMenuService);
+        Assert.Contains(menuServices, s => s is DedicatedIPMenuService);
+        Assert.Contains(menuServices, s => s is UserRulesMenuService);
     }
 
     [Fact]
-    public void ConfigureServices_RegistersDnsServerMenuService()
+    public void ConfigureServices_MenuServices_HaveCorrectTitles()
     {
         // Arrange
         var services = CreateConfiguredServices();
         var provider = services.BuildServiceProvider();
+        var expectedTitles = new[]
+        {
+            "Devices", "DNS Servers", "User Rules", "Statistics",
+            "Query Log", "Filter Lists", "Web Services",
+            "Dedicated IP Addresses", "Account Info"
+        };
 
         // Act
-        var service = provider.GetService<DnsServerMenuService>();
+        var menuServices = provider.GetServices<IMenuService>();
+        var actualTitles = menuServices.Select(s => s.Title).ToList();
 
         // Assert
-        Assert.NotNull(service);
-    }
-
-    [Fact]
-    public void ConfigureServices_RegistersStatisticsMenuService()
-    {
-        // Arrange
-        var services = CreateConfiguredServices();
-        var provider = services.BuildServiceProvider();
-
-        // Act
-        var service = provider.GetService<StatisticsMenuService>();
-
-        // Assert
-        Assert.NotNull(service);
-    }
-
-    [Fact]
-    public void ConfigureServices_RegistersAccountMenuService()
-    {
-        // Arrange
-        var services = CreateConfiguredServices();
-        var provider = services.BuildServiceProvider();
-
-        // Act
-        var service = provider.GetService<AccountMenuService>();
-
-        // Assert
-        Assert.NotNull(service);
-    }
-
-    [Fact]
-    public void ConfigureServices_RegistersFilterListMenuService()
-    {
-        // Arrange
-        var services = CreateConfiguredServices();
-        var provider = services.BuildServiceProvider();
-
-        // Act
-        var service = provider.GetService<FilterListMenuService>();
-
-        // Assert
-        Assert.NotNull(service);
-    }
-
-    [Fact]
-    public void ConfigureServices_RegistersQueryLogMenuService()
-    {
-        // Arrange
-        var services = CreateConfiguredServices();
-        var provider = services.BuildServiceProvider();
-
-        // Act
-        var service = provider.GetService<QueryLogMenuService>();
-
-        // Assert
-        Assert.NotNull(service);
+        foreach (var title in expectedTitles)
+        {
+            Assert.Contains(title, actualTitles);
+        }
     }
 
     #endregion
@@ -514,30 +478,15 @@ public class ProgramTests
         var services = CreateConfiguredServices();
         var provider = services.BuildServiceProvider();
 
-        // Act & Assert
-        Assert.Same(
-            provider.GetService<DeviceMenuService>(),
-            provider.GetService<DeviceMenuService>());
+        // Act - Get menu services twice
+        var firstResolution = provider.GetServices<IMenuService>().ToList();
+        var secondResolution = provider.GetServices<IMenuService>().ToList();
 
-        Assert.Same(
-            provider.GetService<DnsServerMenuService>(),
-            provider.GetService<DnsServerMenuService>());
-
-        Assert.Same(
-            provider.GetService<StatisticsMenuService>(),
-            provider.GetService<StatisticsMenuService>());
-
-        Assert.Same(
-            provider.GetService<AccountMenuService>(),
-            provider.GetService<AccountMenuService>());
-
-        Assert.Same(
-            provider.GetService<FilterListMenuService>(),
-            provider.GetService<FilterListMenuService>());
-
-        Assert.Same(
-            provider.GetService<QueryLogMenuService>(),
-            provider.GetService<QueryLogMenuService>());
+        // Assert - Each service type should return the same instance
+        for (var i = 0; i < firstResolution.Count; i++)
+        {
+            Assert.Same(firstResolution[i], secondResolution[i]);
+        }
     }
 
     #endregion
@@ -566,20 +515,11 @@ public class ProgramTests
         var provider = services.BuildServiceProvider();
 
         // Act - All menu services depend on repositories and display strategies
-        var deviceMenu = provider.GetRequiredService<DeviceMenuService>();
-        var dnsServerMenu = provider.GetRequiredService<DnsServerMenuService>();
-        var statisticsMenu = provider.GetRequiredService<StatisticsMenuService>();
-        var accountMenu = provider.GetRequiredService<AccountMenuService>();
-        var filterListMenu = provider.GetRequiredService<FilterListMenuService>();
-        var queryLogMenu = provider.GetRequiredService<QueryLogMenuService>();
+        var menuServices = provider.GetServices<IMenuService>().ToList();
 
-        // Assert
-        Assert.NotNull(deviceMenu);
-        Assert.NotNull(dnsServerMenu);
-        Assert.NotNull(statisticsMenu);
-        Assert.NotNull(accountMenu);
-        Assert.NotNull(filterListMenu);
-        Assert.NotNull(queryLogMenu);
+        // Assert - All 9 menu services should be resolved
+        Assert.Equal(9, menuServices.Count);
+        Assert.All(menuServices, service => Assert.NotNull(service));
     }
 
     [Fact]
@@ -725,7 +665,8 @@ public class ProgramTests
         var provider = services.BuildServiceProvider();
 
         // Act
-        var menuService = provider.GetService<WebServiceMenuService>();
+        var menuServices = provider.GetServices<IMenuService>();
+        var menuService = menuServices.FirstOrDefault(s => s is WebServiceMenuService);
 
         // Assert
         Assert.NotNull(menuService);
@@ -739,7 +680,8 @@ public class ProgramTests
         var provider = services.BuildServiceProvider();
 
         // Act
-        var menuService = provider.GetService<DedicatedIPMenuService>();
+        var menuServices = provider.GetServices<IMenuService>();
+        var menuService = menuServices.FirstOrDefault(s => s is DedicatedIPMenuService);
 
         // Assert
         Assert.NotNull(menuService);
