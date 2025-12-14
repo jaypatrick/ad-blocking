@@ -5,9 +5,6 @@
     <RootNamespace>RulesCompiler.Tests</RootNamespace>
     <TargetFramework>net10.0</TargetFramework>
     <IsPackable>false</IsPackable>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <LangVersion>14</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

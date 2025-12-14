@@ -17,8 +17,6 @@
     <RepositoryUrl>https://github.com/jaypatrick/ad-blocking.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>Initial release - AdGuard DNS API v1.11 support</PackageReleaseNotes>
-    <Nullable>annotations</Nullable>
-    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
