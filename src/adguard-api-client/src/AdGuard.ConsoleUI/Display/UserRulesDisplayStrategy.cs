@@ -9,15 +9,13 @@ public class UserRulesDisplayStrategy : IDisplayStrategy<UserRulesSettings>
     /// <inheritdoc />
     public void Display(IEnumerable<UserRulesSettings> items)
     {
-        var itemList = items.ToList();
-        
-        if (itemList.Count == 0)
+        if (!items.Any())
         {
             ConsoleHelpers.ShowNoItemsMessage("user rules");
             return;
         }
 
-        foreach (var settings in itemList)
+        foreach (var settings in items)
         {
             DisplayDetails(settings);
         }
