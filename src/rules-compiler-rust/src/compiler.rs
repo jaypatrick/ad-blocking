@@ -443,7 +443,7 @@ mod tests {
         writeln!(file, "# Another comment").unwrap();
         writeln!(file, "||example.com^").unwrap();
         writeln!(file, "||test.org^").unwrap();
-        writeln!(file, "").unwrap();
+        writeln!(file).unwrap();
         writeln!(file, "@@||allowed.com^").unwrap();
 
         assert_eq!(count_rules(&path), 3);
