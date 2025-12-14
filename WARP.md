@@ -31,7 +31,7 @@ Website (Gatsby) – src/website
 - Serve local build: npm run serve
 
 PowerShell scripts
-- Static analysis (same as CI): Invoke-ScriptAnalyzer -Path scripts/powershell -Recurse
+- Static analysis (same as CI): Invoke-ScriptAnalyzer -Path src/powershell -Recurse
 
 Running a single test
 - TypeScript (Jest)
@@ -54,9 +54,9 @@ High-level architecture and structure
   - Auto-generated C# SDK for AdGuard DNS API v1.11 (see api/openapi.json (primary) and api/openapi.yaml (optional) and README.md). Targets net10.0 in AdGuard.ApiClient.csproj; uses Newtonsoft.Json and JsonSubTypes.
   - Helpers/ConfigurationHelper.cs provides fluent auth + timeouts + user agent, and Helpers/RetryPolicyHelper.cs adds Polly-based retry policies for 408/429/5xx.
   - Console UI (src/AdGuard.ConsoleUI/) is a Spectre.Console menu-driven wrapper over the SDK with a small ApiClientFactory to configure the SDK from settings or an interactive prompt.
-- Scripts (scripts/)
-  - scripts/linear: Node-based tool to import the repo's documentation into Linear (build with tsc; run node dist/linear-import.js). Reads .env for LINEAR_API_KEY, etc.
-  - scripts/powershell: PowerShell module scaffolding and tests; CI runs PSScriptAnalyzer against the folder.
+- Scripts (src/)
+  - src/linear: Node-based tool to import the repo's documentation into Linear (build with tsc; run node dist/linear-import.js). Reads .env for LINEAR_API_KEY, etc.
+  - src/powershell: PowerShell module scaffolding and tests; CI runs PSScriptAnalyzer against the folder.
 - Website (src/website/)
   - Gatsby portfolio starter used as a simple static site. CI builds and deploys to GitHub Pages.
 

@@ -77,7 +77,7 @@ Auto-generated API documentation for the AdGuard DNS API Client (v1.11).
 | .NET Compiler | [src/rules-compiler-dotnet/README.md](../src/rules-compiler-dotnet/README.md) |
 | Python Compiler | [src/rules-compiler-python/README.md](../src/rules-compiler-python/README.md) |
 | Rust Compiler | [src/rules-compiler-rust/README.md](../src/rules-compiler-rust/README.md) |
-| Shell Scripts | [scripts/shell/README.md](../scripts/shell/README.md) |
+| Shell Scripts | [src/shell/README.md](../src/shell/README.md) |
 
 ### Development
 

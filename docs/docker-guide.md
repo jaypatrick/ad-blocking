@@ -139,7 +139,7 @@ dotnet run --project src/RulesCompiler.Console
 
 # PowerShell
 cd /workspace
-pwsh -Command "Import-Module ./scripts/powershell/Invoke-RulesCompiler.psm1; Invoke-RulesCompiler"
+pwsh -Command "Import-Module ./src/powershell/Invoke-RulesCompiler.psm1; Invoke-RulesCompiler"
 ```
 
 ### Running Tests
@@ -155,7 +155,7 @@ dotnet test RulesCompiler.slnx
 
 # PowerShell tests
 cd /workspace
-pwsh -Command "Invoke-Pester -Path ./scripts/powershell/Tests/"
+pwsh -Command "Invoke-Pester -Path ./src/powershell/Tests/"
 ```
 
 ## Warp Environment

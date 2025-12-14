@@ -13,12 +13,12 @@ This repository is a comprehensive multi-language toolkit for ad-blocking, netwo
 - **Rust** (`src/rules-compiler-rust/`) - High-performance single binary with zero runtime deps
 
 ### Shell Scripts
-- **Bash** (`scripts/shell/compile-rules.sh`) - Linux/macOS
-- **PowerShell Core** (`scripts/shell/compile-rules.ps1`) - Cross-platform
-- **Windows Batch** (`scripts/shell/compile-rules.cmd`) - Windows wrapper
+- **Bash** (`src/shell/compile-rules.sh`) - Linux/macOS
+- **PowerShell Core** (`src/shell/compile-rules.ps1`) - Cross-platform
+- **Windows Batch** (`src/shell/compile-rules.cmd`) - Windows wrapper
 
 ### PowerShell Module
-- **RulesCompiler Module** (`scripts/powershell/`) - Full-featured PowerShell API with Pester tests
+- **RulesCompiler Module** (`src/powershell/`) - Full-featured PowerShell API with Pester tests
 
 ### API Client & Tools
 - **AdGuard API Client** (`src/adguard-api-client/`) - C# SDK for AdGuard DNS API v1.11
@@ -69,20 +69,20 @@ npm run compile -- --help
 npm run compile -- --version
 ```
 
-### Shell Scripts (`scripts/shell/`)
+### Shell Scripts (`src/shell/`)
 ```bash
 # Bash (Linux/macOS)
-./scripts/shell/compile-rules.sh                    # Use default config
-./scripts/shell/compile-rules.sh -c config.yaml -r  # YAML config, copy to rules
-./scripts/shell/compile-rules.sh -v                 # Show version
+./src/shell/compile-rules.sh                    # Use default config
+./src/shell/compile-rules.sh -c config.yaml -r  # YAML config, copy to rules
+./src/shell/compile-rules.sh -v                 # Show version
 
 # PowerShell Core (all platforms)
-./scripts/shell/compile-rules.ps1
-./scripts/shell/compile-rules.ps1 -ConfigPath config.yaml -CopyToRules
-./scripts/shell/compile-rules.ps1 -Version
+./src/shell/compile-rules.ps1
+./src/shell/compile-rules.ps1 -ConfigPath config.yaml -CopyToRules
+./src/shell/compile-rules.ps1 -Version
 
 # Windows Batch
-scripts\shell\compile-rules.cmd -c config.json -r
+src\shell\compile-rules.cmd -c config.json -r
 ```
 
 ### .NET Rules Compiler (`src/rules-compiler-dotnet/`)
@@ -171,10 +171,10 @@ npm run build      # Production build
 npm run serve      # Serve local build
 ```
 
-### PowerShell RulesCompiler Module (`scripts/powershell/`)
+### PowerShell RulesCompiler Module (`src/powershell/`)
 ```powershell
 # Import the module
-Import-Module ./scripts/powershell/Invoke-RulesCompiler.psm1
+Import-Module ./src/powershell/Invoke-RulesCompiler.psm1
 
 # Check versions and platform info
 Get-CompilerVersion | Format-List
@@ -186,13 +186,13 @@ Invoke-RulesCompiler
 Invoke-RulesCompiler -CopyToRules
 
 # Run interactive harness
-./scripts/powershell/RulesCompiler-Harness.ps1
+./src/powershell/RulesCompiler-Harness.ps1
 
 # Run Pester tests
-Invoke-Pester -Path ./scripts/powershell/Tests/RulesCompiler-Tests.ps1
+Invoke-Pester -Path ./src/powershell/Tests/RulesCompiler-Tests.ps1
 
 # Lint with PSScriptAnalyzer
-Invoke-ScriptAnalyzer -Path scripts/powershell -Recurse
+Invoke-ScriptAnalyzer -Path src/powershell -Recurse
 ```
 
 ## Running Individual Tests
@@ -219,13 +219,13 @@ dotnet test RulesCompiler.slnx --filter "FullyQualifiedName~TransformationTests"
 ### PowerShell (Pester)
 ```powershell
 # Run all PowerShell tests
-Invoke-Pester -Path ./scripts/powershell/Tests/
+Invoke-Pester -Path ./src/powershell/Tests/
 
 # Run specific test file
-Invoke-Pester -Path ./scripts/powershell/Tests/RulesCompiler-Tests.ps1
+Invoke-Pester -Path ./src/powershell/Tests/RulesCompiler-Tests.ps1
 
 # Run with detailed output
-Invoke-Pester -Path ./scripts/powershell/Tests/ -Output Detailed
+Invoke-Pester -Path ./src/powershell/Tests/ -Output Detailed
 ```
 
 ### Python (pytest)
@@ -263,7 +263,7 @@ cargo test config::                       # Tests in module
 - Deno support via `deno.json`
 - ESLint and Jest for testing
 
-### Shell Scripts (`scripts/shell/`)
+### Shell Scripts (`src/shell/`)
 - Cross-platform shell scripts for filter compilation
 - `compile-rules.sh` - Bash script for Linux/macOS
 - `compile-rules.ps1` - PowerShell Core script (all platforms)
@@ -312,7 +312,7 @@ cargo test config::                       # Tests in module
 - `ApiClientFactory` configures SDK from settings or interactive prompt
 - Features: Device management, DNS servers, statistics, query logs, filter lists
 
-### PowerShell Modules (`scripts/powershell/`)
+### PowerShell Modules (`src/powershell/`)
 - **RulesCompiler Module** - Cross-platform PowerShell API mirroring TypeScript compiler
   - `Invoke-RulesCompiler.psm1` - Main module with exported functions
   - `RulesCompiler.psd1` - Module manifest
@@ -355,7 +355,7 @@ RemoveComments, Compress, RemoveModifiers, Validate, ValidateAllowIp, Deduplicat
 | Variable | Description |
 |----------|-------------|
 | `AdGuard:ApiKey` | API credential for console UI (can also prompt interactively) |
-| `LINEAR_API_KEY` | For Linear import scripts (`scripts/linear/`) |
+| `LINEAR_API_KEY` | For Linear import scripts (`src/linear/`) |
 | `DEBUG` | Set to any value to enable debug logging in PowerShell modules |
 | `RULESCOMPILER_config` | Default configuration file path (.NET compiler) |
 | `RULESCOMPILER_Logging__LogLevel__Default` | Log level for .NET compiler |

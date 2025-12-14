@@ -71,7 +71,13 @@ ad-blocking/
 │   ├── adguard_user_filter.txt        # Main filter list
 │   ├── Api/                           # Rules API utilities
 │   └── Config/                        # Compiler configurations
-├── scripts/                           # Automation scripts
+├── src/                               # Source code
+│   ├── adguard-api-client/            # AdGuard DNS API C# client
+│   ├── rules-compiler-typescript/     # TypeScript rules compiler
+│   ├── rules-compiler-dotnet/         # .NET rules compiler
+│   ├── rules-compiler-python/         # Python rules compiler
+│   ├── rules-compiler-rust/           # Rust rules compiler
+│   ├── website/                       # Gatsby portfolio website
 │   ├── powershell/                    # PowerShell modules
 │   │   ├── Invoke-RulesCompiler.psm1  # Main module
 │   │   ├── RulesCompiler.psd1         # Module manifest
@@ -82,13 +88,6 @@ ad-blocking/
 │   │   ├── compile-rules.ps1          # PowerShell Core
 │   │   └── compile-rules.cmd          # Windows batch
 │   └── linear/                        # Linear integration
-├── src/                               # Source code
-│   ├── adguard-api-client/            # AdGuard DNS API C# client
-│   ├── rules-compiler-typescript/     # TypeScript rules compiler
-│   ├── rules-compiler-dotnet/         # .NET rules compiler
-│   ├── rules-compiler-python/         # Python rules compiler
-│   ├── rules-compiler-rust/           # Rust rules compiler
-│   └── website/                       # Gatsby portfolio website
 ├── Dockerfile.warp                    # Docker development environment
 ├── CLAUDE.md                          # AI assistant instructions
 ├── SECURITY.md                        # Security policy
@@ -150,11 +149,11 @@ cd src/rules-compiler-python && rules-compiler
 cd src/rules-compiler-rust && cargo run --release
 
 # PowerShell
-Import-Module ./scripts/powershell/Invoke-RulesCompiler.psm1
+Import-Module ./src/powershell/Invoke-RulesCompiler.psm1
 Invoke-RulesCompiler
 
 # Bash
-./scripts/shell/compile-rules.sh
+./src/shell/compile-rules.sh
 ```
 
 ## Docker Development Environment
@@ -386,39 +385,39 @@ println!("Compiled {} rules", result.rule_count);
 
 ### Shell Scripts
 
-**Location**: `scripts/shell/`
+**Location**: `src/shell/`
 
 #### Bash (Linux/macOS)
 
 ```bash
-./scripts/shell/compile-rules.sh                    # Default config
-./scripts/shell/compile-rules.sh -c config.yaml     # YAML config
-./scripts/shell/compile-rules.sh -c config.yaml -r  # Copy to rules
-./scripts/shell/compile-rules.sh -v                 # Show version
+./src/shell/compile-rules.sh                    # Default config
+./src/shell/compile-rules.sh -c config.yaml     # YAML config
+./src/shell/compile-rules.sh -c config.yaml -r  # Copy to rules
+./src/shell/compile-rules.sh -v                 # Show version
 ```
 
 #### PowerShell Core (Cross-platform)
 
 ```powershell
-./scripts/shell/compile-rules.ps1
-./scripts/shell/compile-rules.ps1 -ConfigPath config.yaml
-./scripts/shell/compile-rules.ps1 -ConfigPath config.yaml -CopyToRules
-./scripts/shell/compile-rules.ps1 -Version
+./src/shell/compile-rules.ps1
+./src/shell/compile-rules.ps1 -ConfigPath config.yaml
+./src/shell/compile-rules.ps1 -ConfigPath config.yaml -CopyToRules
+./src/shell/compile-rules.ps1 -Version
 ```
 
 #### Windows Batch
 
 ```cmd
-scripts\shell\compile-rules.cmd -c config.json -r
+src\shell\compile-rules.cmd -c config.json -r
 ```
 
 ### PowerShell Module
 
-**Location**: `scripts/powershell/`
+**Location**: `src/powershell/`
 
 ```powershell
 # Import module
-Import-Module ./scripts/powershell/Invoke-RulesCompiler.psm1
+Import-Module ./src/powershell/Invoke-RulesCompiler.psm1
 
 # Available functions
 Get-CompilerVersion | Format-List           # Version info
@@ -426,13 +425,13 @@ Invoke-RulesCompiler                         # Compile rules
 Invoke-RulesCompiler -CopyToRules            # Compile and copy
 
 # Interactive harness
-./scripts/powershell/RulesCompiler-Harness.ps1
+./src/powershell/RulesCompiler-Harness.ps1
 
 # Run Pester tests
-Invoke-Pester -Path ./scripts/powershell/Tests/
+Invoke-Pester -Path ./src/powershell/Tests/
 
 # Lint with PSScriptAnalyzer
-Invoke-ScriptAnalyzer -Path scripts/powershell -Recurse
+Invoke-ScriptAnalyzer -Path src/powershell -Recurse
 ```
 
 **Exported Functions**:
@@ -705,9 +704,9 @@ cargo test config::                 # Module tests
 ### PowerShell
 
 ```powershell
-Invoke-Pester -Path ./scripts/powershell/Tests/
-Invoke-Pester -Path ./scripts/powershell/Tests/ -Output Detailed
-Invoke-ScriptAnalyzer -Path scripts/powershell -Recurse
+Invoke-Pester -Path ./src/powershell/Tests/
+Invoke-Pester -Path ./src/powershell/Tests/ -Output Detailed
+Invoke-ScriptAnalyzer -Path src/powershell -Recurse
 ```
 
 ## CI/CD
@@ -753,7 +752,7 @@ Download the latest release from the [Releases page](https://github.com/jaypatri
 - [.NET Compiler README](src/rules-compiler-dotnet/README.md)
 - [Python Compiler README](src/rules-compiler-python/README.md)
 - [Rust Compiler README](src/rules-compiler-rust/README.md)
-- [Shell Scripts README](scripts/shell/README.md)
+- [Shell Scripts README](src/shell/README.md)
 
 ### Development
 
