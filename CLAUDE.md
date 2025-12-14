@@ -14,6 +14,7 @@ This repository is a comprehensive multi-language toolkit for ad-blocking, netwo
 
 ### Shell Scripts
 - **Bash** (`src/rules-compiler-shell/compile-rules.sh`) - Linux/macOS
+- **Zsh** (`src/rules-compiler-shell/compile-rules.zsh`) - macOS/Linux with zsh-specific features
 - **PowerShell Core** (`src/rules-compiler-shell/compile-rules.ps1`) - Cross-platform
 - **Windows Batch** (`src/rules-compiler-shell/compile-rules.cmd`) - Windows wrapper
 
@@ -75,6 +76,11 @@ npm run compile -- --version
 ./src/rules-compiler-shell/compile-rules.sh                    # Use default config
 ./src/rules-compiler-shell/compile-rules.sh -c config.yaml -r  # YAML config, copy to rules
 ./src/rules-compiler-shell/compile-rules.sh -v                 # Show version
+
+# Zsh (macOS/Linux)
+./src/rules-compiler-shell/compile-rules.zsh                   # Use default config
+./src/rules-compiler-shell/compile-rules.zsh -c config.yaml -r # YAML config, copy to rules
+./src/rules-compiler-shell/compile-rules.zsh -v                # Show version
 
 # PowerShell Core (all platforms)
 ./src/rules-compiler-shell/compile-rules.ps1
@@ -266,6 +272,7 @@ cargo test config::                       # Tests in module
 ### Shell Scripts (`src/rules-compiler-shell/`)
 - Cross-platform shell scripts for filter compilation
 - `compile-rules.sh` - Bash script for Linux/macOS
+- `compile-rules.zsh` - Zsh script with native zsh features (zparseopts, EPOCHREALTIME)
 - `compile-rules.ps1` - PowerShell Core script (all platforms)
 - `compile-rules.cmd` - Windows batch wrapper
 - Supports JSON, YAML, TOML via external tools (yq, Python)

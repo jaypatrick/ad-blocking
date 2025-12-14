@@ -7,6 +7,7 @@ Cross-platform shell scripts for compiling AdGuard filter rules using `@adguard/
 | Script | Platform | Description |
 |--------|----------|-------------|
 | `compile-rules.sh` | Linux, macOS | Bash script with full feature support |
+| `compile-rules.zsh` | Linux, macOS | Zsh script with native zsh features |
 | `compile-rules.ps1` | All (PowerShell Core) | PowerShell 7+ cross-platform script |
 | `compile-rules.cmd` | Windows | Batch wrapper for Windows users |
 
@@ -46,6 +47,28 @@ chmod +x src/rules-compiler-shell/compile-rules.sh
 
 # Show help
 ./src/rules-compiler-shell/compile-rules.sh -h
+```
+
+### Zsh (Linux/macOS)
+
+```zsh
+# Make executable (first time only)
+chmod +x src/rules-compiler-shell/compile-rules.zsh
+
+# Run with defaults
+./src/rules-compiler-shell/compile-rules.zsh
+
+# Use YAML configuration
+./src/rules-compiler-shell/compile-rules.zsh -c src/rules-compiler-typescript/compiler-config.yaml
+
+# Compile and copy to rules directory
+./src/rules-compiler-shell/compile-rules.zsh -r
+
+# Show version info
+./src/rules-compiler-shell/compile-rules.zsh -v
+
+# Show help
+./src/rules-compiler-shell/compile-rules.zsh -h
 ```
 
 ### PowerShell Core (All Platforms)
@@ -201,6 +224,7 @@ which npx
 ### Permission denied (Unix)
 ```bash
 chmod +x src/rules-compiler-shell/compile-rules.sh
+chmod +x src/rules-compiler-shell/compile-rules.zsh
 ```
 
 ### YAML parsing fails
