@@ -1,7 +1,7 @@
 # AdGuard Solution Modernization Tasks
 
 **Solution:** AdGuard.ApiClient.slnx  
-**Target Framework:** .NET 8.0  
+**Target Framework:** .NET 10  
 **Current Version:** 4.3.2.42  
 **Generated:** 2025-01-24  
 **Status:** Not Started
@@ -10,7 +10,7 @@
 
 ## ?? Overview
 
-This document tracks modernization tasks for the AdGuard DNS API Client solution. The goal is to adopt modern .NET 8 patterns, improve performance, and reduce dependencies while maintaining functionality.
+This document tracks modernization tasks for the AdGuard DNS API Client solution. The goal is to adopt modern .NET 10 patterns, improve performance, and reduce dependencies while maintaining functionality.
 
 **Total Scenarios:** 5  
 **Estimated Total Effort:** 8.5-10 hours  
@@ -144,7 +144,7 @@ Implement Central Package Management to manage all NuGet package versions from a
 Refactor classes in AdGuard.ConsoleUI to use C# 12 primary constructors. This eliminates boilerplate field declarations and constructor assignments, making the code more concise and readable.
 
 #### Affected Projects
-- AdGuard.ConsoleUI (C# 12, .NET 8)
+- AdGuard.ConsoleUI (C# 14, .NET 10)
 
 #### Target Classes (~25 classes)
 
@@ -235,7 +235,7 @@ Refactor classes in AdGuard.ConsoleUI to use C# 12 primary constructors. This el
 **Status:** [ ] Not Started
 
 #### Description
-Migrate from Newtonsoft.Json to System.Text.Json for JSON serialization. This provides better performance (2-5x faster), lower memory allocation, and removes an external dependency by using the built-in .NET 8 serializer.
+Migrate from Newtonsoft.Json to System.Text.Json for JSON serialization. This provides better performance (2-5x faster), lower memory allocation, and removes an external dependency by using the built-in .NET 10 serializer.
 
 #### Affected Projects
 - AdGuard.ApiClient (Core SDK)
@@ -328,7 +328,7 @@ Migrate from Newtonsoft.Json to System.Text.Json for JSON serialization. This pr
 **Status:** [ ] Not Started
 
 #### Description
-Update OpenAPI Generator configuration to generate modern .NET 8 code with System.Text.Json, proper async patterns, and current best practices. This requires regenerating all API client code.
+Update OpenAPI Generator configuration to generate modern .NET 10 code with System.Text.Json, proper async patterns, and current best practices. This requires regenerating all API client code.
 
 #### Prerequisites
 - SCENARIO-004 (System.Text.Json migration) should inform this configuration
@@ -343,14 +343,14 @@ Update OpenAPI Generator configuration to generate modern .NET 8 code with Syste
 
 - [ ] **TASK-005.2:** Update OpenAPI Generator version
   - [ ] Research latest stable OpenAPI Generator version
-  - [ ] Check for .NET 8 support
+  - [ ] Check for .NET 10 support
   - [ ] Review release notes for breaking changes
   - [ ] Update generator tool
 
 - [ ] **TASK-005.3:** Create new generator configuration
   - [ ] Set `jsonLibrary=System.Text.Json`
-  - [ ] Set `targetFramework=net8.0`
-  - [ ] Set `langVersion=12.0` (C# 12)
+  - [ ] Set `targetFramework=net10.0`
+  - [ ] Set `langVersion=14` (C# 14)
   - [ ] Configure to avoid ConfigureAwait(false)
   - [ ] Enable nullable reference types
   - [ ] Review other modern options

@@ -35,7 +35,7 @@ A comprehensive multi-language toolkit for ad-blocking, network protection, and 
 
 - **Multi-Language Rules Compilers**: Compile AdGuard filter rules using your preferred language
   - TypeScript/Node.js with Deno support
-  - .NET 8 with library and CLI
+  - .NET 10 with library and CLI
   - Python 3.9+ with pip distribution
   - Rust with high-performance single binary
   - Cross-platform shell scripts (Bash, PowerShell, Batch)
@@ -102,7 +102,7 @@ ad-blocking/
 |-------------|---------|--------------|
 | [Node.js](https://nodejs.org/) | 18+ | All compilers, Website |
 | [hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler) | Latest | All compilers |
-| [.NET SDK](https://dotnet.microsoft.com/download/dotnet/8.0) | 8.0+ | .NET compiler, API client |
+| [.NET SDK](https://dotnet.microsoft.com/download/dotnet/10.0) | 10.0+ | .NET compiler, API client |
 | [Python](https://www.python.org/) | 3.9+ | Python compiler |
 | [Rust](https://rustup.rs/) | 1.70+ | Rust compiler |
 | [PowerShell](https://github.com/PowerShell/PowerShell) | 7+ | PowerShell scripts |
@@ -163,10 +163,10 @@ A pre-configured Docker environment is available with all dependencies installed
 ### Dockerfile.warp
 
 ```dockerfile
-FROM mcr.microsoft.com/dotnet/sdk:8.0-jammy
+FROM mcr.microsoft.com/dotnet/sdk:10.0-noble
 
 # Includes:
-# - .NET 8.0 SDK
+# - .NET 10 SDK
 # - Node.js 20.x LTS
 # - PowerShell 7
 # - Git
@@ -715,7 +715,7 @@ GitHub Actions workflows:
 
 | Workflow | Description |
 |----------|-------------|
-| `dotnet.yml` | Build and test .NET projects with .NET 8 |
+| `dotnet.yml` | Build and test .NET projects with .NET 10 |
 | `typescript.yml` | TypeScript build, lint, and test |
 | `powershell.yml` | PSScriptAnalyzer linting |
 | `gatsby.yml` | Build and deploy website to GitHub Pages |

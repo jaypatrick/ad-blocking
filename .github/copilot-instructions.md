@@ -228,7 +228,7 @@ pwsh -Command "Invoke-ScriptAnalyzer -Path . -Recurse"
 - Add comments only when code intent is not obvious
 
 ### C# (.NET)
-- Use **C# 12** features with **.NET 8.0** (see `<TargetFramework>net8.0</TargetFramework>`)
+- Use **C# 14** features with **.NET 10** (see `<TargetFramework>net10.0</TargetFramework>`)
 - **Nullable reference types**: Always `#nullable enable` (enforced project-wide)
 - **DI Pattern**: Constructor injection for all services (`ILogger<T>`, `IConfiguration`)
   - Register in `Program.cs` or `ServiceCollectionExtensions`

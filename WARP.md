@@ -4,7 +4,7 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 
 Project scope
 - This repo houses multiple sub-projects: a TypeScript filter compiler, an AdGuard DNS API client (C#), a small console UI for the API client, a Gatsby website, and a few automation scripts.
-- CI pipelines (GitHub Actions) validate the .NET API client solution, the TypeScript compiler, and the website using Node 20 and .NET 8. Keep local commands aligned with the workflows below.
+- CI pipelines (GitHub Actions) validate the .NET API client solution, the TypeScript compiler, and the website using Node 20 and .NET 10. Keep local commands aligned with the workflows below.
 
 Common commands (build, lint, test)
 TypeScript – rules compiler (src/rules-compiler-typescript)
@@ -22,7 +22,7 @@ TypeScript – rules compiler (src/rules-compiler-typescript)
 - Restore/build/test: cd src/adguard-api-client; dotnet restore src/AdGuard.ApiClient.sln; dotnet build src/AdGuard.ApiClient.sln; dotnet test src/AdGuard.ApiClient.sln
 - Run the console UI: dotnet run --project src/AdGuard.ConsoleUI/AdGuard.ConsoleUI.csproj
   Notes
-  - The client targets net8.0 and includes helpers for configuration and Polly-based retry policies (see Helpers/ConfigurationHelper.cs and Helpers/RetryPolicyHelper.cs).
+  - The client targets net10.0 and includes helpers for configuration and Polly-based retry policies (see Helpers/ConfigurationHelper.cs and Helpers/RetryPolicyHelper.cs).
 
 Website (Gatsby) – src/website
 - Install deps: cd src/website && npm ci
@@ -51,7 +51,7 @@ High-level architecture and structure
   - TypeScript wrapper around @adguard/hostlist-compiler. invoke-compiler.ts loads compiler-config.json, compiles sources, and writes adguard_user_filter.txt. Jest tests cover config parsing and output writing.
   - eslint.config.mjs configures JS/TS linting via the flat config.
 - API client (src/adguard-api-client/)
-  - Auto-generated C# SDK for AdGuard DNS API v1.11 (see api/openapi.yaml and README.md). Targets net8.0 in AdGuard.ApiClient.csproj; uses Newtonsoft.Json and JsonSubTypes.
+  - Auto-generated C# SDK for AdGuard DNS API v1.11 (see api/openapi.yaml and README.md). Targets net10.0 in AdGuard.ApiClient.csproj; uses Newtonsoft.Json and JsonSubTypes.
   - Helpers/ConfigurationHelper.cs provides fluent auth + timeouts + user agent, and Helpers/RetryPolicyHelper.cs adds Polly-based retry policies for 408/429/5xx.
   - Console UI (src/AdGuard.ConsoleUI/) is a Spectre.Console menu-driven wrapper over the SDK with a small ApiClientFactory to configure the SDK from settings or an interactive prompt.
 - Scripts (scripts/)
@@ -61,10 +61,10 @@ High-level architecture and structure
   - Gatsby portfolio starter used as a simple static site. CI builds and deploys to GitHub Pages.
 
 Notes pulled from existing docs
-- Root README lists prerequisites: .NET 8, Node 18+, and PowerShell 7+. It also documents the typical steps to compile filters with the TypeScript tool.
+- Root README lists prerequisites: .NET 10, Node 18+, and PowerShell 7+. It also documents the typical steps to compile filters with the TypeScript tool.
 - The API client README documents OpenAPI version (1.11) and packaging guidance if you later decide to publish a NuGet package.
 
 Alignment with CI
-- .github/workflows/dotnet.yml builds and tests the API client solution with .NET 8.
+- .github/workflows/dotnet.yml builds and tests the API client solution with .NET 10.
 - .github/workflows/typescript.yml uses Node 20, performs tsc --noEmit and eslint for the rules-compiler-typescript.
 - .github/workflows/gatsby.yml builds src/website and deploys to GitHub Pages.

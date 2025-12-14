@@ -287,7 +287,7 @@ Full API documentation available in `/docs/api/`.
 
 ### Prerequisites
 - Node.js 20+
-- .NET 8.0 SDK
+- .NET 10 SDK
 - PowerShell 7+
 
 ### Filter Compiler
