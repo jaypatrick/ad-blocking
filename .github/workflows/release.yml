@@ -189,17 +189,17 @@ jobs:
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             VERSION="${{ github.event.inputs.version }}"
             # Validate version format (must start with 'v' and follow semver)
-            # Pre-release suffix allows alphanumeric and hyphens (e.g., v1.0.0-beta, v1.0.0-rc1)
-            # Pattern ensures hyphens are separated by alphanumeric characters
-            if ! echo "$VERSION" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*)?$'; then
+            # Pre-release: alphanumeric identifiers separated by dots or single identifier
+            # Examples: v1.0.0, v1.0.0-beta, v1.0.0-rc1, v1.0.0-alpha.1
+            if ! echo "$VERSION" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*)?$'; then
               echo "Error: Version must follow format 'vX.Y.Z' or 'vX.Y.Z-suffix'"
-              echo "Examples: v1.0.0, v1.0.0-beta, v2.1.0-rc1"
+              echo "Examples: v1.0.0, v1.0.0-beta, v1.0.0-rc1, v1.0.0-alpha.1"
               exit 1
             fi
             echo "version=$VERSION" >> $GITHUB_OUTPUT
             
-            # Fetch tags to check if version exists
-            git fetch --tags || { echo "Error: Failed to fetch tags"; exit 1; }
+            # Fetch tags efficiently (refs only, no history)
+            git fetch --tags --depth=1 || { echo "Error: Failed to fetch tags"; exit 1; }
             
             # Create and push tag if it doesn't exist
             if ! git rev-parse "$VERSION" >/dev/null 2>&1; then
