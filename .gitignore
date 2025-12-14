@@ -484,7 +484,6 @@ $RECYCLE.BIN/
 
 # TypeScript build output
 src/rules-compiler-typescript/dist/
-src/rules-compiler-typescript/frontend-rust/target/
 
 # Rust build output
 **/target/

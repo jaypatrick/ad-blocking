@@ -188,17 +188,21 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             VERSION="${{ github.event.inputs.version }}"
-            # Validate version format (must start with 'v' and follow semver)
-            # Pre-release: alphanumeric identifiers separated by dots or single identifier
+            
+            # Semver 2.0.0 compliant version pattern
+            # Format: vMAJOR.MINOR.PATCH[-PRERELEASE] where PRERELEASE is dot-separated identifiers
             # Examples: v1.0.0, v1.0.0-beta, v1.0.0-rc1, v1.0.0-alpha.1
-            if ! echo "$VERSION" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*)?$'; then
+            SEMVER_PATTERN='^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*)?$'
+            
+            if ! echo "$VERSION" | grep -qE "$SEMVER_PATTERN"; then
               echo "Error: Version must follow format 'vX.Y.Z' or 'vX.Y.Z-suffix'"
               echo "Examples: v1.0.0, v1.0.0-beta, v1.0.0-rc1, v1.0.0-alpha.1"
               exit 1
             fi
             echo "version=$VERSION" >> $GITHUB_OUTPUT
             
-            # Fetch tags efficiently (refs only, no history)
+            # Fetch tags efficiently (refs only, shallow)
+            # Note: --depth=1 is sufficient since we only check tag existence
             git fetch --tags --depth=1 || { echo "Error: Failed to fetch tags"; exit 1; }
             
             # Create and push tag if it doesn't exist
