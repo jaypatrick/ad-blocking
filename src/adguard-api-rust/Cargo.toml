@@ -1,0 +1,38 @@
+[workspace]
+members = [
+    "adguard-api-lib",
+    "adguard-api-cli",
+]
+resolver = "2"
+
+[workspace.package]
+version = "1.0.0"
+edition = "2024"
+authors = ["jaypatrick"]
+license = "GPL-3.0"
+repository = "https://github.com/jaypatrick/ad-blocking"
+
+[workspace.dependencies]
+# Async runtime
+tokio = { version = "1.40", features = ["full"] }
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# CLI
+clap = { version = "4.5", features = ["derive", "env"] }
+
+# Time/Date
+chrono = { version = "0.4", features = ["serde"] }
+
+# URL parsing
+url = "2.5"
+
+# UUID
+uuid = { version = "1.11", features = ["v4", "serde"] }
