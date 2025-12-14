@@ -17,8 +17,7 @@ using Xunit;
 
 using AdGuard.ApiClient.Client;
 using AdGuard.ApiClient.Api;
-// uncomment below to import models
-//using AdGuard.ApiClient.Model;
+using AdGuard.ApiClient.Model;
 
 namespace AdGuard.ApiClient.Test.Api
 {
@@ -49,8 +48,7 @@ namespace AdGuard.ApiClient.Test.Api
         [Fact]
         public void InstanceTest()
         {
-            // TODO uncomment below to test 'IsType' DNSServersApi
-            //Assert.IsType<DNSServersApi>(instance);
+            Assert.IsType<DNSServersApi>(instance);
         }
 
         /// <summary>
@@ -75,5 +73,156 @@ namespace AdGuard.ApiClient.Test.Api
             //var response = instance.ListDNSServers();
             //Assert.IsType<List<DNSServer>>(response);
         }
+
+        #region UpdateDNSServerSettings Tests
+
+        /// <summary>
+        /// Test UpdateDNSServerSettings with null server ID throws exception
+        /// </summary>
+        [Fact]
+        public void UpdateDNSServerSettings_WithNullServerId_ThrowsApiException()
+        {
+            // Arrange
+            var settingsUpdate = new DNSServerSettingsUpdate();
+
+            // Act & Assert
+            var exception = Assert.Throws<ApiException>(
+                () => instance.UpdateDNSServerSettings(null!, settingsUpdate));
+
+            Assert.Equal(400, exception.ErrorCode);
+            Assert.Contains("dnsServerId", exception.Message);
+        }
+
+        /// <summary>
+        /// Test UpdateDNSServerSettings with null settings update throws exception
+        /// </summary>
+        [Fact]
+        public void UpdateDNSServerSettings_WithNullSettingsUpdate_ThrowsApiException()
+        {
+            // Arrange
+            var serverId = "test-server-id";
+
+            // Act & Assert
+            var exception = Assert.Throws<ApiException>(
+                () => instance.UpdateDNSServerSettings(serverId, null!));
+
+            Assert.Equal(400, exception.ErrorCode);
+            Assert.Contains("dnsServerSettingsUpdate", exception.Message);
+        }
+
+        /// <summary>
+        /// Test UpdateDNSServerSettingsAsync with null server ID throws exception
+        /// </summary>
+        [Fact]
+        public async void UpdateDNSServerSettingsAsync_WithNullServerId_ThrowsApiException()
+        {
+            // Arrange
+            var settingsUpdate = new DNSServerSettingsUpdate();
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<ApiException>(
+                () => instance.UpdateDNSServerSettingsAsync(null!, settingsUpdate));
+
+            Assert.Equal(400, exception.ErrorCode);
+            Assert.Contains("dnsServerId", exception.Message);
+        }
+
+        /// <summary>
+        /// Test UpdateDNSServerSettingsAsync with null settings update throws exception
+        /// </summary>
+        [Fact]
+        public async void UpdateDNSServerSettingsAsync_WithNullSettingsUpdate_ThrowsApiException()
+        {
+            // Arrange
+            var serverId = "test-server-id";
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<ApiException>(
+                () => instance.UpdateDNSServerSettingsAsync(serverId, null!));
+
+            Assert.Equal(400, exception.ErrorCode);
+            Assert.Contains("dnsServerSettingsUpdate", exception.Message);
+        }
+
+        /// <summary>
+        /// Test UpdateDNSServerSettings method exists and is accessible
+        /// </summary>
+        [Fact]
+        public void UpdateDNSServerSettings_MethodExists()
+        {
+            // Arrange
+            var methodInfo = typeof(DNSServersApi).GetMethod(
+                "UpdateDNSServerSettings",
+                new[] { typeof(string), typeof(DNSServerSettingsUpdate) });
+
+            // Assert
+            Assert.NotNull(methodInfo);
+            Assert.Equal(typeof(void), methodInfo.ReturnType);
+        }
+
+        /// <summary>
+        /// Test UpdateDNSServerSettingsAsync method exists and is accessible
+        /// </summary>
+        [Fact]
+        public void UpdateDNSServerSettingsAsync_MethodExists()
+        {
+            // Arrange
+            var methodInfo = typeof(DNSServersApi).GetMethod(
+                "UpdateDNSServerSettingsAsync",
+                new[] { typeof(string), typeof(DNSServerSettingsUpdate), typeof(System.Threading.CancellationToken) });
+
+            // Assert
+            Assert.NotNull(methodInfo);
+            Assert.True(methodInfo.ReturnType.IsAssignableTo(typeof(System.Threading.Tasks.Task)));
+        }
+
+        /// <summary>
+        /// Test UpdateDNSServerSettingsWithHttpInfo method exists
+        /// </summary>
+        [Fact]
+        public void UpdateDNSServerSettingsWithHttpInfo_MethodExists()
+        {
+            // Arrange
+            var methodInfo = typeof(DNSServersApi).GetMethod(
+                "UpdateDNSServerSettingsWithHttpInfo",
+                new[] { typeof(string), typeof(DNSServerSettingsUpdate) });
+
+            // Assert
+            Assert.NotNull(methodInfo);
+        }
+
+        /// <summary>
+        /// Test that the API interface includes UpdateDNSServerSettings
+        /// </summary>
+        [Fact]
+        public void IDNSServersApi_IncludesUpdateDNSServerSettings()
+        {
+            // Assert
+            Assert.True(instance is IDNSServersApi);
+
+            var syncInterface = typeof(IDNSServersApiSync);
+            var method = syncInterface.GetMethod(
+                "UpdateDNSServerSettings",
+                new[] { typeof(string), typeof(DNSServerSettingsUpdate) });
+
+            Assert.NotNull(method);
+        }
+
+        /// <summary>
+        /// Test that the async API interface includes UpdateDNSServerSettingsAsync
+        /// </summary>
+        [Fact]
+        public void IDNSServersApiAsync_IncludesUpdateDNSServerSettingsAsync()
+        {
+            // Assert
+            var asyncInterface = typeof(IDNSServersApiAsync);
+            var method = asyncInterface.GetMethod(
+                "UpdateDNSServerSettingsAsync",
+                new[] { typeof(string), typeof(DNSServerSettingsUpdate), typeof(System.Threading.CancellationToken) });
+
+            Assert.NotNull(method);
+        }
+
+        #endregion
     }
 }

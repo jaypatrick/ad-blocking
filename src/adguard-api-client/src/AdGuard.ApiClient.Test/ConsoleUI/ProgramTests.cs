@@ -58,6 +58,7 @@ public class ProgramTests
         services.AddSingleton<IQueryLogRepository, QueryLogRepository>();
         services.AddSingleton<IWebServiceRepository, WebServiceRepository>();
         services.AddSingleton<IDedicatedIPRepository, DedicatedIPRepository>();
+        services.AddSingleton<IUserRulesRepository, UserRulesRepository>();
 
         // Register Display Strategies
         services.AddSingleton<IDisplayStrategy<Device>, DeviceDisplayStrategy>();
@@ -68,6 +69,7 @@ public class ProgramTests
         services.AddSingleton<AccountLimitsDisplayStrategy>();
         services.AddSingleton<StatisticsDisplayStrategy>();
         services.AddSingleton<QueryLogDisplayStrategy>();
+        services.AddSingleton<UserRulesDisplayStrategy>();
 
         // Register Menu Services
         services.AddSingleton<DeviceMenuService>();
@@ -78,6 +80,7 @@ public class ProgramTests
         services.AddSingleton<QueryLogMenuService>();
         services.AddSingleton<WebServiceMenuService>();
         services.AddSingleton<DedicatedIPMenuService>();
+        services.AddSingleton<UserRulesMenuService>();
 
         // Register Main Application
         services.AddSingleton<ConsoleApplication>();
@@ -770,6 +773,97 @@ public class ProgramTests
 
         // Assert
         Assert.Same(instance1, instance2);
+    }
+
+    #endregion
+
+    #region User Rules Service Registration Tests
+
+    [Fact]
+    public void ConfigureServices_RegistersUserRulesRepository()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var repository = provider.GetService<IUserRulesRepository>();
+
+        // Assert
+        Assert.NotNull(repository);
+        Assert.IsType<UserRulesRepository>(repository);
+    }
+
+    [Fact]
+    public void ConfigureServices_RegistersUserRulesDisplayStrategy()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var strategy = provider.GetService<UserRulesDisplayStrategy>();
+
+        // Assert
+        Assert.NotNull(strategy);
+    }
+
+    [Fact]
+    public void ConfigureServices_RegistersUserRulesMenuService()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var menuService = provider.GetService<UserRulesMenuService>();
+
+        // Assert
+        Assert.NotNull(menuService);
+    }
+
+    [Fact]
+    public void ConfigureServices_UserRulesRepository_IsSingleton()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var instance1 = provider.GetService<IUserRulesRepository>();
+        var instance2 = provider.GetService<IUserRulesRepository>();
+
+        // Assert
+        Assert.Same(instance1, instance2);
+    }
+
+    [Fact]
+    public void ConfigureServices_UserRulesMenuService_IsSingleton()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var instance1 = provider.GetService<UserRulesMenuService>();
+        var instance2 = provider.GetService<UserRulesMenuService>();
+
+        // Assert
+        Assert.Same(instance1, instance2);
+    }
+
+    [Fact]
+    public void ConfigureServices_UserRulesMenuService_ResolvesAllDependencies()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act - UserRulesMenuService depends on IUserRulesRepository, IDnsServerRepository, and UserRulesDisplayStrategy
+        var menuService = provider.GetRequiredService<UserRulesMenuService>();
+
+        // Assert - If we get here without exception, all dependencies resolved
+        Assert.NotNull(menuService);
     }
 
     #endregion
