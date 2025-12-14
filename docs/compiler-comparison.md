@@ -7,7 +7,7 @@ This guide helps you choose the right rules compiler for your use case. All comp
 | Feature | TypeScript | .NET | Python | Rust | PowerShell | Shell |
 |---------|------------|------|--------|------|------------|-------|
 | Language | TypeScript | C# | Python | Rust | PowerShell | Bash/PS1 |
-| Runtime | Node.js 18+ | .NET 8 | Python 3.9+ | None | PowerShell 7+ | Bash/PowerShell |
+| Runtime | Node.js 18+ | .NET 10 | Python 3.9+ | None | PowerShell 7+ | Bash/PowerShell |
 | Config Formats | JSON, YAML, TOML | JSON, YAML, TOML | JSON, YAML, TOML | JSON, YAML, TOML | JSON | JSON, YAML, TOML |
 | Library API | No | Yes | Yes | Yes | Yes | No |
 | CLI | Yes | Yes | Yes | Yes | Yes | Yes |
@@ -62,7 +62,7 @@ dotnet run --project src/RulesCompiler.Console
 - Strong typing and comprehensive API
 
 **Cons**:
-- Requires .NET 8 runtime
+- Requires .NET 10 runtime
 - Larger deployment footprint
 
 **Features**:

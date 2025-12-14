@@ -8,7 +8,7 @@ This repository is a comprehensive multi-language toolkit for ad-blocking, netwo
 
 ### Rules Compilers (4 languages)
 - **TypeScript** (`src/rules-compiler-typescript/`) - Node.js 18+ with Deno support, optional Rust frontend
-- **C#/.NET 8** (`src/rules-compiler-dotnet/`) - Library and Spectre.Console CLI with DI support
+- **C#/.NET 10** (`src/rules-compiler-dotnet/`) - Library and Spectre.Console CLI with DI support
 - **Python 3.9+** (`src/rules-compiler-python/`) - pip-installable package with CLI and API
 - **Rust** (`src/rules-compiler-rust/`) - High-performance single binary with zero runtime deps
 
@@ -36,8 +36,8 @@ A pre-configured Docker environment is available:
 
 ```dockerfile
 # Dockerfile.warp
-FROM mcr.microsoft.com/dotnet/sdk:8.0-jammy
-# Includes: .NET 8.0 SDK, Node.js 20.x LTS, PowerShell 7, Git
+FROM mcr.microsoft.com/dotnet/sdk:10.0-noble
+# Includes: .NET 10 SDK, Node.js 20.x LTS, PowerShell 7, Git
 ```
 
 Build and run:
@@ -271,7 +271,7 @@ cargo test config::                       # Tests in module
 - Supports JSON, YAML, TOML via external tools (yq, Python)
 
 ### Rules Compiler - .NET (`src/rules-compiler-dotnet/`)
-- .NET 8 library wrapping @adguard/hostlist-compiler
+- .NET 10 library wrapping @adguard/hostlist-compiler
 - Supports JSON, YAML, and TOML configuration formats
 - `RulesCompiler` - Core library with abstractions, models, and services
 - `RulesCompiler.Console` - Spectre.Console interactive and CLI frontend
