@@ -56,11 +56,15 @@ public class ProgramTests
         services.AddSingleton<IStatisticsRepository, StatisticsRepository>();
         services.AddSingleton<IFilterListRepository, FilterListRepository>();
         services.AddSingleton<IQueryLogRepository, QueryLogRepository>();
+        services.AddSingleton<IWebServiceRepository, WebServiceRepository>();
+        services.AddSingleton<IDedicatedIPRepository, DedicatedIPRepository>();
 
         // Register Display Strategies
         services.AddSingleton<IDisplayStrategy<Device>, DeviceDisplayStrategy>();
         services.AddSingleton<IDisplayStrategy<DNSServer>, DnsServerDisplayStrategy>();
         services.AddSingleton<IDisplayStrategy<FilterList>, FilterListDisplayStrategy>();
+        services.AddSingleton<IDisplayStrategy<WebService>, WebServiceDisplayStrategy>();
+        services.AddSingleton<IDisplayStrategy<DedicatedIPv4Address>, DedicatedIPDisplayStrategy>();
         services.AddSingleton<AccountLimitsDisplayStrategy>();
         services.AddSingleton<StatisticsDisplayStrategy>();
         services.AddSingleton<QueryLogDisplayStrategy>();
@@ -72,6 +76,8 @@ public class ProgramTests
         services.AddSingleton<AccountMenuService>();
         services.AddSingleton<FilterListMenuService>();
         services.AddSingleton<QueryLogMenuService>();
+        services.AddSingleton<WebServiceMenuService>();
+        services.AddSingleton<DedicatedIPMenuService>();
 
         // Register Main Application
         services.AddSingleton<ConsoleApplication>();
@@ -642,6 +648,128 @@ public class ProgramTests
 
         // Assert
         Assert.Null(apiKey);
+    }
+
+    #endregion
+
+    #region New Services Registration Tests
+
+    [Fact]
+    public void ConfigureServices_RegistersWebServiceRepository()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var repository = provider.GetService<IWebServiceRepository>();
+
+        // Assert
+        Assert.NotNull(repository);
+        Assert.IsType<WebServiceRepository>(repository);
+    }
+
+    [Fact]
+    public void ConfigureServices_RegistersDedicatedIPRepository()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var repository = provider.GetService<IDedicatedIPRepository>();
+
+        // Assert
+        Assert.NotNull(repository);
+        Assert.IsType<DedicatedIPRepository>(repository);
+    }
+
+    [Fact]
+    public void ConfigureServices_RegistersWebServiceDisplayStrategy()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var strategy = provider.GetService<IDisplayStrategy<WebService>>();
+
+        // Assert
+        Assert.NotNull(strategy);
+        Assert.IsType<WebServiceDisplayStrategy>(strategy);
+    }
+
+    [Fact]
+    public void ConfigureServices_RegistersDedicatedIPDisplayStrategy()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var strategy = provider.GetService<IDisplayStrategy<DedicatedIPv4Address>>();
+
+        // Assert
+        Assert.NotNull(strategy);
+        Assert.IsType<DedicatedIPDisplayStrategy>(strategy);
+    }
+
+    [Fact]
+    public void ConfigureServices_RegistersWebServiceMenuService()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var menuService = provider.GetService<WebServiceMenuService>();
+
+        // Assert
+        Assert.NotNull(menuService);
+    }
+
+    [Fact]
+    public void ConfigureServices_RegistersDedicatedIPMenuService()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var menuService = provider.GetService<DedicatedIPMenuService>();
+
+        // Assert
+        Assert.NotNull(menuService);
+    }
+
+    [Fact]
+    public void ConfigureServices_WebServiceRepository_IsSingleton()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var instance1 = provider.GetService<IWebServiceRepository>();
+        var instance2 = provider.GetService<IWebServiceRepository>();
+
+        // Assert
+        Assert.Same(instance1, instance2);
+    }
+
+    [Fact]
+    public void ConfigureServices_DedicatedIPRepository_IsSingleton()
+    {
+        // Arrange
+        var services = CreateConfiguredServices();
+        var provider = services.BuildServiceProvider();
+
+        // Act
+        var instance1 = provider.GetService<IDedicatedIPRepository>();
+        var instance2 = provider.GetService<IDedicatedIPRepository>();
+
+        // Assert
+        Assert.Same(instance1, instance2);
     }
 
     #endregion

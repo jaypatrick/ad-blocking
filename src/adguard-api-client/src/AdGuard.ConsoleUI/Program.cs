@@ -92,11 +92,15 @@ public class Program
         services.AddSingleton<IStatisticsRepository, StatisticsRepository>();
         services.AddSingleton<IFilterListRepository, FilterListRepository>();
         services.AddSingleton<IQueryLogRepository, QueryLogRepository>();
+        services.AddSingleton<IWebServiceRepository, WebServiceRepository>();
+        services.AddSingleton<IDedicatedIPRepository, DedicatedIPRepository>();
 
         // Register Display Strategies
         services.AddSingleton<IDisplayStrategy<Device>, DeviceDisplayStrategy>();
         services.AddSingleton<IDisplayStrategy<DNSServer>, DnsServerDisplayStrategy>();
         services.AddSingleton<IDisplayStrategy<FilterList>, FilterListDisplayStrategy>();
+        services.AddSingleton<IDisplayStrategy<WebService>, WebServiceDisplayStrategy>();
+        services.AddSingleton<IDisplayStrategy<DedicatedIPv4Address>, DedicatedIPDisplayStrategy>();
         services.AddSingleton<AccountLimitsDisplayStrategy>();
         services.AddSingleton<StatisticsDisplayStrategy>();
         services.AddSingleton<QueryLogDisplayStrategy>();
@@ -108,6 +112,8 @@ public class Program
         services.AddSingleton<AccountMenuService>();
         services.AddSingleton<FilterListMenuService>();
         services.AddSingleton<QueryLogMenuService>();
+        services.AddSingleton<WebServiceMenuService>();
+        services.AddSingleton<DedicatedIPMenuService>();
 
         // Register Main Application
         services.AddSingleton<ConsoleApplication>();
