@@ -84,7 +84,7 @@ cargo build --release
 #### PowerShell
 
 ```powershell
-Import-Module ./src/powershell/Invoke-RulesCompiler.psm1
+Import-Module ./src/adguard-api-powershell/Invoke-RulesCompiler.psm1
 Invoke-RulesCompiler
 ```
 

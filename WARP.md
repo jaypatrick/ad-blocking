@@ -31,7 +31,7 @@ Website (Gatsby) – src/website
 - Serve local build: npm run serve
 
 PowerShell scripts
-- Static analysis (same as CI): Invoke-ScriptAnalyzer -Path src/powershell -Recurse
+- Static analysis (same as CI): Invoke-ScriptAnalyzer -Path src/adguard-api-powershell -Recurse
 
 Running a single test
 - TypeScript (Jest)
@@ -56,7 +56,7 @@ High-level architecture and structure
   - Console UI (src/AdGuard.ConsoleUI/) is a Spectre.Console menu-driven wrapper over the SDK with a small ApiClientFactory to configure the SDK from settings or an interactive prompt.
 - Scripts (src/)
   - src/linear: Node-based tool to import the repo's documentation into Linear (build with tsc; run node dist/linear-import.js). Reads .env for LINEAR_API_KEY, etc.
-  - src/powershell: PowerShell module scaffolding and tests; CI runs PSScriptAnalyzer against the folder.
+  - src/adguard-api-powershell: PowerShell module scaffolding and tests; CI runs PSScriptAnalyzer against the folder.
 - Website (src/website/)
   - Gatsby portfolio starter used as a simple static site. CI builds and deploys to GitHub Pages.
 
