@@ -63,11 +63,32 @@ Create or modify `appsettings.json` in the application directory:
 
 ### Option 2: Environment Variables
 
-Set the API key using environment variables with the `ADGUARD_` prefix:
+Set the API key using environment variables with the `ADGUARD_` prefix. Environment variables have higher precedence than `appsettings.json`.
 
+**Linux/macOS:**
 ```bash
 export ADGUARD_AdGuard__ApiKey="your-api-key-here"
+dotnet run
 ```
+
+**Windows (PowerShell):**
+```powershell
+$env:ADGUARD_AdGuard__ApiKey="your-api-key-here"
+dotnet run
+```
+
+**Windows (Command Prompt):**
+```cmd
+set ADGUARD_AdGuard__ApiKey=your-api-key-here
+dotnet run
+```
+
+**Note:** The double underscore (`__`) in `AdGuard__ApiKey` is the .NET configuration convention for representing a colon (`:`) in environment variable names. The `ADGUARD_` prefix is stripped by the configuration system, so `ADGUARD_AdGuard__ApiKey` maps to `AdGuard:ApiKey`.
+
+**Configuration Precedence:**
+1. Environment variables (highest priority)
+2. `appsettings.json`
+3. Interactive prompt (if no API key is found)
 
 ### Option 3: Interactive Configuration
 

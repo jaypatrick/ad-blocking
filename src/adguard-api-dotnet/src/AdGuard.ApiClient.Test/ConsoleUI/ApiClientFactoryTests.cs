@@ -521,5 +521,61 @@ public class ApiClientFactoryTests
         Assert.True(factory.IsConfigured);
     }
 
+    [Fact]
+    public void ConfigureFromSettings_WithEnvironmentVariablePrefix_ConfiguresSuccessfully()
+    {
+        // Arrange
+        var apiKey = "env-variable-api-key-12345";
+        
+        // Simulate the ADGUARD_ prefix behavior from Program.cs
+        // When AddEnvironmentVariables("ADGUARD_") is used, it strips the prefix
+        // So ADGUARD_AdGuard__ApiKey becomes AdGuard:ApiKey in the configuration
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["AdGuard:ApiKey"] = apiKey
+            })
+            .Build();
+
+        var factory = CreateFactory(configuration);
+
+        // Act
+        factory.ConfigureFromSettings();
+
+        // Assert
+        Assert.True(factory.IsConfigured);
+        Assert.Equal("env-******************2345", factory.MaskedApiKey);
+    }
+
+    [Fact]
+    public void ConfigureFromSettings_EnvironmentVariableOverridesJsonFile_UsesEnvironmentVariable()
+    {
+        // Arrange
+        var jsonApiKey = "json-file-api-key";
+        var envApiKey = "environment-api-key-67890";
+        
+        // Simulate configuration where environment variable has higher precedence
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["AdGuard:ApiKey"] = jsonApiKey  // From appsettings.json
+            })
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["AdGuard:ApiKey"] = envApiKey  // From environment variable (higher precedence)
+            })
+            .Build();
+
+        var factory = CreateFactory(configuration);
+
+        // Act
+        factory.ConfigureFromSettings();
+
+        // Assert
+        Assert.True(factory.IsConfigured);
+        // Should use environment variable, not JSON file
+        Assert.Equal("envi*****************7890", factory.MaskedApiKey);
+    }
+
     #endregion
 }

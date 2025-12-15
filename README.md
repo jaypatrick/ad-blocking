@@ -735,9 +735,18 @@ export ADGUARD_API_TOKEN="your-token-here"
 
 | Variable | Description |
 |----------|-------------|
-| `AdGuard:ApiKey` | C# Console UI - API credential |
+| `ADGUARD_AdGuard__ApiKey` | C# Console UI - API credential (with ADGUARD_ prefix) |
 | `ADGUARD_API_TOKEN` | Rust CLI - API credential |
 | `ADGUARD_API_URL` | Rust CLI - API base URL (optional) |
+
+**C# Console UI Configuration Example**:
+```bash
+# Linux/macOS
+export ADGUARD_AdGuard__ApiKey="your-api-key-here"
+
+# Windows PowerShell
+$env:ADGUARD_AdGuard__ApiKey="your-api-key-here"
+```
 
 ## Website
 
@@ -1014,9 +1023,11 @@ Download the latest release from the [Releases page](https://github.com/jaypatri
 
 | Variable | Application | Description |
 |----------|-------------|-------------|
-| `AdGuard:ApiKey` | C# Console UI | AdGuard DNS API credential |
+| `ADGUARD_AdGuard__ApiKey` | C# Console UI | AdGuard DNS API credential (use double underscore to represent colon) |
 | `ADGUARD_API_TOKEN` | Rust CLI | AdGuard DNS API credential |
 | `ADGUARD_API_URL` | Rust CLI | API base URL (default: https://api.adguard-dns.io) |
+
+**Note for C# Console UI**: The `ADGUARD_` prefix is required, and double underscore (`__`) represents colon (`:`) in configuration keys. Example: `ADGUARD_AdGuard__ApiKey` maps to `AdGuard:ApiKey` in configuration.
 
 ### Rules Compilers
 
