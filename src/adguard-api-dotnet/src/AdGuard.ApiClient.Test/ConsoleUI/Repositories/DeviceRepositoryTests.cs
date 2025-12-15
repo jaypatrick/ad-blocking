@@ -79,7 +79,7 @@ public class DeviceRepositoryTests
         var repository = CreateRepository();
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(
+        await Assert.ThrowsAsync<ArgumentNullException>(
             () => repository.GetByIdAsync(null!));
     }
 
@@ -132,7 +132,7 @@ public class DeviceRepositoryTests
         var repository = CreateRepository();
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(
+        await Assert.ThrowsAsync<ArgumentNullException>(
             () => repository.DeleteAsync(null!));
     }
 

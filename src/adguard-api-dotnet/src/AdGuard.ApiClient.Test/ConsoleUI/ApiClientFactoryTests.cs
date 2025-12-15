@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using AdGuard.Repositories.Implementations;
 using AdGuard.Repositories.Abstractions;
+using AdGuard.Repositories.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -115,7 +116,8 @@ public class ApiClientFactoryTests
         factory.Configure(apiKey);
 
         // Assert
-        Assert.Equal("test...", factory.MaskedApiKey);
+        // MaskedApiKey: first 4 + stars + last 4 = "test**********2345"
+        Assert.Equal("test**********2345", factory.MaskedApiKey);
     }
 
     [Fact]
@@ -129,7 +131,8 @@ public class ApiClientFactoryTests
         factory.Configure(apiKey);
 
         // Assert
-        Assert.Equal("ab...", factory.MaskedApiKey);
+        // For keys <= 8 chars, all characters are masked
+        Assert.Equal("**", factory.MaskedApiKey);
     }
 
     #endregion
@@ -148,7 +151,8 @@ public class ApiClientFactoryTests
 
         // Assert
         Assert.True(factory.IsConfigured);
-        Assert.Equal(apiKey, factory.MaskedApiKey);
+        // MaskedApiKey returns a masked version: "vali***********2345"
+        Assert.Equal("vali***********2345", factory.MaskedApiKey);
     }
 
     [Fact]
@@ -158,7 +162,7 @@ public class ApiClientFactoryTests
         var factory = CreateFactory();
 
         // Act & Assert
-        var exception = Assert.Throws<ArgumentException>(
+        var exception = Assert.Throws<ArgumentNullException>(
             () => factory.Configure(null!));
 
         Assert.Equal("apiKey", exception.ParamName);
@@ -203,7 +207,8 @@ public class ApiClientFactoryTests
         factory.Configure(secondKey);
 
         // Assert
-        Assert.Equal(secondKey, factory.MaskedApiKey);
+        // MaskedApiKey returns a masked version: "seco******-key"
+        Assert.Equal("seco******-key", factory.MaskedApiKey);
     }
 
     #endregion
@@ -223,7 +228,8 @@ public class ApiClientFactoryTests
 
         // Assert
         Assert.True(factory.IsConfigured);
-        Assert.Equal(apiKey, factory.MaskedApiKey);
+        // MaskedApiKey returns a masked version: "conf************2345"
+        Assert.Equal("conf************2345", factory.MaskedApiKey);
     }
 
     [Fact]
@@ -279,7 +285,7 @@ public class ApiClientFactoryTests
         var factory = CreateFactory();
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => factory.CreateAccountApi());
+        Assert.Throws<ApiNotConfiguredException>(() => factory.CreateAccountApi());
     }
 
     [Fact]
@@ -303,7 +309,7 @@ public class ApiClientFactoryTests
         var factory = CreateFactory();
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => factory.CreateDevicesApi());
+        Assert.Throws<ApiNotConfiguredException>(() => factory.CreateDevicesApi());
     }
 
     [Fact]
@@ -327,7 +333,7 @@ public class ApiClientFactoryTests
         var factory = CreateFactory();
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => factory.CreateDnsServersApi());
+        Assert.Throws<ApiNotConfiguredException>(() => factory.CreateDnsServersApi());
     }
 
     [Fact]
@@ -351,7 +357,7 @@ public class ApiClientFactoryTests
         var factory = CreateFactory();
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => factory.CreateStatisticsApi());
+        Assert.Throws<ApiNotConfiguredException>(() => factory.CreateStatisticsApi());
     }
 
     [Fact]
@@ -375,7 +381,7 @@ public class ApiClientFactoryTests
         var factory = CreateFactory();
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => factory.CreateFilterListsApi());
+        Assert.Throws<ApiNotConfiguredException>(() => factory.CreateFilterListsApi());
     }
 
     [Fact]
@@ -399,7 +405,7 @@ public class ApiClientFactoryTests
         var factory = CreateFactory();
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => factory.CreateQueryLogApi());
+        Assert.Throws<ApiNotConfiguredException>(() => factory.CreateQueryLogApi());
     }
 
     [Fact]
@@ -423,7 +429,7 @@ public class ApiClientFactoryTests
         var factory = CreateFactory();
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => factory.CreateWebServicesApi());
+        Assert.Throws<ApiNotConfiguredException>(() => factory.CreateWebServicesApi());
     }
 
     [Fact]
@@ -447,7 +453,7 @@ public class ApiClientFactoryTests
         var factory = CreateFactory();
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => factory.CreateDedicatedIpAddressesApi());
+        Assert.Throws<ApiNotConfiguredException>(() => factory.CreateDedicatedIpAddressesApi());
     }
 
     [Fact]
@@ -487,7 +493,8 @@ public class ApiClientFactoryTests
 
         // Assert
         Assert.True(factory.IsConfigured);
-        Assert.Equal(apiKey, factory.MaskedApiKey);
+        // MaskedApiKey returns a masked version: "inte****************-key"
+        Assert.Equal("inte****************-key", factory.MaskedApiKey);
     }
 
     [Fact]
