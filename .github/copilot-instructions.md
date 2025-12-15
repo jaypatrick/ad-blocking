@@ -38,7 +38,7 @@ ad-blocking/
 ├── docs/                 # Documentation (API docs, guides)
 ├── rules/                # Filter rules and compilation configs
 ├── src/
-│   ├── api-client/              # C# AdGuard DNS API client
+│   ├── adguard-api-dotnet/         # C# AdGuard DNS API client
 │   ├── rules-compiler-typescript/  # TypeScript rules compiler
 │   ├── rules-compiler-dotnet/      # .NET rules compiler
 │   ├── rules-compiler-python/      # Python rules compiler
@@ -266,6 +266,8 @@ pwsh -Command "Invoke-ScriptAnalyzer -Path . -Recurse"
 - Use **serde** for serialization
 - Use **clap** for CLI argument parsing
 - Use **thiserror/anyhow** for error handling
+
+### PowerShell
 - **Version**: PowerShell 7+ (Core, not Windows PowerShell 5.1)
 - **Module structure**: `.psm1` (implementation) + `.psd1` (manifest)
 - Use approved verbs (Get-, Set-, New-, Invoke-, etc.)
@@ -274,8 +276,11 @@ pwsh -Command "Invoke-ScriptAnalyzer -Path . -Recurse"
 - **Testing**: Pester v5 tests in `Tests/` folders
 - **Linting**: PSScriptAnalyzer enforced in CI (`.github/workflows/powershell.yml`)
 - **RulesCompiler module** (`src/powershell/`):
-  - `Invoke-FilterComp (CRITICAL)
-**NEVER commit**:
+  - `Invoke-RulesCompiler` wraps TypeScript compiler
+
+### Security Practices
+
+**CRITICAL - NEVER commit**:
 - API keys, tokens, passwords
 - `.env` files (only commit `.env.example` templates)
 
@@ -300,12 +305,6 @@ pwsh -Command "Invoke-ScriptAnalyzer -Path . -Recurse"
 - Validate sources before adding to `sources[]` in config
 - Test rule changes locally before committing to `rules/adguard_user_filter.txt`
 - Rules deployed to AdGuard DNS affect real traffic filtering
-### Dependencies
-- Regularly update dependencies to patch vulnerabilities
-- Review security advisories (CodeQL, DevSkim run in CI)
-- Use rate limiting for HTTP requests
-
-### Filter Rules
 - Be cautious when adding rules from untrusted sources
 - Validate and test new filter rules before deployment
 
@@ -343,7 +342,19 @@ All compilers return/output:
 ### Configuration Schema
 Supports 3 formats (JSON/YAML/TOML), mirrors `@adguard/hostlist-compiler`:
 ```json
-{ (GitHub Actions)
+{
+  "output": "rules/adguard_user_filter.txt",
+  "sources": [
+    { "url": "https://example.com/list.txt", "transformations": ["RemoveComments"] }
+  ],
+  "transformations": ["RemoveComments", "Compress", "Validate"]
+}
+```
+See `src/rules-compiler-typescript/compiler-config.json` for reference.
+
+## CI/CD Workflows
+
+### GitHub Actions Workflows
 | Workflow | File | Triggers | Purpose |
 |----------|------|----------|---------|
 | .NET | `dotnet.yml` | Push to main, PRs | Build/test API client (`dotnet test AdGuard.ApiClient.slnx`) |
@@ -356,10 +367,7 @@ Supports 3 formats (JSON/YAML/TOML), mirrors `@adguard/hostlist-compiler`:
 
 **CI Alignment**: Local commands should match CI workflows
 - TypeScript: `npm ci` (not `npm install`) for reproducible builds
-- .NET: `dotnet restore` → `dotnet build --no-restore` → `dotnet test --no-build`ments", "Compress", "Validate"]
-}
-```
-See `src/rules-compiler-typescript/compiler-config.json` for reference.
+- .NET: `dotnet restore` → `dotnet build --no-restore` → `dotnet test --no-build`
 
 ## Development Workflow
 
@@ -401,7 +409,20 @@ npm install <package-name>
 
 ### Running the Full Test Suite
 ```bash
-# FIntegration Points
+# Run all .NET tests
+cd src/adguard-api-dotnet && dotnet test AdGuard.ApiClient.slnx
+
+# Run all TypeScript tests
+cd src/rules-compiler-typescript && npm test
+
+# Run all Python tests
+cd src/rules-compiler-python && pytest
+
+# Run all Rust tests
+cd src/rules-compiler-rust && cargo test
+```
+
+## Integration Points
 
 ### AdGuard DNS API
 - **OpenAPI spec**: `api/openapi.json` (v1.11, primary), `api/openapi.yaml` (optional)
@@ -542,4 +563,3 @@ See `docs/release-guide.md` for full process.
 - **Guides**: `docs/guides/` - consoleui-architecture.md, api-client-usage.md
 - **Comparison**: `docs/compiler-comparison.md` - Choose the right compiler
 - **Docker**: `docs/docker-guide.md` - Container development setup
-````
