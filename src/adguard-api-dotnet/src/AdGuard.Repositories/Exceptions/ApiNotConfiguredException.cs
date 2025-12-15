@@ -21,4 +21,14 @@ public class ApiNotConfiguredException : RepositoryException
         : base("ApiClientFactory", "Configure", message)
     {
     }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ApiNotConfiguredException"/> class with a custom message and inner exception.
+    /// </summary>
+    /// <param name="message">The exception message.</param>
+    /// <param name="innerException">The inner exception.</param>
+    public ApiNotConfiguredException(string message, Exception innerException)
+        : base("ApiClientFactory", "Configure", message, innerException)
+    {
+    }
 }

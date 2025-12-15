@@ -7,6 +7,7 @@ Successfully implemented an interactive, menu-driven CLI for the Rust AdGuard AP
 ## Key Achievements
 
 ### Interactive Menu System
+
 - Implemented using `dialoguer` crate for menus and prompts
 - Implemented using `console` crate for colored output and formatting
 - Added `indicatif` for progress indicators
@@ -14,6 +15,7 @@ Successfully implemented an interactive, menu-driven CLI for the Rust AdGuard AP
 - Clean, user-friendly interface
 
 ### Configuration Management
+
 - **TOML configuration file** support at `~/.config/adguard-api-cli/config.toml`
 - **Environment variable** support (`ADGUARD_API_URL`, `ADGUARD_API_TOKEN`)
 - **Interactive prompts** for first-time setup
@@ -37,7 +39,7 @@ All major features from the C# implementation are now available in Rust:
 
 ### Architecture
 
-```
+```text
 adguard-api-cli/src/
 ├── main.rs           # Entry point, main menu loop
 ├── config.rs         # Configuration loading/saving
@@ -79,6 +81,7 @@ chrono = "0.4"      # Time/date handling
 ### Model Fixes
 
 Fixed numerous model structure mismatches between expected and actual API models:
+
 - `DnsServer` fields are non-optional
 - `Device` fields are non-optional
 - `WebService` has no `categories` field
@@ -106,6 +109,7 @@ cargo run --release --bin adguard-api-cli
 ```
 
 On first run:
+
 1. Shows welcome banner
 2. Prompts for API key
 3. Tests connection
@@ -113,6 +117,7 @@ On first run:
 5. Displays main menu
 
 Subsequent runs:
+
 1. Loads configuration from file
 2. Displays main menu immediately
 
@@ -147,6 +152,7 @@ Subsequent runs:
 ## Conclusion
 
 The Rust CLI now provides a functional, user-friendly alternative to the C# ConsoleUI application with:
+
 - Same interactive experience
 - Same feature set (except full CRUD operations)
 - Better performance (native compilation)
