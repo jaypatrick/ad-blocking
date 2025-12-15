@@ -84,14 +84,14 @@ cargo build --release
 #### PowerShell
 
 ```powershell
-Import-Module ./scripts/powershell/Invoke-RulesCompiler.psm1
+Import-Module ./src/adguard-api-powershell/Invoke-RulesCompiler.psm1
 Invoke-RulesCompiler
 ```
 
 #### Bash/Shell
 
 ```bash
-./scripts/shell/compile-rules.sh
+./src/rules-compiler-shell/compile-rules.sh
 ```
 
 ## First Compilation
@@ -171,7 +171,7 @@ set AdGuard:ApiKey=your-api-key-here
 ### 3. Run the Console UI
 
 ```bash
-cd src/adguard-api-client
+cd src/adguard-api-dotnet
 dotnet run --project src/AdGuard.ConsoleUI
 ```
 
@@ -223,7 +223,7 @@ npm install -g @adguard/hostlist-compiler
 Make shell scripts executable:
 
 ```bash
-chmod +x scripts/shell/compile-rules.sh
+chmod +x src/rules-compiler-shell/compile-rules.sh
 ```
 
 ### Python package not found

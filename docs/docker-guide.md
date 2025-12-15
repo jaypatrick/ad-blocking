@@ -118,7 +118,7 @@ npm install
 cd /workspace/src/rules-compiler-dotnet
 dotnet restore RulesCompiler.slnx
 
-cd /workspace/src/adguard-api-client
+cd /workspace/src/adguard-api-dotnet
 dotnet restore src/AdGuard.ApiClient.sln
 
 # Website (optional)
@@ -139,7 +139,7 @@ dotnet run --project src/RulesCompiler.Console
 
 # PowerShell
 cd /workspace
-pwsh -Command "Import-Module ./scripts/powershell/Invoke-RulesCompiler.psm1; Invoke-RulesCompiler"
+pwsh -Command "Import-Module ./src/adguard-api-powershell/Invoke-RulesCompiler.psm1; Invoke-RulesCompiler"
 ```
 
 ### Running Tests
@@ -155,7 +155,7 @@ dotnet test RulesCompiler.slnx
 
 # PowerShell tests
 cd /workspace
-pwsh -Command "Invoke-Pester -Path ./scripts/powershell/Tests/"
+pwsh -Command "Invoke-Pester -Path ./src/adguard-api-powershell/Tests/"
 ```
 
 ## Warp Environment
@@ -175,7 +175,7 @@ For [Warp](https://www.warp.dev/) terminal users, a pre-built environment is ava
 # The environment automatically runs these setup commands:
 cd ad-blocking/src/rules-compiler-typescript && npm install
 cd ad-blocking/src/website && npm install
-cd ad-blocking/src/adguard-api-client && dotnet restore
+cd ad-blocking/src/adguard-api-dotnet && dotnet restore
 ```
 
 ### Creating Warp Integrations

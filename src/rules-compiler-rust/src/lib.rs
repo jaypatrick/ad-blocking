@@ -1,46 +1,123 @@
 //! # Rules Compiler
 //!
-//! Rust API for compiling AdGuard filter rules using `@adguard/hostlist-compiler`.
+//! A Rust API for compiling AdGuard filter rules using `@adguard/hostlist-compiler`.
 //!
-//! ## Example
+//! This library provides a high-level interface for:
+//! - Reading configuration files in JSON, YAML, and TOML formats
+//! - Compiling filter rules from multiple sources
+//! - Validating configuration
+//! - Computing statistics and hashes
+//!
+//! ## Quick Start
 //!
 //! ```no_run
-//! use rules_compiler::{RulesCompiler, ConfigurationFormat};
+//! use rules_compiler::{RulesCompiler, CompileOptions};
 //!
+//! // Create a compiler with default options
 //! let compiler = RulesCompiler::new();
-//! let result = compiler.compile("config.yaml", None, true, None, None)?;
+//!
+//! // Compile rules from a configuration file
+//! let result = compiler.compile("config.yaml")?;
 //!
 //! if result.success {
-//!     println!("Compiled {} rules", result.rule_count);
+//!     println!("Compiled {} rules to {}", result.rule_count, result.output_path_str());
 //! }
 //! # Ok::<(), rules_compiler::CompilerError>(())
 //! ```
+//!
+//! ## With Options
+//!
+//! ```no_run
+//! use rules_compiler::{RulesCompiler, CompileOptions, ConfigFormat};
+//!
+//! let options = CompileOptions::new()
+//!     .with_copy_to_rules(true)
+//!     .with_debug(true)
+//!     .with_validation(true);
+//!
+//! let compiler = RulesCompiler::with_options(options);
+//! let result = compiler.compile("config.yaml")?;
+//! # Ok::<(), rules_compiler::CompilerError>(())
+//! ```
+//!
+//! ## Reading Configuration
+//!
+//! ```no_run
+//! use rules_compiler::{read_config, ConfigFormat};
+//!
+//! // Auto-detect format from extension
+//! let config = read_config("config.yaml", None)?;
+//!
+//! // Force specific format
+//! let config = read_config("config.txt", Some(ConfigFormat::Json))?;
+//!
+//! println!("Filter: {} v{}", config.name, config.version);
+//! println!("Sources: {}", config.sources.len());
+//! # Ok::<(), rules_compiler::CompilerError>(())
+//! ```
 
-pub mod config;
 pub mod compiler;
+pub mod config;
 pub mod error;
 
+// Re-export main types from config module
 pub use config::{
-    CompilerConfiguration,
-    ConfigurationFormat,
+    CompilerConfig,
+    ConfigFormat,
     FilterSource,
-    read_configuration,
-    detect_format,
+    SourceType,
+    Transformation,
+    read_config,
     to_json,
+    to_yaml,
+    to_toml,
 };
 
+// Re-export main types from compiler module
 pub use compiler::{
+    CompileOptions,
     CompilerResult,
-    VersionInfo,
     PlatformInfo,
     RulesCompiler,
+    VersionInfo,
     compile_rules,
-    get_version_info,
-    count_rules,
     compute_hash,
+    count_rules,
 };
 
-pub use error::CompilerError;
+// Re-export error types
+pub use error::{CompilerError, Result};
 
-/// Library version
+/// Library version from Cargo.toml.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+
+/// Library name.
+pub const NAME: &str = env!("CARGO_PKG_NAME");
+
+/// Library description.
+pub const DESCRIPTION: &str = env!("CARGO_PKG_DESCRIPTION");
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_version_constant() {
+        assert!(!VERSION.is_empty());
+        assert!(VERSION.contains('.'));
+    }
+
+    #[test]
+    fn test_name_constant() {
+        assert_eq!(NAME, "rules-compiler");
+    }
+
+    #[test]
+    fn test_exports() {
+        // Verify all main types are exported
+        let _: fn() -> RulesCompiler = RulesCompiler::new;
+        let _: fn() -> CompileOptions = CompileOptions::new;
+        let _: fn() -> VersionInfo = VersionInfo::collect;
+        let _: fn() -> PlatformInfo = PlatformInfo::detect;
+    }
+}

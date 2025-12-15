@@ -13,16 +13,17 @@ This repository is a comprehensive multi-language toolkit for ad-blocking, netwo
 - **Rust** (`src/rules-compiler-rust/`) - High-performance single binary with zero runtime deps
 
 ### Shell Scripts
-- **Bash** (`scripts/shell/compile-rules.sh`) - Linux/macOS
-- **PowerShell Core** (`scripts/shell/compile-rules.ps1`) - Cross-platform
-- **Windows Batch** (`scripts/shell/compile-rules.cmd`) - Windows wrapper
+- **Bash** (`src/rules-compiler-shell/compile-rules.sh`) - Linux/macOS
+- **Zsh** (`src/rules-compiler-shell/compile-rules.zsh`) - macOS/Linux with zsh-specific features
+- **PowerShell Core** (`src/rules-compiler-shell/compile-rules.ps1`) - Cross-platform
+- **Windows Batch** (`src/rules-compiler-shell/compile-rules.cmd`) - Windows wrapper
 
 ### PowerShell Module
-- **RulesCompiler Module** (`scripts/powershell/`) - Full-featured PowerShell API with Pester tests
+- **RulesCompiler Module** (`src/adguard-api-powershell/`) - Full-featured PowerShell API with Pester tests
 
 ### API Client & Tools
-- **AdGuard API Client** (`src/adguard-api-client/`) - C# SDK for AdGuard DNS API v1.11
-- **Console UI** (`src/adguard-api-client/src/AdGuard.ConsoleUI/`) - Spectre.Console interactive interface
+- **AdGuard API Client** (`src/adguard-api-dotnet/`) - C# SDK for AdGuard DNS API v1.11
+- **Console UI** (`src/adguard-api-dotnet/src/AdGuard.ConsoleUI/`) - Spectre.Console interactive interface
 
 ### Website
 - **Gatsby Site** (`src/website/`) - Portfolio site deployed to GitHub Pages
@@ -69,20 +70,25 @@ npm run compile -- --help
 npm run compile -- --version
 ```
 
-### Shell Scripts (`scripts/shell/`)
+### Shell Scripts (`src/rules-compiler-shell/`)
 ```bash
 # Bash (Linux/macOS)
-./scripts/shell/compile-rules.sh                    # Use default config
-./scripts/shell/compile-rules.sh -c config.yaml -r  # YAML config, copy to rules
-./scripts/shell/compile-rules.sh -v                 # Show version
+./src/rules-compiler-shell/compile-rules.sh                    # Use default config
+./src/rules-compiler-shell/compile-rules.sh -c config.yaml -r  # YAML config, copy to rules
+./src/rules-compiler-shell/compile-rules.sh -v                 # Show version
+
+# Zsh (macOS/Linux)
+./src/rules-compiler-shell/compile-rules.zsh                   # Use default config
+./src/rules-compiler-shell/compile-rules.zsh -c config.yaml -r # YAML config, copy to rules
+./src/rules-compiler-shell/compile-rules.zsh -v                # Show version
 
 # PowerShell Core (all platforms)
-./scripts/shell/compile-rules.ps1
-./scripts/shell/compile-rules.ps1 -ConfigPath config.yaml -CopyToRules
-./scripts/shell/compile-rules.ps1 -Version
+./src/rules-compiler-shell/compile-rules.ps1
+./src/rules-compiler-shell/compile-rules.ps1 -ConfigPath config.yaml -CopyToRules
+./src/rules-compiler-shell/compile-rules.ps1 -Version
 
 # Windows Batch
-scripts\shell\compile-rules.cmd -c config.json -r
+src\rules-compiler-shell\compile-rules.cmd -c config.json -r
 ```
 
 ### .NET Rules Compiler (`src/rules-compiler-dotnet/`)
@@ -150,9 +156,9 @@ cargo run -- --help                      # Show help
 ./target/release/rules-compiler -c config.yaml
 ```
 
-### .NET API Client + Console UI (`src/adguard-api-client/`)
+### .NET API Client + Console UI (`src/adguard-api-dotnet/`)
 ```bash
-cd src/adguard-api-client
+cd src/adguard-api-dotnet
 dotnet restore src/AdGuard.ApiClient.sln
 dotnet build src/AdGuard.ApiClient.sln
 dotnet test src/AdGuard.ApiClient.sln
@@ -171,10 +177,10 @@ npm run build      # Production build
 npm run serve      # Serve local build
 ```
 
-### PowerShell RulesCompiler Module (`scripts/powershell/`)
+### PowerShell RulesCompiler Module (`src/adguard-api-powershell/`)
 ```powershell
 # Import the module
-Import-Module ./scripts/powershell/Invoke-RulesCompiler.psm1
+Import-Module ./src/adguard-api-powershell/Invoke-RulesCompiler.psm1
 
 # Check versions and platform info
 Get-CompilerVersion | Format-List
@@ -186,13 +192,13 @@ Invoke-RulesCompiler
 Invoke-RulesCompiler -CopyToRules
 
 # Run interactive harness
-./scripts/powershell/RulesCompiler-Harness.ps1
+./src/adguard-api-powershell/RulesCompiler-Harness.ps1
 
 # Run Pester tests
-Invoke-Pester -Path ./scripts/powershell/Tests/RulesCompiler-Tests.ps1
+Invoke-Pester -Path ./src/adguard-api-powershell/Tests/RulesCompiler-Tests.ps1
 
 # Lint with PSScriptAnalyzer
-Invoke-ScriptAnalyzer -Path scripts/powershell -Recurse
+Invoke-ScriptAnalyzer -Path src/adguard-api-powershell -Recurse
 ```
 
 ## Running Individual Tests
@@ -207,7 +213,7 @@ npm run test:coverage                      # With coverage
 
 ### .NET (xUnit)
 ```bash
-cd src/adguard-api-client
+cd src/adguard-api-dotnet
 dotnet test src/AdGuard.ApiClient.sln --filter "FullyQualifiedName~DevicesApiTests"   # By class
 dotnet test src/AdGuard.ApiClient.sln --filter "Name~GetAccountLimits"                # By method
 
@@ -219,13 +225,13 @@ dotnet test RulesCompiler.slnx --filter "FullyQualifiedName~TransformationTests"
 ### PowerShell (Pester)
 ```powershell
 # Run all PowerShell tests
-Invoke-Pester -Path ./scripts/powershell/Tests/
+Invoke-Pester -Path ./src/adguard-api-powershell/Tests/
 
 # Run specific test file
-Invoke-Pester -Path ./scripts/powershell/Tests/RulesCompiler-Tests.ps1
+Invoke-Pester -Path ./src/adguard-api-powershell/Tests/RulesCompiler-Tests.ps1
 
 # Run with detailed output
-Invoke-Pester -Path ./scripts/powershell/Tests/ -Output Detailed
+Invoke-Pester -Path ./src/adguard-api-powershell/Tests/ -Output Detailed
 ```
 
 ### Python (pytest)
@@ -263,9 +269,10 @@ cargo test config::                       # Tests in module
 - Deno support via `deno.json`
 - ESLint and Jest for testing
 
-### Shell Scripts (`scripts/shell/`)
+### Shell Scripts (`src/rules-compiler-shell/`)
 - Cross-platform shell scripts for filter compilation
 - `compile-rules.sh` - Bash script for Linux/macOS
+- `compile-rules.zsh` - Zsh script with native zsh features (zparseopts, EPOCHREALTIME)
 - `compile-rules.ps1` - PowerShell Core script (all platforms)
 - `compile-rules.cmd` - Windows batch wrapper
 - Supports JSON, YAML, TOML via external tools (yq, Python)
@@ -300,19 +307,19 @@ cargo test config::                       # Tests in module
 - Key structs: `RulesCompiler`, `CompilerConfiguration`, `CompilerResult`, `VersionInfo`
 - LTO optimization enabled for small binary size
 
-### API Client (`src/adguard-api-client/`)
+### API Client (`src/adguard-api-dotnet/`)
 - Auto-generated from `api/openapi.json` (primary) and `api/openapi.yaml` (optional) - AdGuard DNS API v1.11
 - `Helpers/ConfigurationHelper.cs` - Fluent auth, timeouts, user agent
 - `Helpers/RetryPolicyHelper.cs` - Polly-based retry for 408/429/5xx
 - Uses Newtonsoft.Json and JsonSubTypes
 - Benchmarks project for performance testing
 
-### Console UI (`src/adguard-api-client/src/AdGuard.ConsoleUI/`)
+### Console UI (`src/adguard-api-dotnet/src/AdGuard.ConsoleUI/`)
 - Spectre.Console menu-driven interface
 - `ApiClientFactory` configures SDK from settings or interactive prompt
 - Features: Device management, DNS servers, statistics, query logs, filter lists
 
-### PowerShell Modules (`scripts/powershell/`)
+### PowerShell Modules (`src/adguard-api-powershell/`)
 - **RulesCompiler Module** - Cross-platform PowerShell API mirroring TypeScript compiler
   - `Invoke-RulesCompiler.psm1` - Main module with exported functions
   - `RulesCompiler.psd1` - Module manifest
@@ -355,7 +362,7 @@ RemoveComments, Compress, RemoveModifiers, Validate, ValidateAllowIp, Deduplicat
 | Variable | Description |
 |----------|-------------|
 | `AdGuard:ApiKey` | API credential for console UI (can also prompt interactively) |
-| `LINEAR_API_KEY` | For Linear import scripts (`scripts/linear/`) |
+| `LINEAR_API_KEY` | For Linear import scripts (`src/linear/`) |
 | `DEBUG` | Set to any value to enable debug logging in PowerShell modules |
 | `RULESCOMPILER_config` | Default configuration file path (.NET compiler) |
 | `RULESCOMPILER_Logging__LogLevel__Default` | Log level for .NET compiler |

@@ -1,4 +1,7 @@
 //! Core compiler functionality for AdGuard filter rules.
+//!
+//! This module provides the main compilation logic, wrapping the hostlist-compiler
+//! tool and providing statistics, hashing, and file management.
 
 use chrono::{DateTime, Utc};
 use sha2::{Digest, Sha384};
@@ -8,73 +11,131 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::Instant;
 
-use crate::config::{read_configuration, to_json, CompilerConfiguration, ConfigurationFormat};
+use crate::config::{CompilerConfig, ConfigFormat, read_config, to_json};
 use crate::error::{CompilerError, Result};
 
 /// Platform-specific information.
 #[derive(Debug, Clone, Default)]
 pub struct PlatformInfo {
-    /// Operating system name
+    /// Operating system name.
     pub os_name: String,
-    /// Operating system version
+    /// Operating system version.
     pub os_version: String,
-    /// Processor architecture
+    /// Processor architecture.
     pub architecture: String,
-    /// Whether the platform is Windows
+    /// Whether the platform is Windows.
     pub is_windows: bool,
-    /// Whether the platform is Linux
+    /// Whether the platform is Linux.
     pub is_linux: bool,
-    /// Whether the platform is macOS
+    /// Whether the platform is macOS.
     pub is_macos: bool,
+}
+
+impl PlatformInfo {
+    /// Detect current platform information.
+    #[must_use]
+    pub fn detect() -> Self {
+        Self {
+            os_name: std::env::consts::OS.to_string(),
+            os_version: String::new(),
+            architecture: std::env::consts::ARCH.to_string(),
+            is_windows: cfg!(target_os = "windows"),
+            is_linux: cfg!(target_os = "linux"),
+            is_macos: cfg!(target_os = "macos"),
+        }
+    }
 }
 
 /// Version information for all components.
 #[derive(Debug, Clone, Default)]
 pub struct VersionInfo {
-    /// Module version
+    /// Module version.
     pub module_version: String,
-    /// Rust version
+    /// Rust version.
     pub rust_version: String,
-    /// Node.js version (if available)
+    /// Node.js version (if available).
     pub node_version: Option<String>,
-    /// hostlist-compiler version (if available)
+    /// hostlist-compiler version (if available).
     pub hostlist_compiler_version: Option<String>,
-    /// Path to hostlist-compiler
+    /// Path to hostlist-compiler.
     pub hostlist_compiler_path: Option<String>,
-    /// Platform information
+    /// Platform information.
     pub platform: PlatformInfo,
+}
+
+impl VersionInfo {
+    /// Collect version information for all components.
+    #[must_use]
+    pub fn collect() -> Self {
+        let mut info = Self {
+            module_version: crate::VERSION.to_string(),
+            rust_version: format!("{}", rustc_version_runtime::version()),
+            platform: PlatformInfo::detect(),
+            ..Default::default()
+        };
+
+        // Check Node.js
+        if let Some(node_path) = find_command("node") {
+            info.node_version = get_command_version(node_path.to_str().unwrap_or("node"), &["--version"]);
+        }
+
+        // Check hostlist-compiler
+        if let Some(compiler_path) = find_command("hostlist-compiler") {
+            info.hostlist_compiler_path = Some(compiler_path.display().to_string());
+            info.hostlist_compiler_version = get_command_version(
+                compiler_path.to_str().unwrap_or("hostlist-compiler"),
+                &["--version"],
+            );
+        } else if find_command("npx").is_some() {
+            info.hostlist_compiler_path = Some("npx @adguard/hostlist-compiler".to_string());
+        }
+
+        info
+    }
+
+    /// Check if hostlist-compiler is available.
+    #[must_use]
+    pub fn has_compiler(&self) -> bool {
+        self.hostlist_compiler_path.is_some()
+    }
+
+    /// Check if Node.js is available.
+    #[must_use]
+    pub fn has_node(&self) -> bool {
+        self.node_version.is_some()
+    }
 }
 
 /// Result of a compilation operation.
 #[derive(Debug, Clone)]
 pub struct CompilerResult {
-    /// Whether compilation was successful
+    /// Whether compilation was successful.
     pub success: bool,
-    /// Name from configuration
+    /// Name from configuration.
     pub config_name: String,
-    /// Version from configuration
+    /// Version from configuration.
     pub config_version: String,
-    /// Number of rules in output
+    /// Number of rules in output.
     pub rule_count: usize,
-    /// Path to output file
-    pub output_path: String,
-    /// SHA-384 hash of output file
+    /// Path to output file.
+    pub output_path: PathBuf,
+    /// SHA-384 hash of output file.
     pub output_hash: String,
-    /// Whether output was copied to rules
+    /// Whether output was copied to rules directory.
     pub copied_to_rules: bool,
-    /// Destination path if copied
-    pub rules_destination: Option<String>,
-    /// Elapsed time in milliseconds
+    /// Destination path if copied.
+    pub rules_destination: Option<PathBuf>,
+    /// Elapsed time in milliseconds.
     pub elapsed_ms: u64,
-    /// Start time
+    /// Start time.
     pub start_time: DateTime<Utc>,
-    /// End time
+    /// End time.
     pub end_time: DateTime<Utc>,
-    /// Error message if failed
+    /// Error message if failed.
     pub error_message: Option<String>,
-    /// Standard output from compiler
+    /// Standard output from compiler.
     pub stdout: String,
-    /// Standard error from compiler
+    /// Standard error from compiler.
     pub stderr: String,
 }
 
@@ -86,7 +147,7 @@ impl Default for CompilerResult {
             config_name: String::new(),
             config_version: String::new(),
             rule_count: 0,
-            output_path: String::new(),
+            output_path: PathBuf::new(),
             output_hash: String::new(),
             copied_to_rules: false,
             rules_destination: None,
@@ -100,15 +161,153 @@ impl Default for CompilerResult {
     }
 }
 
-/// Get platform information.
-pub fn get_platform_info() -> PlatformInfo {
-    PlatformInfo {
-        os_name: std::env::consts::OS.to_string(),
-        os_version: String::new(), // Would need platform-specific code
-        architecture: std::env::consts::ARCH.to_string(),
-        is_windows: cfg!(target_os = "windows"),
-        is_linux: cfg!(target_os = "linux"),
-        is_macos: cfg!(target_os = "macos"),
+impl CompilerResult {
+    /// Get the output path as a string.
+    #[must_use]
+    pub fn output_path_str(&self) -> String {
+        self.output_path.display().to_string()
+    }
+
+    /// Get the rules destination path as a string.
+    #[must_use]
+    pub fn rules_destination_str(&self) -> Option<String> {
+        self.rules_destination.as_ref().map(|p| p.display().to_string())
+    }
+
+    /// Get elapsed time as a formatted string.
+    #[must_use]
+    pub fn elapsed_formatted(&self) -> String {
+        if self.elapsed_ms >= 1000 {
+            format!("{:.2}s", self.elapsed_ms as f64 / 1000.0)
+        } else {
+            format!("{}ms", self.elapsed_ms)
+        }
+    }
+
+    /// Get truncated hash for display.
+    #[must_use]
+    pub fn hash_short(&self) -> &str {
+        if self.output_hash.len() >= 32 {
+            &self.output_hash[..32]
+        } else {
+            &self.output_hash
+        }
+    }
+}
+
+/// Options for running the compiler.
+#[derive(Debug, Clone, Default)]
+pub struct CompileOptions {
+    /// Path to output file (auto-generated if None).
+    pub output_path: Option<PathBuf>,
+    /// Copy output to rules directory.
+    pub copy_to_rules: bool,
+    /// Custom rules directory.
+    pub rules_directory: Option<PathBuf>,
+    /// Force configuration format.
+    pub format: Option<ConfigFormat>,
+    /// Enable debug output.
+    pub debug: bool,
+    /// Validate configuration before compiling.
+    pub validate: bool,
+}
+
+impl CompileOptions {
+    /// Create new compile options with default values.
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Set the output path.
+    #[must_use]
+    pub fn with_output<P: Into<PathBuf>>(mut self, path: P) -> Self {
+        self.output_path = Some(path.into());
+        self
+    }
+
+    /// Enable copying to rules directory.
+    #[must_use]
+    pub const fn with_copy_to_rules(mut self, copy: bool) -> Self {
+        self.copy_to_rules = copy;
+        self
+    }
+
+    /// Set the rules directory.
+    #[must_use]
+    pub fn with_rules_directory<P: Into<PathBuf>>(mut self, path: P) -> Self {
+        self.rules_directory = Some(path.into());
+        self
+    }
+
+    /// Set the configuration format.
+    #[must_use]
+    pub const fn with_format(mut self, format: ConfigFormat) -> Self {
+        self.format = Some(format);
+        self
+    }
+
+    /// Enable debug output.
+    #[must_use]
+    pub const fn with_debug(mut self, debug: bool) -> Self {
+        self.debug = debug;
+        self
+    }
+
+    /// Enable validation.
+    #[must_use]
+    pub const fn with_validation(mut self, validate: bool) -> Self {
+        self.validate = validate;
+        self
+    }
+}
+
+/// Main compiler for AdGuard filter rules.
+#[derive(Debug, Default)]
+pub struct RulesCompiler {
+    options: CompileOptions,
+}
+
+impl RulesCompiler {
+    /// Create a new compiler instance with default options.
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Create a new compiler instance with custom options.
+    #[must_use]
+    pub const fn with_options(options: CompileOptions) -> Self {
+        Self { options }
+    }
+
+    /// Get mutable reference to options.
+    pub fn options_mut(&mut self) -> &mut CompileOptions {
+        &mut self.options
+    }
+
+    /// Compile filter rules from a configuration file.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if compilation fails.
+    pub fn compile<P: AsRef<Path>>(&self, config_path: P) -> Result<CompilerResult> {
+        compile_rules(config_path, &self.options)
+    }
+
+    /// Read configuration from a file.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the file can't be read or parsed.
+    pub fn read_config<P: AsRef<Path>>(&self, config_path: P) -> Result<CompilerConfig> {
+        read_config(config_path, self.options.format)
+    }
+
+    /// Get version information.
+    #[must_use]
+    pub fn version_info(&self) -> VersionInfo {
+        VersionInfo::collect()
     }
 }
 
@@ -134,42 +333,19 @@ fn get_command_version(cmd: &str, args: &[&str]) -> Option<String> {
         })
 }
 
-/// Get version information for all components.
-pub fn get_version_info() -> VersionInfo {
-    let mut info = VersionInfo {
-        module_version: crate::VERSION.to_string(),
-        rust_version: format!("{}", rustc_version_runtime::version()),
-        platform: get_platform_info(),
-        ..Default::default()
-    };
-
-    // Check Node.js
-    if let Some(node_path) = find_command("node") {
-        info.node_version = get_command_version(node_path.to_str().unwrap_or("node"), &["--version"]);
-    }
-
-    // Check hostlist-compiler
-    if let Some(compiler_path) = find_command("hostlist-compiler") {
-        info.hostlist_compiler_path = Some(compiler_path.display().to_string());
-        info.hostlist_compiler_version =
-            get_command_version(compiler_path.to_str().unwrap_or("hostlist-compiler"), &["--version"]);
-    } else if find_command("npx").is_some() {
-        info.hostlist_compiler_path = Some("npx @adguard/hostlist-compiler".to_string());
-    }
-
-    info
-}
-
 /// Count non-empty, non-comment lines in a file.
-pub fn count_rules<P: AsRef<Path>>(file_path: P) -> usize {
-    let file = match File::open(file_path.as_ref()) {
+///
+/// Lines starting with `!` or `#` are considered comments.
+#[must_use]
+pub fn count_rules<P: AsRef<Path>>(path: P) -> usize {
+    let file = match File::open(path.as_ref()) {
         Ok(f) => f,
         Err(_) => return 0,
     };
 
     BufReader::new(file)
         .lines()
-        .filter_map(|l| l.ok())
+        .map_while(std::result::Result::ok)
         .filter(|line| {
             let trimmed = line.trim();
             !trimmed.is_empty() && !trimmed.starts_with('!') && !trimmed.starts_with('#')
@@ -178,8 +354,12 @@ pub fn count_rules<P: AsRef<Path>>(file_path: P) -> usize {
 }
 
 /// Compute SHA-384 hash of a file.
-pub fn compute_hash<P: AsRef<Path>>(file_path: P) -> Result<String> {
-    let mut file = File::open(file_path.as_ref())?;
+///
+/// # Errors
+///
+/// Returns an error if the file can't be read.
+pub fn compute_hash<P: AsRef<Path>>(path: P) -> Result<String> {
+    let mut file = File::open(path.as_ref())?;
     let mut hasher = Sha384::new();
     let mut buffer = [0u8; 8192];
 
@@ -224,127 +404,109 @@ fn get_compiler_command(config_path: &str, output_path: &str) -> Result<(String,
     Err(CompilerError::CompilerNotFound)
 }
 
-/// Main compiler for AdGuard filter rules.
-#[derive(Debug, Default)]
-pub struct RulesCompiler {
-    /// Enable debug output
-    pub debug: bool,
+/// Generate default output path based on config path and timestamp.
+fn generate_output_path(config_path: &Path) -> PathBuf {
+    let timestamp = Utc::now().format("%Y%m%d-%H%M%S");
+    let output_dir = config_path
+        .parent()
+        .unwrap_or(Path::new("."))
+        .join("output");
+    output_dir.join(format!("compiled-{timestamp}.txt"))
 }
 
-impl RulesCompiler {
-    /// Create a new compiler instance.
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    /// Create a new compiler with debug enabled.
-    pub fn with_debug(debug: bool) -> Self {
-        Self { debug }
-    }
-
-    /// Compile filter rules.
-    pub fn compile<P: AsRef<Path>>(
-        &self,
-        config_path: P,
-        output_path: Option<&Path>,
-        copy_to_rules: bool,
-        rules_directory: Option<&Path>,
-        format: Option<ConfigurationFormat>,
-    ) -> Result<CompilerResult> {
-        compile_rules(
-            config_path,
-            output_path,
-            copy_to_rules,
-            rules_directory,
-            format,
-            self.debug,
-        )
-    }
-
-    /// Read configuration from a file.
-    pub fn read_config<P: AsRef<Path>>(
-        &self,
-        config_path: P,
-        format: Option<ConfigurationFormat>,
-    ) -> Result<CompilerConfiguration> {
-        read_configuration(config_path, format)
-    }
-
-    /// Get version information.
-    pub fn get_version_info(&self) -> VersionInfo {
-        get_version_info()
-    }
+/// Determine rules directory from config path.
+fn get_rules_directory(config_path: &Path, custom: Option<&Path>) -> PathBuf {
+    custom.map(Path::to_path_buf).unwrap_or_else(|| {
+        config_path
+            .parent()
+            .unwrap_or(Path::new("."))
+            .parent()
+            .unwrap_or(Path::new("."))
+            .parent()
+            .unwrap_or(Path::new("."))
+            .join("rules")
+    })
 }
 
 /// Compile filter rules using hostlist-compiler.
-pub fn compile_rules<P: AsRef<Path>>(
-    config_path: P,
-    output_path: Option<&Path>,
-    copy_to_rules: bool,
-    rules_directory: Option<&Path>,
-    format: Option<ConfigurationFormat>,
-    debug: bool,
-) -> Result<CompilerResult> {
+///
+/// # Arguments
+///
+/// * `config_path` - Path to the configuration file.
+/// * `options` - Compilation options.
+///
+/// # Errors
+///
+/// Returns an error if compilation fails.
+pub fn compile_rules<P: AsRef<Path>>(config_path: P, options: &CompileOptions) -> Result<CompilerResult> {
     let start = Instant::now();
     let mut result = CompilerResult {
         start_time: Utc::now(),
         ..Default::default()
     };
 
-    let config_path = config_path.as_ref().canonicalize()?;
-    let mut temp_config_path: Option<PathBuf> = None;
+    let config_path = config_path.as_ref().canonicalize().map_err(|e| {
+        CompilerError::file_system(format!("resolving config path {}", config_path.as_ref().display()), e)
+    })?;
 
     // Read configuration
-    let config = read_configuration(&config_path, format)?;
+    let config = read_config(&config_path, options.format)?;
     result.config_name = config.name.clone();
     result.config_version = config.version.clone();
 
+    // Validate if requested
+    if options.validate {
+        config.validate()?;
+    }
+
     // Determine output path
-    let actual_output = match output_path {
-        Some(p) => p.to_path_buf(),
-        None => {
-            let timestamp = Utc::now().format("%Y%m%d-%H%M%S");
-            let output_dir = config_path.parent().unwrap_or(Path::new(".")).join("output");
-            fs::create_dir_all(&output_dir)?;
-            output_dir.join(format!("compiled-{}.txt", timestamp))
-        }
-    };
-    result.output_path = actual_output.display().to_string();
+    let output_path = options
+        .output_path
+        .clone()
+        .unwrap_or_else(|| generate_output_path(&config_path));
+    result.output_path = output_path.clone();
 
-    // Convert to JSON if needed
-    let compile_config_path = if config.source_format != Some(ConfigurationFormat::Json) {
-        let temp_path = std::env::temp_dir().join(format!(
-            "compiler-config-{}.json",
-            uuid::Uuid::new_v4()
-        ));
+    // Convert to JSON if needed (hostlist-compiler only accepts JSON)
+    let (compile_config_path, temp_config_path) = if config.format() != Some(ConfigFormat::Json) {
+        let temp_path = std::env::temp_dir().join(format!("compiler-config-{}.json", uuid::Uuid::new_v4()));
         let json = to_json(&config)?;
-        fs::write(&temp_path, json)?;
-        temp_config_path = Some(temp_path.clone());
+        fs::write(&temp_path, &json).map_err(|e| {
+            CompilerError::file_system(format!("writing temp config to {}", temp_path.display()), e)
+        })?;
 
-        if debug {
+        if options.debug {
             eprintln!("[DEBUG] Created temp JSON config: {}", temp_path.display());
+            eprintln!("[DEBUG] Config content:\n{json}");
         }
 
-        temp_path
+        (temp_path.clone(), Some(temp_path))
     } else {
-        config_path.clone()
+        (config_path.clone(), None)
     };
+
+    // Ensure output directory exists
+    if let Some(output_dir) = output_path.parent() {
+        fs::create_dir_all(output_dir).map_err(|e| {
+            CompilerError::file_system(format!("creating output directory {}", output_dir.display()), e)
+        })?;
+    }
 
     // Get compiler command
     let (cmd, args) = get_compiler_command(
         compile_config_path.to_str().unwrap_or(""),
-        actual_output.to_str().unwrap_or(""),
+        output_path.to_str().unwrap_or(""),
     )?;
 
-    if debug {
-        eprintln!("[DEBUG] Running: {} {}", cmd, args.join(" "));
+    if options.debug {
+        eprintln!("[DEBUG] Running: {cmd} {}", args.join(" "));
     }
 
     // Run compilation
     let output = Command::new(&cmd)
         .args(&args)
         .current_dir(config_path.parent().unwrap_or(Path::new(".")))
-        .output()?;
+        .output()
+        .map_err(|e| CompilerError::process_execution(format!("{cmd} {}", args.join(" ")), e))?;
 
     result.stdout = String::from_utf8_lossy(&output.stdout).to_string();
     result.stderr = String::from_utf8_lossy(&output.stderr).to_string();
@@ -354,11 +516,12 @@ pub fn compile_rules<P: AsRef<Path>>(
         let _ = fs::remove_file(temp_path);
     }
 
+    // Check for compilation failure
     if !output.status.success() {
         result.error_message = Some(format!(
-            "Compiler exited with code {:?}: {}",
+            "compiler exited with code {:?}: {}",
             output.status.code(),
-            result.stderr
+            result.stderr.trim()
         ));
         result.end_time = Utc::now();
         result.elapsed_ms = start.elapsed().as_millis() as u64;
@@ -366,38 +529,35 @@ pub fn compile_rules<P: AsRef<Path>>(
     }
 
     // Verify output was created
-    if !actual_output.exists() {
-        result.error_message = Some("Compilation completed but output file was not created".to_string());
+    if !output_path.exists() {
+        result.error_message = Some("output file was not created".to_string());
         result.end_time = Utc::now();
         result.elapsed_ms = start.elapsed().as_millis() as u64;
         return Ok(result);
     }
 
     // Calculate statistics
-    result.rule_count = count_rules(&actual_output);
-    result.output_hash = compute_hash(&actual_output)?;
+    result.rule_count = count_rules(&output_path);
+    result.output_hash = compute_hash(&output_path)?;
     result.success = true;
 
     // Copy to rules directory if requested
-    if copy_to_rules {
-        let rules_dir = rules_directory
-            .map(|p| p.to_path_buf())
-            .unwrap_or_else(|| {
-                config_path
-                    .parent()
-                    .unwrap_or(Path::new("."))
-                    .parent()
-                    .unwrap_or(Path::new("."))
-                    .parent()
-                    .unwrap_or(Path::new("."))
-                    .join("rules")
-            });
+    if options.copy_to_rules {
+        let rules_dir = get_rules_directory(&config_path, options.rules_directory.as_deref());
+        fs::create_dir_all(&rules_dir).map_err(|e| {
+            CompilerError::file_system(format!("creating rules directory {}", rules_dir.display()), e)
+        })?;
 
-        fs::create_dir_all(&rules_dir)?;
         let dest_path = rules_dir.join("adguard_user_filter.txt");
-        fs::copy(&actual_output, &dest_path)?;
+        fs::copy(&output_path, &dest_path).map_err(|e| {
+            CompilerError::copy_failed(
+                format!("copying {} to {}", output_path.display(), dest_path.display()),
+                e,
+            )
+        })?;
+
         result.copied_to_rules = true;
-        result.rules_destination = Some(dest_path.display().to_string());
+        result.rules_destination = Some(dest_path);
     }
 
     result.end_time = Utc::now();
@@ -409,8 +569,22 @@ pub fn compile_rules<P: AsRef<Path>>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempfile::TempDir;
     use std::io::Write;
+    use tempfile::TempDir;
+
+    #[test]
+    fn test_platform_info_detect() {
+        let info = PlatformInfo::detect();
+        assert!(!info.os_name.is_empty());
+        assert!(!info.architecture.is_empty());
+    }
+
+    #[test]
+    fn test_version_info_collect() {
+        let info = VersionInfo::collect();
+        assert!(!info.module_version.is_empty());
+        assert!(!info.rust_version.is_empty());
+    }
 
     #[test]
     fn test_count_rules() {
@@ -421,7 +595,7 @@ mod tests {
         writeln!(file, "# Another comment").unwrap();
         writeln!(file, "||example.com^").unwrap();
         writeln!(file, "||test.org^").unwrap();
-        writeln!(file, "").unwrap();
+        writeln!(file).unwrap();
         writeln!(file, "@@||allowed.com^").unwrap();
 
         assert_eq!(count_rules(&path), 3);
@@ -437,6 +611,11 @@ mod tests {
     }
 
     #[test]
+    fn test_count_rules_nonexistent() {
+        assert_eq!(count_rules("/nonexistent/path.txt"), 0);
+    }
+
+    #[test]
     fn test_compute_hash() {
         let dir = TempDir::new().unwrap();
         let path = dir.path().join("test.txt");
@@ -448,9 +627,39 @@ mod tests {
     }
 
     #[test]
-    fn test_get_platform_info() {
-        let info = get_platform_info();
-        assert!(!info.os_name.is_empty());
-        assert!(!info.architecture.is_empty());
+    fn test_compile_options_builder() {
+        let options = CompileOptions::new()
+            .with_output("/output/path.txt")
+            .with_copy_to_rules(true)
+            .with_debug(true)
+            .with_validation(true);
+
+        assert_eq!(options.output_path, Some(PathBuf::from("/output/path.txt")));
+        assert!(options.copy_to_rules);
+        assert!(options.debug);
+        assert!(options.validate);
+    }
+
+    #[test]
+    fn test_compiler_result_helpers() {
+        let mut result = CompilerResult::default();
+        result.output_path = PathBuf::from("/path/to/output.txt");
+        result.output_hash = "a".repeat(96);
+        result.elapsed_ms = 1500;
+
+        assert_eq!(result.output_path_str(), "/path/to/output.txt");
+        assert_eq!(result.hash_short().len(), 32);
+        assert_eq!(result.elapsed_formatted(), "1.50s");
+
+        result.elapsed_ms = 500;
+        assert_eq!(result.elapsed_formatted(), "500ms");
+    }
+
+    #[test]
+    fn test_generate_output_path() {
+        let config_path = PathBuf::from("/project/config/compiler.json");
+        let output_path = generate_output_path(&config_path);
+        assert!(output_path.to_str().unwrap().contains("compiled-"));
+        assert!(output_path.to_str().unwrap().ends_with(".txt"));
     }
 }

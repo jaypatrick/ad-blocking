@@ -30,7 +30,7 @@
       "links": [
         {
           "type": "github",
-          "url": "https://github.com/jaypatrick/ad-blocking/tree/main/src/adguard-api-client"
+          "url": "https://github.com/jaypatrick/ad-blocking/tree/main/src/adguard-api-dotnet"
         }
       ]
     },

@@ -71,8 +71,14 @@ ad-blocking/
 │   ├── adguard_user_filter.txt        # Main filter list
 │   ├── Api/                           # Rules API utilities
 │   └── Config/                        # Compiler configurations
-├── scripts/                           # Automation scripts
-│   ├── powershell/                    # PowerShell modules
+├── src/                               # Source code
+│   ├── adguard-api-dotnet/            # AdGuard DNS API C# client
+│   ├── rules-compiler-typescript/     # TypeScript rules compiler
+│   ├── rules-compiler-dotnet/         # .NET rules compiler
+│   ├── rules-compiler-python/         # Python rules compiler
+│   ├── rules-compiler-rust/           # Rust rules compiler
+│   ├── website/                       # Gatsby portfolio website
+│   ├── adguard-api-powershell/        # PowerShell modules
 │   │   ├── Invoke-RulesCompiler.psm1  # Main module
 │   │   ├── RulesCompiler.psd1         # Module manifest
 │   │   ├── RulesCompiler-Harness.ps1  # Interactive harness
@@ -82,13 +88,6 @@ ad-blocking/
 │   │   ├── compile-rules.ps1          # PowerShell Core
 │   │   └── compile-rules.cmd          # Windows batch
 │   └── linear/                        # Linear integration
-├── src/                               # Source code
-│   ├── adguard-api-client/            # AdGuard DNS API C# client
-│   ├── rules-compiler-typescript/     # TypeScript rules compiler
-│   ├── rules-compiler-dotnet/         # .NET rules compiler
-│   ├── rules-compiler-python/         # Python rules compiler
-│   ├── rules-compiler-rust/           # Rust rules compiler
-│   └── website/                       # Gatsby portfolio website
 ├── Dockerfile.warp                    # Docker development environment
 ├── CLAUDE.md                          # AI assistant instructions
 ├── SECURITY.md                        # Security policy
@@ -125,7 +124,7 @@ cd src/rules-compiler-typescript && npm install
 
 # .NET projects
 cd ../rules-compiler-dotnet && dotnet restore RulesCompiler.slnx
-cd ../adguard-api-client && dotnet restore src/AdGuard.ApiClient.sln
+cd ../adguard-api-dotnet && dotnet restore src/AdGuard.ApiClient.sln
 
 # Python compiler
 cd ../rules-compiler-python && pip install -e ".[dev]"
@@ -150,11 +149,11 @@ cd src/rules-compiler-python && rules-compiler
 cd src/rules-compiler-rust && cargo run --release
 
 # PowerShell
-Import-Module ./scripts/powershell/Invoke-RulesCompiler.psm1
+Import-Module ./src/adguard-api-powershell/Invoke-RulesCompiler.psm1
 Invoke-RulesCompiler
 
 # Bash
-./scripts/shell/compile-rules.sh
+./src/rules-compiler-shell/compile-rules.sh
 ```
 
 ## Docker Development Environment
@@ -386,39 +385,39 @@ println!("Compiled {} rules", result.rule_count);
 
 ### Shell Scripts
 
-**Location**: `scripts/shell/`
+**Location**: `src/rules-compiler-shell/`
 
 #### Bash (Linux/macOS)
 
 ```bash
-./scripts/shell/compile-rules.sh                    # Default config
-./scripts/shell/compile-rules.sh -c config.yaml     # YAML config
-./scripts/shell/compile-rules.sh -c config.yaml -r  # Copy to rules
-./scripts/shell/compile-rules.sh -v                 # Show version
+./src/rules-compiler-shell/compile-rules.sh                    # Default config
+./src/rules-compiler-shell/compile-rules.sh -c config.yaml     # YAML config
+./src/rules-compiler-shell/compile-rules.sh -c config.yaml -r  # Copy to rules
+./src/rules-compiler-shell/compile-rules.sh -v                 # Show version
 ```
 
 #### PowerShell Core (Cross-platform)
 
 ```powershell
-./scripts/shell/compile-rules.ps1
-./scripts/shell/compile-rules.ps1 -ConfigPath config.yaml
-./scripts/shell/compile-rules.ps1 -ConfigPath config.yaml -CopyToRules
-./scripts/shell/compile-rules.ps1 -Version
+./src/rules-compiler-shell/compile-rules.ps1
+./src/rules-compiler-shell/compile-rules.ps1 -ConfigPath config.yaml
+./src/rules-compiler-shell/compile-rules.ps1 -ConfigPath config.yaml -CopyToRules
+./src/rules-compiler-shell/compile-rules.ps1 -Version
 ```
 
 #### Windows Batch
 
 ```cmd
-scripts\shell\compile-rules.cmd -c config.json -r
+src\shell\compile-rules.cmd -c config.json -r
 ```
 
 ### PowerShell Module
 
-**Location**: `scripts/powershell/`
+**Location**: `src/adguard-api-powershell/`
 
 ```powershell
 # Import module
-Import-Module ./scripts/powershell/Invoke-RulesCompiler.psm1
+Import-Module ./src/adguard-api-powershell/Invoke-RulesCompiler.psm1
 
 # Available functions
 Get-CompilerVersion | Format-List           # Version info
@@ -426,13 +425,13 @@ Invoke-RulesCompiler                         # Compile rules
 Invoke-RulesCompiler -CopyToRules            # Compile and copy
 
 # Interactive harness
-./scripts/powershell/RulesCompiler-Harness.ps1
+./src/adguard-api-powershell/RulesCompiler-Harness.ps1
 
 # Run Pester tests
-Invoke-Pester -Path ./scripts/powershell/Tests/
+Invoke-Pester -Path ./src/adguard-api-powershell/Tests/
 
 # Lint with PSScriptAnalyzer
-Invoke-ScriptAnalyzer -Path scripts/powershell -Recurse
+Invoke-ScriptAnalyzer -Path src/adguard-api-powershell -Recurse
 ```
 
 **Exported Functions**:
@@ -447,12 +446,12 @@ Invoke-ScriptAnalyzer -Path scripts/powershell -Recurse
 
 ## AdGuard API Client
 
-**Location**: `src/adguard-api-client/`
+**Location**: `src/adguard-api-dotnet/`
 
 A comprehensive C# SDK for the [AdGuard DNS API v1.11](https://api.adguard-dns.io/static/swagger/swagger.json).
 
 ```bash
-cd src/adguard-api-client
+cd src/adguard-api-dotnet
 
 # Build
 dotnet restore src/AdGuard.ApiClient.sln
@@ -513,12 +512,12 @@ See [API Client Usage Guide](docs/guides/api-client-usage.md) for detailed examp
 
 ## Console UI
 
-**Location**: `src/adguard-api-client/src/AdGuard.ConsoleUI/`
+**Location**: `src/adguard-api-dotnet/src/AdGuard.ConsoleUI/`
 
 Interactive terminal application for managing AdGuard DNS.
 
 ```bash
-cd src/adguard-api-client
+cd src/adguard-api-dotnet
 dotnet run --project src/AdGuard.ConsoleUI
 ```
 
@@ -676,7 +675,7 @@ cd src/rules-compiler-dotnet
 dotnet test RulesCompiler.slnx
 dotnet test --filter "FullyQualifiedName~ConfigurationValidatorTests"
 
-cd ../adguard-api-client
+cd ../adguard-api-dotnet
 dotnet test src/AdGuard.ApiClient.sln
 dotnet test --filter "Name~GetAccountLimits"
 ```
@@ -705,9 +704,9 @@ cargo test config::                 # Module tests
 ### PowerShell
 
 ```powershell
-Invoke-Pester -Path ./scripts/powershell/Tests/
-Invoke-Pester -Path ./scripts/powershell/Tests/ -Output Detailed
-Invoke-ScriptAnalyzer -Path scripts/powershell -Recurse
+Invoke-Pester -Path ./src/adguard-api-powershell/Tests/
+Invoke-Pester -Path ./src/adguard-api-powershell/Tests/ -Output Detailed
+Invoke-ScriptAnalyzer -Path src/adguard-api-powershell -Recurse
 ```
 
 ## CI/CD
@@ -742,18 +741,18 @@ Download the latest release from the [Releases page](https://github.com/jaypatri
 
 ### API Reference
 
-- [API Client README](src/adguard-api-client/README.md)
+- [API Client README](src/adguard-api-dotnet/README.md)
 - [API Client Usage Guide](docs/guides/api-client-usage.md)
 - [API Client Examples](docs/guides/api-client-examples.md)
 - [API Reference](docs/api/)
-- [ConsoleUI README](src/adguard-api-client/src/AdGuard.ConsoleUI/README.md)
+- [ConsoleUI README](src/adguard-api-dotnet/src/AdGuard.ConsoleUI/README.md)
 
 ### Rules Compilers
 
 - [.NET Compiler README](src/rules-compiler-dotnet/README.md)
 - [Python Compiler README](src/rules-compiler-python/README.md)
 - [Rust Compiler README](src/rules-compiler-rust/README.md)
-- [Shell Scripts README](scripts/shell/README.md)
+- [Shell Scripts README](src/rules-compiler-shell/README.md)
 
 ### Development
 
@@ -761,6 +760,7 @@ Download the latest release from the [Releases page](https://github.com/jaypatri
 - [Claude Instructions](CLAUDE.md)
 - [Security Policy](SECURITY.md)
 - [Release Guide](docs/release-guide.md)
+- [Centralized Package Management](docs/centralized-package-management.md)
 
 ### Test Your Ad Blocking
 

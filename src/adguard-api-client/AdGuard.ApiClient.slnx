@@ -1,5 +1,0 @@
-<Solution>
-  <Project Path="src/AdGuard.ApiClient.Test/AdGuard.ApiClient.Test.csproj" />
-  <Project Path="src/AdGuard.ApiClient/AdGuard.ApiClient.csproj" />
-  <Project Path="src/AdGuard.ConsoleUI/AdGuard.ConsoleUI.csproj" />
-</Solution>

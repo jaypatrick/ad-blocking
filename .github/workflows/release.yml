@@ -42,7 +42,7 @@ jobs:
       # Build AdGuard Console UI
       - name: Publish AdGuard.ConsoleUI
         run: |
-          dotnet publish src/adguard-api-client/src/AdGuard.ConsoleUI/AdGuard.ConsoleUI.csproj \
+          dotnet publish src/adguard-api-dotnet/src/AdGuard.ConsoleUI/AdGuard.ConsoleUI.csproj \
             --configuration Release \
             --runtime ${{ matrix.runtime }} \
             --self-contained true \

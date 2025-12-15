@@ -1,13 +1,14 @@
 [package]
 name = "rules-compiler"
 version = "1.0.0"
-edition = "2021"
+edition = "2024"
 authors = ["jaypatrick"]
 description = "Rust API for compiling AdGuard filter rules using hostlist-compiler"
 license = "GPL-3.0"
 repository = "https://github.com/jaypatrick/ad-blocking"
 keywords = ["adguard", "filter", "adblock", "hostlist", "compiler"]
 categories = ["command-line-utilities", "web-programming"]
+rust-version = "1.85"
 
 [lib]
 name = "rules_compiler"
@@ -25,35 +26,46 @@ serde_yaml = "0.9"
 toml = "0.8"
 
 # CLI
-clap = { version = "4.4", features = ["derive"] }
-
-# Async runtime (optional, for future use)
-# tokio = { version = "1.0", features = ["full"] }
+clap = { version = "4.5", features = ["derive"] }
+dialoguer = "0.11"
 
 # Error handling
-thiserror = "1.0"
-anyhow = "1.0"
+thiserror = "2.0"
 
 # Hashing
 sha2 = "0.10"
 hex = "0.4"
 
 # Cross-platform
-which = "6.0"
+which = "7.0"
 
 # Time
 chrono = { version = "0.4", features = ["serde"] }
 
 # UUID for temp files
-uuid = { version = "1.0", features = ["v4"] }
+uuid = { version = "1.11", features = ["v4"] }
 
 # Rust version at runtime
 rustc_version_runtime = "0.3"
 
 [dev-dependencies]
-tempfile = "3.10"
+tempfile = "3.14"
 
 [profile.release]
 lto = true
 codegen-units = 1
 strip = true
+panic = "abort"
+opt-level = 3
+
+[profile.dev]
+opt-level = 0
+debug = true
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+all = "warn"
+pedantic = "warn"
+nursery = "warn"

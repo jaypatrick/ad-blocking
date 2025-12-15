@@ -20,7 +20,7 @@ Before creating a release, ensure:
 - All changes are merged to the `main` branch
 - All tests pass in CI/CD
 - Version numbers are updated in project files if needed:
-  - `src/adguard-api-client/src/AdGuard.ConsoleUI/AdGuard.ConsoleUI.csproj`
+  - `src/adguard-api-dotnet/src/AdGuard.ConsoleUI/AdGuard.ConsoleUI.csproj`
   - `src/rules-compiler-dotnet/src/RulesCompiler.Console/RulesCompiler.Console.csproj`
   - `src/rules-compiler-rust/Cargo.toml`
   - `src/rules-compiler-python/pyproject.toml`
@@ -139,7 +139,7 @@ If the automated workflow is not working, you can manually build and release:
 
 ```bash
 # AdGuard Console UI
-cd src/adguard-api-client/src/AdGuard.ConsoleUI
+cd src/adguard-api-dotnet/src/AdGuard.ConsoleUI
 dotnet publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o ./publish/win-x64
 dotnet publish -c Release -r linux-x64 --self-contained -p:PublishSingleFile=true -o ./publish/linux-x64
 dotnet publish -c Release -r osx-x64 --self-contained -p:PublishSingleFile=true -o ./publish/osx-x64
@@ -189,7 +189,7 @@ python -m build
 ## Related Files
 
 - `.github/workflows/release.yml` - Release workflow definition
-- `src/adguard-api-client/src/AdGuard.ConsoleUI/AdGuard.ConsoleUI.csproj` - .NET Console UI project
+- `src/adguard-api-dotnet/src/AdGuard.ConsoleUI/AdGuard.ConsoleUI.csproj` - .NET Console UI project
 - `src/rules-compiler-dotnet/src/RulesCompiler.Console/RulesCompiler.Console.csproj` - .NET Rules Compiler project
 - `src/rules-compiler-rust/Cargo.toml` - Rust project configuration
 - `src/rules-compiler-python/pyproject.toml` - Python project configuration

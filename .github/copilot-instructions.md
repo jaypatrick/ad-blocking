@@ -22,7 +22,7 @@ All four compilers (TypeScript, .NET, Python, Rust) wrap `@adguard/hostlist-comp
 - Return same result structure: `{ success, ruleCount, hash, elapsedMs, outputPath }`
 
 ### ConsoleUI DI Pattern
-`src/adguard-api-client/src/AdGuard.ConsoleUI/` uses service-oriented architecture:
+`src/adguard-api-dotnet/src/AdGuard.ConsoleUI/` uses service-oriented architecture:
 ```
 Program.cs → ConsoleApplication → [DeviceMenu, DnsServerMenu, StatisticsMenu] → ApiClientFactory → AdGuard.ApiClient
 ```
@@ -37,14 +37,16 @@ ad-blocking/
 ├── .github/              # GitHub configuration and workflows
 ├── docs/                 # Documentation (API docs, guides)
 ├── rules/                # Filter rules and compilation configs
-├── scripts/              # PowerShell automation scripts
 ├── src/
 │   ├── api-client/              # C# AdGuard DNS API client
 │   ├── rules-compiler-typescript/  # TypeScript rules compiler
 │   ├── rules-compiler-dotnet/      # .NET rules compiler
 │   ├── rules-compiler-python/      # Python rules compiler
 │   ├── rules-compiler-rust/        # Rust rules compiler
-│   └── website/                    # Gatsby website
+│   ├── website/                    # Gatsby website
+│   ├── powershell/       # PowerShell automation scripts
+│   ├── rules-compiler-shell/      # Shell scripts (bash, ps1, cmd)
+│   └── linear/           # Linear integration
 └── README.md
 ```
 
@@ -64,7 +66,7 @@ cd src/rules-compiler-typescript && npm run compile
 **Why four compilers?** Provides language flexibility while ensuring identical output. Use `docs/compiler-comparison.md` to choose based on runtime requirements.
 
 ### API Client Development Pattern
-When working with `src/adguard-api-client/`:
+When working with `src/adguard-api-dotnet/`:
 1. **Never modify auto-generated files** in `src/AdGuard.ApiClient/` (regenerated from `api/openapi.yaml`)
 2. Place customizations in `Helpers/` (e.g., `ConfigurationHelper.cs`, `RetryPolicyHelper.cs`)
 3. ConsoleUI services inherit from menu base classes, inject `ApiClientFactory`
@@ -114,22 +116,22 @@ All test suites assert `hash.length === 96` and verify consistent hashing.
 
 ## Build and Test Commands
 
-### C# API Client (`src/adguard-api-client/`)
+### C# API Client (`src/adguard-api-dotnet/`)
 ```bash
 # Navigate to the solution directory
-cd src/api-client/src
+cd src/adguard-api-dotnet
 
 # Restore dependencies
-dotnet restore AdGuard.ApiClient.sln
+dotnet restore AdGuard.ApiClient.slnx
 
 # Build
-dotnet build AdGuard.ApiClient.sln --no-restore
+dotnet build AdGuard.ApiClient.slnx --no-restore
 
 # Run tests
-dotnet test AdGuard.ApiClient.sln --no-build --verbosity normal
+dotnet test AdGuard.ApiClient.slnx --no-build --verbosity normal
 
 # Run specific test project
-dotnet test AdGuard.ApiClient.Test/AdGuard.ApiClient.Test.csproj
+dotnet test src/AdGuard.ApiClient.Test/AdGuard.ApiClient.Test.csproj
 ```
 
 **Requirements**: .NET 8.0 SDK
@@ -211,7 +213,7 @@ npm run build
 
 **Requirements**: Node.js 18+, Gatsby CLI
 
-### PowerShell Scripts (`scripts/powershell/`)
+### PowerShell Scripts (`src/powershell/`)
 ```bash
 # Run PSScriptAnalyzer
 pwsh -Command "Invoke-ScriptAnalyzer -Path . -Recurse"
@@ -271,7 +273,7 @@ pwsh -Command "Invoke-ScriptAnalyzer -Path . -Recurse"
   - Use secure input or environment variables
 - **Testing**: Pester v5 tests in `Tests/` folders
 - **Linting**: PSScriptAnalyzer enforced in CI (`.github/workflows/powershell.yml`)
-- **RulesCompiler module** (`scripts/powershell/`):
+- **RulesCompiler module** (`src/powershell/`):
   - `Invoke-FilterComp (CRITICAL)
 **NEVER commit**:
 - API keys, tokens, passwords
@@ -280,7 +282,7 @@ pwsh -Command "Invoke-ScriptAnalyzer -Path . -Recurse"
 **Environment variables**:
 - `ADGUARD_WEBHOOK_URL` - Webhook endpoint for notifications
 - `ADGUARD_API_KEY` - AdGuard DNS API authentication
-- `LINEAR_API_KEY` - Linear integration (scripts/linear/)
+- `LINEAR_API_KEY` - Linear integration (src/linear/)
 - `SECRET_KEY` - Encryption keys
 
 **Configuration priority** (ConsoleUI):
@@ -344,9 +346,9 @@ Supports 3 formats (JSON/YAML/TOML), mirrors `@adguard/hostlist-compiler`:
 { (GitHub Actions)
 | Workflow | File | Triggers | Purpose |
 |----------|------|----------|---------|
-| .NET | `dotnet.yml` | Push to main, PRs | Build/test API client (`dotnet test AdGuard.ApiClient.sln`) |
+| .NET | `dotnet.yml` | Push to main, PRs | Build/test API client (`dotnet test AdGuard.ApiClient.slnx`) |
 | TypeScript | `typescript.yml` | Push to main, PRs | Type-check, lint, test (`tsc --noEmit`, `eslint`, `jest`) |
-| PowerShell | `powershell.yml` | On-demand | PSScriptAnalyzer on `scripts/powershell/` |
+| PowerShell | `powershell.yml` | On-demand | PSScriptAnalyzer on `src/powershell/` |
 | Gatsby | `gatsby.yml` | Push to main | Build and deploy to GitHub Pages |
 | CodeQL | `codeql.yml` | Schedule, push to main | Security scanning (breaks on high/critical) |
 | DevSkim | `devskim.yml` | Schedule | Additional security analysis |
@@ -403,7 +405,7 @@ npm install <package-name>
 
 ### AdGuard DNS API
 - **OpenAPI spec**: `api/openapi.json` (v1.11, primary), `api/openapi.yaml` (optional)
-- **Auto-generated client**: `src/adguard-api-client/src/AdGuard.ApiClient/`
+- **Auto-generated client**: `src/adguard-api-dotnet/src/AdGuard.ApiClient/`
 - **Base URL**: Configured via `AdGuard:BaseUrl` in appsettings
 - **Auth**: Bearer token in `Authorization` header
 - **Retry logic**: 3 attempts with exponential backoff (408, 429, 5xx)
@@ -430,8 +432,8 @@ npm install <package-name>
 | `rules/adguard_user_filter.txt` | **Production filter list** | After successful compilation and testing |
 | `src/rules-compiler-typescript/compiler-config.json` | **Primary config** for rule compilation | To change filter sources or transformations |
 | `api/openapi.yaml` | AdGuard DNS API spec (v1.11) | Never (upstream dependency) |
-| `src/adguard-api-client/src/AdGuard.ApiClient/` | **Auto-generated** API client | Never (regenerate from spec instead) |
-| `scripts/powershell/Invoke-RulesCompiler.psm1` | PowerShell wrapper for compiler | Extending PowerShell automation |
+| `src/adguard-api-dotnet/src/AdGuard.ApiClient/` | **Auto-generated** API client | Never (regenerate from spec instead) |
+| `src/powershell/Invoke-RulesCompiler.psm1` | PowerShell wrapper for compiler | Extending PowerShell automation |
 | `docs/compiler-comparison.md` | **Decision guide** for choosing compiler | When adding features to compilers |
 
 ## Common Gotchas
@@ -450,7 +452,7 @@ npm install <package-name>
 
 5. **CI vs Local**: Always use `npm ci` in CI (lockfile-driven), `npm install` locally
 
-## Linear Integration (`scripts/linear/`)
+## Linear Integration (`src/linear/`)
 
 **Purpose**: Import repository documentation into Linear for project management tracking.
 
@@ -462,7 +464,7 @@ npm install <package-name>
 
 ### Setup
 ```bash
-cd scripts/linear
+cd src/linear
 npm install
 npm run build
 
@@ -494,7 +496,7 @@ npm run import -- --list-projects
 - **Component Docs**: Each major component becomes a documentation issue
 - **Architecture Info**: CI/CD pipelines, dependencies, tech stack
 
-See `scripts/linear/README.md` for full documentation.
+See `src/linear/README.md` for full documentation.
 
 ## Release Workflow
 
@@ -503,7 +505,7 @@ See `scripts/linear/README.md` for full documentation.
 ### Creating a Release
 
 1. **Update version numbers** in project files:
-   - `src/adguard-api-client/src/AdGuard.ConsoleUI/AdGuard.ConsoleUI.csproj`
+   - `src/adguard-api-dotnet/src/AdGuard.ConsoleUI/AdGuard.ConsoleUI.csproj`
    - `src/rules-compiler-dotnet/src/RulesCompiler.Console/RulesCompiler.Console.csproj`
    - `src/rules-compiler-rust/Cargo.toml`
    - `src/rules-compiler-python/pyproject.toml`

@@ -18,8 +18,8 @@ TypeScript – rules compiler (src/rules-compiler-typescript)
   Notes
   - invoke-compiler.ts reads compiler-config.json in the same folder and writes adguard_user_filter.txt beside it. The canonical list in rules/adguard_user_filter.txt is tracked under rules/.
 
-.NET – API client + console UI (src/adguard-api-client)
-- Restore/build/test: cd src/adguard-api-client; dotnet restore src/AdGuard.ApiClient.sln; dotnet build src/AdGuard.ApiClient.sln; dotnet test src/AdGuard.ApiClient.sln
+.NET – API client + console UI (src/adguard-api-dotnet)
+- Restore/build/test: cd src/adguard-api-dotnet; dotnet restore src/AdGuard.ApiClient.sln; dotnet build src/AdGuard.ApiClient.sln; dotnet test src/AdGuard.ApiClient.sln
 - Run the console UI: dotnet run --project src/AdGuard.ConsoleUI/AdGuard.ConsoleUI.csproj
   Notes
   - The client targets net10.0 and includes helpers for configuration and Polly-based retry policies (see Helpers/ConfigurationHelper.cs and Helpers/RetryPolicyHelper.cs).
@@ -31,14 +31,14 @@ Website (Gatsby) – src/website
 - Serve local build: npm run serve
 
 PowerShell scripts
-- Static analysis (same as CI): Invoke-ScriptAnalyzer -Path scripts/powershell -Recurse
+- Static analysis (same as CI): Invoke-ScriptAnalyzer -Path src/adguard-api-powershell -Recurse
 
 Running a single test
 - TypeScript (Jest)
   - By file: cd src/rules-compiler-typescript && npx jest cli.test.ts
   - By test name: npx jest -t "should write rules to a file"
-- .NET (xUnit under src/adguard-api-client)
-  - By class pattern: cd src/adguard-api-client && dotnet test src/AdGuard.ApiClient.sln --filter "FullyQualifiedName~DevicesApiTests"
+- .NET (xUnit under src/adguard-api-dotnet)
+  - By class pattern: cd src/adguard-api-dotnet && dotnet test src/AdGuard.ApiClient.sln --filter "FullyQualifiedName~DevicesApiTests"
   - By method pattern: dotnet test src/AdGuard.ApiClient.sln --filter "Name~GetAccountLimits"
 
 Environment and secrets used by code
@@ -50,13 +50,13 @@ High-level architecture and structure
 - Filter compiler (src/filter-compiler/)
   - TypeScript wrapper around @adguard/hostlist-compiler. invoke-compiler.ts loads compiler-config.json, compiles sources, and writes adguard_user_filter.txt. Jest tests cover config parsing and output writing.
   - eslint.config.mjs configures JS/TS linting via the flat config.
-- API client (src/adguard-api-client/)
+- API client (src/adguard-api-dotnet/)
   - Auto-generated C# SDK for AdGuard DNS API v1.11 (see api/openapi.json (primary) and api/openapi.yaml (optional) and README.md). Targets net10.0 in AdGuard.ApiClient.csproj; uses Newtonsoft.Json and JsonSubTypes.
   - Helpers/ConfigurationHelper.cs provides fluent auth + timeouts + user agent, and Helpers/RetryPolicyHelper.cs adds Polly-based retry policies for 408/429/5xx.
   - Console UI (src/AdGuard.ConsoleUI/) is a Spectre.Console menu-driven wrapper over the SDK with a small ApiClientFactory to configure the SDK from settings or an interactive prompt.
-- Scripts (scripts/)
-  - scripts/linear: Node-based tool to import the repo's documentation into Linear (build with tsc; run node dist/linear-import.js). Reads .env for LINEAR_API_KEY, etc.
-  - scripts/powershell: PowerShell module scaffolding and tests; CI runs PSScriptAnalyzer against the folder.
+- Scripts (src/)
+  - src/linear: Node-based tool to import the repo's documentation into Linear (build with tsc; run node dist/linear-import.js). Reads .env for LINEAR_API_KEY, etc.
+  - src/adguard-api-powershell: PowerShell module scaffolding and tests; CI runs PSScriptAnalyzer against the folder.
 - Website (src/website/)
   - Gatsby portfolio starter used as a simple static site. CI builds and deploys to GitHub Pages.
 
