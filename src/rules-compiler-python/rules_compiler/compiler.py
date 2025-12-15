@@ -23,6 +23,14 @@ from rules_compiler.config import (
     read_configuration,
     to_json,
 )
+from rules_compiler.errors import (
+    CompilationError,
+    CompilerNotFoundError,
+    CopyError,
+    OutputNotCreatedError,
+    TimeoutError as CompilerTimeoutError,
+    ValidationError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +56,19 @@ class VersionInfo:
     hostlist_compiler_path: str | None = None
     platform: PlatformInfo = field(default_factory=PlatformInfo)
 
+    def has_node(self) -> bool:
+        """Check if Node.js is available."""
+        return self.node_version is not None
+
+    def has_compiler(self) -> bool:
+        """Check if hostlist-compiler is available."""
+        return self.hostlist_compiler_version is not None
+
+    @classmethod
+    def collect(cls) -> VersionInfo:
+        """Collect version information from the system."""
+        return get_version_info()
+
 
 @dataclass
 class CompilerResult:
@@ -66,6 +87,26 @@ class CompilerResult:
     error_message: str | None = None
     stdout: str = ""
     stderr: str = ""
+
+    def elapsed_formatted(self) -> str:
+        """Get elapsed time in human-readable format."""
+        if self.elapsed_ms >= 1000:
+            return f"{self.elapsed_ms / 1000:.2f}s"
+        return f"{self.elapsed_ms}ms"
+
+    def hash_short(self, length: int = 32) -> str:
+        """Get shortened hash for display."""
+        if len(self.output_hash) > length:
+            return self.output_hash[:length]
+        return self.output_hash
+
+    def output_path_str(self) -> str:
+        """Get output path as string."""
+        return str(self.output_path) if self.output_path else ""
+
+    def rules_destination_str(self) -> str | None:
+        """Get rules destination as string or None."""
+        return str(self.rules_destination) if self.rules_destination else None
 
 
 def get_platform_info() -> PlatformInfo:
@@ -176,12 +217,46 @@ def compute_hash(file_path: str | Path) -> str:
     return sha384.hexdigest()
 
 
+def hash_short(hash_value: str, length: int = 32) -> str:
+    """
+    Get shortened hash for display.
+
+    Args:
+        hash_value: Full hash string.
+        length: Maximum length to return.
+
+    Returns:
+        Shortened hash string.
+    """
+    if len(hash_value) > length:
+        return hash_value[:length]
+    return hash_value
+
+
+def format_elapsed(elapsed_ms: int) -> str:
+    """
+    Format elapsed time in human-readable format.
+
+    Args:
+        elapsed_ms: Elapsed time in milliseconds.
+
+    Returns:
+        Formatted string (e.g., "1.50s" or "500ms").
+    """
+    if elapsed_ms >= 1000:
+        return f"{elapsed_ms / 1000:.2f}s"
+    return f"{elapsed_ms}ms"
+
+
 def _get_compiler_command(config_path: str, output_path: str) -> tuple[list[str], str]:
     """
     Get the compiler command and working directory.
 
     Returns:
         Tuple of (command args, working directory).
+
+    Raises:
+        CompilerNotFoundError: If hostlist-compiler is not found.
     """
     compiler_path = find_command("hostlist-compiler")
 
@@ -198,9 +273,7 @@ def _get_compiler_command(config_path: str, output_path: str) -> tuple[list[str]
             str(Path(config_path).parent),
         )
 
-    raise RuntimeError(
-        "hostlist-compiler not found. Install with: npm install -g @adguard/hostlist-compiler"
-    )
+    raise CompilerNotFoundError(["hostlist-compiler", "npx"])
 
 
 class RulesCompiler:
@@ -232,6 +305,7 @@ class RulesCompiler:
         copy_to_rules: bool = False,
         rules_directory: str | Path | None = None,
         format: ConfigurationFormat | None = None,
+        validate: bool = True,
     ) -> CompilerResult:
         """
         Compile filter rules.
@@ -242,6 +316,7 @@ class RulesCompiler:
             copy_to_rules: Copy output to rules directory.
             rules_directory: Custom rules directory path.
             format: Force configuration format.
+            validate: Validate configuration before compiling.
 
         Returns:
             Compilation result.
@@ -253,6 +328,7 @@ class RulesCompiler:
             rules_directory=rules_directory,
             format=format,
             debug=self.debug,
+            validate=validate,
         )
 
     def read_config(
@@ -272,6 +348,24 @@ class RulesCompiler:
         """
         return read_configuration(config_path, format)
 
+    def validate_config(
+        self,
+        config: CompilerConfiguration,
+        check_files: bool = False,
+    ) -> tuple[bool, list[str], list[str]]:
+        """
+        Validate a configuration.
+
+        Args:
+            config: Configuration to validate.
+            check_files: Check if local source files exist.
+
+        Returns:
+            Tuple of (is_valid, errors, warnings).
+        """
+        result = config.validate(check_files=check_files)
+        return result.is_valid, result.errors, result.warnings
+
     def get_version_info(self) -> VersionInfo:
         """Get version information for all components."""
         return get_version_info()
@@ -284,6 +378,7 @@ def compile_rules(
     rules_directory: str | Path | None = None,
     format: ConfigurationFormat | None = None,
     debug: bool = False,
+    validate: bool = True,
 ) -> CompilerResult:
     """
     Compile filter rules using hostlist-compiler.
@@ -295,6 +390,7 @@ def compile_rules(
         rules_directory: Custom rules directory path.
         format: Force configuration format.
         debug: Enable debug logging.
+        validate: Validate configuration before compiling.
 
     Returns:
         Compilation result.
@@ -308,6 +404,15 @@ def compile_rules(
         config = read_configuration(config_path, format)
         result.config_name = config.name
         result.config_version = config.version
+
+        # Validate configuration if requested
+        if validate:
+            validation_result = config.validate()
+            if not validation_result.is_valid:
+                raise ValidationError(validation_result.errors, validation_result.warnings)
+            if validation_result.warnings and debug:
+                for warning in validation_result.warnings:
+                    logger.warning(f"Config warning: {warning}")
 
         # Determine output path
         if output_path:
@@ -332,7 +437,8 @@ def compile_rules(
             temp_config_path.write(to_json(config))
             temp_config_path.close()
             compile_config_path = temp_config_path.name
-            logger.debug(f"Created temp JSON config: {compile_config_path}")
+            if debug:
+                logger.debug(f"Created temp JSON config: {compile_config_path}")
         else:
             compile_config_path = str(config_path)
 
@@ -341,37 +447,43 @@ def compile_rules(
 
         if debug:
             logger.debug(f"Running: {' '.join(cmd)}")
+            logger.debug(f"Working directory: {cwd}")
 
         # Run compilation
-        proc = subprocess.run(
-            cmd,
-            cwd=cwd,
-            capture_output=True,
-            text=True,
-            timeout=300,  # 5 minute timeout
-        )
+        try:
+            proc = subprocess.run(
+                cmd,
+                cwd=cwd,
+                capture_output=True,
+                text=True,
+                timeout=300,  # 5 minute timeout
+            )
+        except subprocess.TimeoutExpired:
+            raise CompilerTimeoutError(300, " ".join(cmd))
 
         result.stdout = proc.stdout
         result.stderr = proc.stderr
 
         if proc.returncode != 0:
-            result.success = False
-            result.error_message = f"Compiler exited with code {proc.returncode}: {proc.stderr}"
-            logger.error(f"Compilation failed: {result.error_message}")
-            return result
+            raise CompilationError(
+                f"Compiler exited with code {proc.returncode}",
+                exit_code=proc.returncode,
+                stdout=proc.stdout,
+                stderr=proc.stderr,
+            )
 
         # Verify output was created
         if not actual_output.exists():
-            result.success = False
-            result.error_message = "Compilation completed but output file was not created"
-            return result
+            raise OutputNotCreatedError(str(actual_output))
 
         # Calculate statistics
         result.rule_count = count_rules(actual_output)
         result.output_hash = compute_hash(actual_output)
         result.success = True
 
-        logger.info(f"Compiled {result.rule_count} rules, hash: {result.output_hash[:32]}...")
+        if debug:
+            logger.debug(f"Compiled {result.rule_count} rules")
+            logger.debug(f"Output hash: {result.hash_short()}...")
 
         # Copy to rules directory if requested
         if copy_to_rules:
@@ -380,12 +492,22 @@ def compile_rules(
             else:
                 rules_dir = config_path.parent.parent.parent / "rules"
 
-            rules_dir.mkdir(exist_ok=True)
-            dest_path = rules_dir / "adguard_user_filter.txt"
-            shutil.copy2(actual_output, dest_path)
-            result.copied_to_rules = True
-            result.rules_destination = str(dest_path)
-            logger.info(f"Copied to: {dest_path}")
+            try:
+                rules_dir.mkdir(exist_ok=True)
+                dest_path = rules_dir / "adguard_user_filter.txt"
+                shutil.copy2(actual_output, dest_path)
+                result.copied_to_rules = True
+                result.rules_destination = str(dest_path)
+                if debug:
+                    logger.debug(f"Copied to: {dest_path}")
+            except (OSError, IOError) as e:
+                raise CopyError(str(actual_output), str(dest_path), str(e))
+
+    except (ValidationError, CompilationError, CompilerNotFoundError,
+            OutputNotCreatedError, CopyError, CompilerTimeoutError) as e:
+        result.success = False
+        result.error_message = str(e)
+        logger.error(f"Compilation failed: {e}")
 
     except Exception as e:
         result.success = False
@@ -401,3 +523,24 @@ def compile_rules(
         result.elapsed_ms = int((result.end_time - result.start_time).total_seconds() * 1000)
 
     return result
+
+
+def validate_configuration(
+    config_path: str | Path,
+    format: ConfigurationFormat | None = None,
+    check_files: bool = False,
+) -> tuple[bool, list[str], list[str]]:
+    """
+    Validate a configuration file without compiling.
+
+    Args:
+        config_path: Path to configuration file.
+        format: Force configuration format.
+        check_files: Check if local source files exist.
+
+    Returns:
+        Tuple of (is_valid, errors, warnings).
+    """
+    config = read_configuration(config_path, format)
+    result = config.validate(check_files=check_files)
+    return result.is_valid, result.errors, result.warnings
