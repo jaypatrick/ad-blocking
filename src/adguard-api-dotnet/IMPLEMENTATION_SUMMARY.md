@@ -57,7 +57,7 @@ Since the domain is blocked in this environment, the following steps need to be 
 ### Option 1: Use the Automated Script (Recommended)
 
 ```bash
-cd src/adguard-api-client
+cd src/adguard-api-dotnet
 ./update-api-client.sh
 ```
 
@@ -70,7 +70,7 @@ This will:
 
 ```bash
 # 1. Download the spec
-cd src/adguard-api-client
+cd src/adguard-api-dotnet
 curl -o api/openapi.json https://api.adguard-dns.io/swagger/openapi.json
 
 # 2. Convert to YAML (optional, for readability)
@@ -87,7 +87,7 @@ dotnet test AdGuard.ApiClient.slnx
 ### Option 3: Quick Download Only
 
 ```bash
-cd src/adguard-api-client
+cd src/adguard-api-dotnet
 ./quick-download.sh
 ```
 
@@ -95,17 +95,17 @@ cd src/adguard-api-client
 
 1. **Build the solution**:
    ```bash
-   dotnet build src/adguard-api-client/AdGuard.ApiClient.slnx
+   dotnet build src/adguard-api-dotnet/AdGuard.ApiClient.slnx
    ```
 
 2. **Run tests**:
    ```bash
-   dotnet test src/adguard-api-client/AdGuard.ApiClient.slnx
+   dotnet test src/adguard-api-dotnet/AdGuard.ApiClient.slnx
    ```
 
 3. **Test ConsoleUI application**:
    ```bash
-   cd src/adguard-api-client/src/AdGuard.ConsoleUI
+   cd src/adguard-api-dotnet/src/AdGuard.ConsoleUI
    dotnet run
    ```
 
@@ -142,14 +142,14 @@ If the domain is blocked or inaccessible:
 1. Check firewall/proxy settings
 2. Try from a different network
 3. Use a VPN if needed
-4. Download the spec manually from a browser and place it at `src/adguard-api-client/api/openapi.json`
+4. Download the spec manually from a browser and place it at `src/adguard-api-dotnet/api/openapi.json`
 
 ## Documentation References
 
 For detailed information, see:
-- **Quick Start**: `src/adguard-api-client/UPDATE_README.md`
-- **Complete Guide**: `src/adguard-api-client/OPENAPI_UPDATE_GUIDE.md`
-- **API Spec Info**: `src/adguard-api-client/api/README.md`
+- **Quick Start**: `src/adguard-api-dotnet/UPDATE_README.md`
+- **Complete Guide**: `src/adguard-api-dotnet/OPENAPI_UPDATE_GUIDE.md`
+- **API Spec Info**: `src/adguard-api-dotnet/api/README.md`
 
 ## Repository Impact
 

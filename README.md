@@ -675,7 +675,7 @@ cd src/rules-compiler-dotnet
 dotnet test RulesCompiler.slnx
 dotnet test --filter "FullyQualifiedName~ConfigurationValidatorTests"
 
-cd ../adguard-api-client
+cd ../adguard-api-dotnet
 dotnet test src/AdGuard.ApiClient.sln
 dotnet test --filter "Name~GetAccountLimits"
 ```

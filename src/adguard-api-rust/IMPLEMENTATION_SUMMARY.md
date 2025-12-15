@@ -153,4 +153,4 @@ The Rust CLI now provides a functional, user-friendly alternative to the C# Cons
 - Single binary distribution
 - No runtime dependencies
 
-The implementation successfully addresses the issue requirement: "On src, in the adguard-api-rust directory app should function similarly to adguard-api-client".
+The implementation successfully addresses the issue requirement: "On src, in the adguard-api-rust directory app should function similarly to adguard-api-dotnet".

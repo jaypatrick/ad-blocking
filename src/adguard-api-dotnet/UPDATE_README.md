@@ -251,7 +251,7 @@ src/AdGuard.ApiClient/Configuration/*
 ## Project Structure
 
 ```
-src/adguard-api-client/
+src/adguard-api-dotnet/
 ├── api/
 │   ├── openapi.json           # Primary OpenAPI spec (JSON)
 │   ├── openapi.yaml           # Optional OpenAPI spec (YAML, for readability)
@@ -323,7 +323,7 @@ src/adguard-api-client/
 
 ## Future Improvements
 
-See `src/adguard-api-client/.github/upgrades/tasks.md` for planned modernization tasks:
+See `src/adguard-api-dotnet/.github/upgrades/tasks.md` for planned modernization tasks:
 
 - [ ] Migrate to System.Text.Json (SCENARIO-004)
 - [ ] Update OpenAPI Generator configuration (SCENARIO-005)

@@ -5,7 +5,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-API_DIR="${SCRIPT_DIR}/../adguard-api-client/api"
+API_DIR="${SCRIPT_DIR}/../adguard-api-dotnet/api"
 LIB_DIR="${SCRIPT_DIR}/adguard-api-lib"
 OPENAPI_SPEC="${API_DIR}/openapi.json"
 GENERATOR_VERSION="7.16.0"
