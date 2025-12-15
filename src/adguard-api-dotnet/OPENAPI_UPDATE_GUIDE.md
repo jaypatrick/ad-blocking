@@ -17,8 +17,8 @@ The AdGuard API Client is auto-generated from an OpenAPI (formerly Swagger) spec
 
 The OpenAPI specification is stored at:
 ```
-src/adguard-api-client/api/openapi.json (primary)
-src/adguard-api-client/api/openapi.yaml (optional, for readability)
+src/adguard-api-dotnet/api/openapi.json (primary)
+src/adguard-api-dotnet/api/openapi.yaml (optional, for readability)
 ```
 
 ## Obtaining the Latest OpenAPI Spec
@@ -36,7 +36,7 @@ You can download it directly:
 curl -O https://api.adguard-dns.io/swagger/openapi.json
 
 # Or save it to the correct location
-curl -o src/adguard-api-client/api/openapi.json \
+curl -o src/adguard-api-dotnet/api/openapi.json \
      https://api.adguard-dns.io/swagger/openapi.json
 ```
 
@@ -66,11 +66,11 @@ Use the complete update workflow script:
 
 ```bash
 # Linux/macOS
-cd src/adguard-api-client
+cd src/adguard-api-dotnet
 ./update-api-client.sh
 
 # Windows (PowerShell)
-cd src/adguard-api-client
+cd src/adguard-api-dotnet
 .\Update-ApiClient.ps1
 ```
 
@@ -86,21 +86,21 @@ Once you have obtained the latest OpenAPI specification:
 
 1. **Download the spec**:
    ```bash
-   curl -o src/adguard-api-client/api/openapi.json \
+   curl -o src/adguard-api-dotnet/api/openapi.json \
         https://api.adguard-dns.io/swagger/openapi.json
    ```
 
 2. **Backup the current spec**:
    ```bash
-   cp src/adguard-api-client/api/openapi.json \
-      src/adguard-api-client/api/openapi.json.backup
+   cp src/adguard-api-dotnet/api/openapi.json \
+      src/adguard-api-dotnet/api/openapi.json.backup
    ```
 
 3. **Convert JSON to YAML** (optional, for readability):
    ```bash
    # Install yq if needed: pip install yq
-   yq eval -P src/adguard-api-client/api/openapi.json > \
-            src/adguard-api-client/api/openapi.yaml
+   yq eval -P src/adguard-api-dotnet/api/openapi.json > \
+            src/adguard-api-dotnet/api/openapi.yaml
    ```
 
 4. **Verify the specification**:
@@ -109,12 +109,12 @@ Once you have obtained the latest OpenAPI specification:
    npm install -g @stoplight/spectral-cli
 
    # Validate the spec
-   spectral lint src/adguard-api-client/api/openapi.json
+   spectral lint src/adguard-api-dotnet/api/openapi.json
    ```
 
 5. **Review changes**:
    ```bash
-   git diff src/adguard-api-client/api/openapi.json
+   git diff src/adguard-api-dotnet/api/openapi.json
    ```
 
 ## Regenerating the API Client
@@ -135,13 +135,13 @@ npm install -g @openapitools/openapi-generator-cli
 
 #### Linux/macOS:
 ```bash
-cd src/adguard-api-client
+cd src/adguard-api-dotnet
 ./regenerate-client.sh
 ```
 
 #### Windows (PowerShell):
 ```powershell
-cd src/adguard-api-client
+cd src/adguard-api-dotnet
 .\Regenerate-Client.ps1
 ```
 
@@ -154,7 +154,7 @@ The script will:
 ### Method 2: Using OpenAPI Generator Directly
 
 ```bash
-cd src/adguard-api-client
+cd src/adguard-api-dotnet
 
 # Generate C# client
 openapi-generator-cli generate \
@@ -174,7 +174,7 @@ nullableReferenceTypes=true
 ### Method 3: Using Docker
 
 ```bash
-cd src/adguard-api-client
+cd src/adguard-api-dotnet
 
 docker run --rm \
     -v "${PWD}:/local" \
@@ -199,8 +199,8 @@ nullableReferenceTypes=true
 Check the generated files in `src/AdGuard.ApiClient/`:
 
 ```bash
-git status src/adguard-api-client/src/AdGuard.ApiClient/
-git diff src/adguard-api-client/src/AdGuard.ApiClient/
+git status src/adguard-api-dotnet/src/AdGuard.ApiClient/
+git diff src/adguard-api-dotnet/src/AdGuard.ApiClient/
 ```
 
 ### 2. Apply Custom Modifications
@@ -214,7 +214,7 @@ Ensure these customizations are preserved or updated as needed.
 ### 3. Build the Solution
 
 ```bash
-cd src/adguard-api-client
+cd src/adguard-api-dotnet
 dotnet restore AdGuard.ApiClient.slnx
 dotnet build AdGuard.ApiClient.slnx --no-restore
 ```
@@ -234,14 +234,14 @@ Update tests as needed to accommodate API changes.
 If the API has changed, update:
 - `docs/api/` - API endpoint documentation
 - `docs/guides/api-client-usage.md` - Usage examples
-- `src/adguard-api-client/README.md` - Client library README
+- `src/adguard-api-dotnet/README.md` - Client library README
 
 ### 6. Test ConsoleUI
 
 The ConsoleUI application depends on the API client. Test it manually:
 
 ```bash
-cd src/adguard-api-client/src/AdGuard.ConsoleUI
+cd src/adguard-api-dotnet/src/AdGuard.ConsoleUI
 dotnet run
 ```
 
@@ -334,6 +334,6 @@ For issues with:
 Planned enhancements for the update process:
 
 1. **Automated Spec Fetching**: Script to automatically check for and download new spec versions
-2. **System.Text.Json Migration**: Update to use modern .NET serialization (see `src/adguard-api-client/.github/upgrades/tasks.md`)
+2. **System.Text.Json Migration**: Update to use modern .NET serialization (see `src/adguard-api-dotnet/.github/upgrades/tasks.md`)
 3. **CI/CD Integration**: Automated generation and testing in GitHub Actions
 4. **Version Tracking**: Maintain changelog of API version updates

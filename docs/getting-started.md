@@ -171,7 +171,7 @@ set AdGuard:ApiKey=your-api-key-here
 ### 3. Run the Console UI
 
 ```bash
-cd src/adguard-api-client
+cd src/adguard-api-dotnet
 dotnet run --project src/AdGuard.ConsoleUI
 ```
 

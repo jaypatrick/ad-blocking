@@ -22,7 +22,7 @@ All four compilers (TypeScript, .NET, Python, Rust) wrap `@adguard/hostlist-comp
 - Return same result structure: `{ success, ruleCount, hash, elapsedMs, outputPath }`
 
 ### ConsoleUI DI Pattern
-`src/adguard-api-client/src/AdGuard.ConsoleUI/` uses service-oriented architecture:
+`src/adguard-api-dotnet/src/AdGuard.ConsoleUI/` uses service-oriented architecture:
 ```
 Program.cs → ConsoleApplication → [DeviceMenu, DnsServerMenu, StatisticsMenu] → ApiClientFactory → AdGuard.ApiClient
 ```
@@ -66,7 +66,7 @@ cd src/rules-compiler-typescript && npm run compile
 **Why four compilers?** Provides language flexibility while ensuring identical output. Use `docs/compiler-comparison.md` to choose based on runtime requirements.
 
 ### API Client Development Pattern
-When working with `src/adguard-api-client/`:
+When working with `src/adguard-api-dotnet/`:
 1. **Never modify auto-generated files** in `src/AdGuard.ApiClient/` (regenerated from `api/openapi.yaml`)
 2. Place customizations in `Helpers/` (e.g., `ConfigurationHelper.cs`, `RetryPolicyHelper.cs`)
 3. ConsoleUI services inherit from menu base classes, inject `ApiClientFactory`
@@ -116,7 +116,7 @@ All test suites assert `hash.length === 96` and verify consistent hashing.
 
 ## Build and Test Commands
 
-### C# API Client (`src/adguard-api-client/`)
+### C# API Client (`src/adguard-api-dotnet/`)
 ```bash
 # Navigate to the solution directory
 cd src/api-client/src
@@ -405,7 +405,7 @@ npm install <package-name>
 
 ### AdGuard DNS API
 - **OpenAPI spec**: `api/openapi.json` (v1.11, primary), `api/openapi.yaml` (optional)
-- **Auto-generated client**: `src/adguard-api-client/src/AdGuard.ApiClient/`
+- **Auto-generated client**: `src/adguard-api-dotnet/src/AdGuard.ApiClient/`
 - **Base URL**: Configured via `AdGuard:BaseUrl` in appsettings
 - **Auth**: Bearer token in `Authorization` header
 - **Retry logic**: 3 attempts with exponential backoff (408, 429, 5xx)
@@ -432,7 +432,7 @@ npm install <package-name>
 | `rules/adguard_user_filter.txt` | **Production filter list** | After successful compilation and testing |
 | `src/rules-compiler-typescript/compiler-config.json` | **Primary config** for rule compilation | To change filter sources or transformations |
 | `api/openapi.yaml` | AdGuard DNS API spec (v1.11) | Never (upstream dependency) |
-| `src/adguard-api-client/src/AdGuard.ApiClient/` | **Auto-generated** API client | Never (regenerate from spec instead) |
+| `src/adguard-api-dotnet/src/AdGuard.ApiClient/` | **Auto-generated** API client | Never (regenerate from spec instead) |
 | `src/powershell/Invoke-RulesCompiler.psm1` | PowerShell wrapper for compiler | Extending PowerShell automation |
 | `docs/compiler-comparison.md` | **Decision guide** for choosing compiler | When adding features to compilers |
 
@@ -505,7 +505,7 @@ See `src/linear/README.md` for full documentation.
 ### Creating a Release
 
 1. **Update version numbers** in project files:
-   - `src/adguard-api-client/src/AdGuard.ConsoleUI/AdGuard.ConsoleUI.csproj`
+   - `src/adguard-api-dotnet/src/AdGuard.ConsoleUI/AdGuard.ConsoleUI.csproj`
    - `src/rules-compiler-dotnet/src/RulesCompiler.Console/RulesCompiler.Console.csproj`
    - `src/rules-compiler-rust/Cargo.toml`
    - `src/rules-compiler-python/pyproject.toml`

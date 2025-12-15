@@ -92,7 +92,7 @@ A comprehensive, multi-component ad-blocking solution designed for network-level
 
 ---
 
-### 3. AdGuard DNS API Client (`/src/adguard-api-client/`)
+### 3. AdGuard DNS API Client (`/src/adguard-api-dotnet/`)
 
 **Purpose:** C# SDK for programmatic access to AdGuard DNS API v1.11.
 
@@ -127,7 +127,7 @@ A comprehensive, multi-component ad-blocking solution designed for network-level
 
 ---
 
-### 4. Console UI (`/src/adguard-api-client/src/AdGuard.ConsoleUI/`)
+### 4. Console UI (`/src/adguard-api-dotnet/src/AdGuard.ConsoleUI/`)
 
 **Purpose:** Interactive command-line interface for managing AdGuard DNS configurations.
 
@@ -193,7 +193,7 @@ ad-blocking/
 │   ├── Api/                 # Rules compilation API
 │   └── Config/              # Configuration utilities
 ├── src/
-│   ├── adguard-api-client/  # AdGuard DNS API C# Client
+│   ├── adguard-api-dotnet/  # AdGuard DNS API C# Client
 │   ├── filter-compiler/     # TypeScript rule compiler
 │   ├── adguard-api-powershell/  # PowerShell modules
 │   └── website/             # Gatsby portfolio site
@@ -299,7 +299,7 @@ npm run compile
 
 ### API Client
 ```bash
-cd src/adguard-api-client
+cd src/adguard-api-dotnet
 dotnet restore
 dotnet build
 dotnet test
@@ -324,7 +324,7 @@ npm test
 
 ### .NET Tests
 ```bash
-cd src/adguard-api-client
+cd src/adguard-api-dotnet
 dotnet test
 ```
 

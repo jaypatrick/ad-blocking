@@ -72,7 +72,7 @@ ad-blocking/
 │   ├── Api/                           # Rules API utilities
 │   └── Config/                        # Compiler configurations
 ├── src/                               # Source code
-│   ├── adguard-api-client/            # AdGuard DNS API C# client
+│   ├── adguard-api-dotnet/            # AdGuard DNS API C# client
 │   ├── rules-compiler-typescript/     # TypeScript rules compiler
 │   ├── rules-compiler-dotnet/         # .NET rules compiler
 │   ├── rules-compiler-python/         # Python rules compiler
@@ -124,7 +124,7 @@ cd src/rules-compiler-typescript && npm install
 
 # .NET projects
 cd ../rules-compiler-dotnet && dotnet restore RulesCompiler.slnx
-cd ../adguard-api-client && dotnet restore src/AdGuard.ApiClient.sln
+cd ../adguard-api-dotnet && dotnet restore src/AdGuard.ApiClient.sln
 
 # Python compiler
 cd ../rules-compiler-python && pip install -e ".[dev]"
@@ -446,12 +446,12 @@ Invoke-ScriptAnalyzer -Path src/adguard-api-powershell -Recurse
 
 ## AdGuard API Client
 
-**Location**: `src/adguard-api-client/`
+**Location**: `src/adguard-api-dotnet/`
 
 A comprehensive C# SDK for the [AdGuard DNS API v1.11](https://api.adguard-dns.io/static/swagger/swagger.json).
 
 ```bash
-cd src/adguard-api-client
+cd src/adguard-api-dotnet
 
 # Build
 dotnet restore src/AdGuard.ApiClient.sln
@@ -512,12 +512,12 @@ See [API Client Usage Guide](docs/guides/api-client-usage.md) for detailed examp
 
 ## Console UI
 
-**Location**: `src/adguard-api-client/src/AdGuard.ConsoleUI/`
+**Location**: `src/adguard-api-dotnet/src/AdGuard.ConsoleUI/`
 
 Interactive terminal application for managing AdGuard DNS.
 
 ```bash
-cd src/adguard-api-client
+cd src/adguard-api-dotnet
 dotnet run --project src/AdGuard.ConsoleUI
 ```
 
@@ -675,7 +675,7 @@ cd src/rules-compiler-dotnet
 dotnet test RulesCompiler.slnx
 dotnet test --filter "FullyQualifiedName~ConfigurationValidatorTests"
 
-cd ../adguard-api-client
+cd ../adguard-api-dotnet
 dotnet test src/AdGuard.ApiClient.sln
 dotnet test --filter "Name~GetAccountLimits"
 ```
@@ -741,11 +741,11 @@ Download the latest release from the [Releases page](https://github.com/jaypatri
 
 ### API Reference
 
-- [API Client README](src/adguard-api-client/README.md)
+- [API Client README](src/adguard-api-dotnet/README.md)
 - [API Client Usage Guide](docs/guides/api-client-usage.md)
 - [API Client Examples](docs/guides/api-client-examples.md)
 - [API Reference](docs/api/)
-- [ConsoleUI README](src/adguard-api-client/src/AdGuard.ConsoleUI/README.md)
+- [ConsoleUI README](src/adguard-api-dotnet/src/AdGuard.ConsoleUI/README.md)
 
 ### Rules Compilers
 

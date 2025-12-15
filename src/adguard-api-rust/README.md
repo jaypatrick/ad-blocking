@@ -35,7 +35,7 @@ cargo build --release
 
 ## Library (adguard-api-lib)
 
-The API client library is auto-generated from the OpenAPI specification at `../adguard-api-client/api/openapi.json`.
+The API client library is auto-generated from the OpenAPI specification at `../adguard-api-dotnet/api/openapi.json`.
 
 ### Regenerating the Client
 
@@ -316,7 +316,7 @@ Release binaries will be in `target/release/`.
 
 This Rust implementation now provides feature parity with the C# ConsoleUI application:
 
-- **C# (src/adguard-api-client)**: Full-featured with ConsoleUI, repositories, and data access layers
+- **C# (src/adguard-api-dotnet)**: Full-featured with ConsoleUI, repositories, and data access layers
   - Interactive menu-driven interface using Spectre.Console
   - Configuration management, connection testing
   - Full API coverage with rich display formatting
@@ -375,5 +375,5 @@ GPL-3.0 - See LICENSE file in repository root
 ## Related Documentation
 
 - [AdGuard DNS API Documentation](https://adguard-dns.io/kb/private-dns/api/overview/)
-- [OpenAPI Specification](../adguard-api-client/api/openapi.json)
-- [C# API Client README](../adguard-api-client/README.md)
+- [OpenAPI Specification](../adguard-api-dotnet/api/openapi.json)
+- [C# API Client README](../adguard-api-dotnet/README.md)

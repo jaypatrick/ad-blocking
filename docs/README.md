@@ -72,8 +72,8 @@ Auto-generated API documentation for the AdGuard DNS API Client (v1.11).
 | Project | Location |
 |---------|----------|
 | Repository Overview | [README.md](../README.md) |
-| API Client | [src/adguard-api-client/README.md](../src/adguard-api-client/README.md) |
-| Console UI | [src/adguard-api-client/src/AdGuard.ConsoleUI/README.md](../src/adguard-api-client/src/AdGuard.ConsoleUI/README.md) |
+| API Client | [src/adguard-api-dotnet/README.md](../src/adguard-api-dotnet/README.md) |
+| Console UI | [src/adguard-api-dotnet/src/AdGuard.ConsoleUI/README.md](../src/adguard-api-dotnet/src/AdGuard.ConsoleUI/README.md) |
 | .NET Compiler | [src/rules-compiler-dotnet/README.md](../src/rules-compiler-dotnet/README.md) |
 | Python Compiler | [src/rules-compiler-python/README.md](../src/rules-compiler-python/README.md) |
 | Rust Compiler | [src/rules-compiler-rust/README.md](../src/rules-compiler-rust/README.md) |
