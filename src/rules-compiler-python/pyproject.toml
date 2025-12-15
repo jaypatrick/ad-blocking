@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rules-compiler"
-version = "1.0.0"
+version = "2.0.0"
 description = "Python API for compiling AdGuard filter rules using hostlist-compiler"
 readme = "README.md"
 license = {text = "GPLv3"}
@@ -22,10 +22,12 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Internet :: WWW/HTTP :: Site Management",
     "Topic :: System :: Networking :: Firewalls",
+    "Typing :: Typed",
 ]
-keywords = ["adguard", "filter", "adblock", "hostlist", "compiler"]
+keywords = ["adguard", "filter", "adblock", "hostlist", "compiler", "dns", "privacy"]
 dependencies = [
     "pyyaml>=6.0",
     "tomli>=2.0; python_version < '3.11'",
@@ -37,6 +39,13 @@ dev = [
     "pytest-cov>=4.0",
     "mypy>=1.0",
     "ruff>=0.1.0",
+    "types-PyYAML>=6.0",
+]
+toml-export = [
+    "tomlkit>=0.12.0",
+]
+all = [
+    "rules-compiler[dev,toml-export]",
 ]
 
 [project.scripts]
@@ -46,6 +55,8 @@ rules-compiler = "rules_compiler.cli:main"
 Homepage = "https://github.com/jaypatrick/ad-blocking"
 Repository = "https://github.com/jaypatrick/ad-blocking"
 Issues = "https://github.com/jaypatrick/ad-blocking/issues"
+Documentation = "https://github.com/jaypatrick/ad-blocking/tree/main/src/rules-compiler-python"
+Changelog = "https://github.com/jaypatrick/ad-blocking/releases"
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -54,16 +65,35 @@ where = ["."]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
+addopts = "-v --tb=short"
 
 [tool.mypy]
 python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 ignore_missing_imports = true
+strict_optional = true
+disallow_untyped_defs = true
 
 [tool.ruff]
 line-length = 100
 target-version = "py39"
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4"]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "RUF"]
+ignore = ["E501"]  # Line length handled by formatter
+
+[tool.ruff.lint.isort]
+known-first-party = ["rules_compiler"]
+
+[tool.coverage.run]
+source = ["rules_compiler"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]
