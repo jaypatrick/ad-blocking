@@ -119,19 +119,19 @@ All test suites assert `hash.length === 96` and verify consistent hashing.
 ### C# API Client (`src/adguard-api-dotnet/`)
 ```bash
 # Navigate to the solution directory
-cd src/api-client/src
+cd src/adguard-api-dotnet
 
 # Restore dependencies
-dotnet restore AdGuard.ApiClient.sln
+dotnet restore AdGuard.ApiClient.slnx
 
 # Build
-dotnet build AdGuard.ApiClient.sln --no-restore
+dotnet build AdGuard.ApiClient.slnx --no-restore
 
 # Run tests
-dotnet test AdGuard.ApiClient.sln --no-build --verbosity normal
+dotnet test AdGuard.ApiClient.slnx --no-build --verbosity normal
 
 # Run specific test project
-dotnet test AdGuard.ApiClient.Test/AdGuard.ApiClient.Test.csproj
+dotnet test src/AdGuard.ApiClient.Test/AdGuard.ApiClient.Test.csproj
 ```
 
 **Requirements**: .NET 8.0 SDK
@@ -346,7 +346,7 @@ Supports 3 formats (JSON/YAML/TOML), mirrors `@adguard/hostlist-compiler`:
 { (GitHub Actions)
 | Workflow | File | Triggers | Purpose |
 |----------|------|----------|---------|
-| .NET | `dotnet.yml` | Push to main, PRs | Build/test API client (`dotnet test AdGuard.ApiClient.sln`) |
+| .NET | `dotnet.yml` | Push to main, PRs | Build/test API client (`dotnet test AdGuard.ApiClient.slnx`) |
 | TypeScript | `typescript.yml` | Push to main, PRs | Type-check, lint, test (`tsc --noEmit`, `eslint`, `jest`) |
 | PowerShell | `powershell.yml` | On-demand | PSScriptAnalyzer on `src/powershell/` |
 | Gatsby | `gatsby.yml` | Push to main | Build and deploy to GitHub Pages |
