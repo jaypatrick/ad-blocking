@@ -6,7 +6,7 @@
 [![Gatsby](https://github.com/jaypatrick/ad-blocking/actions/workflows/gatsby.yml/badge.svg)](https://github.com/jaypatrick/ad-blocking/actions/workflows/gatsby.yml)
 [![Release](https://github.com/jaypatrick/ad-blocking/actions/workflows/release.yml/badge.svg)](https://github.com/jaypatrick/ad-blocking/actions/workflows/release.yml)
 
-A comprehensive multi-language toolkit for ad-blocking, network protection, and AdGuard DNS management. Includes filter rule compilers in TypeScript, .NET, Python, and Rust, plus a complete C# SDK for the AdGuard DNS API.
+A comprehensive multi-language toolkit for ad-blocking, network protection, and AdGuard DNS management. Features filter rule compilers in **5 languages** (TypeScript, .NET, Python, Rust, PowerShell), plus complete **API SDKs for AdGuard DNS** in both C# and Rust with interactive console interfaces.
 
 ## Table of Contents
 
@@ -21,8 +21,12 @@ A comprehensive multi-language toolkit for ad-blocking, network protection, and 
   - [Rust](#rust-compiler)
   - [Shell Scripts](#shell-scripts)
   - [PowerShell Module](#powershell-module)
-- [AdGuard API Client](#adguard-api-client)
-- [Console UI](#console-ui)
+- [AdGuard API Clients](#adguard-api-clients)
+  - [C# SDK](#c-sdk)
+  - [Rust SDK](#rust-sdk)
+- [Console Applications](#console-applications)
+  - [.NET Console UI](#net-console-ui)
+  - [Rust CLI](#rust-cli)
 - [Website](#website)
 - [Configuration](#configuration)
 - [Testing](#testing)
@@ -33,18 +37,42 @@ A comprehensive multi-language toolkit for ad-blocking, network protection, and 
 
 ## Features
 
-- **Multi-Language Rules Compilers**: Compile AdGuard filter rules using your preferred language
-  - TypeScript/Node.js with Deno support
-  - .NET 10 with library and CLI
-  - Python 3.9+ with pip distribution
-  - Rust with high-performance single binary
-  - Cross-platform shell scripts (Bash, PowerShell, Batch)
-- **Full @adguard/hostlist-compiler Support**: All 11 transformations, source-specific configs, pattern matching
-- **Multi-Format Configuration**: JSON, YAML, and TOML configuration file support
-- **AdGuard DNS API SDK**: Complete C# client for AdGuard DNS API v1.11 with Polly resilience
-- **Interactive Console UI**: Spectre.Console-powered menu interface for DNS management
-- **Docker Development Environment**: Pre-configured container with all dependencies
-- **Comprehensive Testing**: Unit tests for all compilers with CI/CD integration
+### Rules Compilers (5 Languages)
+
+| Language | Runtime | Distribution | Key Features |
+|----------|---------|--------------|--------------|
+| **TypeScript** | Node.js 18+ | npm | Deno support, optional Rust frontend |
+| **C#/.NET** | .NET 10 | NuGet/Binary | Interactive CLI, config validation, DI support |
+| **Python** | Python 3.9+ | pip | Type hints, PyPI-ready packaging |
+| **Rust** | Native binary | Cargo/Binary | Zero-runtime deps, LTO optimization |
+| **PowerShell** | PowerShell 7+ | Module | Pipeline-friendly, Pester tests |
+
+All compilers wrap [@adguard/hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler) and support:
+- **All 11 transformations**: Deduplicate, Validate, RemoveComments, Compress, RemoveModifiers, etc.
+- **Multi-format config**: JSON, YAML, and TOML configuration files
+- **Source-specific settings**: Per-source transformations, inclusions, exclusions
+- **Pattern matching**: Wildcards, regex, file-based patterns
+
+### AdGuard DNS API SDKs
+
+| SDK | Language | Features |
+|-----|----------|----------|
+| **C# SDK** | .NET 10 | Full async/await, Polly resilience (retry on 408/429/5xx), DI support |
+| **Rust SDK** | Rust 2024 | Auto-generated from OpenAPI, Tokio async runtime, single binary |
+
+Both SDKs provide complete coverage of AdGuard DNS API v1.11 including devices, DNS servers, query logs, statistics, filter lists, web services, and dedicated IP management.
+
+### Interactive Console Applications
+
+- **C# Console UI** - Spectre.Console menu-driven interface with rich formatting
+- **Rust CLI** - dialoguer-based interactive menus with TOML config persistence
+
+### Additional Features
+
+- **Shell Scripts**: Bash, Zsh, PowerShell Core, and Windows Batch wrappers
+- **Docker Environment**: Pre-configured container with .NET 10, Node.js 20, PowerShell 7
+- **Comprehensive Testing**: Jest, xUnit, pytest, cargo test, Pester across all components
+- **CI/CD Integration**: GitHub Actions for build, test, security scanning, and releases
 
 ## Project Structure
 
@@ -56,42 +84,51 @@ ad-blocking/
 │   │   ├── typescript.yml             # TypeScript lint and build
 │   │   ├── powershell.yml             # PowerShell linting
 │   │   ├── gatsby.yml                 # Website deployment
-│   │   ├── codeql.yml                 # Security scanning
-│   │   └── devskim.yml                # Security analysis
-│   ├── ISSUE_TEMPLATE/                # Issue templates
-│   └── copilot-instructions.md        # Development guidelines
+│   │   ├── release.yml                # Build and publish binaries
+│   │   ├── codeql.yml                 # CodeQL security scanning
+│   │   ├── devskim.yml                # DevSkim security analysis
+│   │   └── claude*.yml                # Claude AI integration
+│   └── ISSUE_TEMPLATE/                # Issue templates
 ├── api/                               # OpenAPI specifications
-│   ├── openapi.json                   # AdGuard DNS API v1.11 spec (primary)
-│   └── openapi.yaml                   # AdGuard DNS API v1.11 spec (optional)
+│   ├── openapi.json                   # AdGuard DNS API v1.11 (primary)
+│   └── openapi.yaml                   # AdGuard DNS API v1.11 (optional)
 ├── docs/                              # Documentation
-│   ├── api/                           # API reference docs
-│   ├── guides/                        # Usage guides
-│   └── README.md                      # Documentation index
+│   ├── api/                           # Auto-generated API reference
+│   ├── guides/                        # Usage guides and tutorials
+│   ├── getting-started.md             # Quick start guide
+│   ├── compiler-comparison.md         # Compiler comparison matrix
+│   ├── configuration-reference.md     # Configuration schema reference
+│   └── docker-guide.md                # Docker development guide
 ├── rules/                             # Filter rules
-│   ├── adguard_user_filter.txt        # Main filter list
-│   ├── Api/                           # Rules API utilities
+│   ├── adguard_user_filter.txt        # Main tracked filter list
 │   └── Config/                        # Compiler configurations
 ├── src/                               # Source code
-│   ├── adguard-api-dotnet/            # AdGuard DNS API C# client
-│   ├── rules-compiler-typescript/     # TypeScript rules compiler
-│   ├── rules-compiler-dotnet/         # .NET rules compiler
-│   ├── rules-compiler-python/         # Python rules compiler
-│   ├── rules-compiler-rust/           # Rust rules compiler
-│   ├── website/                       # Gatsby portfolio website
-│   ├── adguard-api-powershell/        # PowerShell modules
-│   │   ├── Invoke-RulesCompiler.psm1  # Main module
-│   │   ├── RulesCompiler.psd1         # Module manifest
-│   │   ├── RulesCompiler-Harness.ps1  # Interactive harness
-│   │   └── Tests/                     # Pester tests
-│   ├── shell/                         # Shell scripts
+│   ├── rules-compiler-typescript/     # TypeScript/Node.js compiler
+│   ├── rules-compiler-dotnet/         # C#/.NET 10 compiler
+│   ├── rules-compiler-python/         # Python 3.9+ compiler
+│   ├── rules-compiler-rust/           # Rust compiler (single binary)
+│   ├── rules-compiler-shell/          # Shell scripts
 │   │   ├── compile-rules.sh           # Bash (Linux/macOS)
-│   │   ├── compile-rules.ps1          # PowerShell Core
-│   │   └── compile-rules.cmd          # Windows batch
-│   └── linear/                        # Linear integration
-├── Dockerfile.warp                    # Docker development environment
+│   │   ├── compile-rules.zsh          # Zsh (macOS/Linux)
+│   │   ├── compile-rules.ps1          # PowerShell Core (all platforms)
+│   │   └── compile-rules.cmd          # Windows batch wrapper
+│   ├── adguard-api-dotnet/            # C# API SDK + Console UI
+│   │   ├── src/AdGuard.ApiClient/     # C# SDK library
+│   │   ├── src/AdGuard.ConsoleUI/     # Spectre.Console interface
+│   │   └── src/AdGuard.ApiClient.Tests/ # xUnit tests
+│   ├── adguard-api-rust/              # Rust API SDK + CLI
+│   │   ├── adguard-api-lib/           # Rust SDK library
+│   │   └── adguard-api-cli/           # Interactive CLI application
+│   ├── adguard-api-powershell/        # PowerShell modules
+│   │   ├── Invoke-RulesCompiler.psm1  # Rules compiler module
+│   │   ├── RulesCompiler.psd1         # Module manifest
+│   │   └── Tests/                     # Pester test suite
+│   ├── website/                       # Gatsby portfolio site
+│   └── linear/                        # Linear integration scripts
+├── Dockerfile.warp                    # Docker dev environment
 ├── CLAUDE.md                          # AI assistant instructions
 ├── SECURITY.md                        # Security policy
-└── LICENSE                            # License file
+└── LICENSE                            # GPL-3.0 license
 ```
 
 ## Quick Start
@@ -387,29 +424,89 @@ println!("Compiled {} rules", result.rule_count);
 
 **Location**: `src/rules-compiler-shell/`
 
+Cross-platform shell scripts that wrap `@adguard/hostlist-compiler` for simple automation and CI/CD pipelines.
+
+| Script | Platform | Shell | Features |
+|--------|----------|-------|----------|
+| `compile-rules.sh` | Linux, macOS | Bash | Full feature support, YAML/TOML via yq/Python |
+| `compile-rules.zsh` | Linux, macOS | Zsh | Native zsh features (zparseopts, EPOCHREALTIME) |
+| `compile-rules.ps1` | All platforms | PowerShell 7+ | Cross-platform, PowerShell pipeline support |
+| `compile-rules.cmd` | Windows | Batch | Simple wrapper for Windows users |
+
 #### Bash (Linux/macOS)
 
 ```bash
-./src/rules-compiler-shell/compile-rules.sh                    # Default config
-./src/rules-compiler-shell/compile-rules.sh -c config.yaml     # YAML config
-./src/rules-compiler-shell/compile-rules.sh -c config.yaml -r  # Copy to rules
-./src/rules-compiler-shell/compile-rules.sh -v                 # Show version
+# Make executable (first time)
+chmod +x src/rules-compiler-shell/compile-rules.sh
+
+# Run with defaults
+./src/rules-compiler-shell/compile-rules.sh
+
+# Use specific configuration
+./src/rules-compiler-shell/compile-rules.sh -c config.yaml
+
+# Compile and copy to rules directory
+./src/rules-compiler-shell/compile-rules.sh -c config.yaml -r
+
+# Show version/help
+./src/rules-compiler-shell/compile-rules.sh -v
+./src/rules-compiler-shell/compile-rules.sh -h
+```
+
+#### Zsh (macOS/Linux)
+
+```zsh
+# Make executable (first time)
+chmod +x src/rules-compiler-shell/compile-rules.zsh
+
+# Run with defaults
+./src/rules-compiler-shell/compile-rules.zsh
+
+# Use YAML configuration
+./src/rules-compiler-shell/compile-rules.zsh -c config.yaml
+
+# Compile and copy to rules directory
+./src/rules-compiler-shell/compile-rules.zsh -c config.yaml -r
+
+# Debug mode
+./src/rules-compiler-shell/compile-rules.zsh -c config.yaml -d
 ```
 
 #### PowerShell Core (Cross-platform)
 
 ```powershell
+# Run with defaults
 ./src/rules-compiler-shell/compile-rules.ps1
+
+# Use YAML configuration
 ./src/rules-compiler-shell/compile-rules.ps1 -ConfigPath config.yaml
+
+# Compile and copy to rules directory
 ./src/rules-compiler-shell/compile-rules.ps1 -ConfigPath config.yaml -CopyToRules
+
+# Show version
 ./src/rules-compiler-shell/compile-rules.ps1 -Version
 ```
 
 #### Windows Batch
 
 ```cmd
-src\shell\compile-rules.cmd -c config.json -r
+src\rules-compiler-shell\compile-rules.cmd -c config.json -r
 ```
+
+**CLI Options** (all scripts):
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--config PATH` | `-c` | Path to configuration file |
+| `--output PATH` | `-o` | Path to output file |
+| `--copy-to-rules` | `-r` | Copy output to rules directory |
+| `--format FORMAT` | `-f` | Force format (json, yaml, toml) |
+| `--version` | `-v` | Show version information |
+| `--help` | `-h` | Show help message |
+| `--debug` | `-d` | Enable debug output |
+
+See [Shell Scripts README](src/rules-compiler-shell/README.md) for detailed documentation.
 
 ### PowerShell Module
 
@@ -444,11 +541,13 @@ Invoke-ScriptAnalyzer -Path src/adguard-api-powershell -Recurse
 | `Invoke-RulesCompiler` | Full compilation pipeline |
 | `Get-CompilerVersion` | Get version info |
 
-## AdGuard API Client
+## AdGuard API Clients
+
+Complete SDK implementations for the [AdGuard DNS API v1.11](https://api.adguard-dns.io/static/swagger/swagger.json) in both C# and Rust.
+
+### C# SDK
 
 **Location**: `src/adguard-api-dotnet/`
-
-A comprehensive C# SDK for the [AdGuard DNS API v1.11](https://api.adguard-dns.io/static/swagger/swagger.json).
 
 ```bash
 cd src/adguard-api-dotnet
@@ -466,12 +565,85 @@ dotnet run --project src/AdGuard.ApiClient.Benchmarks -c Release
 
 **Features**:
 - Auto-generated from OpenAPI specification
-- Full async/await support
-- Polly resilience policies (retry on 408/429/5xx)
-- Dependency injection with ILogger support
-- Fluent configuration helpers
+- Full async/await support with cancellation tokens
+- Polly resilience policies (automatic retry on 408/429/5xx with exponential backoff)
+- Dependency injection with `ILogger` support
+- Fluent configuration helpers for easy setup
+- Newtonsoft.Json serialization with JsonSubTypes support
 
-**API Coverage**:
+**Usage Example**:
+
+```csharp
+using AdGuard.ApiClient;
+using AdGuard.ApiClient.Helpers;
+
+// Configure client with fluent API
+var config = new Configuration()
+    .WithApiKey("your-api-key")
+    .WithTimeout(TimeSpan.FromSeconds(30))
+    .WithUserAgent("MyApp/1.0");
+
+var apiClient = new ApiClient(config);
+var devicesApi = new DevicesApi(apiClient);
+
+// List all devices
+var devices = await devicesApi.ListDevicesAsync();
+foreach (var device in devices)
+{
+    Console.WriteLine($"{device.Name}: {device.Id}");
+}
+
+// Get account limits
+var accountApi = new AccountApi(apiClient);
+var limits = await accountApi.GetAccountLimitsAsync();
+Console.WriteLine($"Devices: {limits.DevicesCount}/{limits.DevicesLimit}");
+```
+
+### Rust SDK
+
+**Location**: `src/adguard-api-rust/`
+
+```bash
+cd src/adguard-api-rust
+
+# Build
+cargo build --release
+
+# Run tests
+cargo test
+```
+
+**Features**:
+- Auto-generated from OpenAPI specification using OpenAPI Generator
+- Async/await support with Tokio runtime
+- Single statically-linked binary distribution
+- Configurable TLS: rustls (default) or native-tls
+- Memory-safe with zero-cost abstractions
+
+**Usage Example**:
+
+```rust
+use adguard_api_lib::apis::configuration::Configuration;
+use adguard_api_lib::apis::devices_api;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Configure the API client
+    let mut config = Configuration::new();
+    config.base_path = "https://api.adguard-dns.io".to_string();
+    config.bearer_access_token = Some("your-api-token".to_string());
+
+    // List devices
+    let devices = devices_api::list_devices(&config).await?;
+    for device in devices {
+        println!("{}: {}", device.name, device.id);
+    }
+
+    Ok(())
+}
+```
+
+### API Coverage (Both SDKs)
 
 | API | Description |
 |-----|-------------|
@@ -485,36 +657,15 @@ dotnet run --project src/AdGuard.ApiClient.Benchmarks -c Release
 | `StatisticsApi` | DNS query statistics |
 | `WebServicesApi` | Web services for blocking |
 
-**Usage Example**:
+See [API Client Usage Guide](docs/guides/api-client-usage.md) for detailed C# examples.
 
-```csharp
-using AdGuard.ApiClient;
-using AdGuard.ApiClient.Helpers;
+## Console Applications
 
-// Configure client
-var config = new Configuration()
-    .WithApiKey("your-api-key")
-    .WithTimeout(TimeSpan.FromSeconds(30))
-    .WithUserAgent("MyApp/1.0");
+Interactive terminal applications for managing AdGuard DNS.
 
-var apiClient = new ApiClient(config);
-var devicesApi = new DevicesApi(apiClient);
-
-// List devices
-var devices = await devicesApi.ListDevicesAsync();
-foreach (var device in devices)
-{
-    Console.WriteLine($"{device.Name}: {device.Id}");
-}
-```
-
-See [API Client Usage Guide](docs/guides/api-client-usage.md) for detailed examples.
-
-## Console UI
+### .NET Console UI
 
 **Location**: `src/adguard-api-dotnet/src/AdGuard.ConsoleUI/`
-
-Interactive terminal application for managing AdGuard DNS.
 
 ```bash
 cd src/adguard-api-dotnet
@@ -522,18 +673,71 @@ dotnet run --project src/AdGuard.ConsoleUI
 ```
 
 **Features**:
-- Menu-driven Spectre.Console interface
-- Device and DNS server management
-- Query statistics and log viewing
-- Filter list management
+- Menu-driven Spectre.Console interface with rich formatting
+- Device and DNS server management with detailed views
+- Query statistics and log viewing with filtering
+- Filter list browsing and management
 - Account limits with visual progress bars
-- API key configuration (environment or interactive)
+- API key configuration (environment variable or interactive prompt)
+
+### Rust CLI
+
+**Location**: `src/adguard-api-rust/adguard-api-cli/`
+
+```bash
+cd src/adguard-api-rust
+
+# Run directly
+cargo run --bin adguard-api-cli
+
+# Or build and run release binary
+cargo build --release
+./target/release/adguard-api-cli
+```
+
+**Features**:
+- Interactive menu-driven interface using dialoguer
+- Full feature parity with .NET Console UI
+- TOML configuration file persistence (`~/.config/adguard-api-cli/config.toml`)
+- Single binary distribution with no runtime dependencies
+- Cross-platform (Linux, macOS, Windows)
+
+**Configuration**:
+
+```toml
+# ~/.config/adguard-api-cli/config.toml
+api_url = "https://api.adguard-dns.io"
+api_token = "your-api-token-here"
+```
+
+Or use environment variables:
+```bash
+export ADGUARD_API_URL="https://api.adguard-dns.io"
+export ADGUARD_API_TOKEN="your-token-here"
+```
+
+**Menu Options** (both applications):
+
+| Menu | Description |
+|------|-------------|
+| Account Info | View account limits and usage statistics |
+| Devices | List and view device details |
+| DNS Servers | List and view DNS server configurations |
+| User Rules | View and manage user rules |
+| Query Log | View recent queries with time range filters |
+| Statistics | View query statistics (24h, 7d, 30d) |
+| Filter Lists | Browse available filter lists |
+| Web Services | List blockable web services |
+| Dedicated IPs | List and allocate dedicated IPv4 addresses |
+| Settings | Configure API key, test connection |
 
 **Environment Variables**:
 
 | Variable | Description |
 |----------|-------------|
-| `AdGuard:ApiKey` | API credential (or prompt interactively) |
+| `AdGuard:ApiKey` | C# Console UI - API credential |
+| `ADGUARD_API_TOKEN` | Rust CLI - API credential |
+| `ADGUARD_API_URL` | Rust CLI - API base URL (optional) |
 
 ## Website
 
@@ -658,7 +862,7 @@ source = "https://easylist.to/easylist/easylist.txt"
 
 ## Testing
 
-### TypeScript
+### TypeScript (Jest)
 
 ```bash
 cd src/rules-compiler-typescript
@@ -668,19 +872,23 @@ npx jest -t "should compile"        # By test name
 npm run test:coverage               # With coverage
 ```
 
-### .NET
+### .NET (xUnit)
 
 ```bash
+# Rules Compiler
 cd src/rules-compiler-dotnet
 dotnet test RulesCompiler.slnx
 dotnet test --filter "FullyQualifiedName~ConfigurationValidatorTests"
+dotnet test --filter "FullyQualifiedName~TransformationTests"
 
+# API Client
 cd ../adguard-api-dotnet
 dotnet test src/AdGuard.ApiClient.sln
+dotnet test --filter "FullyQualifiedName~DevicesApiTests"
 dotnet test --filter "Name~GetAccountLimits"
 ```
 
-### Python
+### Python (pytest)
 
 ```bash
 cd src/rules-compiler-python
@@ -691,23 +899,47 @@ pytest -k "test_read_yaml"          # By name
 pytest --cov=rules_compiler         # Coverage
 ```
 
-### Rust
+### Rust (cargo test)
 
 ```bash
+# Rules Compiler
 cd src/rules-compiler-rust
 cargo test                          # All tests
 cargo test -- --nocapture           # With output
 cargo test test_count_rules         # Specific test
 cargo test config::                 # Module tests
+
+# API Client
+cd ../adguard-api-rust
+cargo test                          # All workspace tests
+cargo test --package adguard-api-lib    # Library tests only
+cargo test --package adguard-api-cli    # CLI tests only
 ```
 
-### PowerShell
+### PowerShell (Pester)
 
 ```powershell
+# Run all tests
 Invoke-Pester -Path ./src/adguard-api-powershell/Tests/
+
+# Run with detailed output
 Invoke-Pester -Path ./src/adguard-api-powershell/Tests/ -Output Detailed
+
+# Lint with PSScriptAnalyzer
 Invoke-ScriptAnalyzer -Path src/adguard-api-powershell -Recurse
 ```
+
+### All Tests Summary
+
+| Component | Framework | Command |
+|-----------|-----------|---------|
+| TypeScript Compiler | Jest | `npm test` |
+| .NET Compiler | xUnit | `dotnet test RulesCompiler.slnx` |
+| .NET API Client | xUnit | `dotnet test src/AdGuard.ApiClient.sln` |
+| Python Compiler | pytest | `pytest` |
+| Rust Compiler | cargo test | `cargo test` |
+| Rust API Client | cargo test | `cargo test` |
+| PowerShell Module | Pester | `Invoke-Pester` |
 
 ## CI/CD
 
@@ -739,28 +971,37 @@ Download the latest release from the [Releases page](https://github.com/jaypatri
 
 ## Documentation
 
+### Getting Started
+
+- [Getting Started Guide](docs/getting-started.md) - Quick installation and first compilation
+- [Compiler Comparison](docs/compiler-comparison.md) - Choose the right compiler for your needs
+- [Configuration Reference](docs/configuration-reference.md) - Complete configuration schema
+- [Docker Guide](docs/docker-guide.md) - Development with Docker containers
+
 ### API Reference
 
-- [API Client README](src/adguard-api-dotnet/README.md)
+- [C# API Client README](src/adguard-api-dotnet/README.md)
+- [Rust API Client README](src/adguard-api-rust/README.md)
 - [API Client Usage Guide](docs/guides/api-client-usage.md)
 - [API Client Examples](docs/guides/api-client-examples.md)
 - [API Reference](docs/api/)
-- [ConsoleUI README](src/adguard-api-dotnet/src/AdGuard.ConsoleUI/README.md)
+- [Console UI Architecture](docs/guides/consoleui-architecture.md)
 
 ### Rules Compilers
 
-- [.NET Compiler README](src/rules-compiler-dotnet/README.md)
-- [Python Compiler README](src/rules-compiler-python/README.md)
-- [Rust Compiler README](src/rules-compiler-rust/README.md)
-- [Shell Scripts README](src/rules-compiler-shell/README.md)
+- [TypeScript Compiler](src/rules-compiler-typescript/) - Node.js/Deno compiler
+- [.NET Compiler README](src/rules-compiler-dotnet/README.md) - C# library and CLI
+- [Python Compiler README](src/rules-compiler-python/README.md) - pip-installable package
+- [Rust Compiler README](src/rules-compiler-rust/README.md) - Single binary distribution
+- [Shell Scripts README](src/rules-compiler-shell/README.md) - Bash, Zsh, PowerShell, Batch
+- [PowerShell Module](src/adguard-api-powershell/README.md) - Full-featured PowerShell API
 
 ### Development
 
-- [Copilot Instructions](.github/copilot-instructions.md)
-- [Claude Instructions](CLAUDE.md)
-- [Security Policy](SECURITY.md)
-- [Release Guide](docs/release-guide.md)
-- [Centralized Package Management](docs/centralized-package-management.md)
+- [Claude Instructions](CLAUDE.md) - AI assistant development guidelines
+- [Security Policy](SECURITY.md) - Vulnerability reporting
+- [Release Guide](docs/release-guide.md) - Release process and binary publishing
+- [Centralized Package Management](docs/centralized-package-management.md) - NuGet package management
 
 ### Test Your Ad Blocking
 
@@ -769,12 +1010,27 @@ Download the latest release from the [Releases page](https://github.com/jaypatri
 
 ## Environment Variables
 
+### API Clients
+
+| Variable | Application | Description |
+|----------|-------------|-------------|
+| `AdGuard:ApiKey` | C# Console UI | AdGuard DNS API credential |
+| `ADGUARD_API_TOKEN` | Rust CLI | AdGuard DNS API credential |
+| `ADGUARD_API_URL` | Rust CLI | API base URL (default: https://api.adguard-dns.io) |
+
+### Rules Compilers
+
+| Variable | Application | Description |
+|----------|-------------|-------------|
+| `DEBUG` | All compilers | Enable debug logging |
+| `RULESCOMPILER_config` | .NET compiler | Default config file path |
+| `RULESCOMPILER_Logging__LogLevel__Default` | .NET compiler | Log level (Debug, Information, Warning, Error) |
+
+### Other
+
 | Variable | Description |
 |----------|-------------|
-| `AdGuard:ApiKey` | AdGuard DNS API credential |
-| `LINEAR_API_KEY` | Linear integration |
-| `DEBUG` | Enable debug logging |
-| `RULESCOMPILER_config` | Default config path (.NET) |
+| `LINEAR_API_KEY` | Linear integration scripts |
 
 ## Contributing
 
