@@ -760,6 +760,7 @@ Download the latest release from the [Releases page](https://github.com/jaypatri
 - [Claude Instructions](CLAUDE.md)
 - [Security Policy](SECURITY.md)
 - [Release Guide](docs/release-guide.md)
+- [Centralized Package Management](docs/centralized-package-management.md)
 
 ### Test Your Ad Blocking
 
