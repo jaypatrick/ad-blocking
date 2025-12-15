@@ -22,8 +22,8 @@ This repository is a comprehensive multi-language toolkit for ad-blocking, netwo
 - **RulesCompiler Module** (`src/adguard-api-powershell/`) - Full-featured PowerShell API with Pester tests
 
 ### API Client & Tools
-- **AdGuard API Client** (`src/adguard-api-client/`) - C# SDK for AdGuard DNS API v1.11
-- **Console UI** (`src/adguard-api-client/src/AdGuard.ConsoleUI/`) - Spectre.Console interactive interface
+- **AdGuard API Client** (`src/adguard-api-dotnet/`) - C# SDK for AdGuard DNS API v1.11
+- **Console UI** (`src/adguard-api-dotnet/src/AdGuard.ConsoleUI/`) - Spectre.Console interactive interface
 
 ### Website
 - **Gatsby Site** (`src/website/`) - Portfolio site deployed to GitHub Pages
@@ -156,9 +156,9 @@ cargo run -- --help                      # Show help
 ./target/release/rules-compiler -c config.yaml
 ```
 
-### .NET API Client + Console UI (`src/adguard-api-client/`)
+### .NET API Client + Console UI (`src/adguard-api-dotnet/`)
 ```bash
-cd src/adguard-api-client
+cd src/adguard-api-dotnet
 dotnet restore src/AdGuard.ApiClient.sln
 dotnet build src/AdGuard.ApiClient.sln
 dotnet test src/AdGuard.ApiClient.sln
@@ -213,7 +213,7 @@ npm run test:coverage                      # With coverage
 
 ### .NET (xUnit)
 ```bash
-cd src/adguard-api-client
+cd src/adguard-api-dotnet
 dotnet test src/AdGuard.ApiClient.sln --filter "FullyQualifiedName~DevicesApiTests"   # By class
 dotnet test src/AdGuard.ApiClient.sln --filter "Name~GetAccountLimits"                # By method
 
@@ -307,14 +307,14 @@ cargo test config::                       # Tests in module
 - Key structs: `RulesCompiler`, `CompilerConfiguration`, `CompilerResult`, `VersionInfo`
 - LTO optimization enabled for small binary size
 
-### API Client (`src/adguard-api-client/`)
+### API Client (`src/adguard-api-dotnet/`)
 - Auto-generated from `api/openapi.json` (primary) and `api/openapi.yaml` (optional) - AdGuard DNS API v1.11
 - `Helpers/ConfigurationHelper.cs` - Fluent auth, timeouts, user agent
 - `Helpers/RetryPolicyHelper.cs` - Polly-based retry for 408/429/5xx
 - Uses Newtonsoft.Json and JsonSubTypes
 - Benchmarks project for performance testing
 
-### Console UI (`src/adguard-api-client/src/AdGuard.ConsoleUI/`)
+### Console UI (`src/adguard-api-dotnet/src/AdGuard.ConsoleUI/`)
 - Spectre.Console menu-driven interface
 - `ApiClientFactory` configures SDK from settings or interactive prompt
 - Features: Device management, DNS servers, statistics, query logs, filter lists
