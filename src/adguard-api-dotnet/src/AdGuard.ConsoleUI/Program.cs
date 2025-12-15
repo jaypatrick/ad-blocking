@@ -47,11 +47,13 @@ public class Program
     /// </summary>
     /// <returns>The built configuration.</returns>
     /// <remarks>
-    /// Configuration sources (in order of precedence):
+    /// Configuration sources (in order of precedence, highest to lowest):
     /// <list type="number">
+    /// <item><description>Environment variables with ADGUARD_ prefix (e.g., ADGUARD_AdGuard__ApiKey)</description></item>
     /// <item><description>appsettings.json (optional)</description></item>
-    /// <item><description>Environment variables with ADGUARD_ prefix</description></item>
     /// </list>
+    /// Note: Double underscore (__) in environment variable names represents colon (:) in configuration keys.
+    /// Example: ADGUARD_AdGuard__ApiKey maps to AdGuard:ApiKey
     /// </remarks>
     private static IConfiguration BuildConfiguration()
     {
