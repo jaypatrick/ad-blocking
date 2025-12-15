@@ -4,7 +4,9 @@ using System.Linq;
 using AdGuard.ApiClient.Model;
 using AdGuard.ConsoleUI.Abstractions;
 using AdGuard.ConsoleUI.Display;
-using AdGuard.ConsoleUI.Repositories;
+using AdGuard.Repositories.Implementations;
+using AdGuard.Repositories.Abstractions;
+using AdGuard.Repositories.Contracts;
 using AdGuard.ConsoleUI.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -58,7 +60,7 @@ public class ProgramTests
         services.AddSingleton<IFilterListRepository, FilterListRepository>();
         services.AddSingleton<IQueryLogRepository, QueryLogRepository>();
         services.AddSingleton<IWebServiceRepository, WebServiceRepository>();
-        services.AddSingleton<IDedicatedIPRepository, DedicatedIPRepository>();
+        services.AddSingleton<IDedicatedIpRepository, DedicatedIpRepository>();
         services.AddSingleton<IUserRulesRepository, UserRulesRepository>();
 
         // Register Display Strategies
@@ -613,18 +615,18 @@ public class ProgramTests
     }
 
     [Fact]
-    public void ConfigureServices_RegistersDedicatedIPRepository()
+    public void ConfigureServices_RegistersDedicatedIpRepository()
     {
         // Arrange
         var services = CreateConfiguredServices();
         var provider = services.BuildServiceProvider();
 
         // Act
-        var repository = provider.GetService<IDedicatedIPRepository>();
+        var repository = provider.GetService<IDedicatedIpRepository>();
 
         // Assert
         Assert.NotNull(repository);
-        Assert.IsType<DedicatedIPRepository>(repository);
+        Assert.IsType<DedicatedIpRepository>(repository);
     }
 
     [Fact]
@@ -703,15 +705,15 @@ public class ProgramTests
     }
 
     [Fact]
-    public void ConfigureServices_DedicatedIPRepository_IsSingleton()
+    public void ConfigureServices_DedicatedIpRepository_IsSingleton()
     {
         // Arrange
         var services = CreateConfiguredServices();
         var provider = services.BuildServiceProvider();
 
         // Act
-        var instance1 = provider.GetService<IDedicatedIPRepository>();
-        var instance2 = provider.GetService<IDedicatedIPRepository>();
+        var instance1 = provider.GetService<IDedicatedIpRepository>();
+        var instance2 = provider.GetService<IDedicatedIpRepository>();
 
         // Assert
         Assert.Same(instance1, instance2);

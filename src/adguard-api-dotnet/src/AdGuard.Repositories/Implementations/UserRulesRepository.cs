@@ -42,7 +42,35 @@ public partial class UserRulesRepository : IUserRulesRepository
                 throw new EntityNotFoundException("DnsServer", dnsServerId);
             }
 
-            var userRules = server.Settings?.UserRules ?? new UserRulesSettings();
+            // Settings is typed as Object in the API, so we need to deserialize it
+            UserRulesSettings userRules;
+            if (server.Settings != null)
+            {
+                try
+                {
+                    var settingsJson = System.Text.Json.JsonSerializer.Serialize(server.Settings);
+                    var settings = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(settingsJson);
+                    
+                    if (settings.TryGetProperty("user_rules_settings", out var userRulesElement))
+                    {
+                        userRules = System.Text.Json.JsonSerializer.Deserialize<UserRulesSettings>(userRulesElement.GetRawText()) 
+                            ?? new UserRulesSettings(enabled: false, rules: new List<string>(), rulesCount: 0);
+                    }
+                    else
+                    {
+                        userRules = new UserRulesSettings(enabled: false, rules: new List<string>(), rulesCount: 0);
+                    }
+                }
+                catch
+                {
+                    userRules = new UserRulesSettings(enabled: false, rules: new List<string>(), rulesCount: 0);
+                }
+            }
+            else
+            {
+                userRules = new UserRulesSettings(enabled: false, rules: new List<string>(), rulesCount: 0);
+            }
+
             LogRetrievedUserRules(dnsServerId, userRules.Rules?.Count ?? 0);
             return userRules;
         }
@@ -68,8 +96,17 @@ public partial class UserRulesRepository : IUserRulesRepository
         try
         {
             using var api = _apiClientFactory.CreateDnsServersApi();
-            var settingsUpdate = new DNSServerSettingsUpdate(userRules: userRules);
-            var server = await api.UpdateDNSServerSettingsAsync(dnsServerId, settingsUpdate, cancellationToken).ConfigureAwait(false);
+            var settingsUpdate = new DNSServerSettingsUpdate(userRulesSettings: userRules);
+            await api.UpdateDNSServerSettingsAsync(dnsServerId, settingsUpdate, cancellationToken).ConfigureAwait(false);
+            
+            // Re-fetch the server after update since the API doesn't return it
+            var servers = await api.ListDNSServersAsync(cancellationToken).ConfigureAwait(false);
+            var server = servers.FirstOrDefault(s => s.Id == dnsServerId);
+            
+            if (server == null)
+            {
+                throw new EntityNotFoundException("DnsServer", dnsServerId);
+            }
 
             LogUserRulesUpdated(dnsServerId);
             return server;
@@ -139,7 +176,7 @@ public partial class UserRulesRepository : IUserRulesRepository
         try
         {
             var existingRules = await GetAsync(dnsServerId, cancellationToken).ConfigureAwait(false);
-            var userRulesUpdate = new UserRulesSettingsUpdate(enabled: enabled, rules: existingRules.Rules?.ToList());
+            var userRulesUpdate = new UserRulesSettingsUpdate(enabled: enabled, rules: existingRules.Rules?.ToList() ?? new List<string>());
             await UpdateAsync(dnsServerId, userRulesUpdate, cancellationToken).ConfigureAwait(false);
 
             LogRulesEnabledSet(dnsServerId, enabled);

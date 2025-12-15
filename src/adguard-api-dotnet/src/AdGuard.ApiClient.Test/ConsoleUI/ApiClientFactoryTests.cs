@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using AdGuard.ConsoleUI.Services;
+using AdGuard.Repositories.Implementations;
+using AdGuard.Repositories.Abstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -91,34 +92,6 @@ public class ApiClientFactoryTests
 
     #endregion
 
-    #region CurrentApiKey Tests
-
-    [Fact]
-    public void CurrentApiKey_WhenNotConfigured_ReturnsNull()
-    {
-        // Arrange
-        var factory = CreateFactory();
-
-        // Act & Assert
-        Assert.Null(factory.CurrentApiKey);
-    }
-
-    [Fact]
-    public void CurrentApiKey_AfterConfigure_ReturnsApiKey()
-    {
-        // Arrange
-        var factory = CreateFactory();
-        var apiKey = "test-api-key-12345";
-
-        // Act
-        factory.Configure(apiKey);
-
-        // Assert
-        Assert.Equal(apiKey, factory.CurrentApiKey);
-    }
-
-    #endregion
-
     #region MaskedApiKey Tests
 
     [Fact]
@@ -175,7 +148,7 @@ public class ApiClientFactoryTests
 
         // Assert
         Assert.True(factory.IsConfigured);
-        Assert.Equal(apiKey, factory.CurrentApiKey);
+        Assert.Equal(apiKey, factory.MaskedApiKey);
     }
 
     [Fact]
@@ -230,7 +203,7 @@ public class ApiClientFactoryTests
         factory.Configure(secondKey);
 
         // Assert
-        Assert.Equal(secondKey, factory.CurrentApiKey);
+        Assert.Equal(secondKey, factory.MaskedApiKey);
     }
 
     #endregion
@@ -250,7 +223,7 @@ public class ApiClientFactoryTests
 
         // Assert
         Assert.True(factory.IsConfigured);
-        Assert.Equal(apiKey, factory.CurrentApiKey);
+        Assert.Equal(apiKey, factory.MaskedApiKey);
     }
 
     [Fact]
@@ -514,7 +487,7 @@ public class ApiClientFactoryTests
 
         // Assert
         Assert.True(factory.IsConfigured);
-        Assert.Equal(apiKey, factory.CurrentApiKey);
+        Assert.Equal(apiKey, factory.MaskedApiKey);
     }
 
     [Fact]

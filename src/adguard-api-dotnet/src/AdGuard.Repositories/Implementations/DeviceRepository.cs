@@ -103,7 +103,10 @@ public partial class DeviceRepository : IDeviceRepository
         try
         {
             using var api = _apiClientFactory.CreateDevicesApi();
-            var device = await api.UpdateDeviceAsync(id, updateModel, cancellationToken).ConfigureAwait(false);
+            await api.UpdateDeviceAsync(id, updateModel, cancellationToken).ConfigureAwait(false);
+            
+            // Re-fetch the device after update since the API doesn't return it
+            var device = await api.GetDeviceAsync(id, cancellationToken).ConfigureAwait(false);
 
             LogDeviceUpdated(device.Name, device.Id);
             return device;

@@ -6,11 +6,11 @@ namespace AdGuard.ConsoleUI.Services;
 /// </summary>
 public class DedicatedIPMenuService : IMenuService
 {
-    private readonly IDedicatedIPRepository _dedicatedIPRepository;
+    private readonly IDedicatedIpRepository _dedicatedIPRepository;
     private readonly IDisplayStrategy<DedicatedIPv4Address> _displayStrategy;
 
     public DedicatedIPMenuService(
-        IDedicatedIPRepository dedicatedIPRepository,
+        IDedicatedIpRepository dedicatedIPRepository,
         IDisplayStrategy<DedicatedIPv4Address> displayStrategy)
     {
         _dedicatedIPRepository = dedicatedIPRepository ?? throw new ArgumentNullException(nameof(dedicatedIPRepository));

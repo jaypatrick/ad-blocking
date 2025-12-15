@@ -99,56 +99,56 @@ public partial class ApiClientFactory : IApiClientFactory
     public AccountApi CreateAccountApi()
     {
         EnsureConfigured();
-        return new AccountApi(_apiConfiguration);
+        return new AccountApi(_apiConfiguration!);
     }
 
     /// <inheritdoc />
     public DevicesApi CreateDevicesApi()
     {
         EnsureConfigured();
-        return new DevicesApi(_apiConfiguration);
+        return new DevicesApi(_apiConfiguration!);
     }
 
     /// <inheritdoc />
     public DNSServersApi CreateDnsServersApi()
     {
         EnsureConfigured();
-        return new DNSServersApi(_apiConfiguration);
+        return new DNSServersApi(_apiConfiguration!);
     }
 
     /// <inheritdoc />
     public StatisticsApi CreateStatisticsApi()
     {
         EnsureConfigured();
-        return new StatisticsApi(_apiConfiguration);
+        return new StatisticsApi(_apiConfiguration!);
     }
 
     /// <inheritdoc />
     public FilterListsApi CreateFilterListsApi()
     {
         EnsureConfigured();
-        return new FilterListsApi(_apiConfiguration);
+        return new FilterListsApi(_apiConfiguration!);
     }
 
     /// <inheritdoc />
     public QueryLogApi CreateQueryLogApi()
     {
         EnsureConfigured();
-        return new QueryLogApi(_apiConfiguration);
+        return new QueryLogApi(_apiConfiguration!);
     }
 
     /// <inheritdoc />
     public WebServicesApi CreateWebServicesApi()
     {
         EnsureConfigured();
-        return new WebServicesApi(_apiConfiguration);
+        return new WebServicesApi(_apiConfiguration!);
     }
 
     /// <inheritdoc />
     public DedicatedIPAddressesApi CreateDedicatedIpAddressesApi()
     {
         EnsureConfigured();
-        return new DedicatedIPAddressesApi(_apiConfiguration);
+        return new DedicatedIPAddressesApi(_apiConfiguration!);
     }
 
     private void EnsureConfigured()
