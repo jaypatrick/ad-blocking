@@ -31,4 +31,27 @@ public class ApiNotConfiguredException : RepositoryException
         : base("ApiClientFactory", "Configure", message, innerException)
     {
     }
+
+    /// <summary>
+    /// Summary
+    /// </summary>
+    /// <param name="repositoryName"></param>
+    /// <param name="operation"></param>
+    /// <param name="message"></param>
+    public ApiNotConfiguredException(string repositoryName, string operation, string message) 
+        : base(repositoryName, operation, message)
+    {
+    }
+
+    /// <summary>
+    /// Summary
+    /// </summary>
+    /// <param name="repositoryName"></param>
+    /// <param name="operation"></param>
+    /// <param name="message"></param>
+    /// <param name="innerException"></param>
+    public ApiNotConfiguredException(string repositoryName, string operation, string message, Exception innerException) 
+        : base(repositoryName, operation, message, innerException)
+    {
+    }
 }
