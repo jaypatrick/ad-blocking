@@ -53,7 +53,7 @@ public partial class DedicatedIpRepository : IDedicatedIpRepository
             using var api = _apiClientFactory.CreateDedicatedIpAddressesApi();
             var address = await api.AllocateDedicatedIPv4AddressAsync(cancellationToken).ConfigureAwait(false);
 
-            LogDedicatedIpAllocated(address.Address);
+            LogDedicatedIpAllocated(address.Ip);
             return address;
         }
         catch (ApiException ex)

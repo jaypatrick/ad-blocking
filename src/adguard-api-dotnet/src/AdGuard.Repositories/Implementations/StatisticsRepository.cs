@@ -33,7 +33,7 @@ public partial class StatisticsRepository : IStatisticsRepository
             using var api = _apiClientFactory.CreateStatisticsApi();
             var stats = await api.GetTimeQueriesStatsAsync(startTime, endTime, cancellationToken).ConfigureAwait(false);
 
-            LogRetrievedStatistics(stats.Data?.Count ?? 0);
+            LogRetrievedStatistics(stats.Stats?.Count ?? 0);
             return stats;
         }
         catch (ApiException ex)

@@ -69,7 +69,7 @@ public sealed class DeviceByTypeSpecification : Specification<Device>
 
     /// <inheritdoc />
     public override Expression<Func<Device, bool>> ToExpression() =>
-        device => device.DeviceType.Equals(_deviceType, StringComparison.OrdinalIgnoreCase);
+        device => string.Equals(device.DeviceType.ToString(), _deviceType, StringComparison.OrdinalIgnoreCase);
 }
 
 /// <summary>
@@ -93,8 +93,11 @@ public sealed class DeviceByDnsServerSpecification : Specification<Device>
         device => device.DnsServerId == _dnsServerId;
 }
 
+/*
 /// <summary>
 /// Specification for filtering devices created after a specific date.
+/// Note: The Device model in API v1.11 does not include a CreatedAt property.
+/// This specification is commented out until the API provides timestamp information.
 /// </summary>
 public sealed class DeviceCreatedAfterSpecification : Specification<Device>
 {
@@ -113,6 +116,7 @@ public sealed class DeviceCreatedAfterSpecification : Specification<Device>
     public override Expression<Func<Device, bool>> ToExpression() =>
         device => device.CreatedAt >= _date;
 }
+*/
 
 /// <summary>
 /// Specification that matches all devices (no filter).
@@ -188,10 +192,13 @@ public static class DeviceSpecs
     public static ISpecification<Device> ByDnsServer(string dnsServerId) =>
         new DeviceByDnsServerSpecification(dnsServerId);
 
+    /*
     /// <summary>
     /// Creates a specification for devices created after a specific date.
+    /// Note: Commented out until Device model includes CreatedAt property.
     /// </summary>
     /// <param name="date">The cutoff date.</param>
     public static ISpecification<Device> CreatedAfter(DateTimeOffset date) =>
         new DeviceCreatedAfterSpecification(date);
+    */
 }

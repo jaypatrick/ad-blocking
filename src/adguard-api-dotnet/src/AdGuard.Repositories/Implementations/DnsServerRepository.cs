@@ -109,7 +109,16 @@ public partial class DnsServerRepository : IDnsServerRepository
         try
         {
             using var api = _apiClientFactory.CreateDnsServersApi();
-            var server = await api.UpdateDNSServerSettingsAsync(id, updateModel, cancellationToken).ConfigureAwait(false);
+            await api.UpdateDNSServerSettingsAsync(id, updateModel, cancellationToken).ConfigureAwait(false);
+            
+            // Re-fetch the server after update since the API doesn't return it
+            var servers = await api.ListDNSServersAsync(cancellationToken).ConfigureAwait(false);
+            var server = servers.FirstOrDefault(s => s.Id == id);
+            
+            if (server == null)
+            {
+                throw new EntityNotFoundException("DnsServer", id);
+            }
 
             LogDnsServerUpdated(server.Name, server.Id);
             return server;

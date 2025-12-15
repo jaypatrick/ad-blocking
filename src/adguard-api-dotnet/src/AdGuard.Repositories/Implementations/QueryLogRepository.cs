@@ -33,7 +33,7 @@ public partial class QueryLogRepository : IQueryLogRepository
             using var api = _apiClientFactory.CreateQueryLogApi();
             var log = await api.GetQueryLogAsync(startTime, endTime, cancellationToken).ConfigureAwait(false);
 
-            LogRetrievedQueryLog(log.Data?.Count ?? 0);
+            LogRetrievedQueryLog(log.Items?.Count ?? 0);
             return log;
         }
         catch (ApiException ex)
