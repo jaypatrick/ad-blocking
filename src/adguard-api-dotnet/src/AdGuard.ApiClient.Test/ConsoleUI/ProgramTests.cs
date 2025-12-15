@@ -383,7 +383,7 @@ public class ProgramTests
         var provider = services.BuildServiceProvider();
         var expectedTitles = new[]
         {
-            "Devices", "DNS Servers", "User Rules", "Statistics",
+            "Device Management", "DNS Server Management", "User Rules Management", "Statistics",
             "Query Log", "Filter Lists", "Web Services",
             "Dedicated IP Addresses", "Account Info"
         };

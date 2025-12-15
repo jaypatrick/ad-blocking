@@ -125,8 +125,13 @@ public class QueryLogLocalRepository : LocalRepositoryBase<QueryLogEntity>, IQue
     /// <inheritdoc />
     public async Task<int> DeleteOlderThanAsync(DateTime olderThan, CancellationToken cancellationToken = default)
     {
-        return await DbSet
+        var itemsToDelete = await DbSet
             .Where(q => q.Timestamp < olderThan)
-            .ExecuteDeleteAsync(cancellationToken);
+            .ToListAsync(cancellationToken);
+        
+        DbSet.RemoveRange(itemsToDelete);
+        await Context.SaveChangesAsync(cancellationToken);
+        
+        return itemsToDelete.Count;
     }
 }

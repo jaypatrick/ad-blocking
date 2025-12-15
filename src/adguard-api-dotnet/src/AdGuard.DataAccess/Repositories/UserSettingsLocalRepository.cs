@@ -174,11 +174,17 @@ public class UserSettingsLocalRepository : LocalRepositoryBase<UserSettingsEntit
     /// <inheritdoc />
     public async Task<bool> DeleteByKeyAsync(string key, CancellationToken cancellationToken = default)
     {
-        var deleted = await DbSet
+        var itemsToDelete = await DbSet
             .Where(s => s.Key == key)
-            .ExecuteDeleteAsync(cancellationToken);
-
-        return deleted > 0;
+            .ToListAsync(cancellationToken);
+        
+        if (itemsToDelete.Count == 0)
+            return false;
+        
+        DbSet.RemoveRange(itemsToDelete);
+        await Context.SaveChangesAsync(cancellationToken);
+        
+        return true;
     }
 
     /// <inheritdoc />

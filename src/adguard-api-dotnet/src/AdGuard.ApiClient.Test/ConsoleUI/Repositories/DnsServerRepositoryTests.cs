@@ -79,7 +79,7 @@ public class DnsServerRepositoryTests
         var repository = CreateRepository();
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(
+        await Assert.ThrowsAsync<ArgumentNullException>(
             () => repository.GetByIdAsync(null!));
     }
 
