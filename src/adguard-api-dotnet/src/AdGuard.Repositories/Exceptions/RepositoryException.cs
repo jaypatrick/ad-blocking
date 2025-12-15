@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace AdGuard.Repositories.Exceptions;
 
 /// <summary>
 /// Base exception for all repository operations.
 /// </summary>
+[SuppressMessage("Roslynator", "RCS1194:Implement exception constructors.", Justification = "This exception requires repositoryName, operation, and message parameters to provide meaningful context.")]
 public class RepositoryException : Exception
 {
     /// <summary>
@@ -24,6 +27,10 @@ public class RepositoryException : Exception
     public RepositoryException(string repositoryName, string operation, string message)
         : base(message)
     {
+        ArgumentNullException.ThrowIfNull(repositoryName);
+        ArgumentNullException.ThrowIfNull(operation);
+        ArgumentNullException.ThrowIfNull(message);
+
         RepositoryName = repositoryName;
         Operation = operation;
     }
@@ -38,6 +45,10 @@ public class RepositoryException : Exception
     public RepositoryException(string repositoryName, string operation, string message, Exception innerException)
         : base(message, innerException)
     {
+        ArgumentNullException.ThrowIfNull(repositoryName);
+        ArgumentNullException.ThrowIfNull(operation);
+        ArgumentNullException.ThrowIfNull(message);
+
         RepositoryName = repositoryName;
         Operation = operation;
     }
