@@ -7,7 +7,10 @@ This file contains quick reference examples for using the Rust API implementatio
 ### Setup
 
 ```bash
-# Export your API token (recommended)
+# Export your API token (recommended - .NET-compatible format)
+export ADGUARD_AdGuard__ApiKey="your-token-here"
+
+# Or using legacy format (backward compatible)
 export ADGUARD_API_TOKEN="your-token-here"
 
 # Or pass it with each command
@@ -54,7 +57,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Create configuration
     let mut config = Configuration::new();
     config.base_path = "https://api.adguard-dns.io".to_string();
-    config.bearer_access_token = Some(std::env::var("ADGUARD_API_TOKEN")?);
+    // Try .NET-compatible format first, fallback to legacy format
+    config.bearer_access_token = Some(
+        std::env::var("ADGUARD_AdGuard__ApiKey")
+            .or_else(|_| std::env::var("ADGUARD_API_TOKEN"))?
+    );
     
     // Use the API...
     
@@ -71,7 +78,11 @@ use adguard_api_lib::apis::{configuration::Configuration, devices_api};
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut config = Configuration::new();
     config.base_path = "https://api.adguard-dns.io".to_string();
-    config.bearer_access_token = Some(std::env::var("ADGUARD_API_TOKEN")?);
+    // Try .NET-compatible format first, fallback to legacy format
+    config.bearer_access_token = Some(
+        std::env::var("ADGUARD_AdGuard__ApiKey")
+            .or_else(|_| std::env::var("ADGUARD_API_TOKEN"))?
+    );
     
     let devices = devices_api::list_devices(&config).await?;
     
@@ -92,7 +103,11 @@ use adguard_api_lib::apis::{configuration::Configuration, account_api};
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut config = Configuration::new();
     config.base_path = "https://api.adguard-dns.io".to_string();
-    config.bearer_access_token = Some(std::env::var("ADGUARD_API_TOKEN")?);
+    // Try .NET-compatible format first, fallback to legacy format
+    config.bearer_access_token = Some(
+        std::env::var("ADGUARD_AdGuard__ApiKey")
+            .or_else(|_| std::env::var("ADGUARD_API_TOKEN"))?
+    );
     
     let limits = account_api::get_account_limits(&config).await?;
     
@@ -113,7 +128,11 @@ use adguard_api_lib::apis::{configuration::Configuration, devices_api};
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut config = Configuration::new();
     config.base_path = "https://api.adguard-dns.io".to_string();
-    config.bearer_access_token = Some(std::env::var("ADGUARD_API_TOKEN")?);
+    // Try .NET-compatible format first, fallback to legacy format
+    config.bearer_access_token = Some(
+        std::env::var("ADGUARD_AdGuard__ApiKey")
+            .or_else(|_| std::env::var("ADGUARD_API_TOKEN"))?
+    );
     
     let device_id = "your-device-id";
     let params = devices_api::GetDeviceParams {
@@ -138,7 +157,11 @@ use adguard_api_lib::apis::{configuration::Configuration, dns_servers_api};
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut config = Configuration::new();
     config.base_path = "https://api.adguard-dns.io".to_string();
-    config.bearer_access_token = Some(std::env::var("ADGUARD_API_TOKEN")?);
+    // Try .NET-compatible format first, fallback to legacy format
+    config.bearer_access_token = Some(
+        std::env::var("ADGUARD_AdGuard__ApiKey")
+            .or_else(|_| std::env::var("ADGUARD_API_TOKEN"))?
+    );
     
     let servers = dns_servers_api::list_dns_servers(&config).await?;
     
@@ -159,7 +182,11 @@ use adguard_api_lib::apis::{configuration::Configuration, statistics_api};
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut config = Configuration::new();
     config.base_path = "https://api.adguard-dns.io".to_string();
-    config.bearer_access_token = Some(std::env::var("ADGUARD_API_TOKEN")?);
+    // Try .NET-compatible format first, fallback to legacy format
+    config.bearer_access_token = Some(
+        std::env::var("ADGUARD_AdGuard__ApiKey")
+            .or_else(|_| std::env::var("ADGUARD_API_TOKEN"))?
+    );
     
     // Get stats for last 24 hours
     let now_ms = std::time::SystemTime::now()
@@ -192,7 +219,11 @@ use adguard_api_lib::apis::{configuration::Configuration, devices_api, Error};
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut config = Configuration::new();
     config.base_path = "https://api.adguard-dns.io".to_string();
-    config.bearer_access_token = Some(std::env::var("ADGUARD_API_TOKEN")?);
+    // Try .NET-compatible format first, fallback to legacy format
+    config.bearer_access_token = Some(
+        std::env::var("ADGUARD_AdGuard__ApiKey")
+            .or_else(|_| std::env::var("ADGUARD_API_TOKEN"))?
+    );
     
     match devices_api::list_devices(&config).await {
         Ok(devices) => {
@@ -226,8 +257,15 @@ adguard-api-cli devices list
 
 ## Environment Variables
 
-- `ADGUARD_API_URL` - API base URL (default: https://api.adguard-dns.io)
+The CLI supports two environment variable naming conventions for maximum compatibility:
+
+**Recommended (.NET-compatible format)**:
+- `ADGUARD_AdGuard__ApiKey` - API authentication token (compatible with adguard-api-dotnet)
+- `ADGUARD_AdGuard__BaseUrl` - API base URL (compatible with adguard-api-dotnet)
+
+**Legacy format** (backward compatible):
 - `ADGUARD_API_TOKEN` - API authentication token
+- `ADGUARD_API_URL` - API base URL (default: https://api.adguard-dns.io)
 
 ## Building Examples
 
