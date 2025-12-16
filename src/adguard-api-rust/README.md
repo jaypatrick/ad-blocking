@@ -128,8 +128,16 @@ The CLI supports multiple configuration methods (in order of precedence):
    ```
 
 2. **Environment Variables**:
-   - `ADGUARD_API_URL`: API base URL (default: https://api.adguard-dns.io)
+   
+   **Recommended (.NET-compatible format)** - Compatible with adguard-api-dotnet:
+   - `ADGUARD_AdGuard__ApiKey`: Authentication token (maps to AdGuard:ApiKey in .NET)
+   - `ADGUARD_AdGuard__BaseUrl`: API base URL (maps to AdGuard:BaseUrl in .NET)
+   
+   **Legacy format** - Still supported for backward compatibility:
    - `ADGUARD_API_TOKEN`: Authentication token
+   - `ADGUARD_API_URL`: API base URL
+
+   Note: The .NET-compatible format allows you to use the same environment variables across both Rust and .NET implementations.
 
 3. **Interactive Prompt**: If no API token is configured, the CLI will prompt you on first run
 
@@ -222,7 +230,24 @@ List all available web services that can be blocked, useful for configuring DNS 
 
 ### Using Environment Variables
 
-Set the token once to avoid repeated prompts:
+Set the token once to avoid repeated prompts.
+
+**Using .NET-compatible format (recommended for cross-compatibility)**:
+
+```bash
+export ADGUARD_AdGuard__ApiKey="your-token-here"
+adguard-api-cli
+```
+
+Or set both URL and token:
+
+```bash
+export ADGUARD_AdGuard__BaseUrl="https://api.adguard-dns.io"
+export ADGUARD_AdGuard__ApiKey="your-token-here"
+adguard-api-cli
+```
+
+**Using legacy format (backward compatible)**:
 
 ```bash
 export ADGUARD_API_TOKEN="your-token-here"
