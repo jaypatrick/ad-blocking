@@ -15,45 +15,25 @@ namespace AdGuard.ApiClient.Test.ConsoleUI.Repositories;
 /// <summary>
 /// Unit tests for <see cref="StatisticsRepository"/>.
 /// </summary>
-public class StatisticsRepositoryTests
+public class StatisticsRepositoryTests : RepositoryTestBase<StatisticsRepository>
 {
-    private readonly Mock<IApiClientFactory> _apiClientFactoryMock;
-    private readonly Mock<ILogger<StatisticsRepository>> _loggerMock;
-
-    public StatisticsRepositoryTests()
+    /// <inheritdoc />
+    protected override StatisticsRepository CreateRepository()
     {
-        _apiClientFactoryMock = new Mock<IApiClientFactory>();
-        _loggerMock = new Mock<ILogger<StatisticsRepository>>();
+        return new StatisticsRepository(ApiClientFactoryMock.Object, LoggerMock.Object);
     }
 
-    private StatisticsRepository CreateRepository()
+    /// <inheritdoc />
+    protected override StatisticsRepository CreateRepositoryWithNullFactory()
     {
-        return new StatisticsRepository(_apiClientFactoryMock.Object, _loggerMock.Object);
+        return new StatisticsRepository(null!, LoggerMock.Object);
     }
 
-    #region Constructor Tests
-
-    [Fact]
-    public void Constructor_WithNullFactory_ThrowsArgumentNullException()
+    /// <inheritdoc />
+    protected override StatisticsRepository CreateRepositoryWithNullLogger()
     {
-        // Act & Assert
-        var exception = Assert.Throws<ArgumentNullException>(
-            () => new StatisticsRepository(null!, _loggerMock.Object));
-
-        Assert.Equal("apiClientFactory", exception.ParamName);
+        return new StatisticsRepository(ApiClientFactoryMock.Object, null!);
     }
-
-    [Fact]
-    public void Constructor_WithNullLogger_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        var exception = Assert.Throws<ArgumentNullException>(
-            () => new StatisticsRepository(_apiClientFactoryMock.Object, null!));
-
-        Assert.Equal("logger", exception.ParamName);
-    }
-
-    #endregion
 
     #region GetTimeQueriesStatsAsync Tests
 

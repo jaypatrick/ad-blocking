@@ -1,15 +1,18 @@
 using AdGuard.Repositories.Abstractions;
+using AdGuard.Repositories.Common;
 using AdGuard.Repositories.Contracts;
-using AdGuard.Repositories.Exceptions;
 
 namespace AdGuard.Repositories.Implementations;
 
 /// <summary>
 /// Repository implementation for query log operations.
 /// </summary>
-public partial class QueryLogRepository : IQueryLogRepository
+public partial class QueryLogRepository : BaseRepository<QueryLogRepository>, IQueryLogRepository
 {
-    private readonly IApiClientFactory _apiClientFactory;
+    /// <inheritdoc />
+    protected override string RepositoryName => "QueryLogRepository";
+
+    // Required for LoggerMessage source generator
     private readonly ILogger<QueryLogRepository> _logger;
 
     /// <summary>
@@ -18,9 +21,9 @@ public partial class QueryLogRepository : IQueryLogRepository
     /// <param name="apiClientFactory">The API client factory.</param>
     /// <param name="logger">The logger.</param>
     public QueryLogRepository(IApiClientFactory apiClientFactory, ILogger<QueryLogRepository> logger)
+        : base(apiClientFactory, logger)
     {
-        _apiClientFactory = apiClientFactory ?? throw new ArgumentNullException(nameof(apiClientFactory));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _logger = logger;
     }
 
     /// <inheritdoc />
@@ -28,19 +31,14 @@ public partial class QueryLogRepository : IQueryLogRepository
     {
         LogFetchingQueryLog(startTime, endTime);
 
-        try
+        var log = await ExecuteAsync("GetQueryLog", async () =>
         {
-            using var api = _apiClientFactory.CreateQueryLogApi();
-            var log = await api.GetQueryLogAsync(startTime, endTime, cancellationToken).ConfigureAwait(false);
+            using var api = ApiClientFactory.CreateQueryLogApi();
+            return await api.GetQueryLogAsync(startTime, endTime, cancellationToken).ConfigureAwait(false);
+        }, (code, message, ex) => LogApiError("GetQueryLog", code, message, ex), cancellationToken);
 
-            LogRetrievedQueryLog(log.Items?.Count ?? 0);
-            return log;
-        }
-        catch (ApiException ex)
-        {
-            LogApiError("GetQueryLog", ex.ErrorCode, ex.Message, ex);
-            throw new RepositoryException("QueryLogRepository", "GetQueryLog", $"Failed to fetch query log: {ex.Message}", ex);
-        }
+        LogRetrievedQueryLog(log.Items?.Count ?? 0);
+        return log;
     }
 
     /// <inheritdoc />
@@ -48,18 +46,13 @@ public partial class QueryLogRepository : IQueryLogRepository
     {
         LogClearingQueryLog();
 
-        try
+        await ExecuteAsync("Clear", async () =>
         {
-            using var api = _apiClientFactory.CreateQueryLogApi();
+            using var api = ApiClientFactory.CreateQueryLogApi();
             await api.ClearQueryLogAsync(cancellationToken).ConfigureAwait(false);
+        }, (code, message, ex) => LogApiError("Clear", code, message, ex), cancellationToken);
 
-            LogQueryLogCleared();
-        }
-        catch (ApiException ex)
-        {
-            LogApiError("Clear", ex.ErrorCode, ex.Message, ex);
-            throw new RepositoryException("QueryLogRepository", "Clear", $"Failed to clear query log: {ex.Message}", ex);
-        }
+        LogQueryLogCleared();
     }
 
     /// <inheritdoc />

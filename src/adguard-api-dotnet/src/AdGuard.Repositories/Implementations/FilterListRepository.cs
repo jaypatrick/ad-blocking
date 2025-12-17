@@ -1,15 +1,18 @@
 using AdGuard.Repositories.Abstractions;
+using AdGuard.Repositories.Common;
 using AdGuard.Repositories.Contracts;
-using AdGuard.Repositories.Exceptions;
 
 namespace AdGuard.Repositories.Implementations;
 
 /// <summary>
 /// Repository implementation for filter list operations (read-only).
 /// </summary>
-public partial class FilterListRepository : IFilterListRepository
+public partial class FilterListRepository : BaseRepository<FilterListRepository>, IFilterListRepository
 {
-    private readonly IApiClientFactory _apiClientFactory;
+    /// <inheritdoc />
+    protected override string RepositoryName => "FilterListRepository";
+
+    // Required for LoggerMessage source generator
     private readonly ILogger<FilterListRepository> _logger;
 
     /// <summary>
@@ -18,9 +21,9 @@ public partial class FilterListRepository : IFilterListRepository
     /// <param name="apiClientFactory">The API client factory.</param>
     /// <param name="logger">The logger.</param>
     public FilterListRepository(IApiClientFactory apiClientFactory, ILogger<FilterListRepository> logger)
+        : base(apiClientFactory, logger)
     {
-        _apiClientFactory = apiClientFactory ?? throw new ArgumentNullException(nameof(apiClientFactory));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _logger = logger;
     }
 
     /// <inheritdoc />
@@ -28,18 +31,13 @@ public partial class FilterListRepository : IFilterListRepository
     {
         LogFetchingFilterLists();
 
-        try
+        var lists = await ExecuteAsync("GetAll", async () =>
         {
-            using var api = _apiClientFactory.CreateFilterListsApi();
-            var lists = await api.ListFilterListsAsync(cancellationToken).ConfigureAwait(false);
+            using var api = ApiClientFactory.CreateFilterListsApi();
+            return await api.ListFilterListsAsync(cancellationToken).ConfigureAwait(false);
+        }, (code, message, ex) => LogApiError("GetAll", code, message, ex), cancellationToken);
 
-            LogRetrievedFilterLists(lists.Count);
-            return lists;
-        }
-        catch (ApiException ex)
-        {
-            LogApiError("GetAll", ex.ErrorCode, ex.Message, ex);
-            throw new RepositoryException("FilterListRepository", "GetAll", $"Failed to fetch filter lists: {ex.Message}", ex);
-        }
+        LogRetrievedFilterLists(lists.Count);
+        return lists;
     }
 }

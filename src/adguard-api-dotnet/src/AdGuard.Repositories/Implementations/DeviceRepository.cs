@@ -1,15 +1,18 @@
 using AdGuard.Repositories.Abstractions;
+using AdGuard.Repositories.Common;
 using AdGuard.Repositories.Contracts;
-using AdGuard.Repositories.Exceptions;
 
 namespace AdGuard.Repositories.Implementations;
 
 /// <summary>
 /// Repository implementation for device operations.
 /// </summary>
-public partial class DeviceRepository : IDeviceRepository
+public partial class DeviceRepository : BaseRepository<DeviceRepository>, IDeviceRepository
 {
-    private readonly IApiClientFactory _apiClientFactory;
+    /// <inheritdoc />
+    protected override string RepositoryName => "DeviceRepository";
+
+    // Required for LoggerMessage source generator
     private readonly ILogger<DeviceRepository> _logger;
 
     /// <summary>
@@ -18,9 +21,9 @@ public partial class DeviceRepository : IDeviceRepository
     /// <param name="apiClientFactory">The API client factory.</param>
     /// <param name="logger">The logger.</param>
     public DeviceRepository(IApiClientFactory apiClientFactory, ILogger<DeviceRepository> logger)
+        : base(apiClientFactory, logger)
     {
-        _apiClientFactory = apiClientFactory ?? throw new ArgumentNullException(nameof(apiClientFactory));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _logger = logger;
     }
 
     /// <inheritdoc />
@@ -28,124 +31,80 @@ public partial class DeviceRepository : IDeviceRepository
     {
         LogFetchingAllDevices();
 
-        try
+        var devices = await ExecuteAsync("GetAll", async () =>
         {
-            using var api = _apiClientFactory.CreateDevicesApi();
-            var devices = await api.ListDevicesAsync(cancellationToken).ConfigureAwait(false);
+            using var api = ApiClientFactory.CreateDevicesApi();
+            return await api.ListDevicesAsync(cancellationToken).ConfigureAwait(false);
+        }, (code, message, ex) => LogApiError("GetAll", code, message, ex), cancellationToken);
 
-            LogRetrievedDevices(devices.Count);
-            return devices;
-        }
-        catch (ApiException ex)
-        {
-            LogApiError("GetAll", ex.ErrorCode, ex.Message, ex);
-            throw new RepositoryException("DeviceRepository", "GetAll", $"Failed to fetch devices: {ex.Message}", ex);
-        }
+        LogRetrievedDevices(devices.Count);
+        return devices;
     }
 
     /// <inheritdoc />
     public async Task<Device> GetByIdAsync(string id, CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(id);
-
+        ValidateId(id);
         LogFetchingDevice(id);
 
-        try
+        var device = await ExecuteWithEntityCheckAsync("GetById", "Device", id, async () =>
         {
-            using var api = _apiClientFactory.CreateDevicesApi();
-            var device = await api.GetDeviceAsync(id, cancellationToken).ConfigureAwait(false);
+            using var api = ApiClientFactory.CreateDevicesApi();
+            return await api.GetDeviceAsync(id, cancellationToken).ConfigureAwait(false);
+        }, deviceId => LogDeviceNotFound(deviceId), (code, message, ex) => LogApiError("GetById", code, message, ex), cancellationToken);
 
-            LogRetrievedDevice(device.Name, device.Id);
-            return device;
-        }
-        catch (ApiException ex) when (ex.ErrorCode == 404)
-        {
-            LogDeviceNotFound(id);
-            throw new EntityNotFoundException("Device", id, ex);
-        }
-        catch (ApiException ex)
-        {
-            LogApiError("GetById", ex.ErrorCode, ex.Message, ex);
-            throw new RepositoryException("DeviceRepository", "GetById", $"Failed to fetch device {id}: {ex.Message}", ex);
-        }
+        LogRetrievedDevice(device.Name, device.Id);
+        return device;
     }
 
     /// <inheritdoc />
     public async Task<Device> CreateAsync(DeviceCreate createModel, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(createModel);
-
         LogCreatingDevice(createModel.Name);
 
-        try
+        var device = await ExecuteAsync("Create", async () =>
         {
-            using var api = _apiClientFactory.CreateDevicesApi();
-            var device = await api.CreateDeviceAsync(createModel, cancellationToken).ConfigureAwait(false);
+            using var api = ApiClientFactory.CreateDevicesApi();
+            return await api.CreateDeviceAsync(createModel, cancellationToken).ConfigureAwait(false);
+        }, (code, message, ex) => LogApiError("Create", code, message, ex), cancellationToken);
 
-            LogDeviceCreated(device.Name, device.Id);
-            return device;
-        }
-        catch (ApiException ex)
-        {
-            LogApiError("Create", ex.ErrorCode, ex.Message, ex);
-            throw new RepositoryException("DeviceRepository", "Create", $"Failed to create device: {ex.Message}", ex);
-        }
+        LogDeviceCreated(device.Name, device.Id);
+        return device;
     }
 
     /// <inheritdoc />
     public async Task<Device> UpdateAsync(string id, DeviceUpdate updateModel, CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(id);
+        ValidateId(id);
         ArgumentNullException.ThrowIfNull(updateModel);
-
         LogUpdatingDevice(id);
 
-        try
+        var device = await ExecuteWithEntityCheckAsync("Update", "Device", id, async () =>
         {
-            using var api = _apiClientFactory.CreateDevicesApi();
+            using var api = ApiClientFactory.CreateDevicesApi();
             await api.UpdateDeviceAsync(id, updateModel, cancellationToken).ConfigureAwait(false);
             
             // Re-fetch the device after update since the API doesn't return it
-            var device = await api.GetDeviceAsync(id, cancellationToken).ConfigureAwait(false);
+            return await api.GetDeviceAsync(id, cancellationToken).ConfigureAwait(false);
+        }, deviceId => LogDeviceNotFound(deviceId), (code, message, ex) => LogApiError("Update", code, message, ex), cancellationToken);
 
-            LogDeviceUpdated(device.Name, device.Id);
-            return device;
-        }
-        catch (ApiException ex) when (ex.ErrorCode == 404)
-        {
-            LogDeviceNotFound(id);
-            throw new EntityNotFoundException("Device", id, ex);
-        }
-        catch (ApiException ex)
-        {
-            LogApiError("Update", ex.ErrorCode, ex.Message, ex);
-            throw new RepositoryException("DeviceRepository", "Update", $"Failed to update device {id}: {ex.Message}", ex);
-        }
+        LogDeviceUpdated(device.Name, device.Id);
+        return device;
     }
 
     /// <inheritdoc />
     public async Task DeleteAsync(string id, CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(id);
-
+        ValidateId(id);
         LogDeletingDevice(id);
 
-        try
+        await ExecuteWithEntityCheckAsync("Delete", "Device", id, async () =>
         {
-            using var api = _apiClientFactory.CreateDevicesApi();
+            using var api = ApiClientFactory.CreateDevicesApi();
             await api.RemoveDeviceAsync(id, cancellationToken).ConfigureAwait(false);
+        }, deviceId => LogDeviceNotFound(deviceId), (code, message, ex) => LogApiError("Delete", code, message, ex), cancellationToken);
 
-            LogDeviceDeleted(id);
-        }
-        catch (ApiException ex) when (ex.ErrorCode == 404)
-        {
-            LogDeviceNotFound(id);
-            throw new EntityNotFoundException("Device", id, ex);
-        }
-        catch (ApiException ex)
-        {
-            LogApiError("Delete", ex.ErrorCode, ex.Message, ex);
-            throw new RepositoryException("DeviceRepository", "Delete", $"Failed to delete device {id}: {ex.Message}", ex);
-        }
+        LogDeviceDeleted(id);
     }
 }
