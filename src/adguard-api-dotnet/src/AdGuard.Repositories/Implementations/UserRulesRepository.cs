@@ -111,7 +111,7 @@ public partial class UserRulesRepository : BaseRepository<UserRulesRepository>, 
     public async Task<int> UpdateFromFileAsync(string dnsServerId, string filePath, CancellationToken cancellationToken = default)
     {
         ValidateId(dnsServerId, nameof(dnsServerId));
-        ValidateId(filePath, nameof(filePath));
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath, nameof(filePath));
         LogUpdatingRulesFromFile(dnsServerId, filePath);
 
         if (!File.Exists(filePath))
@@ -178,7 +178,7 @@ public partial class UserRulesRepository : BaseRepository<UserRulesRepository>, 
     public async Task AddRuleAsync(string dnsServerId, string rule, CancellationToken cancellationToken = default)
     {
         ValidateId(dnsServerId, nameof(dnsServerId));
-        ValidateId(rule, nameof(rule));
+        ArgumentException.ThrowIfNullOrWhiteSpace(rule, nameof(rule));
         LogAddingRule(dnsServerId, rule);
 
         await AppendRulesAsync(dnsServerId, [rule], cancellationToken).ConfigureAwait(false);
