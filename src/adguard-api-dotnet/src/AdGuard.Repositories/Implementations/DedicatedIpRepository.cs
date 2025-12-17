@@ -1,15 +1,18 @@
 using AdGuard.Repositories.Abstractions;
+using AdGuard.Repositories.Common;
 using AdGuard.Repositories.Contracts;
-using AdGuard.Repositories.Exceptions;
 
 namespace AdGuard.Repositories.Implementations;
 
 /// <summary>
 /// Repository implementation for dedicated IP address operations.
 /// </summary>
-public partial class DedicatedIpRepository : IDedicatedIpRepository
+public partial class DedicatedIpRepository : BaseRepository<DedicatedIpRepository>, IDedicatedIpRepository
 {
-    private readonly IApiClientFactory _apiClientFactory;
+    /// <inheritdoc />
+    protected override string RepositoryName => "DedicatedIpRepository";
+
+    // Required for LoggerMessage source generator
     private readonly ILogger<DedicatedIpRepository> _logger;
 
     /// <summary>
@@ -18,9 +21,9 @@ public partial class DedicatedIpRepository : IDedicatedIpRepository
     /// <param name="apiClientFactory">The API client factory.</param>
     /// <param name="logger">The logger.</param>
     public DedicatedIpRepository(IApiClientFactory apiClientFactory, ILogger<DedicatedIpRepository> logger)
+        : base(apiClientFactory, logger)
     {
-        _apiClientFactory = apiClientFactory ?? throw new ArgumentNullException(nameof(apiClientFactory));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _logger = logger;
     }
 
     /// <inheritdoc />
@@ -28,19 +31,14 @@ public partial class DedicatedIpRepository : IDedicatedIpRepository
     {
         LogFetchingDedicatedIps();
 
-        try
+        var addresses = await ExecuteAsync("GetAll", async () =>
         {
-            using var api = _apiClientFactory.CreateDedicatedIpAddressesApi();
-            var addresses = await api.ListDedicatedIPv4AddressesAsync(cancellationToken).ConfigureAwait(false);
+            using var api = ApiClientFactory.CreateDedicatedIpAddressesApi();
+            return await api.ListDedicatedIPv4AddressesAsync(cancellationToken).ConfigureAwait(false);
+        }, (code, message, ex) => LogApiError("GetAll", code, message, ex), cancellationToken);
 
-            LogRetrievedDedicatedIps(addresses.Count);
-            return addresses;
-        }
-        catch (ApiException ex)
-        {
-            LogApiError("GetAll", ex.ErrorCode, ex.Message, ex);
-            throw new RepositoryException("DedicatedIpRepository", "GetAll", $"Failed to fetch dedicated IPs: {ex.Message}", ex);
-        }
+        LogRetrievedDedicatedIps(addresses.Count);
+        return addresses;
     }
 
     /// <inheritdoc />
@@ -48,18 +46,13 @@ public partial class DedicatedIpRepository : IDedicatedIpRepository
     {
         LogAllocatingDedicatedIp();
 
-        try
+        var address = await ExecuteAsync("Allocate", async () =>
         {
-            using var api = _apiClientFactory.CreateDedicatedIpAddressesApi();
-            var address = await api.AllocateDedicatedIPv4AddressAsync(cancellationToken).ConfigureAwait(false);
+            using var api = ApiClientFactory.CreateDedicatedIpAddressesApi();
+            return await api.AllocateDedicatedIPv4AddressAsync(cancellationToken).ConfigureAwait(false);
+        }, (code, message, ex) => LogApiError("Allocate", code, message, ex), cancellationToken);
 
-            LogDedicatedIpAllocated(address.Ip);
-            return address;
-        }
-        catch (ApiException ex)
-        {
-            LogApiError("Allocate", ex.ErrorCode, ex.Message, ex);
-            throw new RepositoryException("DedicatedIpRepository", "Allocate", $"Failed to allocate dedicated IP: {ex.Message}", ex);
-        }
+        LogDedicatedIpAllocated(address.Ip);
+        return address;
     }
 }
