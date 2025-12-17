@@ -15,55 +15,25 @@ namespace AdGuard.ApiClient.Test.ConsoleUI.Repositories;
 /// <summary>
 /// Unit tests for <see cref="AccountRepository"/>.
 /// </summary>
-public class AccountRepositoryTests
+public class AccountRepositoryTests : RepositoryTestBase<AccountRepository>
 {
-    private readonly Mock<IApiClientFactory> _apiClientFactoryMock;
-    private readonly Mock<ILogger<AccountRepository>> _loggerMock;
-
-    public AccountRepositoryTests()
+    /// <inheritdoc />
+    protected override AccountRepository CreateRepository()
     {
-        _apiClientFactoryMock = new Mock<IApiClientFactory>();
-        _loggerMock = new Mock<ILogger<AccountRepository>>();
+        return new AccountRepository(ApiClientFactoryMock.Object, LoggerMock.Object);
     }
 
-    private AccountRepository CreateRepository()
+    /// <inheritdoc />
+    protected override AccountRepository CreateRepositoryWithNullFactory()
     {
-        return new AccountRepository(_apiClientFactoryMock.Object, _loggerMock.Object);
+        return new AccountRepository(null!, LoggerMock.Object);
     }
 
-    #region Constructor Tests
-
-    [Fact]
-    public void Constructor_WithNullFactory_ThrowsArgumentNullException()
+    /// <inheritdoc />
+    protected override AccountRepository CreateRepositoryWithNullLogger()
     {
-        // Act & Assert
-        var exception = Assert.Throws<ArgumentNullException>(
-            () => new AccountRepository(null!, _loggerMock.Object));
-
-        Assert.Equal("apiClientFactory", exception.ParamName);
+        return new AccountRepository(ApiClientFactoryMock.Object, null!);
     }
-
-    [Fact]
-    public void Constructor_WithNullLogger_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        var exception = Assert.Throws<ArgumentNullException>(
-            () => new AccountRepository(_apiClientFactoryMock.Object, null!));
-
-        Assert.Equal("logger", exception.ParamName);
-    }
-
-    [Fact]
-    public void Constructor_WithValidFactory_CreatesInstance()
-    {
-        // Act
-        var repository = CreateRepository();
-
-        // Assert
-        Assert.NotNull(repository);
-    }
-
-    #endregion
 
     #region GetLimitsAsync Tests
 

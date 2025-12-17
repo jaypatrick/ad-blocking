@@ -16,55 +16,25 @@ namespace AdGuard.ApiClient.Test.ConsoleUI.Repositories;
 /// <summary>
 /// Unit tests for <see cref="DnsServerRepository"/>.
 /// </summary>
-public class DnsServerRepositoryTests
+public class DnsServerRepositoryTests : RepositoryTestBase<DnsServerRepository>
 {
-    private readonly Mock<IApiClientFactory> _apiClientFactoryMock;
-    private readonly Mock<ILogger<DnsServerRepository>> _loggerMock;
-
-    public DnsServerRepositoryTests()
+    /// <inheritdoc />
+    protected override DnsServerRepository CreateRepository()
     {
-        _apiClientFactoryMock = new Mock<IApiClientFactory>();
-        _loggerMock = new Mock<ILogger<DnsServerRepository>>();
+        return new DnsServerRepository(ApiClientFactoryMock.Object, LoggerMock.Object);
     }
 
-    private DnsServerRepository CreateRepository()
+    /// <inheritdoc />
+    protected override DnsServerRepository CreateRepositoryWithNullFactory()
     {
-        return new DnsServerRepository(_apiClientFactoryMock.Object, _loggerMock.Object);
+        return new DnsServerRepository(null!, LoggerMock.Object);
     }
 
-    #region Constructor Tests
-
-    [Fact]
-    public void Constructor_WithNullFactory_ThrowsArgumentNullException()
+    /// <inheritdoc />
+    protected override DnsServerRepository CreateRepositoryWithNullLogger()
     {
-        // Act & Assert
-        var exception = Assert.Throws<ArgumentNullException>(
-            () => new DnsServerRepository(null!, _loggerMock.Object));
-
-        Assert.Equal("apiClientFactory", exception.ParamName);
+        return new DnsServerRepository(ApiClientFactoryMock.Object, null!);
     }
-
-    [Fact]
-    public void Constructor_WithNullLogger_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        var exception = Assert.Throws<ArgumentNullException>(
-            () => new DnsServerRepository(_apiClientFactoryMock.Object, null!));
-
-        Assert.Equal("logger", exception.ParamName);
-    }
-
-    [Fact]
-    public void Constructor_WithValidFactory_CreatesInstance()
-    {
-        // Act
-        var repository = CreateRepository();
-
-        // Assert
-        Assert.NotNull(repository);
-    }
-
-    #endregion
 
     #region GetAllAsync Tests
 

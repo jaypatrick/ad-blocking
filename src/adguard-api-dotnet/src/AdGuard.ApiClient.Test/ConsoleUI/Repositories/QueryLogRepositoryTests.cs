@@ -15,45 +15,25 @@ namespace AdGuard.ApiClient.Test.ConsoleUI.Repositories;
 /// <summary>
 /// Unit tests for <see cref="QueryLogRepository"/>.
 /// </summary>
-public class QueryLogRepositoryTests
+public class QueryLogRepositoryTests : RepositoryTestBase<QueryLogRepository>
 {
-    private readonly Mock<IApiClientFactory> _apiClientFactoryMock;
-    private readonly Mock<ILogger<QueryLogRepository>> _loggerMock;
-
-    public QueryLogRepositoryTests()
+    /// <inheritdoc />
+    protected override QueryLogRepository CreateRepository()
     {
-        _apiClientFactoryMock = new Mock<IApiClientFactory>();
-        _loggerMock = new Mock<ILogger<QueryLogRepository>>();
+        return new QueryLogRepository(ApiClientFactoryMock.Object, LoggerMock.Object);
     }
 
-    private QueryLogRepository CreateRepository()
+    /// <inheritdoc />
+    protected override QueryLogRepository CreateRepositoryWithNullFactory()
     {
-        return new QueryLogRepository(_apiClientFactoryMock.Object, _loggerMock.Object);
+        return new QueryLogRepository(null!, LoggerMock.Object);
     }
 
-    #region Constructor Tests
-
-    [Fact]
-    public void Constructor_WithNullFactory_ThrowsArgumentNullException()
+    /// <inheritdoc />
+    protected override QueryLogRepository CreateRepositoryWithNullLogger()
     {
-        // Act & Assert
-        var exception = Assert.Throws<ArgumentNullException>(
-            () => new QueryLogRepository(null!, _loggerMock.Object));
-
-        Assert.Equal("apiClientFactory", exception.ParamName);
+        return new QueryLogRepository(ApiClientFactoryMock.Object, null!);
     }
-
-    [Fact]
-    public void Constructor_WithNullLogger_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        var exception = Assert.Throws<ArgumentNullException>(
-            () => new QueryLogRepository(_apiClientFactoryMock.Object, null!));
-
-        Assert.Equal("logger", exception.ParamName);
-    }
-
-    #endregion
 
     #region GetQueryLogAsync Tests
 

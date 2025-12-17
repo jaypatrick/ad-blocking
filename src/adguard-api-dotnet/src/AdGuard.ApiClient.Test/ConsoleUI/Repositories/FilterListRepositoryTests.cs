@@ -15,45 +15,25 @@ namespace AdGuard.ApiClient.Test.ConsoleUI.Repositories;
 /// <summary>
 /// Unit tests for <see cref="FilterListRepository"/>.
 /// </summary>
-public class FilterListRepositoryTests
+public class FilterListRepositoryTests : RepositoryTestBase<FilterListRepository>
 {
-    private readonly Mock<IApiClientFactory> _apiClientFactoryMock;
-    private readonly Mock<ILogger<FilterListRepository>> _loggerMock;
-
-    public FilterListRepositoryTests()
+    /// <inheritdoc />
+    protected override FilterListRepository CreateRepository()
     {
-        _apiClientFactoryMock = new Mock<IApiClientFactory>();
-        _loggerMock = new Mock<ILogger<FilterListRepository>>();
+        return new FilterListRepository(ApiClientFactoryMock.Object, LoggerMock.Object);
     }
 
-    private FilterListRepository CreateRepository()
+    /// <inheritdoc />
+    protected override FilterListRepository CreateRepositoryWithNullFactory()
     {
-        return new FilterListRepository(_apiClientFactoryMock.Object, _loggerMock.Object);
+        return new FilterListRepository(null!, LoggerMock.Object);
     }
 
-    #region Constructor Tests
-
-    [Fact]
-    public void Constructor_WithNullFactory_ThrowsArgumentNullException()
+    /// <inheritdoc />
+    protected override FilterListRepository CreateRepositoryWithNullLogger()
     {
-        // Act & Assert
-        var exception = Assert.Throws<ArgumentNullException>(
-            () => new FilterListRepository(null!, _loggerMock.Object));
-
-        Assert.Equal("apiClientFactory", exception.ParamName);
+        return new FilterListRepository(ApiClientFactoryMock.Object, null!);
     }
-
-    [Fact]
-    public void Constructor_WithNullLogger_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        var exception = Assert.Throws<ArgumentNullException>(
-            () => new FilterListRepository(_apiClientFactoryMock.Object, null!));
-
-        Assert.Equal("logger", exception.ParamName);
-    }
-
-    #endregion
 
     #region GetAllAsync Tests
 
