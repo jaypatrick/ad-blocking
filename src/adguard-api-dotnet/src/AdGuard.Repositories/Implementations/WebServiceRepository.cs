@@ -1,15 +1,18 @@
 using AdGuard.Repositories.Abstractions;
+using AdGuard.Repositories.Common;
 using AdGuard.Repositories.Contracts;
-using AdGuard.Repositories.Exceptions;
 
 namespace AdGuard.Repositories.Implementations;
 
 /// <summary>
 /// Repository implementation for web service operations (read-only).
 /// </summary>
-public partial class WebServiceRepository : IWebServiceRepository
+public partial class WebServiceRepository : BaseRepository<WebServiceRepository>, IWebServiceRepository
 {
-    private readonly IApiClientFactory _apiClientFactory;
+    /// <inheritdoc />
+    protected override string RepositoryName => "WebServiceRepository";
+
+    // Required for LoggerMessage source generator
     private readonly ILogger<WebServiceRepository> _logger;
 
     /// <summary>
@@ -18,9 +21,9 @@ public partial class WebServiceRepository : IWebServiceRepository
     /// <param name="apiClientFactory">The API client factory.</param>
     /// <param name="logger">The logger.</param>
     public WebServiceRepository(IApiClientFactory apiClientFactory, ILogger<WebServiceRepository> logger)
+        : base(apiClientFactory, logger)
     {
-        _apiClientFactory = apiClientFactory ?? throw new ArgumentNullException(nameof(apiClientFactory));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _logger = logger;
     }
 
     /// <inheritdoc />
@@ -28,18 +31,13 @@ public partial class WebServiceRepository : IWebServiceRepository
     {
         LogFetchingWebServices();
 
-        try
+        var services = await ExecuteAsync("GetAll", async () =>
         {
-            using var api = _apiClientFactory.CreateWebServicesApi();
-            var services = await api.ListWebServicesAsync(cancellationToken).ConfigureAwait(false);
+            using var api = ApiClientFactory.CreateWebServicesApi();
+            return await api.ListWebServicesAsync(cancellationToken).ConfigureAwait(false);
+        }, (code, message, ex) => LogApiError("GetAll", code, message, ex), cancellationToken);
 
-            LogRetrievedWebServices(services.Count);
-            return services;
-        }
-        catch (ApiException ex)
-        {
-            LogApiError("GetAll", ex.ErrorCode, ex.Message, ex);
-            throw new RepositoryException("WebServiceRepository", "GetAll", $"Failed to fetch web services: {ex.Message}", ex);
-        }
+        LogRetrievedWebServices(services.Count);
+        return services;
     }
 }

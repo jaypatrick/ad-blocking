@@ -1,15 +1,18 @@
 using AdGuard.Repositories.Abstractions;
+using AdGuard.Repositories.Common;
 using AdGuard.Repositories.Contracts;
-using AdGuard.Repositories.Exceptions;
 
 namespace AdGuard.Repositories.Implementations;
 
 /// <summary>
 /// Repository implementation for statistics operations.
 /// </summary>
-public partial class StatisticsRepository : IStatisticsRepository
+public partial class StatisticsRepository : BaseRepository<StatisticsRepository>, IStatisticsRepository
 {
-    private readonly IApiClientFactory _apiClientFactory;
+    /// <inheritdoc />
+    protected override string RepositoryName => "StatisticsRepository";
+
+    // Required for LoggerMessage source generator
     private readonly ILogger<StatisticsRepository> _logger;
 
     /// <summary>
@@ -18,9 +21,9 @@ public partial class StatisticsRepository : IStatisticsRepository
     /// <param name="apiClientFactory">The API client factory.</param>
     /// <param name="logger">The logger.</param>
     public StatisticsRepository(IApiClientFactory apiClientFactory, ILogger<StatisticsRepository> logger)
+        : base(apiClientFactory, logger)
     {
-        _apiClientFactory = apiClientFactory ?? throw new ArgumentNullException(nameof(apiClientFactory));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _logger = logger;
     }
 
     /// <inheritdoc />
@@ -28,19 +31,14 @@ public partial class StatisticsRepository : IStatisticsRepository
     {
         LogFetchingStatistics(startTime, endTime);
 
-        try
+        var stats = await ExecuteAsync("GetTimeQueriesStats", async () =>
         {
-            using var api = _apiClientFactory.CreateStatisticsApi();
-            var stats = await api.GetTimeQueriesStatsAsync(startTime, endTime, cancellationToken).ConfigureAwait(false);
+            using var api = ApiClientFactory.CreateStatisticsApi();
+            return await api.GetTimeQueriesStatsAsync(startTime, endTime, cancellationToken).ConfigureAwait(false);
+        }, (code, message, ex) => LogApiError("GetTimeQueriesStats", code, message, ex), cancellationToken);
 
-            LogRetrievedStatistics(stats.Stats?.Count ?? 0);
-            return stats;
-        }
-        catch (ApiException ex)
-        {
-            LogApiError("GetTimeQueriesStats", ex.ErrorCode, ex.Message, ex);
-            throw new RepositoryException("StatisticsRepository", "GetTimeQueriesStats", $"Failed to fetch statistics: {ex.Message}", ex);
-        }
+        LogRetrievedStatistics(stats.Stats?.Count ?? 0);
+        return stats;
     }
 
     /// <inheritdoc />

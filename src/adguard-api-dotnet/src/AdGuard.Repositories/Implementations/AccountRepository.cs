@@ -1,15 +1,18 @@
 using AdGuard.Repositories.Abstractions;
+using AdGuard.Repositories.Common;
 using AdGuard.Repositories.Contracts;
-using AdGuard.Repositories.Exceptions;
 
 namespace AdGuard.Repositories.Implementations;
 
 /// <summary>
 /// Repository implementation for account operations.
 /// </summary>
-public partial class AccountRepository : IAccountRepository
+public partial class AccountRepository : BaseRepository<AccountRepository>, IAccountRepository
 {
-    private readonly IApiClientFactory _apiClientFactory;
+    /// <inheritdoc />
+    protected override string RepositoryName => "AccountRepository";
+
+    // Required for LoggerMessage source generator
     private readonly ILogger<AccountRepository> _logger;
 
     /// <summary>
@@ -18,9 +21,9 @@ public partial class AccountRepository : IAccountRepository
     /// <param name="apiClientFactory">The API client factory.</param>
     /// <param name="logger">The logger.</param>
     public AccountRepository(IApiClientFactory apiClientFactory, ILogger<AccountRepository> logger)
+        : base(apiClientFactory, logger)
     {
-        _apiClientFactory = apiClientFactory ?? throw new ArgumentNullException(nameof(apiClientFactory));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _logger = logger;
     }
 
     /// <inheritdoc />
@@ -28,18 +31,14 @@ public partial class AccountRepository : IAccountRepository
     {
         LogFetchingAccountLimits();
 
-        try
+        var limits = await ExecuteAsync("GetLimits", async () =>
         {
-            using var api = _apiClientFactory.CreateAccountApi();
-            var limits = await api.GetAccountLimitsAsync(cancellationToken).ConfigureAwait(false);
+            using var api = ApiClientFactory.CreateAccountApi();
+            return await api.GetAccountLimitsAsync(cancellationToken).ConfigureAwait(false);
+        }, (code, message, ex) => LogApiError("GetLimits", code, message, ex), cancellationToken);
 
-            LogRetrievedAccountLimits();
-            return limits;
-        }
-        catch (ApiException ex)
-        {
-            LogApiError("GetLimits", ex.ErrorCode, ex.Message, ex);
-            throw new RepositoryException("AccountRepository", "GetLimits", $"Failed to fetch account limits: {ex.Message}", ex);
-        }
+        LogRetrievedAccountLimits();
+        return limits;
     }
 }
+
