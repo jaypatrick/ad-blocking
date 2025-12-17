@@ -1,15 +1,18 @@
 using AdGuard.Repositories.Abstractions;
+using AdGuard.Repositories.Common;
 using AdGuard.Repositories.Contracts;
-using AdGuard.Repositories.Exceptions;
 
 namespace AdGuard.Repositories.Implementations;
 
 /// <summary>
 /// Repository implementation for DNS server operations.
 /// </summary>
-public partial class DnsServerRepository : IDnsServerRepository
+public partial class DnsServerRepository : BaseRepository<DnsServerRepository>, IDnsServerRepository
 {
-    private readonly IApiClientFactory _apiClientFactory;
+    /// <inheritdoc />
+    protected override string RepositoryName => "DnsServerRepository";
+
+    // Required for LoggerMessage source generator
     private readonly ILogger<DnsServerRepository> _logger;
 
     /// <summary>
@@ -18,9 +21,9 @@ public partial class DnsServerRepository : IDnsServerRepository
     /// <param name="apiClientFactory">The API client factory.</param>
     /// <param name="logger">The logger.</param>
     public DnsServerRepository(IApiClientFactory apiClientFactory, ILogger<DnsServerRepository> logger)
+        : base(apiClientFactory, logger)
     {
-        _apiClientFactory = apiClientFactory ?? throw new ArgumentNullException(nameof(apiClientFactory));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _logger = logger;
     }
 
     /// <inheritdoc />
@@ -28,87 +31,66 @@ public partial class DnsServerRepository : IDnsServerRepository
     {
         LogFetchingAllDnsServers();
 
-        try
+        var servers = await ExecuteAsync("GetAll", async () =>
         {
-            using var api = _apiClientFactory.CreateDnsServersApi();
-            var servers = await api.ListDNSServersAsync(cancellationToken).ConfigureAwait(false);
+            using var api = ApiClientFactory.CreateDnsServersApi();
+            return await api.ListDNSServersAsync(cancellationToken).ConfigureAwait(false);
+        }, (code, message, ex) => LogApiError("GetAll", code, message, ex), cancellationToken);
 
-            LogRetrievedDnsServers(servers.Count);
-            return servers;
-        }
-        catch (ApiException ex)
-        {
-            LogApiError("GetAll", ex.ErrorCode, ex.Message, ex);
-            throw new RepositoryException("DnsServerRepository", "GetAll", $"Failed to fetch DNS servers: {ex.Message}", ex);
-        }
+        LogRetrievedDnsServers(servers.Count);
+        return servers;
     }
 
     /// <inheritdoc />
     public async Task<DNSServer> GetByIdAsync(string id, CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(id);
-
+        ValidateId(id);
         LogFetchingDnsServer(id);
 
-        try
+        DNSServer? server = null;
+        await ExecuteAsync("GetById", async () =>
         {
-            using var api = _apiClientFactory.CreateDnsServersApi();
+            using var api = ApiClientFactory.CreateDnsServersApi();
             var servers = await api.ListDNSServersAsync(cancellationToken).ConfigureAwait(false);
-            var server = servers.FirstOrDefault(s => s.Id == id);
-
+            server = servers.FirstOrDefault(s => s.Id == id);
+            
             if (server == null)
             {
                 LogDnsServerNotFound(id);
                 throw new EntityNotFoundException("DnsServer", id);
             }
+        }, (code, message, ex) => LogApiError("GetById", code, message, ex), cancellationToken);
 
-            LogRetrievedDnsServer(server.Name, server.Id);
-            return server;
-        }
-        catch (EntityNotFoundException)
-        {
-            throw;
-        }
-        catch (ApiException ex)
-        {
-            LogApiError("GetById", ex.ErrorCode, ex.Message, ex);
-            throw new RepositoryException("DnsServerRepository", "GetById", $"Failed to fetch DNS server {id}: {ex.Message}", ex);
-        }
+        LogRetrievedDnsServer(server!.Name, server.Id);
+        return server;
     }
 
     /// <inheritdoc />
     public async Task<DNSServer> CreateAsync(DNSServerCreate createModel, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(createModel);
-
         LogCreatingDnsServer(createModel.Name);
 
-        try
+        var server = await ExecuteAsync("Create", async () =>
         {
-            using var api = _apiClientFactory.CreateDnsServersApi();
-            var server = await api.CreateDNSServerAsync(createModel, cancellationToken).ConfigureAwait(false);
+            using var api = ApiClientFactory.CreateDnsServersApi();
+            return await api.CreateDNSServerAsync(createModel, cancellationToken).ConfigureAwait(false);
+        }, (code, message, ex) => LogApiError("Create", code, message, ex), cancellationToken);
 
-            LogDnsServerCreated(server.Name, server.Id);
-            return server;
-        }
-        catch (ApiException ex)
-        {
-            LogApiError("Create", ex.ErrorCode, ex.Message, ex);
-            throw new RepositoryException("DnsServerRepository", "Create", $"Failed to create DNS server: {ex.Message}", ex);
-        }
+        LogDnsServerCreated(server.Name, server.Id);
+        return server;
     }
 
     /// <inheritdoc />
     public async Task<DNSServer> UpdateAsync(string id, DNSServerSettingsUpdate updateModel, CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(id);
+        ValidateId(id);
         ArgumentNullException.ThrowIfNull(updateModel);
-
         LogUpdatingDnsServer(id);
 
-        try
+        var server = await ExecuteWithEntityCheckAsync("Update", "DnsServer", id, async () =>
         {
-            using var api = _apiClientFactory.CreateDnsServersApi();
+            using var api = ApiClientFactory.CreateDnsServersApi();
             await api.UpdateDNSServerSettingsAsync(id, updateModel, cancellationToken).ConfigureAwait(false);
             
             // Re-fetch the server after update since the API doesn't return it
@@ -120,19 +102,11 @@ public partial class DnsServerRepository : IDnsServerRepository
                 throw new EntityNotFoundException("DnsServer", id);
             }
 
-            LogDnsServerUpdated(server.Name, server.Id);
             return server;
-        }
-        catch (ApiException ex) when (ex.ErrorCode == 404)
-        {
-            LogDnsServerNotFound(id);
-            throw new EntityNotFoundException("DnsServer", id, ex);
-        }
-        catch (ApiException ex)
-        {
-            LogApiError("Update", ex.ErrorCode, ex.Message, ex);
-            throw new RepositoryException("DnsServerRepository", "Update", $"Failed to update DNS server {id}: {ex.Message}", ex);
-        }
+        }, serverId => LogDnsServerNotFound(serverId), (code, message, ex) => LogApiError("Update", code, message, ex), cancellationToken);
+
+        LogDnsServerUpdated(server.Name, server.Id);
+        return server;
     }
 
     /// <inheritdoc />
