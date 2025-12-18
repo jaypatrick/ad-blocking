@@ -4,31 +4,24 @@ This guide covers using Docker for development with the ad-blocking toolkit.
 
 ## Docker Development Environment
 
-The repository includes a pre-configured Docker environment with all necessary dependencies.
+The repository includes a pre-configured Docker environment with all necessary dependencies for all compilers (TypeScript, .NET, Python, Rust) and tools.
 
 ### Dockerfile.warp
 
 ```dockerfile
-FROM mcr.microsoft.com/dotnet/sdk:8.0-jammy
+FROM mcr.microsoft.com/dotnet/sdk:10.0-noble
 
-# Install Node.js 20.x LTS via NodeSource
-RUN apt-get update && apt-get install -y curl gnupg && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs git && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+# Build arguments for version control
+ARG NODE_VERSION=22
+ARG RUST_VERSION=stable
 
-# Install PowerShell
-RUN apt-get update && \
-    apt-get install -y wget apt-transport-https software-properties-common && \
-    wget -q "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb" && \
-    dpkg -i packages-microsoft-prod.deb && \
-    rm packages-microsoft-prod.deb && \
-    apt-get update && \
-    apt-get install -y powershell && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Verify installations
-RUN dotnet --version && node --version && npm --version && pwsh --version && git --version
+# Includes installation of:
+# - Node.js 22.x LTS
+# - Python 3.12 with pip
+# - Rust stable toolchain
+# - PowerShell 7
+# - yq (YAML processor)
+# - hostlist-compiler (pre-installed globally)
 
 WORKDIR /workspace
 ```
@@ -37,12 +30,23 @@ WORKDIR /workspace
 
 | Component | Version | Purpose |
 |-----------|---------|---------|
-| .NET SDK | 8.0 | .NET compiler, API client |
-| Node.js | 20.x LTS | TypeScript compiler, hostlist-compiler |
+| .NET SDK | 10.0 | .NET compiler, API client |
+| Node.js | 22.x LTS | TypeScript compiler, hostlist-compiler |
 | npm | Latest | Package management |
+| Python | 3.12 | Python compiler |
+| Rust | Stable | Rust compiler |
 | PowerShell | 7.x | PowerShell scripts and modules |
 | Git | Latest | Version control |
-| Ubuntu | 22.04 (Jammy) | Base OS |
+| yq | Latest | YAML processing for shell scripts |
+| hostlist-compiler | Latest | Pre-installed globally |
+| Ubuntu | 24.04 (Noble) | Base OS |
+
+### Pre-installed Tools
+
+- **npm global packages**: `@adguard/hostlist-compiler`, `typescript`, `ts-node`
+- **Python packages**: `pytest`, `pytest-cov`, `mypy`, `ruff`, `pyyaml`, `tomlkit`
+- **Rust components**: `clippy`, `rustfmt`
+- **PowerShell modules**: `Pester`, `PSScriptAnalyzer`
 
 ## Building the Docker Image
 
@@ -56,7 +60,8 @@ docker build -f Dockerfile.warp -t ad-blocking-dev .
 
 ```bash
 docker build -f Dockerfile.warp \
-  --build-arg NODE_VERSION=20 \
+  --build-arg NODE_VERSION=22 \
+  --build-arg RUST_VERSION=stable \
   -t ad-blocking-dev:custom .
 ```
 
@@ -81,7 +86,7 @@ docker run -it -v $(pwd):/workspace ad-blocking-dev
 ```bash
 docker run -it \
   -v $(pwd):/workspace \
-  -e "AdGuard:ApiKey=your-api-key" \
+  -e "AdGuard__ApiKey=your-api-key" \
   -e "DEBUG=1" \
   ad-blocking-dev
 ```
@@ -102,17 +107,73 @@ Then execute commands:
 docker exec ad-blocking-container npm run compile
 ```
 
+## Docker Compose
+
+The repository includes a `docker-compose.yml` for multi-service orchestration.
+
+### Available Services
+
+| Service | Description | Profile |
+|---------|-------------|---------|
+| `dev` | Main development environment | default |
+| `typescript-compiler` | TypeScript rules compiler | compile |
+| `dotnet-compiler` | .NET rules compiler | compile |
+| `python-compiler` | Python rules compiler | compile |
+| `rust-compiler` | Rust rules compiler | compile |
+| `website` | Gatsby development server | website |
+| `test` | Run all tests | test |
+| `console-ui` | AdGuard Console UI | console |
+
+### Basic Usage
+
+```bash
+# Start main development environment
+docker compose up -d dev
+
+# Enter the container
+docker compose exec dev bash
+
+# Stop all services
+docker compose down
+```
+
+### Running Specific Services
+
+```bash
+# Run TypeScript compiler
+docker compose --profile compile run --rm typescript-compiler
+
+# Run all compilers
+docker compose --profile compile up
+
+# Start website development server
+docker compose --profile website up website
+
+# Run all tests
+docker compose --profile test run --rm test
+
+# Run AdGuard Console UI
+docker compose --profile console run --rm console-ui
+```
+
+### Environment Variables
+
+Create a `.env` file in the project root:
+
+```bash
+# .env
+DEBUG=1
+ADGUARD_API_KEY=your-api-key-here
+```
+
 ## Development Workflow
 
 ### Initial Setup (Inside Container)
 
 ```bash
-# Install hostlist-compiler globally
-npm install -g @adguard/hostlist-compiler
-
 # TypeScript compiler
 cd /workspace/src/rules-compiler-typescript
-npm install
+npm ci
 
 # .NET projects
 cd /workspace/src/rules-compiler-dotnet
@@ -121,9 +182,17 @@ dotnet restore RulesCompiler.slnx
 cd /workspace/src/adguard-api-dotnet
 dotnet restore src/AdGuard.ApiClient.sln
 
+# Python compiler
+cd /workspace/src/rules-compiler-python
+pip install -e ".[dev]"
+
+# Rust compiler
+cd /workspace/src/rules-compiler-rust
+cargo build
+
 # Website (optional)
 cd /workspace/src/website
-npm install
+npm ci
 ```
 
 ### Compiling Filter Rules
@@ -136,6 +205,17 @@ npm run compile
 # .NET
 cd /workspace/src/rules-compiler-dotnet
 dotnet run --project src/RulesCompiler.Console
+
+# Python
+cd /workspace/src/rules-compiler-python
+rules-compiler
+
+# Rust
+cd /workspace/src/rules-compiler-rust
+cargo run --release
+
+# Shell (Bash)
+/workspace/src/rules-compiler-shell/compile-rules.sh
 
 # PowerShell
 cd /workspace
@@ -153,9 +233,20 @@ npm test
 cd /workspace/src/rules-compiler-dotnet
 dotnet test RulesCompiler.slnx
 
+# Python tests
+cd /workspace/src/rules-compiler-python
+pytest
+
+# Rust tests
+cd /workspace/src/rules-compiler-rust
+cargo test
+
 # PowerShell tests
 cd /workspace
 pwsh -Command "Invoke-Pester -Path ./src/adguard-api-powershell/Tests/"
+
+# Or run all tests via docker compose
+docker compose --profile test run --rm test
 ```
 
 ## Warp Environment
@@ -176,120 +267,6 @@ For [Warp](https://www.warp.dev/) terminal users, a pre-built environment is ava
 cd ad-blocking/src/rules-compiler-typescript && npm install
 cd ad-blocking/src/website && npm install
 cd ad-blocking/src/adguard-api-dotnet && dotnet restore
-```
-
-### Creating Warp Integrations
-
-```bash
-# Slack integration
-warp integration create slack --environment Egji4sZU4TNIOwNasFU73A
-
-# Linear integration
-warp integration create linear --environment Egji4sZU4TNIOwNasFU73A
-```
-
-## Docker Compose (Optional)
-
-Create `docker-compose.yml` for more complex setups:
-
-```yaml
-version: '3.8'
-
-services:
-  dev:
-    build:
-      context: .
-      dockerfile: Dockerfile.warp
-    volumes:
-      - .:/workspace
-      - node_modules:/workspace/src/rules-compiler-typescript/node_modules
-      - website_modules:/workspace/src/website/node_modules
-    environment:
-      - DEBUG=1
-    working_dir: /workspace
-    stdin_open: true
-    tty: true
-
-  # Optional: Run website in development mode
-  website:
-    build:
-      context: .
-      dockerfile: Dockerfile.warp
-    volumes:
-      - .:/workspace
-      - website_modules:/workspace/src/website/node_modules
-    ports:
-      - "8000:8000"
-    working_dir: /workspace/src/website
-    command: npm run develop -- --host 0.0.0.0
-    depends_on:
-      - dev
-
-volumes:
-  node_modules:
-  website_modules:
-```
-
-### Using Docker Compose
-
-```bash
-# Start development environment
-docker-compose up -d dev
-
-# Execute commands
-docker-compose exec dev npm run compile
-
-# Start website development server
-docker-compose up website
-
-# Stop all services
-docker-compose down
-```
-
-## Custom Dockerfile
-
-Create a custom Dockerfile for specific needs:
-
-### With Python and Rust
-
-```dockerfile
-FROM mcr.microsoft.com/dotnet/sdk:8.0-jammy
-
-# Node.js
-RUN apt-get update && apt-get install -y curl gnupg && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Python
-RUN apt-get update && apt-get install -y python3 python3-pip && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Rust
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-ENV PATH="/root/.cargo/bin:${PATH}"
-
-# PowerShell
-RUN apt-get update && \
-    apt-get install -y wget apt-transport-https software-properties-common && \
-    wget -q "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb" && \
-    dpkg -i packages-microsoft-prod.deb && \
-    rm packages-microsoft-prod.deb && \
-    apt-get update && \
-    apt-get install -y powershell && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Install hostlist-compiler
-RUN npm install -g @adguard/hostlist-compiler
-
-WORKDIR /workspace
-```
-
-### Build and Run
-
-```bash
-docker build -f Dockerfile.custom -t ad-blocking-full .
-docker run -it -v $(pwd):/workspace ad-blocking-full
 ```
 
 ## CI/CD with Docker
@@ -324,6 +301,20 @@ jobs:
             -v ${{ github.workspace }}:/workspace \
             ad-blocking-dev \
             bash -c "cd /workspace/src/rules-compiler-dotnet && dotnet restore && dotnet test"
+
+      - name: Run Python tests
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            ad-blocking-dev \
+            bash -c "cd /workspace/src/rules-compiler-python && pip install -e '.[dev]' && pytest"
+
+      - name: Run Rust tests
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            ad-blocking-dev \
+            bash -c "cd /workspace/src/rules-compiler-rust && cargo test"
 ```
 
 ## Troubleshooting
@@ -346,7 +337,7 @@ If `node_modules` has issues between host and container:
 docker run -it -v $(pwd):/workspace ad-blocking-dev bash -c "
   rm -rf /workspace/src/rules-compiler-typescript/node_modules
   cd /workspace/src/rules-compiler-typescript
-  npm install
+  npm ci
 "
 ```
 
@@ -362,6 +353,18 @@ docker run -it -v $(pwd):/workspace ad-blocking-dev bash -c "
 "
 ```
 
+### Cargo/Rust Issues
+
+If Rust compilation fails:
+
+```bash
+docker run -it -v $(pwd):/workspace ad-blocking-dev bash -c "
+  cd /workspace/src/rules-compiler-rust
+  cargo clean
+  cargo build
+"
+```
+
 ### Container Won't Start
 
 Check if the image exists:
@@ -374,4 +377,16 @@ Rebuild if necessary:
 
 ```bash
 docker build --no-cache -f Dockerfile.warp -t ad-blocking-dev .
+```
+
+### Volume Caching Issues
+
+Reset named volumes if caching causes problems:
+
+```bash
+# Remove all ad-blocking volumes
+docker volume rm ad-blocking-node-ts ad-blocking-node-web ad-blocking-cargo-registry ad-blocking-cargo-git ad-blocking-nuget
+
+# Or remove all unused volumes
+docker volume prune
 ```

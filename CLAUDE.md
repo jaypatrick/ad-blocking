@@ -33,18 +33,27 @@ All compilers support JSON, YAML, and TOML configuration formats with full @adgu
 
 ## Docker Development Environment
 
-A pre-configured Docker environment is available:
+A fully-featured Docker environment with all compilers and tools:
 
 ```dockerfile
 # Dockerfile.warp
 FROM mcr.microsoft.com/dotnet/sdk:10.0-noble
-# Includes: .NET 10 SDK, Node.js 20.x LTS, PowerShell 7, Git
+# Includes: .NET 10 SDK, Node.js 22 LTS, Python 3.12, Rust stable, PowerShell 7
+# Pre-installed: hostlist-compiler, yq, pytest, ruff, clippy, Pester
 ```
 
 Build and run:
 ```bash
 docker build -f Dockerfile.warp -t ad-blocking-dev .
 docker run -it -v $(pwd):/workspace ad-blocking-dev
+```
+
+Docker Compose (recommended):
+```bash
+docker compose up -d dev           # Start dev environment
+docker compose exec dev bash       # Enter container
+docker compose --profile test run --rm test  # Run all tests
+docker compose --profile website up website  # Start website dev server
 ```
 
 Warp Environment: `jaysonknight/warp-env:ad-blocking` (ID: `Egji4sZU4TNIOwNasFU73A`)
@@ -383,17 +392,19 @@ GitHub Actions workflows validate:
 
 | Requirement | Version | Required For |
 |-------------|---------|--------------|
-| .NET SDK | 8.0+ | .NET compiler, API client |
-| Node.js | 18+ (CI uses 20) | All compilers, Website |
+| .NET SDK | 10.0+ | .NET compiler, API client |
+| Node.js | 22.x LTS | All compilers, Website |
 | PowerShell | 7+ | PowerShell scripts |
 | Python | 3.9+ | Python compiler |
-| Rust | 1.70+ | Rust compiler (install via rustup) |
+| Rust | 1.85+ | Rust compiler (install via rustup) |
 | hostlist-compiler | Latest | All compilers (`npm install -g @adguard/hostlist-compiler`) |
+| Docker | 24.0+ | Container development (optional but recommended) |
 
 ## Key File Locations
 
 - **Main filter list**: `rules/adguard_user_filter.txt`
 - **Compiler configs**: `src/rules-compiler-*/`
 - **OpenAPI spec**: `api/openapi.yaml`
-- **Docker config**: `Dockerfile.warp`
+- **Docker config**: `Dockerfile.warp`, `docker-compose.yml`, `.dockerignore`
 - **Documentation**: `docs/`
+- **Environment template**: `.env.example`

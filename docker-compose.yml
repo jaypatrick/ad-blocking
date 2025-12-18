@@ -1,0 +1,226 @@
+# =============================================================================
+# Docker Compose for ad-blocking toolkit development
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Main development environment with all tools
+  # ---------------------------------------------------------------------------
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.warp
+      args:
+        NODE_VERSION: 22
+        RUST_VERSION: stable
+    image: ad-blocking-dev:latest
+    container_name: ad-blocking-dev
+    volumes:
+      - .:/workspace
+      # Named volumes for dependency caching
+      - node_modules_ts:/workspace/src/rules-compiler-typescript/node_modules
+      - node_modules_web:/workspace/src/website/node_modules
+      - cargo_registry:/root/.cargo/registry
+      - cargo_git:/root/.cargo/git
+      - nuget_packages:/root/.nuget/packages
+    environment:
+      - DEBUG=${DEBUG:-}
+      - AdGuard__ApiKey=${ADGUARD_API_KEY:-}
+      - DOTNET_CLI_TELEMETRY_OPTOUT=1
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+    networks:
+      - ad-blocking-net
+
+  # ---------------------------------------------------------------------------
+  # TypeScript Rules Compiler service
+  # ---------------------------------------------------------------------------
+  typescript-compiler:
+    build:
+      context: .
+      dockerfile: Dockerfile.warp
+    image: ad-blocking-dev:latest
+    container_name: ad-blocking-typescript
+    volumes:
+      - .:/workspace
+      - node_modules_ts:/workspace/src/rules-compiler-typescript/node_modules
+    working_dir: /workspace/src/rules-compiler-typescript
+    command: npm run compile
+    depends_on:
+      - dev
+    profiles:
+      - compile
+    networks:
+      - ad-blocking-net
+
+  # ---------------------------------------------------------------------------
+  # .NET Rules Compiler service
+  # ---------------------------------------------------------------------------
+  dotnet-compiler:
+    build:
+      context: .
+      dockerfile: Dockerfile.warp
+    image: ad-blocking-dev:latest
+    container_name: ad-blocking-dotnet
+    volumes:
+      - .:/workspace
+      - nuget_packages:/root/.nuget/packages
+    working_dir: /workspace/src/rules-compiler-dotnet
+    command: dotnet run --project src/RulesCompiler.Console
+    depends_on:
+      - dev
+    profiles:
+      - compile
+    networks:
+      - ad-blocking-net
+
+  # ---------------------------------------------------------------------------
+  # Python Rules Compiler service
+  # ---------------------------------------------------------------------------
+  python-compiler:
+    build:
+      context: .
+      dockerfile: Dockerfile.warp
+    image: ad-blocking-dev:latest
+    container_name: ad-blocking-python
+    volumes:
+      - .:/workspace
+    working_dir: /workspace/src/rules-compiler-python
+    command: python -m rules_compiler
+    depends_on:
+      - dev
+    profiles:
+      - compile
+    networks:
+      - ad-blocking-net
+
+  # ---------------------------------------------------------------------------
+  # Rust Rules Compiler service
+  # ---------------------------------------------------------------------------
+  rust-compiler:
+    build:
+      context: .
+      dockerfile: Dockerfile.warp
+    image: ad-blocking-dev:latest
+    container_name: ad-blocking-rust
+    volumes:
+      - .:/workspace
+      - cargo_registry:/root/.cargo/registry
+      - cargo_git:/root/.cargo/git
+    working_dir: /workspace/src/rules-compiler-rust
+    command: cargo run --release
+    depends_on:
+      - dev
+    profiles:
+      - compile
+    networks:
+      - ad-blocking-net
+
+  # ---------------------------------------------------------------------------
+  # Gatsby Website development server
+  # ---------------------------------------------------------------------------
+  website:
+    build:
+      context: .
+      dockerfile: Dockerfile.warp
+    image: ad-blocking-dev:latest
+    container_name: ad-blocking-website
+    volumes:
+      - .:/workspace
+      - node_modules_web:/workspace/src/website/node_modules
+    ports:
+      - "8000:8000"
+    working_dir: /workspace/src/website
+    command: npm run develop -- --host 0.0.0.0
+    depends_on:
+      - dev
+    profiles:
+      - website
+    networks:
+      - ad-blocking-net
+
+  # ---------------------------------------------------------------------------
+  # Test runner service (runs all tests)
+  # ---------------------------------------------------------------------------
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.warp
+    image: ad-blocking-dev:latest
+    container_name: ad-blocking-test
+    volumes:
+      - .:/workspace
+      - node_modules_ts:/workspace/src/rules-compiler-typescript/node_modules
+      - nuget_packages:/root/.nuget/packages
+      - cargo_registry:/root/.cargo/registry
+      - cargo_git:/root/.cargo/git
+    working_dir: /workspace
+    command: >
+      bash -c "
+        echo '=== Running TypeScript Tests ===' &&
+        cd /workspace/src/rules-compiler-typescript && npm test &&
+        echo '=== Running .NET Tests ===' &&
+        cd /workspace/src/rules-compiler-dotnet && dotnet test RulesCompiler.slnx &&
+        echo '=== Running Python Tests ===' &&
+        cd /workspace/src/rules-compiler-python && pytest &&
+        echo '=== Running Rust Tests ===' &&
+        cd /workspace/src/rules-compiler-rust && cargo test &&
+        echo '=== Running PowerShell Tests ===' &&
+        pwsh -Command 'Invoke-Pester -Path /workspace/src/adguard-api-powershell/Tests/ -PassThru' &&
+        echo '=== All Tests Complete ==='
+      "
+    depends_on:
+      - dev
+    profiles:
+      - test
+    networks:
+      - ad-blocking-net
+
+  # ---------------------------------------------------------------------------
+  # AdGuard Console UI
+  # ---------------------------------------------------------------------------
+  console-ui:
+    build:
+      context: .
+      dockerfile: Dockerfile.warp
+    image: ad-blocking-dev:latest
+    container_name: ad-blocking-console
+    volumes:
+      - .:/workspace
+      - nuget_packages:/root/.nuget/packages
+    environment:
+      - AdGuard__ApiKey=${ADGUARD_API_KEY:-}
+    working_dir: /workspace/src/adguard-api-dotnet
+    command: dotnet run --project src/AdGuard.ConsoleUI
+    stdin_open: true
+    tty: true
+    depends_on:
+      - dev
+    profiles:
+      - console
+    networks:
+      - ad-blocking-net
+
+# =============================================================================
+# Named volumes for dependency caching
+# =============================================================================
+volumes:
+  node_modules_ts:
+    name: ad-blocking-node-ts
+  node_modules_web:
+    name: ad-blocking-node-web
+  cargo_registry:
+    name: ad-blocking-cargo-registry
+  cargo_git:
+    name: ad-blocking-cargo-git
+  nuget_packages:
+    name: ad-blocking-nuget
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  ad-blocking-net:
+    name: ad-blocking-network
+    driver: bridge
