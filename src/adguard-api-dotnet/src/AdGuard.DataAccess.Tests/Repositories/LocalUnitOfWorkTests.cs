@@ -1,20 +1,16 @@
 using AdGuard.DataAccess.Entities;
 using AdGuard.DataAccess.Repositories;
 using AdGuard.DataAccess.Tests.TestFixtures;
+
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
+
 using Xunit;
 
 namespace AdGuard.DataAccess.Tests.Repositories;
 
 public class LocalUnitOfWorkTests : IDisposable
 {
-    private readonly DatabaseFixture _fixture;
-
-    public LocalUnitOfWorkTests()
-    {
-        _fixture = new DatabaseFixture();
-    }
+    private readonly DatabaseFixture _fixture = new();
 
     [Fact]
     public void Constructor_WithNullContext_ThrowsArgumentNullException()
@@ -71,8 +67,8 @@ public class LocalUnitOfWorkTests : IDisposable
     public async Task SaveChangesAsync_PersistsChanges()
     {
         // Arrange
-        using var context = _fixture.CreateContext();
-        using var uow = CreateUnitOfWork(context);
+        await using var context = _fixture.CreateContext();
+        await using var uow = CreateUnitOfWork(context);
 
         var entity = await uow.AuditLogs.LogOperationAsync(
             AuditOperationType.Create,
@@ -91,8 +87,8 @@ public class LocalUnitOfWorkTests : IDisposable
     public async Task BeginTransactionAsync_StartsTransaction()
     {
         // Arrange
-        using var context = _fixture.CreateContext();
-        using var uow = CreateUnitOfWork(context);
+        await using var context = _fixture.CreateContext();
+        await using var uow = CreateUnitOfWork(context);
 
         // Act
         await uow.BeginTransactionAsync();
@@ -106,8 +102,8 @@ public class LocalUnitOfWorkTests : IDisposable
     public async Task BeginTransactionAsync_WhenTransactionExists_ThrowsInvalidOperationException()
     {
         // Arrange
-        using var context = _fixture.CreateContext();
-        using var uow = CreateUnitOfWork(context);
+        await using var context = _fixture.CreateContext();
+        await using var uow = CreateUnitOfWork(context);
         await uow.BeginTransactionAsync();
 
         // Act & Assert
@@ -122,8 +118,8 @@ public class LocalUnitOfWorkTests : IDisposable
     public async Task CommitTransactionAsync_WithoutBegin_ThrowsInvalidOperationException()
     {
         // Arrange
-        using var context = _fixture.CreateContext();
-        using var uow = CreateUnitOfWork(context);
+        await using var context = _fixture.CreateContext();
+        await using var uow = CreateUnitOfWork(context);
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(
@@ -134,8 +130,8 @@ public class LocalUnitOfWorkTests : IDisposable
     public async Task CommitTransactionAsync_AfterBegin_CommitsChanges()
     {
         // Arrange
-        using var context = _fixture.CreateContext();
-        using var uow = CreateUnitOfWork(context);
+        await using var context = _fixture.CreateContext();
+        await using var uow = CreateUnitOfWork(context);
 
         await uow.BeginTransactionAsync();
         await uow.AuditLogs.LogOperationAsync(
@@ -155,8 +151,8 @@ public class LocalUnitOfWorkTests : IDisposable
     public async Task RollbackTransactionAsync_WithoutBegin_DoesNotThrow()
     {
         // Arrange
-        using var context = _fixture.CreateContext();
-        using var uow = CreateUnitOfWork(context);
+        await using var context = _fixture.CreateContext();
+        await using var uow = CreateUnitOfWork(context);
 
         // Act & Assert - should not throw
         await uow.RollbackTransactionAsync();
@@ -166,8 +162,8 @@ public class LocalUnitOfWorkTests : IDisposable
     public async Task RollbackTransactionAsync_AfterBegin_RollsBackChanges()
     {
         // Arrange
-        using var context = _fixture.CreateContext();
-        using var uow = CreateUnitOfWork(context);
+        await using var context = _fixture.CreateContext();
+        await using var uow = CreateUnitOfWork(context);
 
         await uow.BeginTransactionAsync();
         await uow.AuditLogs.LogOperationAsync(
@@ -187,8 +183,8 @@ public class LocalUnitOfWorkTests : IDisposable
     public async Task EnsureDatabaseCreatedAsync_CreatesDatabase()
     {
         // Arrange
-        using var context = _fixture.CreateContext();
-        using var uow = CreateUnitOfWork(context);
+        await using var context = _fixture.CreateContext();
+        await using var uow = CreateUnitOfWork(context);
 
         // Act
         var created = await uow.EnsureDatabaseCreatedAsync();
@@ -203,21 +199,21 @@ public class LocalUnitOfWorkTests : IDisposable
     public async Task Dispose_DisposesResources()
     {
         // Arrange
-        using var context = _fixture.CreateContext();
+        await using var context = _fixture.CreateContext();
         var uow = CreateUnitOfWork(context);
 
         // Act
-        uow.Dispose();
+        await uow.DisposeAsync();
 
         // Assert - calling Dispose multiple times should not throw
-        uow.Dispose();
+        await uow.DisposeAsync();
     }
 
     [Fact]
     public async Task DisposeAsync_DisposesResources()
     {
         // Arrange
-        using var context = _fixture.CreateContext();
+        await using var context = _fixture.CreateContext();
         var uow = CreateUnitOfWork(context);
 
         // Act
@@ -239,8 +235,8 @@ public class LocalUnitOfWorkTests : IDisposable
             DatabaseFixture.CreateMockLogger<UserSettingsLocalRepository>());
     }
 
-    public void Dispose()
-    {
-        _fixture.Dispose();
-    }
+    /// <summary>
+    /// Dispose
+    /// </summary>
+    public void Dispose() => _fixture.Dispose();
 }

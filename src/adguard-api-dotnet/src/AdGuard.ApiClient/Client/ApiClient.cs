@@ -8,25 +8,13 @@
  */
 
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Net;
-using System.Reflection;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters;
+using System.Net.Http.Headers;
 using System.Text;
-using System.Threading;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Web;
-using System.Net.Http;
-using System.Net.Http.Headers;
+
 using Polly;
 
 namespace AdGuard.ApiClient.Client
@@ -76,7 +64,7 @@ namespace AdGuard.ApiClient.Client
 
         public async Task<T> Deserialize<T>(HttpResponseMessage response)
         {
-            var result = (T) await Deserialize(response, typeof(T)).ConfigureAwait(false);
+            var result = (T)await Deserialize(response, typeof(T)).ConfigureAwait(false);
             return result;
         }
 
@@ -92,13 +80,13 @@ namespace AdGuard.ApiClient.Client
             // process response headers, e.g. Access-Control-Allow-Methods
             foreach (var responseHeader in response.Headers)
             {
-                headers.Add(responseHeader.Key + "=" +  ClientUtils.ParameterToString(responseHeader.Value));
+                headers.Add(responseHeader.Key + "=" + ClientUtils.ParameterToString(responseHeader.Value));
             }
 
             // process response content headers, e.g. Content-Type
             foreach (var responseHeader in response.Content.Headers)
             {
-                headers.Add(responseHeader.Key + "=" +  ClientUtils.ParameterToString(responseHeader.Value));
+                headers.Add(responseHeader.Key + "=" + ClientUtils.ParameterToString(responseHeader.Value));
             }
 
             // RFC 2183 & RFC 2616
@@ -109,7 +97,8 @@ namespace AdGuard.ApiClient.Client
             }
             else if (type == typeof(FileParameter))
             {
-                if (headers != null) {
+                if (headers != null)
+                {
                     foreach (var header in headers)
                     {
                         var match = fileNameRegex.Match(header.ToString());
@@ -274,7 +263,8 @@ namespace AdGuard.ApiClient.Client
         /// </summary>
         public void Dispose()
         {
-            if(_disposeClient) {
+            if (_disposeClient)
+            {
                 _httpClient.Dispose();
             }
         }
@@ -397,7 +387,7 @@ namespace AdGuard.ApiClient.Client
 
         private async Task<ApiResponse<T>> ToApiResponse<T>(HttpResponseMessage response, object responseData, Uri uri)
         {
-            T result = (T) responseData;
+            T result = (T)responseData;
             string rawContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             var transformed = new ApiResponse<T>(response.StatusCode, new Multimap<string, string>(), result, rawContent)
@@ -426,13 +416,14 @@ namespace AdGuard.ApiClient.Client
 
             if (_httpClientHandler != null && response != null)
             {
-                try {
+                try
+                {
                     foreach (Cookie cookie in _httpClientHandler.CookieContainer.GetCookies(uri))
                     {
                         transformed.Cookies.Add(cookie);
                     }
                 }
-                catch (PlatformNotSupportedException) {}
+                catch (PlatformNotSupportedException) { }
             }
 
             return transformed;
@@ -463,21 +454,21 @@ namespace AdGuard.ApiClient.Client
 
                 if (configuration.Proxy != null)
                 {
-                    if(_httpClientHandler == null) throw new InvalidOperationException("Configuration `Proxy` not supported when the client is explicitly created without an HttpClientHandler, use the proper constructor.");
+                    if (_httpClientHandler == null) throw new InvalidOperationException("Configuration `Proxy` not supported when the client is explicitly created without an HttpClientHandler, use the proper constructor.");
                     _httpClientHandler.Proxy = configuration.Proxy;
                 }
 
                 if (configuration.ClientCertificates != null)
                 {
-                    if(_httpClientHandler == null) throw new InvalidOperationException("Configuration `ClientCertificates` not supported when the client is explicitly created without an HttpClientHandler, use the proper constructor.");
+                    if (_httpClientHandler == null) throw new InvalidOperationException("Configuration `ClientCertificates` not supported when the client is explicitly created without an HttpClientHandler, use the proper constructor.");
                     _httpClientHandler.ClientCertificates.AddRange(configuration.ClientCertificates);
                 }
 
-                var cookieContainer = req.Properties.ContainsKey("CookieContainer") ? req.Properties["CookieContainer"] as List<Cookie> : null;
+                var cookieContainer = req.Options.TryGetValue(new HttpRequestOptionsKey<List<Cookie>>("CookieContainer"), out var cookies) ? cookies : null;
 
                 if (cookieContainer != null)
                 {
-                    if(_httpClientHandler == null) throw new InvalidOperationException("Request property `CookieContainer` not supported when the client is explicitly created without an HttpClientHandler, use the proper constructor.");
+                    if (_httpClientHandler == null) throw new InvalidOperationException("Request property `CookieContainer` not supported when the client is explicitly created without an HttpClientHandler, use the proper constructor.");
                     foreach (var cookie in cookieContainer)
                     {
                         _httpClientHandler.CookieContainer.Add(cookie);
@@ -515,11 +506,11 @@ namespace AdGuard.ApiClient.Client
                 // if the response type is oneOf/anyOf, call FromJSON to deserialize the data
                 if (typeof(AdGuard.ApiClient.Model.AbstractOpenAPISchema).IsAssignableFrom(typeof(T)))
                 {
-                    responseData = (T) typeof(T).GetMethod("FromJson").Invoke(null, new object[] { response.Content });
+                    responseData = (T)typeof(T).GetMethod("FromJson").Invoke(null, new object[] { response.Content });
                 }
                 else if (typeof(T).Name == "Stream") // for binary response
                 {
-                    responseData = (T) (object) await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                    responseData = (T)(object)await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
                 }
 
                 InterceptResponse(req, response);
