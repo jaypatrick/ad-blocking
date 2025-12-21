@@ -1,20 +1,33 @@
 /**
  * Configuration reader with multi-format support (JSON, YAML, TOML)
+ * Includes validation and sanitization for production safety
  */
 
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, statSync } from 'node:fs';
 import { extname, resolve } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { parse as parseToml } from '@iarna/toml';
 import type { IConfiguration } from '@adguard/hostlist-compiler';
 import type { ConfigurationFormat, ExtendedConfiguration, Logger } from './types';
 import { logger as defaultLogger } from './logger';
+import {
+  ConfigNotFoundError,
+  ConfigParseError,
+  ConfigurationError,
+  ErrorCode,
+} from './errors';
+import {
+  assertValidConfiguration,
+  checkFileSize,
+  checkSourceCount,
+  DEFAULT_RESOURCE_LIMITS,
+} from './validation';
 
 /**
  * Detects configuration format from file extension
  * @param filePath - Path to configuration file
  * @returns Detected format
- * @throws Error if extension is not recognized
+ * @throws ConfigurationError if extension is not recognized
  */
 export function detectFormat(filePath: string): ConfigurationFormat {
   const ext = extname(filePath).toLowerCase();
@@ -28,19 +41,23 @@ export function detectFormat(filePath: string): ConfigurationFormat {
     case '.toml':
       return 'toml';
     default:
-      throw new Error(`Unknown configuration file extension: ${ext}`);
+      throw new ConfigurationError(
+        `Unknown configuration file extension: ${ext}`,
+        ErrorCode.CONFIG_INVALID_FORMAT,
+        { filePath }
+      );
   }
 }
 
 /**
  * Parses JSON configuration
  */
-function parseJson(content: string): IConfiguration {
+function parseJson(content: string, filePath: string): IConfiguration {
   try {
     return JSON.parse(content) as IConfiguration;
   } catch (error) {
     if (error instanceof SyntaxError) {
-      throw new Error(`Invalid JSON: ${error.message}`);
+      throw new ConfigParseError(filePath, 'json', error.message, error);
     }
     throw error;
   }
@@ -49,29 +66,32 @@ function parseJson(content: string): IConfiguration {
 /**
  * Parses YAML configuration
  */
-function parseYamlConfig(content: string): IConfiguration {
+function parseYamlConfig(content: string, filePath: string): IConfiguration {
   try {
     const parsed = parseYaml(content) as unknown;
     if (!parsed || typeof parsed !== 'object') {
-      throw new Error('Invalid YAML: parsed result is not an object');
+      throw new ConfigParseError(filePath, 'yaml', 'parsed result is not an object');
     }
     return parsed as IConfiguration;
   } catch (error) {
+    if (error instanceof ConfigParseError) {
+      throw error;
+    }
     const message = error instanceof Error ? error.message : 'Unknown error';
-    throw new Error(`Invalid YAML: ${message}`);
+    throw new ConfigParseError(filePath, 'yaml', message, error instanceof Error ? error : undefined);
   }
 }
 
 /**
  * Parses TOML configuration
  */
-function parseTomlConfig(content: string): IConfiguration {
+function parseTomlConfig(content: string, filePath: string): IConfiguration {
   try {
     const parsed = parseToml(content);
     return parsed as unknown as IConfiguration;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
-    throw new Error(`Invalid TOML: ${message}`);
+    throw new ConfigParseError(filePath, 'toml', message, error instanceof Error ? error : undefined);
   }
 }
 
@@ -102,26 +122,49 @@ export function findDefaultConfig(basePath: string = process.cwd()): string | un
 }
 
 /**
+ * Configuration reader options
+ */
+export interface ReadConfigurationOptions {
+  /** Skip schema validation (not recommended for production) */
+  skipValidation?: boolean;
+  /** Custom resource limits */
+  resourceLimits?: Partial<typeof DEFAULT_RESOURCE_LIMITS>;
+}
+
+/**
  * Reads and parses configuration from a file
  * @param configPath - Path to configuration file
  * @param format - Optional format override
  * @param logger - Logger instance
+ * @param options - Additional options
  * @returns Parsed configuration with metadata
- * @throws Error if file doesn't exist or parsing fails
+ * @throws ConfigNotFoundError if file doesn't exist
+ * @throws ConfigParseError if parsing fails
+ * @throws ConfigurationError if validation fails
  */
 export function readConfiguration(
   configPath: string,
   format?: ConfigurationFormat,
-  logger: Logger = defaultLogger
+  logger: Logger = defaultLogger,
+  options: ReadConfigurationOptions = {}
 ): ExtendedConfiguration {
   logger.debug(`Reading configuration from: ${configPath}`);
 
-  if (!existsSync(configPath)) {
-    throw new Error(`Configuration file not found: ${configPath}`);
+  // Resolve and sanitize path
+  const resolvedPath = resolve(configPath);
+
+  // Check file exists
+  if (!existsSync(resolvedPath)) {
+    throw new ConfigNotFoundError(resolvedPath);
   }
 
-  const content = readFileSync(configPath, 'utf8');
-  const detectedFormat = format ?? detectFormat(configPath);
+  // Check file size
+  const stats = statSync(resolvedPath);
+  const maxSize = options.resourceLimits?.maxConfigFileSize ?? DEFAULT_RESOURCE_LIMITS.maxConfigFileSize;
+  checkFileSize(stats.size, maxSize, 'configuration file');
+
+  const content = readFileSync(resolvedPath, 'utf8');
+  const detectedFormat = format ?? detectFormat(resolvedPath);
 
   logger.debug(`Configuration format: ${detectedFormat}`);
 
@@ -129,24 +172,39 @@ export function readConfiguration(
 
   switch (detectedFormat) {
     case 'json':
-      config = parseJson(content);
+      config = parseJson(content, resolvedPath);
       break;
     case 'yaml':
-      config = parseYamlConfig(content);
+      config = parseYamlConfig(content, resolvedPath);
       break;
     case 'toml':
-      config = parseTomlConfig(content);
+      config = parseTomlConfig(content, resolvedPath);
       break;
     default: {
       const exhaustiveCheck: never = detectedFormat;
-      throw new Error(`Unsupported format: ${String(exhaustiveCheck)}`);
+      throw new ConfigurationError(
+        `Unsupported format: ${String(exhaustiveCheck)}`,
+        ErrorCode.CONFIG_INVALID_FORMAT,
+        { filePath: resolvedPath }
+      );
     }
+  }
+
+  // Validate configuration schema unless explicitly skipped
+  if (!options.skipValidation) {
+    assertValidConfiguration(config, resolvedPath);
+  }
+
+  // Check source count limit
+  if (config.sources) {
+    const maxSources = options.resourceLimits?.maxSources ?? DEFAULT_RESOURCE_LIMITS.maxSources;
+    checkSourceCount(config.sources.length, maxSources);
   }
 
   // Add metadata
   const extendedConfig = config as ExtendedConfiguration;
   extendedConfig._sourceFormat = detectedFormat;
-  extendedConfig._sourcePath = configPath;
+  extendedConfig._sourcePath = resolvedPath;
 
   const configRecord = config as unknown as Record<string, unknown>;
   const versionValue = configRecord.version;

@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 /**
  * Command-line interface for the Rules Compiler TypeScript Frontend
+ * Production-ready with graceful shutdown and structured error handling
  */
 
 import { resolve } from 'node:path';
 import type { CliOptions, ConfigurationFormat, VersionInfo } from './types';
 import { runCompiler } from './compiler';
 import { findDefaultConfig, readConfiguration, toJson } from './config-reader';
-import { createLogger } from './logger';
+import { createLogger, createProductionLogger } from './logger';
+import { initializeShutdownHandler, ShutdownHandler } from './shutdown';
+import { isCompilerError } from './errors';
 
 /** Package version */
 const VERSION = '1.0.0';
@@ -107,6 +110,15 @@ Options:
   -d, --debug           Enable debug output
   --show-config         Show parsed configuration (don't compile)
 
+Production Options:
+  --json-logs           Use JSON format for log output (structured logging)
+  --timeout MS          Compilation timeout in milliseconds (default: 300000)
+
+Environment Variables:
+  DEBUG                 Enable debug logging
+  LOG_FORMAT=json       Enable JSON log format
+  LOG_LEVEL             Set log level (DEBUG, INFO, WARN, ERROR, SILENT)
+
 Supported Configuration Formats:
   - JSON  (.json)
   - YAML  (.yaml, .yml)
@@ -118,6 +130,8 @@ Examples:
   rules-compiler -c config.json -r        # Compile and copy to rules
   rules-compiler -c config.toml -o out.txt
   rules-compiler --show-config -c config.yaml
+  rules-compiler --json-logs -c config.yaml  # Production mode with JSON logs
+  rules-compiler --timeout 60000 -c config.yaml  # 60 second timeout
 `);
 }
 
@@ -197,13 +211,56 @@ function showConfig(configPath: string, format?: ConfigurationFormat): void {
 }
 
 /**
+ * Extended CLI options with production features
+ */
+interface ExtendedCliOptions extends CliOptions {
+  /** Use JSON format for logging */
+  jsonLogs: boolean;
+  /** Compilation timeout in milliseconds */
+  timeout?: number;
+}
+
+/**
+ * Parses extended command line arguments
+ */
+function parseExtendedArgs(args: string[]): ExtendedCliOptions {
+  const baseOptions = parseArgs(args);
+  const extendedOptions: ExtendedCliOptions = {
+    ...baseOptions,
+    jsonLogs: false,
+  };
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    const nextArg = args[i + 1];
+
+    switch (arg) {
+      case '--json-logs':
+        extendedOptions.jsonLogs = true;
+        break;
+      case '--timeout':
+        extendedOptions.timeout = parseInt(nextArg, 10);
+        if (isNaN(extendedOptions.timeout)) {
+          throw new Error(`Invalid timeout value: ${nextArg}`);
+        }
+        i++;
+        break;
+    }
+  }
+
+  return extendedOptions;
+}
+
+/**
  * Main CLI entry point
  * @param args - Command line arguments
  * @returns Exit code
  */
 export async function main(args: string[] = process.argv.slice(2)): Promise<number> {
+  let shutdownHandler: ShutdownHandler | undefined;
+
   try {
-    const options = parseArgs(args);
+    const options = parseExtendedArgs(args);
 
     // Handle help
     if (options.help) {
@@ -217,8 +274,13 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<numb
       return 0;
     }
 
-    // Create logger
-    const logger = createLogger(options.debug);
+    // Create logger (JSON format for production, human-readable for development)
+    const logger = options.jsonLogs
+      ? createProductionLogger()
+      : createLogger(options.debug);
+
+    // Initialize graceful shutdown handler
+    shutdownHandler = initializeShutdownHandler({ logger });
 
     // Determine config path
     let configPath: string;
@@ -227,7 +289,7 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<numb
     } else {
       const defaultConfig = findDefaultConfig();
       if (!defaultConfig) {
-        console.error('[ERROR] Configuration file not found.');
+        logger.error('Configuration file not found.');
         console.error('Searched:');
         console.error('  - compiler-config.json');
         console.error('  - compiler-config.yaml');
@@ -246,6 +308,9 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<numb
       return 0;
     }
 
+    // Check for shutdown before starting
+    shutdownHandler.assertNotShuttingDown();
+
     logger.info('AdGuard Filter Rules Compiler starting...');
     logger.info(`Configuration: ${configPath}`);
 
@@ -257,6 +322,7 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<numb
       rulesDirectory: options.rulesDirectory,
       format: options.format,
       logger,
+      timeoutMs: options.timeout,
     });
 
     if (result.success) {
@@ -277,13 +343,26 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<numb
       logger.info('Done!');
       return 0;
     } else {
-      logger.error(`Compilation failed: ${result.errorMessage}`);
+      if (result.errorCode) {
+        logger.error(`[${result.errorCode}] ${result.errorMessage}`);
+      } else {
+        logger.error(`Compilation failed: ${result.errorMessage}`);
+      }
       return 1;
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    console.error(`[ERROR] ${message}`);
+    if (isCompilerError(error)) {
+      console.error(`[ERROR] ${error.toLogString()}`);
+    } else {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      console.error(`[ERROR] ${message}`);
+    }
     return 1;
+  } finally {
+    // Clean up shutdown handler
+    if (shutdownHandler) {
+      shutdownHandler.unlisten();
+    }
   }
 }
 

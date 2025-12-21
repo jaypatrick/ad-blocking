@@ -61,6 +61,8 @@ export interface CompilerResult {
   endTime: Date;
   /** Error message if failed */
   errorMessage?: string;
+  /** Error code if failed (from CompilerError) */
+  errorCode?: string;
 }
 
 /**
