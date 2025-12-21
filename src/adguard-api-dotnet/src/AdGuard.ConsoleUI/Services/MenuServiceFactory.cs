@@ -1,8 +1,3 @@
-using System.Collections.Concurrent;
-using AdGuard.ConsoleUI.Abstractions;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-
 namespace AdGuard.ConsoleUI.Services;
 
 /// <summary>

@@ -1,17 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using AdGuard.ApiClient.Model;
-using AdGuard.ConsoleUI.Abstractions;
 using AdGuard.ConsoleUI.Display;
-using AdGuard.Repositories.Implementations;
-using AdGuard.Repositories.Abstractions;
 using AdGuard.Repositories.Contracts;
 using AdGuard.ConsoleUI.Services;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Xunit;
 
 namespace AdGuard.ApiClient.Test.ConsoleUI;
 

@@ -1,8 +1,3 @@
-using AdGuard.DataAccess.Repositories;
-using AdGuard.DataAccess.Tests.TestFixtures;
-using FluentAssertions;
-using Xunit;
-
 namespace AdGuard.DataAccess.Tests.Repositories;
 
 public class UserSettingsLocalRepositoryTests : IDisposable

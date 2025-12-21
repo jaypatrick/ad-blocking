@@ -8,9 +8,6 @@
  */
 
 
-using System;
-using System.Threading.Tasks;
-
 namespace AdGuard.ApiClient.Client
 {
     /// <summary>

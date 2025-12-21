@@ -1,8 +1,3 @@
-using AdGuard.ApiClient.Helpers;
-using AdGuard.Repositories.Abstractions;
-using AdGuard.Repositories.Exceptions;
-using Microsoft.Extensions.Configuration;
-
 namespace AdGuard.Repositories.Implementations;
 
 /// <summary>

@@ -1,6 +1,3 @@
-using AdGuard.ApiClient.Helpers;
-using Microsoft.Extensions.Logging.Abstractions;
-
 namespace AdGuard.ApiClient.Benchmarks;
 
 [MemoryDiagnoser]

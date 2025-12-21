@@ -1,5 +1,3 @@
-using AdGuard.Repositories.Abstractions;
-
 namespace AdGuard.Repositories.Contracts;
 
 /// <summary>

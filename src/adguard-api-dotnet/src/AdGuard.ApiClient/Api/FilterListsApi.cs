@@ -8,406 +8,331 @@
  */
 
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Mime;
-using AdGuard.ApiClient.Client;
-using AdGuard.ApiClient.Model;
+namespace AdGuard.ApiClient.Api;
 
-namespace AdGuard.ApiClient.Api
+/// <summary>
+/// Represents a collection of functions to interact with the API endpoints
+/// </summary>
+public partial class FilterListsApi : IDisposable, IFilterListsApi
 {
+    private AdGuard.ApiClient.Client.ExceptionFactory _exceptionFactory = (name, response) => null;
 
     /// <summary>
-    /// Represents a collection of functions to interact with the API endpoints
+    /// Initializes a new instance of the <see cref="FilterListsApi"/> class.
+    /// **IMPORTANT** This will also create an instance of HttpClient, which is less than ideal.
+    /// It's better to reuse the <see href="https://docs.microsoft.com/en-us/dotnet/architecture/microservices/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests#issues-with-the-original-httpclient-class-available-in-net">HttpClient and HttpClientHandler</see>.
     /// </summary>
-    public interface IFilterListsApiSync : IApiAccessor
+    /// <returns></returns>
+    public FilterListsApi() : this((string)null)
     {
-        #region Synchronous Operations
-        /// <summary>
-        /// Gets filter lists
-        /// </summary>
-        /// <exception cref="AdGuard.ApiClient.Client.ApiException">Thrown when fails to make API call</exception>
-        /// <returns>List&lt;FilterList&gt;</returns>
-        List<FilterList> ListFilterLists();
-
-        /// <summary>
-        /// Gets filter lists
-        /// </summary>
-        /// <remarks>
-        /// 
-        /// </remarks>
-        /// <exception cref="AdGuard.ApiClient.Client.ApiException">Thrown when fails to make API call</exception>
-        /// <returns>ApiResponse of List&lt;FilterList&gt;</returns>
-        ApiResponse<List<FilterList>> ListFilterListsWithHttpInfo();
-        #endregion Synchronous Operations
     }
 
     /// <summary>
-    /// Represents a collection of functions to interact with the API endpoints
+    /// Initializes a new instance of the <see cref="FilterListsApi"/> class.
+    /// **IMPORTANT** This will also create an instance of HttpClient, which is less than ideal.
+    /// It's better to reuse the <see href="https://docs.microsoft.com/en-us/dotnet/architecture/microservices/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests#issues-with-the-original-httpclient-class-available-in-net">HttpClient and HttpClientHandler</see>.
     /// </summary>
-    public interface IFilterListsApiAsync : IApiAccessor
+    /// <param name="basePath">The target service's base path in URL format.</param>
+    /// <exception cref="ArgumentException"></exception>
+    /// <returns></returns>
+    public FilterListsApi(string basePath)
     {
-        #region Asynchronous Operations
-        /// <summary>
-        /// Gets filter lists
-        /// </summary>
-        /// <remarks>
-        /// 
-        /// </remarks>
-        /// <exception cref="AdGuard.ApiClient.Client.ApiException">Thrown when fails to make API call</exception>
-        /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
-        /// <returns>Task of List&lt;FilterList&gt;</returns>
-        System.Threading.Tasks.Task<List<FilterList>> ListFilterListsAsync(System.Threading.CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Gets filter lists
-        /// </summary>
-        /// <remarks>
-        /// 
-        /// </remarks>
-        /// <exception cref="AdGuard.ApiClient.Client.ApiException">Thrown when fails to make API call</exception>
-        /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
-        /// <returns>Task of ApiResponse (List&lt;FilterList&gt;)</returns>
-        System.Threading.Tasks.Task<ApiResponse<List<FilterList>>> ListFilterListsWithHttpInfoAsync(System.Threading.CancellationToken cancellationToken = default);
-        #endregion Asynchronous Operations
+        this.Configuration = AdGuard.ApiClient.Client.Configuration.MergeConfigurations(
+            AdGuard.ApiClient.Client.GlobalConfiguration.Instance,
+            new AdGuard.ApiClient.Client.Configuration { BasePath = basePath }
+        );
+        this.ApiClient = new AdGuard.ApiClient.Client.ApiClient(this.Configuration.BasePath);
+        this.Client =  this.ApiClient;
+        this.AsynchronousClient = this.ApiClient;
+        this.ExceptionFactory = AdGuard.ApiClient.Client.Configuration.DefaultExceptionFactory;
     }
 
     /// <summary>
-    /// Represents a collection of functions to interact with the API endpoints
+    /// Initializes a new instance of the <see cref="FilterListsApi"/> class using Configuration object.
+    /// **IMPORTANT** This will also create an instance of HttpClient, which is less than ideal.
+    /// It's better to reuse the <see href="https://docs.microsoft.com/en-us/dotnet/architecture/microservices/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests#issues-with-the-original-httpclient-class-available-in-net">HttpClient and HttpClientHandler</see>.
     /// </summary>
-    public interface IFilterListsApi : IFilterListsApiSync, IFilterListsApiAsync
+    /// <param name="configuration">An instance of Configuration.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <returns></returns>
+    public FilterListsApi(AdGuard.ApiClient.Client.Configuration configuration)
     {
+        if (configuration == null) throw new ArgumentNullException("configuration");
 
+        this.Configuration = AdGuard.ApiClient.Client.Configuration.MergeConfigurations(
+            AdGuard.ApiClient.Client.GlobalConfiguration.Instance,
+            configuration
+        );
+        this.ApiClient = new AdGuard.ApiClient.Client.ApiClient(this.Configuration.BasePath);
+        this.Client = this.ApiClient;
+        this.AsynchronousClient = this.ApiClient;
+        ExceptionFactory = AdGuard.ApiClient.Client.Configuration.DefaultExceptionFactory;
     }
 
     /// <summary>
-    /// Represents a collection of functions to interact with the API endpoints
+    /// Initializes a new instance of the <see cref="FilterListsApi"/> class.
     /// </summary>
-    public partial class FilterListsApi : IDisposable, IFilterListsApi
+    /// <param name="client">An instance of HttpClient.</param>
+    /// <param name="handler">An optional instance of HttpClientHandler that is used by HttpClient.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <returns></returns>
+    /// <remarks>
+    /// Some configuration settings will not be applied without passing an HttpClientHandler.
+    /// The features affected are: Setting and Retrieving Cookies, Client Certificates, Proxy settings.
+    /// </remarks>
+    public FilterListsApi(HttpClient client, HttpClientHandler handler = null) : this(client, (string)null, handler)
     {
-        private AdGuard.ApiClient.Client.ExceptionFactory _exceptionFactory = (name, response) => null;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FilterListsApi"/> class.
-        /// **IMPORTANT** This will also create an instance of HttpClient, which is less than ideal.
-        /// It's better to reuse the <see href="https://docs.microsoft.com/en-us/dotnet/architecture/microservices/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests#issues-with-the-original-httpclient-class-available-in-net">HttpClient and HttpClientHandler</see>.
-        /// </summary>
-        /// <returns></returns>
-        public FilterListsApi() : this((string)null)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FilterListsApi"/> class.
-        /// **IMPORTANT** This will also create an instance of HttpClient, which is less than ideal.
-        /// It's better to reuse the <see href="https://docs.microsoft.com/en-us/dotnet/architecture/microservices/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests#issues-with-the-original-httpclient-class-available-in-net">HttpClient and HttpClientHandler</see>.
-        /// </summary>
-        /// <param name="basePath">The target service's base path in URL format.</param>
-        /// <exception cref="ArgumentException"></exception>
-        /// <returns></returns>
-        public FilterListsApi(string basePath)
-        {
-            this.Configuration = AdGuard.ApiClient.Client.Configuration.MergeConfigurations(
-                AdGuard.ApiClient.Client.GlobalConfiguration.Instance,
-                new AdGuard.ApiClient.Client.Configuration { BasePath = basePath }
-            );
-            this.ApiClient = new AdGuard.ApiClient.Client.ApiClient(this.Configuration.BasePath);
-            this.Client =  this.ApiClient;
-            this.AsynchronousClient = this.ApiClient;
-            this.ExceptionFactory = AdGuard.ApiClient.Client.Configuration.DefaultExceptionFactory;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FilterListsApi"/> class using Configuration object.
-        /// **IMPORTANT** This will also create an instance of HttpClient, which is less than ideal.
-        /// It's better to reuse the <see href="https://docs.microsoft.com/en-us/dotnet/architecture/microservices/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests#issues-with-the-original-httpclient-class-available-in-net">HttpClient and HttpClientHandler</see>.
-        /// </summary>
-        /// <param name="configuration">An instance of Configuration.</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <returns></returns>
-        public FilterListsApi(AdGuard.ApiClient.Client.Configuration configuration)
-        {
-            if (configuration == null) throw new ArgumentNullException("configuration");
-
-            this.Configuration = AdGuard.ApiClient.Client.Configuration.MergeConfigurations(
-                AdGuard.ApiClient.Client.GlobalConfiguration.Instance,
-                configuration
-            );
-            this.ApiClient = new AdGuard.ApiClient.Client.ApiClient(this.Configuration.BasePath);
-            this.Client = this.ApiClient;
-            this.AsynchronousClient = this.ApiClient;
-            ExceptionFactory = AdGuard.ApiClient.Client.Configuration.DefaultExceptionFactory;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FilterListsApi"/> class.
-        /// </summary>
-        /// <param name="client">An instance of HttpClient.</param>
-        /// <param name="handler">An optional instance of HttpClientHandler that is used by HttpClient.</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <returns></returns>
-        /// <remarks>
-        /// Some configuration settings will not be applied without passing an HttpClientHandler.
-        /// The features affected are: Setting and Retrieving Cookies, Client Certificates, Proxy settings.
-        /// </remarks>
-        public FilterListsApi(HttpClient client, HttpClientHandler handler = null) : this(client, (string)null, handler)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FilterListsApi"/> class.
-        /// </summary>
-        /// <param name="client">An instance of HttpClient.</param>
-        /// <param name="basePath">The target service's base path in URL format.</param>
-        /// <param name="handler">An optional instance of HttpClientHandler that is used by HttpClient.</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentException"></exception>
-        /// <returns></returns>
-        /// <remarks>
-        /// Some configuration settings will not be applied without passing an HttpClientHandler.
-        /// The features affected are: Setting and Retrieving Cookies, Client Certificates, Proxy settings.
-        /// </remarks>
-        public FilterListsApi(HttpClient client, string basePath, HttpClientHandler handler = null)
-        {
-            if (client == null) throw new ArgumentNullException("client");
-
-            this.Configuration = AdGuard.ApiClient.Client.Configuration.MergeConfigurations(
-                AdGuard.ApiClient.Client.GlobalConfiguration.Instance,
-                new AdGuard.ApiClient.Client.Configuration { BasePath = basePath }
-            );
-            this.ApiClient = new AdGuard.ApiClient.Client.ApiClient(client, this.Configuration.BasePath, handler);
-            this.Client =  this.ApiClient;
-            this.AsynchronousClient = this.ApiClient;
-            this.ExceptionFactory = AdGuard.ApiClient.Client.Configuration.DefaultExceptionFactory;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FilterListsApi"/> class using Configuration object.
-        /// </summary>
-        /// <param name="client">An instance of HttpClient.</param>
-        /// <param name="configuration">An instance of Configuration.</param>
-        /// <param name="handler">An optional instance of HttpClientHandler that is used by HttpClient.</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <returns></returns>
-        /// <remarks>
-        /// Some configuration settings will not be applied without passing an HttpClientHandler.
-        /// The features affected are: Setting and Retrieving Cookies, Client Certificates, Proxy settings.
-        /// </remarks>
-        public FilterListsApi(HttpClient client, AdGuard.ApiClient.Client.Configuration configuration, HttpClientHandler handler = null)
-        {
-            if (configuration == null) throw new ArgumentNullException("configuration");
-            if (client == null) throw new ArgumentNullException("client");
-
-            this.Configuration = AdGuard.ApiClient.Client.Configuration.MergeConfigurations(
-                AdGuard.ApiClient.Client.GlobalConfiguration.Instance,
-                configuration
-            );
-            this.ApiClient = new AdGuard.ApiClient.Client.ApiClient(client, this.Configuration.BasePath, handler);
-            this.Client = this.ApiClient;
-            this.AsynchronousClient = this.ApiClient;
-            ExceptionFactory = AdGuard.ApiClient.Client.Configuration.DefaultExceptionFactory;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FilterListsApi"/> class
-        /// using a Configuration object and client instance.
-        /// </summary>
-        /// <param name="client">The client interface for synchronous API access.</param>
-        /// <param name="asyncClient">The client interface for asynchronous API access.</param>
-        /// <param name="configuration">The configuration object.</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public FilterListsApi(AdGuard.ApiClient.Client.ISynchronousClient client, AdGuard.ApiClient.Client.IAsynchronousClient asyncClient, AdGuard.ApiClient.Client.IReadableConfiguration configuration)
-        {
-            if (client == null) throw new ArgumentNullException("client");
-            if (asyncClient == null) throw new ArgumentNullException("asyncClient");
-            if (configuration == null) throw new ArgumentNullException("configuration");
-
-            this.Client = client;
-            this.AsynchronousClient = asyncClient;
-            this.Configuration = configuration;
-            this.ExceptionFactory = AdGuard.ApiClient.Client.Configuration.DefaultExceptionFactory;
-        }
-
-        /// <summary>
-        /// Disposes resources if they were created by us
-        /// </summary>
-        public void Dispose()
-        {
-            this.ApiClient?.Dispose();
-        }
-
-        /// <summary>
-        /// Holds the ApiClient if created
-        /// </summary>
-        public AdGuard.ApiClient.Client.ApiClient ApiClient { get; set; } = null;
-
-        /// <summary>
-        /// The client for accessing this underlying API asynchronously.
-        /// </summary>
-        public AdGuard.ApiClient.Client.IAsynchronousClient AsynchronousClient { get; set; }
-
-        /// <summary>
-        /// The client for accessing this underlying API synchronously.
-        /// </summary>
-        public AdGuard.ApiClient.Client.ISynchronousClient Client { get; set; }
-
-        /// <summary>
-        /// Gets the base path of the API client.
-        /// </summary>
-        /// <value>The base path</value>
-        public string GetBasePath()
-        {
-            return this.Configuration.BasePath;
-        }
-
-        /// <summary>
-        /// Gets or sets the configuration object
-        /// </summary>
-        /// <value>An instance of the Configuration</value>
-        public AdGuard.ApiClient.Client.IReadableConfiguration Configuration { get; set; }
-
-        /// <summary>
-        /// Provides a factory method hook for the creation of exceptions.
-        /// </summary>
-        public AdGuard.ApiClient.Client.ExceptionFactory ExceptionFactory
-        {
-            get
-            {
-                if (_exceptionFactory != null && _exceptionFactory.GetInvocationList().Length > 1)
-                {
-                    throw new InvalidOperationException("Multicast delegate for ExceptionFactory is unsupported.");
-                }
-                return _exceptionFactory;
-            }
-            set { _exceptionFactory = value; }
-        }
-
-        /// <summary>
-        /// Gets filter lists 
-        /// </summary>
-        /// <exception cref="AdGuard.ApiClient.Client.ApiException">Thrown when fails to make API call</exception>
-        /// <returns>List&lt;FilterList&gt;</returns>
-        public List<FilterList> ListFilterLists()
-        {
-            AdGuard.ApiClient.Client.ApiResponse<List<FilterList>> localVarResponse = ListFilterListsWithHttpInfo();
-            return localVarResponse.Data;
-        }
-
-        /// <summary>
-        /// Gets filter lists 
-        /// </summary>
-        /// <exception cref="AdGuard.ApiClient.Client.ApiException">Thrown when fails to make API call</exception>
-        /// <returns>ApiResponse of List&lt;FilterList&gt;</returns>
-        public AdGuard.ApiClient.Client.ApiResponse<List<FilterList>> ListFilterListsWithHttpInfo()
-        {
-            AdGuard.ApiClient.Client.RequestOptions localVarRequestOptions = new AdGuard.ApiClient.Client.RequestOptions();
-
-            string[] _contentTypes = new string[] {
-            };
-
-            // to determine the Accept header
-            string[] _accepts = new string[] {
-                "*/*"
-            };
-
-            var localVarContentType = AdGuard.ApiClient.Client.ClientUtils.SelectHeaderContentType(_contentTypes);
-            if (localVarContentType != null) localVarRequestOptions.HeaderParameters.Add("Content-Type", localVarContentType);
-
-            var localVarAccept = AdGuard.ApiClient.Client.ClientUtils.SelectHeaderAccept(_accepts);
-            if (localVarAccept != null) localVarRequestOptions.HeaderParameters.Add("Accept", localVarAccept);
-
-
-            // authentication (ApiKey) required
-            if (!string.IsNullOrEmpty(this.Configuration.GetApiKeyWithPrefix("Authorization")))
-            {
-                localVarRequestOptions.HeaderParameters.Add("Authorization", this.Configuration.GetApiKeyWithPrefix("Authorization"));
-            }
-            // authentication (AuthToken) required
-            // bearer authentication required
-            if (!string.IsNullOrEmpty(this.Configuration.AccessToken) && !localVarRequestOptions.HeaderParameters.ContainsKey("Authorization"))
-            {
-                localVarRequestOptions.HeaderParameters.Add("Authorization", "Bearer " + this.Configuration.AccessToken);
-            }
-
-            // make the HTTP request
-            var localVarResponse = this.Client.Get<List<FilterList>>("/oapi/v1/filter_lists", localVarRequestOptions, this.Configuration);
-
-            if (this.ExceptionFactory != null)
-            {
-                Exception _exception = this.ExceptionFactory("ListFilterLists", localVarResponse);
-                if (_exception != null) throw _exception;
-            }
-
-            return localVarResponse;
-        }
-
-        /// <summary>
-        /// Gets filter lists 
-        /// </summary>
-        /// <exception cref="AdGuard.ApiClient.Client.ApiException">Thrown when fails to make API call</exception>
-        /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
-        /// <returns>Task of List&lt;FilterList&gt;</returns>
-        public async System.Threading.Tasks.Task<List<FilterList>> ListFilterListsAsync(System.Threading.CancellationToken cancellationToken = default)
-        {
-            AdGuard.ApiClient.Client.ApiResponse<List<FilterList>> localVarResponse = await ListFilterListsWithHttpInfoAsync(cancellationToken).ConfigureAwait(false);
-            return localVarResponse.Data;
-        }
-
-        /// <summary>
-        /// Gets filter lists 
-        /// </summary>
-        /// <exception cref="AdGuard.ApiClient.Client.ApiException">Thrown when fails to make API call</exception>
-        /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
-        /// <returns>Task of ApiResponse (List&lt;FilterList&gt;)</returns>
-        public async System.Threading.Tasks.Task<AdGuard.ApiClient.Client.ApiResponse<List<FilterList>>> ListFilterListsWithHttpInfoAsync(System.Threading.CancellationToken cancellationToken = default)
-        {
-
-            AdGuard.ApiClient.Client.RequestOptions localVarRequestOptions = new AdGuard.ApiClient.Client.RequestOptions();
-
-            string[] _contentTypes = new string[] {
-            };
-
-            // to determine the Accept header
-            string[] _accepts = new string[] {
-                "*/*"
-            };
-
-
-            var localVarContentType = AdGuard.ApiClient.Client.ClientUtils.SelectHeaderContentType(_contentTypes);
-            if (localVarContentType != null) localVarRequestOptions.HeaderParameters.Add("Content-Type", localVarContentType);
-
-            var localVarAccept = AdGuard.ApiClient.Client.ClientUtils.SelectHeaderAccept(_accepts);
-            if (localVarAccept != null) localVarRequestOptions.HeaderParameters.Add("Accept", localVarAccept);
-
-
-            // authentication (ApiKey) required
-            if (!string.IsNullOrEmpty(this.Configuration.GetApiKeyWithPrefix("Authorization")))
-            {
-                localVarRequestOptions.HeaderParameters.Add("Authorization", this.Configuration.GetApiKeyWithPrefix("Authorization"));
-            }
-            // authentication (AuthToken) required
-            // bearer authentication required
-            if (!string.IsNullOrEmpty(this.Configuration.AccessToken) && !localVarRequestOptions.HeaderParameters.ContainsKey("Authorization"))
-            {
-                localVarRequestOptions.HeaderParameters.Add("Authorization", "Bearer " + this.Configuration.AccessToken);
-            }
-
-            // make the HTTP request
-
-            var localVarResponse = await this.AsynchronousClient.GetAsync<List<FilterList>>("/oapi/v1/filter_lists", localVarRequestOptions, this.Configuration, cancellationToken).ConfigureAwait(false);
-
-            if (this.ExceptionFactory != null)
-            {
-                Exception _exception = this.ExceptionFactory("ListFilterLists", localVarResponse);
-                if (_exception != null) throw _exception;
-            }
-
-            return localVarResponse;
-        }
-
     }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FilterListsApi"/> class.
+    /// </summary>
+    /// <param name="client">An instance of HttpClient.</param>
+    /// <param name="basePath">The target service's base path in URL format.</param>
+    /// <param name="handler">An optional instance of HttpClientHandler that is used by HttpClient.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="ArgumentException"></exception>
+    /// <returns></returns>
+    /// <remarks>
+    /// Some configuration settings will not be applied without passing an HttpClientHandler.
+    /// The features affected are: Setting and Retrieving Cookies, Client Certificates, Proxy settings.
+    /// </remarks>
+    public FilterListsApi(HttpClient client, string basePath, HttpClientHandler handler = null)
+    {
+        if (client == null) throw new ArgumentNullException("client");
+
+        this.Configuration = AdGuard.ApiClient.Client.Configuration.MergeConfigurations(
+            AdGuard.ApiClient.Client.GlobalConfiguration.Instance,
+            new AdGuard.ApiClient.Client.Configuration { BasePath = basePath }
+        );
+        this.ApiClient = new AdGuard.ApiClient.Client.ApiClient(client, this.Configuration.BasePath, handler);
+        this.Client =  this.ApiClient;
+        this.AsynchronousClient = this.ApiClient;
+        this.ExceptionFactory = AdGuard.ApiClient.Client.Configuration.DefaultExceptionFactory;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FilterListsApi"/> class using Configuration object.
+    /// </summary>
+    /// <param name="client">An instance of HttpClient.</param>
+    /// <param name="configuration">An instance of Configuration.</param>
+    /// <param name="handler">An optional instance of HttpClientHandler that is used by HttpClient.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <returns></returns>
+    /// <remarks>
+    /// Some configuration settings will not be applied without passing an HttpClientHandler.
+    /// The features affected are: Setting and Retrieving Cookies, Client Certificates, Proxy settings.
+    /// </remarks>
+    public FilterListsApi(HttpClient client, AdGuard.ApiClient.Client.Configuration configuration, HttpClientHandler handler = null)
+    {
+        if (configuration == null) throw new ArgumentNullException("configuration");
+        if (client == null) throw new ArgumentNullException("client");
+
+        this.Configuration = AdGuard.ApiClient.Client.Configuration.MergeConfigurations(
+            AdGuard.ApiClient.Client.GlobalConfiguration.Instance,
+            configuration
+        );
+        this.ApiClient = new AdGuard.ApiClient.Client.ApiClient(client, this.Configuration.BasePath, handler);
+        this.Client = this.ApiClient;
+        this.AsynchronousClient = this.ApiClient;
+        ExceptionFactory = AdGuard.ApiClient.Client.Configuration.DefaultExceptionFactory;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FilterListsApi"/> class
+    /// using a Configuration object and client instance.
+    /// </summary>
+    /// <param name="client">The client interface for synchronous API access.</param>
+    /// <param name="asyncClient">The client interface for asynchronous API access.</param>
+    /// <param name="configuration">The configuration object.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public FilterListsApi(AdGuard.ApiClient.Client.ISynchronousClient client, AdGuard.ApiClient.Client.IAsynchronousClient asyncClient, AdGuard.ApiClient.Client.IReadableConfiguration configuration)
+    {
+        if (client == null) throw new ArgumentNullException("client");
+        if (asyncClient == null) throw new ArgumentNullException("asyncClient");
+        if (configuration == null) throw new ArgumentNullException("configuration");
+
+        this.Client = client;
+        this.AsynchronousClient = asyncClient;
+        this.Configuration = configuration;
+        this.ExceptionFactory = AdGuard.ApiClient.Client.Configuration.DefaultExceptionFactory;
+    }
+
+    /// <summary>
+    /// Disposes resources if they were created by us
+    /// </summary>
+    public void Dispose()
+    {
+        this.ApiClient?.Dispose();
+    }
+
+    /// <summary>
+    /// Holds the ApiClient if created
+    /// </summary>
+    public AdGuard.ApiClient.Client.ApiClient ApiClient { get; set; } = null;
+
+    /// <summary>
+    /// The client for accessing this underlying API asynchronously.
+    /// </summary>
+    public AdGuard.ApiClient.Client.IAsynchronousClient AsynchronousClient { get; set; }
+
+    /// <summary>
+    /// The client for accessing this underlying API synchronously.
+    /// </summary>
+    public AdGuard.ApiClient.Client.ISynchronousClient Client { get; set; }
+
+    /// <summary>
+    /// Gets the base path of the API client.
+    /// </summary>
+    /// <value>The base path</value>
+    public string GetBasePath()
+    {
+        return this.Configuration.BasePath;
+    }
+
+    /// <summary>
+    /// Gets or sets the configuration object
+    /// </summary>
+    /// <value>An instance of the Configuration</value>
+    public AdGuard.ApiClient.Client.IReadableConfiguration Configuration { get; set; }
+
+    /// <summary>
+    /// Provides a factory method hook for the creation of exceptions.
+    /// </summary>
+    public AdGuard.ApiClient.Client.ExceptionFactory ExceptionFactory
+    {
+        get
+        {
+            if (_exceptionFactory != null && _exceptionFactory.GetInvocationList().Length > 1)
+            {
+                throw new InvalidOperationException("Multicast delegate for ExceptionFactory is unsupported.");
+            }
+            return _exceptionFactory;
+        }
+        set { _exceptionFactory = value; }
+    }
+
+    /// <summary>
+    /// Gets filter lists 
+    /// </summary>
+    /// <exception cref="AdGuard.ApiClient.Client.ApiException">Thrown when fails to make API call</exception>
+    /// <returns>List&lt;FilterList&gt;</returns>
+    public List<FilterList> ListFilterLists()
+    {
+        AdGuard.ApiClient.Client.ApiResponse<List<FilterList>> localVarResponse = ListFilterListsWithHttpInfo();
+        return localVarResponse.Data;
+    }
+
+    /// <summary>
+    /// Gets filter lists 
+    /// </summary>
+    /// <exception cref="AdGuard.ApiClient.Client.ApiException">Thrown when fails to make API call</exception>
+    /// <returns>ApiResponse of List&lt;FilterList&gt;</returns>
+    public AdGuard.ApiClient.Client.ApiResponse<List<FilterList>> ListFilterListsWithHttpInfo()
+    {
+        AdGuard.ApiClient.Client.RequestOptions localVarRequestOptions = new AdGuard.ApiClient.Client.RequestOptions();
+
+        string[] _contentTypes = new string[] {
+        };
+
+        // to determine the Accept header
+        string[] _accepts = new string[] {
+            "*/*"
+        };
+
+        var localVarContentType = AdGuard.ApiClient.Client.ClientUtils.SelectHeaderContentType(_contentTypes);
+        if (localVarContentType != null) localVarRequestOptions.HeaderParameters.Add("Content-Type", localVarContentType);
+
+        var localVarAccept = AdGuard.ApiClient.Client.ClientUtils.SelectHeaderAccept(_accepts);
+        if (localVarAccept != null) localVarRequestOptions.HeaderParameters.Add("Accept", localVarAccept);
+
+
+        // authentication (ApiKey) required
+        if (!string.IsNullOrEmpty(this.Configuration.GetApiKeyWithPrefix("Authorization")))
+        {
+            localVarRequestOptions.HeaderParameters.Add("Authorization", this.Configuration.GetApiKeyWithPrefix("Authorization"));
+        }
+        // authentication (AuthToken) required
+        // bearer authentication required
+        if (!string.IsNullOrEmpty(this.Configuration.AccessToken) && !localVarRequestOptions.HeaderParameters.ContainsKey("Authorization"))
+        {
+            localVarRequestOptions.HeaderParameters.Add("Authorization", "Bearer " + this.Configuration.AccessToken);
+        }
+
+        // make the HTTP request
+        var localVarResponse = this.Client.Get<List<FilterList>>("/oapi/v1/filter_lists", localVarRequestOptions, this.Configuration);
+
+        if (this.ExceptionFactory != null)
+        {
+            Exception _exception = this.ExceptionFactory("ListFilterLists", localVarResponse);
+            if (_exception != null) throw _exception;
+        }
+
+        return localVarResponse;
+    }
+
+    /// <summary>
+    /// Gets filter lists 
+    /// </summary>
+    /// <exception cref="AdGuard.ApiClient.Client.ApiException">Thrown when fails to make API call</exception>
+    /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
+    /// <returns>Task of List&lt;FilterList&gt;</returns>
+    public async System.Threading.Tasks.Task<List<FilterList>> ListFilterListsAsync(System.Threading.CancellationToken cancellationToken = default)
+    {
+        AdGuard.ApiClient.Client.ApiResponse<List<FilterList>> localVarResponse = await ListFilterListsWithHttpInfoAsync(cancellationToken).ConfigureAwait(false);
+        return localVarResponse.Data;
+    }
+
+    /// <summary>
+    /// Gets filter lists 
+    /// </summary>
+    /// <exception cref="AdGuard.ApiClient.Client.ApiException">Thrown when fails to make API call</exception>
+    /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
+    /// <returns>Task of ApiResponse (List&lt;FilterList&gt;)</returns>
+    public async System.Threading.Tasks.Task<AdGuard.ApiClient.Client.ApiResponse<List<FilterList>>> ListFilterListsWithHttpInfoAsync(System.Threading.CancellationToken cancellationToken = default)
+    {
+
+        AdGuard.ApiClient.Client.RequestOptions localVarRequestOptions = new AdGuard.ApiClient.Client.RequestOptions();
+
+        string[] _contentTypes = new string[] {
+        };
+
+        // to determine the Accept header
+        string[] _accepts = new string[] {
+            "*/*"
+        };
+
+
+        var localVarContentType = AdGuard.ApiClient.Client.ClientUtils.SelectHeaderContentType(_contentTypes);
+        if (localVarContentType != null) localVarRequestOptions.HeaderParameters.Add("Content-Type", localVarContentType);
+
+        var localVarAccept = AdGuard.ApiClient.Client.ClientUtils.SelectHeaderAccept(_accepts);
+        if (localVarAccept != null) localVarRequestOptions.HeaderParameters.Add("Accept", localVarAccept);
+
+
+        // authentication (ApiKey) required
+        if (!string.IsNullOrEmpty(this.Configuration.GetApiKeyWithPrefix("Authorization")))
+        {
+            localVarRequestOptions.HeaderParameters.Add("Authorization", this.Configuration.GetApiKeyWithPrefix("Authorization"));
+        }
+        // authentication (AuthToken) required
+        // bearer authentication required
+        if (!string.IsNullOrEmpty(this.Configuration.AccessToken) && !localVarRequestOptions.HeaderParameters.ContainsKey("Authorization"))
+        {
+            localVarRequestOptions.HeaderParameters.Add("Authorization", "Bearer " + this.Configuration.AccessToken);
+        }
+
+        // make the HTTP request
+
+        var localVarResponse = await this.AsynchronousClient.GetAsync<List<FilterList>>("/oapi/v1/filter_lists", localVarRequestOptions, this.Configuration, cancellationToken).ConfigureAwait(false);
+
+        if (this.ExceptionFactory != null)
+        {
+            Exception _exception = this.ExceptionFactory("ListFilterLists", localVarResponse);
+            if (_exception != null) throw _exception;
+        }
+
+        return localVarResponse;
+    }
+
 }

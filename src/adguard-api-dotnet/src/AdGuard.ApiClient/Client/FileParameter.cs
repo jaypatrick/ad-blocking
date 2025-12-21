@@ -8,8 +8,6 @@
  */
 
 
-using System.IO;
-
 namespace AdGuard.ApiClient.Client
 {
 

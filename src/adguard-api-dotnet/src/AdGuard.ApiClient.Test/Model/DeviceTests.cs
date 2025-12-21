@@ -8,17 +8,6 @@
  */
 
 
-using Xunit;
-
-using System;
-using System.Linq;
-using System.IO;
-using System.Collections.Generic;
-using AdGuard.ApiClient.Model;
-using AdGuard.ApiClient.Client;
-using System.Reflection;
-using System.Text.Json;
-
 namespace AdGuard.ApiClient.Test.Model
 {
     /// <summary>

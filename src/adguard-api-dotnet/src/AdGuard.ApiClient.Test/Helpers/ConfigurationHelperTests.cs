@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using AdGuard.ApiClient.Client;
-using AdGuard.ApiClient.Helpers;
-using Microsoft.Extensions.Logging;
-using Moq;
-using Xunit;
+
 
 /*
  * AdGuard DNS API - Unit Tests

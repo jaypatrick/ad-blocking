@@ -8,10 +8,6 @@
  */
 
 
-using System;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-
 namespace AdGuard.ApiClient.Model
 {
     /// <summary>

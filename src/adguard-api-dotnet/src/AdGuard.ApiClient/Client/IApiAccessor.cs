@@ -8,8 +8,6 @@
  */
 
 
-using System;
-
 namespace AdGuard.ApiClient.Client
 {
     /// <summary>

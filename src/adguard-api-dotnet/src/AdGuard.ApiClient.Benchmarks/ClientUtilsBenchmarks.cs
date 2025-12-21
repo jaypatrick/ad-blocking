@@ -1,5 +1,3 @@
-using AdGuard.ApiClient.Client;
-
 namespace AdGuard.ApiClient.Benchmarks;
 
 [MemoryDiagnoser]

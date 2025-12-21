@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using AdGuard.ConsoleUI.Exceptions;
-using Xunit;
-
 namespace AdGuard.ApiClient.Test.ConsoleUI.Exceptions;
 
 /// <summary>

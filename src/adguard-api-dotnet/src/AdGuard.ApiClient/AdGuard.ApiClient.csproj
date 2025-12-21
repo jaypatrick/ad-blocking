@@ -19,6 +19,7 @@
     <PackageReleaseNotes>Initial release - AdGuard DNS API v1.11 support</PackageReleaseNotes>
     <!-- Allow nullable annotations but don't enforce warnings for auto-generated OpenAPI code -->
     <Nullable>annotations</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>

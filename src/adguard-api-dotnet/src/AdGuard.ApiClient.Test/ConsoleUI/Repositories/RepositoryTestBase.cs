@@ -1,9 +1,3 @@
-using AdGuard.ConsoleUI.Abstractions;
-using AdGuard.Repositories.Abstractions;
-using Microsoft.Extensions.Logging;
-using Moq;
-using Xunit;
-
 namespace AdGuard.ApiClient.Test.ConsoleUI.Repositories;
 
 /// <summary>

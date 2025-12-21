@@ -4,10 +4,6 @@
  * Tests for DateTimeExtensions class
  */
 
-using System;
-using AdGuard.ApiClient.Helpers;
-using Xunit;
-
 namespace AdGuard.ApiClient.Test.Helpers
 {
     /// <summary>

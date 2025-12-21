@@ -1,9 +1,3 @@
-using System.Collections.Concurrent;
-using System.Text.RegularExpressions;
-using AdGuard.Repositories.Abstractions;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-
 namespace AdGuard.Repositories.Implementations;
 
 /// <summary>

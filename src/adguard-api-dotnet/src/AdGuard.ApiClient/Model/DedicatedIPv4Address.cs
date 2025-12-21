@@ -8,21 +8,6 @@
  */
 
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.IO;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.ComponentModel.DataAnnotations;
-using FileParameter = AdGuard.ApiClient.Client.FileParameter;
-using OpenAPIDateConverter = AdGuard.ApiClient.Client.OpenAPIDateConverter;
-
 namespace AdGuard.ApiClient.Model
 {
     /// <summary>

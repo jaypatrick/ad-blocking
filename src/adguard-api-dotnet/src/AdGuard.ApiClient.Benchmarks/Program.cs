@@ -1,5 +1,3 @@
-using BenchmarkDotNet.Running;
-
 namespace AdGuard.ApiClient.Benchmarks;
 
 public class Program

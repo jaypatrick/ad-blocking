@@ -1,6 +1,3 @@
-using AdGuard.Repositories.Abstractions;
-using AdGuard.Repositories.Exceptions;
-
 namespace AdGuard.Repositories.Common;
 
 /// <summary>

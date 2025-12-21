@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using AdGuard.ConsoleUI.Helpers;
-using Xunit;
 
 namespace AdGuard.ApiClient.Test.ConsoleUI.Helpers;
 

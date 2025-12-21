@@ -1,12 +1,5 @@
-using System;
-using System.Collections.Generic;
-using AdGuard.Repositories.Implementations;
-using AdGuard.Repositories.Abstractions;
 using AdGuard.Repositories.Exceptions;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Moq;
-using Xunit;
+using ApiNotConfiguredException = AdGuard.Repositories.Exceptions.ApiNotConfiguredException;
 
 namespace AdGuard.ApiClient.Test.ConsoleUI;
 

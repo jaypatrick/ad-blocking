@@ -1,10 +1,3 @@
-using AdGuard.Repositories.Abstractions;
-using AdGuard.Repositories.Contracts;
-using AdGuard.Repositories.Implementations;
-using AdGuard.Repositories.Options;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-
 namespace AdGuard.Repositories.Extensions;
 
 /// <summary>

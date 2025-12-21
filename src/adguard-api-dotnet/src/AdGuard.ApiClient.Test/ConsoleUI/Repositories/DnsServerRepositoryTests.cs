@@ -1,16 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using AdGuard.ApiClient.Api;
-using AdGuard.ApiClient.Model;
-using AdGuard.ConsoleUI.Abstractions;
-using AdGuard.ConsoleUI.Exceptions;
-using AdGuard.Repositories.Implementations;
-using AdGuard.Repositories.Abstractions;
-using Microsoft.Extensions.Logging;
-using Moq;
-using Xunit;
-
 namespace AdGuard.ApiClient.Test.ConsoleUI.Repositories;
 
 /// <summary>

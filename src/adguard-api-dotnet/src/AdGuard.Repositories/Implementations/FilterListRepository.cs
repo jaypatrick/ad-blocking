@@ -1,7 +1,3 @@
-using AdGuard.Repositories.Abstractions;
-using AdGuard.Repositories.Common;
-using AdGuard.Repositories.Contracts;
-
 namespace AdGuard.Repositories.Implementations;
 
 /// <summary>

@@ -1,8 +1,3 @@
-using AdGuard.DataAccess;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Moq;
-
 namespace AdGuard.DataAccess.Tests.TestFixtures;
 
 /// <summary>
