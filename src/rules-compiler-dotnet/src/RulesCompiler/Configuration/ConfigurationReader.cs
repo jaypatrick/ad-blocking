@@ -1,13 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using Microsoft.Extensions.Logging;
-using RulesCompiler.Abstractions;
-using RulesCompiler.Models;
-using Tomlyn;
-using Tomlyn.Model;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
-
 namespace RulesCompiler.Configuration;
 
 /// <summary>

@@ -1,8 +1,3 @@
-using Microsoft.Extensions.Logging;
-using Moq;
-using RulesCompiler.Services;
-using Xunit;
-
 namespace RulesCompiler.Tests;
 
 public class OutputWriterTests

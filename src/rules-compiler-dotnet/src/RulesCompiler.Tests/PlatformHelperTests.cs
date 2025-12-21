@@ -1,6 +1,3 @@
-using RulesCompiler.Helpers;
-using Xunit;
-
 namespace RulesCompiler.Tests;
 
 public class PlatformHelperTests

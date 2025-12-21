@@ -1,12 +1,3 @@
-using BenchmarkDotNet.Attributes;
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.VSDiagnostics;
-using RulesCompiler.Services;
-using System;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace RulesCompiler.Benchmarks;
 [CPUUsageDiagnoser]
 public class OutputWriterBenchmarks

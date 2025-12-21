@@ -1,9 +1,3 @@
-using Microsoft.Extensions.Logging;
-using Moq;
-using RulesCompiler.Configuration;
-using RulesCompiler.Models;
-using Xunit;
-
 namespace RulesCompiler.Tests;
 
 public class ConfigurationReaderTests

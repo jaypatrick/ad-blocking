@@ -1,5 +1,3 @@
-using Spectre.Console;
-
 namespace RulesCompiler.Console.Helpers;
 
 /// <summary>

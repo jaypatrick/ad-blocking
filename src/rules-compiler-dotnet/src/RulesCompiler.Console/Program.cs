@@ -1,11 +1,3 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using RulesCompiler.Abstractions;
-using RulesCompiler.Console.Services;
-using RulesCompiler.Extensions;
-using Spectre.Console;
-
 namespace RulesCompiler.Console;
 
 /// <summary>

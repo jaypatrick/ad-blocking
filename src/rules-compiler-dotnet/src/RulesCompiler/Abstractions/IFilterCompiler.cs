@@ -1,5 +1,3 @@
-using RulesCompiler.Models;
-
 namespace RulesCompiler.Abstractions;
 
 /// <summary>

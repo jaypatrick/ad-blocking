@@ -1,10 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using RulesCompiler.Abstractions;
-using RulesCompiler.Configuration;
-using RulesCompiler.Helpers;
-using RulesCompiler.Services;
-
 namespace RulesCompiler.Extensions;
 
 /// <summary>
