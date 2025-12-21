@@ -1,14 +1,22 @@
 /**
  * Core compiler service for filter rules compilation
+ * Production-ready with timeouts, error handling, and resource limits
  */
 
 import compile, { type IConfiguration } from '@adguard/hostlist-compiler';
-import { writeFileSync, readFileSync, existsSync, copyFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, readFileSync, existsSync, copyFileSync, mkdirSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import type { CompilerResult, CompileOptions, Logger } from './types';
 import { readConfiguration } from './config-reader';
 import { logger as defaultLogger } from './logger';
+import {
+  CompilationError,
+  ErrorCode,
+  isCompilerError,
+} from './errors';
+import { withTimeout } from './timeout';
+import { DEFAULT_RESOURCE_LIMITS, checkFileSize } from './validation';
 
 /**
  * Writes compiled rules to an output file
@@ -91,25 +99,63 @@ export function copyToRulesDirectory(
 }
 
 /**
+ * Compiler options with resource limits
+ */
+export interface CompilerOptions {
+  /** Compilation timeout in milliseconds */
+  timeoutMs?: number;
+  /** Maximum output file size in bytes */
+  maxOutputSize?: number;
+}
+
+/**
+ * Default compiler options
+ */
+const DEFAULT_COMPILER_OPTIONS: CompilerOptions = {
+  timeoutMs: DEFAULT_RESOURCE_LIMITS.compilationTimeoutMs,
+  maxOutputSize: DEFAULT_RESOURCE_LIMITS.maxOutputFileSize,
+};
+
+/**
  * Compiles filter rules using the hostlist-compiler
  * @param config - Compiler configuration
  * @param logger - Logger instance
+ * @param options - Compiler options
  * @returns Array of compiled rules
  */
 export async function compileFilters(
   config: IConfiguration,
-  logger: Logger = defaultLogger
+  logger: Logger = defaultLogger,
+  options: CompilerOptions = {}
 ): Promise<string[]> {
+  const resolvedOptions = { ...DEFAULT_COMPILER_OPTIONS, ...options };
   logger.info('Starting filter compilation...');
 
   try {
-    const result = await compile(config);
+    // Wrap compilation with timeout
+    const result = await withTimeout(
+      compile(config),
+      resolvedOptions.timeoutMs ?? DEFAULT_RESOURCE_LIMITS.compilationTimeoutMs,
+      { configName: config.name }
+    );
+
     logger.info(`Compilation complete. Generated ${result.length} rules.`);
     return result;
   } catch (error) {
+    // Re-throw if already a CompilerError
+    if (isCompilerError(error)) {
+      logger.error(`Compilation failed: ${error.toLogString()}`);
+      throw error;
+    }
+
     const message = error instanceof Error ? error.message : 'Unknown error';
     logger.error(`Compilation failed: ${message}`);
-    throw new Error(`Filter compilation failed: ${message}`);
+    throw new CompilationError(
+      `Filter compilation failed: ${message}`,
+      ErrorCode.COMPILATION_FAILED,
+      { configName: config.name },
+      error instanceof Error ? error : undefined
+    );
   }
 }
 
@@ -123,11 +169,21 @@ function generateOutputFilename(): string {
 }
 
 /**
+ * Extended compile options with resource limits
+ */
+export interface ExtendedCompileOptions extends CompileOptions {
+  /** Compilation timeout in milliseconds */
+  timeoutMs?: number;
+  /** Maximum output file size in bytes */
+  maxOutputSize?: number;
+}
+
+/**
  * Runs the full compilation pipeline
  * @param options - Compilation options
  * @returns Compilation result
  */
-export async function runCompiler(options: CompileOptions): Promise<CompilerResult> {
+export async function runCompiler(options: ExtendedCompileOptions): Promise<CompilerResult> {
   const logger = options.logger ?? defaultLogger;
   const startTime = new Date();
 
@@ -159,11 +215,19 @@ export async function runCompiler(options: CompileOptions): Promise<CompilerResu
     const outputPath = options.outputPath ?? defaultOutputPath;
     result.outputPath = resolve(outputPath);
 
-    // Compile filters
-    const rules = await compileFilters(config, logger);
+    // Compile filters with timeout
+    const rules = await compileFilters(config, logger, {
+      timeoutMs: options.timeoutMs,
+      maxOutputSize: options.maxOutputSize,
+    });
 
     // Write output
     writeOutput(result.outputPath, rules, logger);
+
+    // Check output file size
+    const outputStats = statSync(result.outputPath);
+    const maxOutputSize = options.maxOutputSize ?? DEFAULT_RESOURCE_LIMITS.maxOutputFileSize;
+    checkFileSize(outputStats.size, maxOutputSize, 'output file');
 
     // Calculate statistics
     result.ruleCount = countRules(result.outputPath);
@@ -183,9 +247,15 @@ export async function runCompiler(options: CompileOptions): Promise<CompilerResu
 
     result.success = true;
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    result.errorMessage = message;
-    logger.error(`Compilation failed: ${message}`);
+    // Use structured error information if available
+    if (isCompilerError(error)) {
+      result.errorMessage = error.toLogString();
+      result.errorCode = error.code;
+    } else {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      result.errorMessage = message;
+    }
+    logger.error(`Compilation failed: ${result.errorMessage}`);
   }
 
   result.endTime = new Date();

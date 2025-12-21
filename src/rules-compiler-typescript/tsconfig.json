@@ -5,17 +5,42 @@
     "lib": ["ES2022"],
     "outDir": "./dist",
     "rootDir": "./src",
+    "types": ["node"],
+
+    /* Strict Type Checking - Production Ready */
     "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "useUnknownInCatchVariables": true,
+    "alwaysStrict": true,
+
+    /* Additional Strict Checks */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+
+    /* Module Resolution */
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+
+    /* Emit */
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "resolveJsonModule": true,
-    "moduleResolution": "node"
+    "removeComments": false,
+
+    /* Interop Constraints */
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src/**/*"],
-  // Exclude mod.ts as it's the Deno-specific entry point with Deno APIs
-  "exclude": ["node_modules", "dist", "src/mod.ts"]
+  "exclude": ["node_modules", "dist", "src/mod.ts", "src/**/*.test.ts"]
 }
