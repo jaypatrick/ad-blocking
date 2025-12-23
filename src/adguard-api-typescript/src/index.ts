@@ -23,13 +23,13 @@
  */
 
 // Main client
-export { AdGuardDnsClient, ApiClientFactory, ConfigurationBuilder } from './client';
+export { AdGuardDnsClient, ApiClientFactory, ConfigurationBuilder } from './client.js';
 
 // Models
-export * from './models';
+export * from './models/index.js';
 
 // Errors
-export * from './errors';
+export * from './errors/index.js';
 
 // Helpers
 export {
@@ -42,7 +42,7 @@ export {
   startOfToday,
   endOfToday,
   formatRelative,
-} from './helpers/datetime';
+} from './helpers/datetime.js';
 
 export {
   RetryPolicy,
@@ -50,12 +50,10 @@ export {
   withRetry,
   isRetryableError,
   createRateLimitRetryPolicy,
-} from './helpers/retry';
+} from './helpers/retry.js';
 
 export {
   ConfigurationHelper,
-  ApiConfiguration,
-  Logger,
   consoleLogger,
   silentLogger,
   createWithApiKey,
@@ -65,7 +63,11 @@ export {
   maskApiKey,
   DEFAULT_BASE_PATH,
   DEFAULT_TIMEOUT,
-} from './helpers/configuration';
+} from './helpers/configuration.js';
+export type {
+  ApiConfiguration,
+  Logger,
+} from './helpers/configuration.js';
 
 // APIs
 export {
@@ -78,7 +80,7 @@ export {
   FilterListsApi,
   WebServicesApi,
   DedicatedIpApi,
-} from './api';
+} from './api/index.js';
 
 // Repositories
 export {
@@ -87,15 +89,19 @@ export {
   UserRulesRepository,
   StatisticsRepository,
   QueryLogRepository,
+} from './repositories/index.js';
+export type {
   TimeRange,
-} from './repositories';
+} from './repositories/index.js';
 
 // Rules compiler integration
 export {
   RulesCompilerIntegration,
+} from './rules-compiler-integration.js';
+export type {
   RulesSyncResult,
   RulesSyncOptions,
-} from './rules-compiler-integration';
+} from './rules-compiler-integration.js';
 
 // Version info
 export const VERSION = '1.0.0';

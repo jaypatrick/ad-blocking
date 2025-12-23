@@ -2,17 +2,17 @@
  * Query Log repository
  */
 
-import { BaseRepository } from './base';
-import { QueryLogApi } from '../api/query-log';
-import { Logger } from '../helpers/configuration';
-import { DateTime } from '../helpers/datetime';
+import { BaseRepository } from './base.js';
+import { QueryLogApi } from '../api/query-log.js';
+import { Logger } from '../helpers/configuration.js';
+import { DateTime } from '../helpers/datetime.js';
 import {
   QueryLogResponse,
   QueryLogEntry,
   QueryLogParams,
   FilteringActionStatus,
   FilteringActionSource,
-} from '../models';
+} from '../models/index.js';
 
 /** Query Log repository for managing DNS query logs */
 export class QueryLogRepository extends BaseRepository {

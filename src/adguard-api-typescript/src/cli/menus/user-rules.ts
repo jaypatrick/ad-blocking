@@ -2,10 +2,10 @@
  * User Rules menu
  */
 
-import { BaseMenu, MenuItem } from './base';
-import { UserRulesRepository } from '../../repositories/user-rules';
-import { DnsServerRepository } from '../../repositories/dns-server';
-import { RulesCompilerIntegration } from '../../rules-compiler-integration';
+import { BaseMenu, MenuItem } from './base.js';
+import { UserRulesRepository } from '../../repositories/user-rules.js';
+import { DnsServerRepository } from '../../repositories/dns-server.js';
+import { RulesCompilerIntegration } from '../../rules-compiler-integration.js';
 import {
   createTable,
   displayTable,
@@ -14,7 +14,7 @@ import {
   showNoItems,
   showInfo,
   withSpinner,
-} from '../utils';
+} from '../utils.js';
 
 export class UserRulesMenu extends BaseMenu {
   protected get title(): string {

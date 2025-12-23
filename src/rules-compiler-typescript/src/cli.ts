@@ -5,12 +5,12 @@
  */
 
 import { resolve } from 'node:path';
-import type { CliOptions, ConfigurationFormat, VersionInfo } from './types';
-import { runCompiler } from './compiler';
-import { findDefaultConfig, readConfiguration, toJson } from './config-reader';
-import { createLogger, createProductionLogger } from './logger';
-import { initializeShutdownHandler, ShutdownHandler } from './shutdown';
-import { isCompilerError } from './errors';
+import type { CliOptions, ConfigurationFormat, VersionInfo } from './types.js';
+import { runCompiler } from './compiler.js';
+import { findDefaultConfig, readConfiguration, toJson } from './config-reader.js';
+import { createLogger, createProductionLogger } from './logger.js';
+import { initializeShutdownHandler, ShutdownHandler } from './shutdown.js';
+import { isCompilerError } from './errors.js';
 
 /** Package version */
 const VERSION = '1.0.0';
@@ -54,8 +54,8 @@ export function parseArgs(args: string[]): CliOptions {
         break;
       case '-f':
       case '--format':
-        if (!['json', 'yaml', 'toml'].includes(nextArg)) {
-          throw new Error(`Invalid format: ${nextArg}. Must be json, yaml, or toml.`);
+        if (!nextArg || !['json', 'yaml', 'toml'].includes(nextArg)) {
+          throw new Error(`Invalid format: ${nextArg ?? 'undefined'}. Must be json, yaml, or toml.`);
         }
         options.format = nextArg as ConfigurationFormat;
         i++;
@@ -81,7 +81,7 @@ export function parseArgs(args: string[]): CliOptions {
         break;
       default:
         // Allow positional config path
-        if (!arg.startsWith('-') && !options.configPath) {
+        if (arg && !arg.startsWith('-') && !options.configPath) {
           options.configPath = arg;
         }
     }
@@ -192,18 +192,18 @@ function showConfig(configPath: string, format?: ConfigurationFormat): void {
   console.log(`Configuration: ${configPath}`);
   console.log('');
   console.log(`  Name: ${config.name}`);
-  
+
   const configRecord = config as unknown as Record<string, unknown>;
-  const versionValue = configRecord.version;
+  const versionValue = configRecord['version'];
   const version = typeof versionValue === 'string' || typeof versionValue === 'number' ? String(versionValue) : 'N/A';
   console.log(`  Version: ${version}`);
-  
-  const licenseValue = configRecord.license;
+
+  const licenseValue = configRecord['license'];
   const license = typeof licenseValue === 'string' ? licenseValue : 'N/A';
   console.log(`  License: ${license}`);
-  
+
   console.log(`  Sources: ${config.sources?.length || 0}`);
-  console.log(`  Transformations: ${formatTransformations(configRecord.transformations)}`);
+  console.log(`  Transformations: ${formatTransformations(configRecord['transformations'])}`);
   
   console.log('');
   console.log('JSON representation:');
@@ -239,6 +239,9 @@ function parseExtendedArgs(args: string[]): ExtendedCliOptions {
         extendedOptions.jsonLogs = true;
         break;
       case '--timeout':
+        if (!nextArg) {
+          throw new Error('Timeout value is required');
+        }
         extendedOptions.timeout = parseInt(nextArg, 10);
         if (isNaN(extendedOptions.timeout)) {
           throw new Error(`Invalid timeout value: ${nextArg}`);

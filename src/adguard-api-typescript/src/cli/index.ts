@@ -8,17 +8,17 @@
 import { Command } from 'commander';
 import inquirer from 'inquirer';
 import chalk from 'chalk';
-import { AdGuardDnsClient } from '../client';
-import { RulesCompilerIntegration } from '../rules-compiler-integration';
-import { consoleLogger, maskApiKey } from '../helpers/configuration';
-import { showHeader, showSuccess, showError, showInfo, withSpinner } from './utils';
-import { DevicesMenu } from './menus/devices';
-import { DnsServersMenu } from './menus/dns-servers';
-import { UserRulesMenu } from './menus/user-rules';
-import { StatisticsMenu } from './menus/statistics';
-import { QueryLogMenu } from './menus/query-log';
-import { AccountMenu } from './menus/account';
-import { VERSION, API_VERSION } from '../index';
+import { AdGuardDnsClient } from '../client.js';
+import { RulesCompilerIntegration } from '../rules-compiler-integration.js';
+import { consoleLogger, maskApiKey } from '../helpers/configuration.js';
+import { showHeader, showSuccess, showError, showInfo, withSpinner } from './utils.js';
+import { DevicesMenu } from './menus/devices.js';
+import { DnsServersMenu } from './menus/dns-servers.js';
+import { UserRulesMenu } from './menus/user-rules.js';
+import { StatisticsMenu } from './menus/statistics.js';
+import { QueryLogMenu } from './menus/query-log.js';
+import { AccountMenu } from './menus/account.js';
+import { VERSION, API_VERSION } from '../index.js';
 
 const program = new Command();
 

@@ -4,7 +4,7 @@
  */
 
 import axios, { AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
-import { RetryOptions, executeWithRetry } from './retry';
+import { RetryOptions, executeWithRetry } from './retry.js';
 
 /** API base path */
 export const DEFAULT_BASE_PATH = 'https://api.adguard-dns.io';
@@ -290,7 +290,7 @@ export function createRetryableClient(
   return <T>(request: () => Promise<T>) => {
     return executeWithRetry(request, {
       ...retryOptions,
-      onRetry: (error, attempt, delay) => {
+      onRetry: (error: Error, attempt: number, delay: number) => {
         config.logger?.warn(
           `Request failed, retrying (attempt ${attempt}): ${error.message}. Waiting ${delay}ms...`
         );

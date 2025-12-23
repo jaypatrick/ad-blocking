@@ -11,7 +11,7 @@ import {
   PathTraversalError,
   ResourceLimitError,
   ErrorCode,
-} from './errors';
+} from './errors.js';
 
 /**
  * Validation result
@@ -64,29 +64,29 @@ function validateSource(source: unknown, index: number): string[] {
   const sourceObj = source as Record<string, unknown>;
 
   // source field is required
-  if (!sourceObj.source) {
+  if (!sourceObj['source']) {
     errors.push(`${prefix}.source: is required`);
-  } else if (typeof sourceObj.source !== 'string') {
+  } else if (typeof sourceObj['source'] !== 'string') {
     errors.push(`${prefix}.source: must be a string`);
-  } else if (sourceObj.source.trim() === '') {
+  } else if ((sourceObj['source'] as string).trim() === '') {
     errors.push(`${prefix}.source: cannot be empty`);
   }
 
   // type validation if present
-  if (sourceObj.type !== undefined) {
-    if (typeof sourceObj.type !== 'string') {
+  if (sourceObj['type'] !== undefined) {
+    if (typeof sourceObj['type'] !== 'string') {
       errors.push(`${prefix}.type: must be a string`);
-    } else if (!['adblock', 'hosts'].includes(sourceObj.type)) {
+    } else if (!['adblock', 'hosts'].includes(sourceObj['type'] as string)) {
       errors.push(`${prefix}.type: must be 'adblock' or 'hosts'`);
     }
   }
 
   // transformations validation if present
-  if (sourceObj.transformations !== undefined) {
-    if (!Array.isArray(sourceObj.transformations)) {
+  if (sourceObj['transformations'] !== undefined) {
+    if (!Array.isArray(sourceObj['transformations'])) {
       errors.push(`${prefix}.transformations: must be an array`);
     } else {
-      validateTransformations(sourceObj.transformations, `${prefix}.transformations`, errors);
+      validateTransformations(sourceObj['transformations'], `${prefix}.transformations`, errors);
     }
   }
 
@@ -164,46 +164,47 @@ export function validateConfiguration(config: unknown): ValidationResult {
   const configObj = config as Record<string, unknown>;
 
   // Required field: name
-  if (!configObj.name) {
+  if (!configObj['name']) {
     errors.push('name: is required');
-  } else if (typeof configObj.name !== 'string') {
+  } else if (typeof configObj['name'] !== 'string') {
     errors.push('name: must be a string');
-  } else if (configObj.name.trim() === '') {
+  } else if ((configObj['name'] as string).trim() === '') {
     errors.push('name: cannot be empty');
   }
 
   // Required field: sources
-  if (!configObj.sources) {
+  if (!configObj['sources']) {
     errors.push('sources: is required');
-  } else if (!Array.isArray(configObj.sources)) {
+  } else if (!Array.isArray(configObj['sources'])) {
     errors.push('sources: must be an array');
-  } else if (configObj.sources.length === 0) {
+  } else if ((configObj['sources'] as unknown[]).length === 0) {
     errors.push('sources: must have at least one source');
   } else {
-    for (let i = 0; i < configObj.sources.length; i++) {
-      errors.push(...validateSource(configObj.sources[i], i));
+    const sources = configObj['sources'] as unknown[];
+    for (let i = 0; i < sources.length; i++) {
+      errors.push(...validateSource(sources[i], i));
     }
   }
 
   // Optional field: version
-  if (configObj.version !== undefined) {
-    if (typeof configObj.version !== 'string' && typeof configObj.version !== 'number') {
+  if (configObj['version'] !== undefined) {
+    if (typeof configObj['version'] !== 'string' && typeof configObj['version'] !== 'number') {
       errors.push('version: must be a string or number');
     }
   }
 
   // Optional field: description
-  if (configObj.description !== undefined && typeof configObj.description !== 'string') {
+  if (configObj['description'] !== undefined && typeof configObj['description'] !== 'string') {
     errors.push('description: must be a string');
   }
 
   // Optional field: homepage
-  if (configObj.homepage !== undefined) {
-    if (typeof configObj.homepage !== 'string') {
+  if (configObj['homepage'] !== undefined) {
+    if (typeof configObj['homepage'] !== 'string') {
       errors.push('homepage: must be a string');
     } else {
       try {
-        new URL(configObj.homepage);
+        new URL(configObj['homepage']);
       } catch {
         warnings.push('homepage: does not appear to be a valid URL');
       }
@@ -211,22 +212,22 @@ export function validateConfiguration(config: unknown): ValidationResult {
   }
 
   // Optional field: license
-  if (configObj.license !== undefined && typeof configObj.license !== 'string') {
+  if (configObj['license'] !== undefined && typeof configObj['license'] !== 'string') {
     errors.push('license: must be a string');
   }
 
   // Optional field: transformations
-  if (configObj.transformations !== undefined) {
-    if (!Array.isArray(configObj.transformations)) {
+  if (configObj['transformations'] !== undefined) {
+    if (!Array.isArray(configObj['transformations'])) {
       errors.push('transformations: must be an array');
     } else {
-      validateTransformations(configObj.transformations, 'transformations', errors);
+      validateTransformations(configObj['transformations'], 'transformations', errors);
     }
   }
 
   // Optional fields: inclusions, exclusions
-  errors.push(...validateStringArray(configObj.inclusions, 'inclusions'));
-  errors.push(...validateStringArray(configObj.exclusions, 'exclusions'));
+  errors.push(...validateStringArray(configObj['inclusions'], 'inclusions'));
+  errors.push(...validateStringArray(configObj['exclusions'], 'exclusions'));
 
   return {
     valid: errors.length === 0,

@@ -2,8 +2,8 @@
  * Statistics menu
  */
 
-import { BaseMenu, MenuItem } from './base';
-import { StatisticsRepository, TimeRange } from '../../repositories/statistics';
+import { BaseMenu, MenuItem } from './base.js';
+import { StatisticsRepository, TimeRange } from '../../repositories/statistics.js';
 import {
   createTable,
   displayTable,
@@ -11,7 +11,7 @@ import {
   showNoItems,
   withSpinner,
   formatPercentage,
-} from '../utils';
+} from '../utils.js';
 import inquirer from 'inquirer';
 
 export class StatisticsMenu extends BaseMenu {

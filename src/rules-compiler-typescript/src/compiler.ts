@@ -7,16 +7,16 @@ import compile, { type IConfiguration } from '@adguard/hostlist-compiler';
 import { writeFileSync, readFileSync, existsSync, copyFileSync, mkdirSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
-import type { CompilerResult, CompileOptions, Logger } from './types';
-import { readConfiguration } from './config-reader';
-import { logger as defaultLogger } from './logger';
+import type { CompilerResult, CompileOptions, Logger } from './types.js';
+import { readConfiguration } from './config-reader.js';
+import { logger as defaultLogger } from './logger.js';
 import {
   CompilationError,
   ErrorCode,
   isCompilerError,
-} from './errors';
-import { withTimeout } from './timeout';
-import { DEFAULT_RESOURCE_LIMITS, checkFileSize } from './validation';
+} from './errors.js';
+import { withTimeout } from './timeout.js';
+import { DEFAULT_RESOURCE_LIMITS, checkFileSize } from './validation.js';
 
 /**
  * Writes compiled rules to an output file
@@ -206,7 +206,7 @@ export async function runCompiler(options: ExtendedCompileOptions): Promise<Comp
     const config = readConfiguration(options.configPath, options.format, logger);
     result.configName = config.name ?? 'unknown';
     const configRecord = config as unknown as Record<string, unknown>;
-    const versionValue = configRecord.version;
+    const versionValue = configRecord['version'];
     result.configVersion = typeof versionValue === 'string' ? versionValue : 'unknown';
 
     // Determine output path

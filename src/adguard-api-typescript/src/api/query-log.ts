@@ -2,9 +2,9 @@
  * Query Log API client
  */
 
-import { BaseApi } from './base';
-import { ApiConfiguration } from '../helpers/configuration';
-import { QueryLogResponse, QueryLogParams } from '../models';
+import { BaseApi } from './base.js';
+import { ApiConfiguration } from '../helpers/configuration.js';
+import { QueryLogResponse, QueryLogParams } from '../models/index.js';
 
 /** Query Log API endpoints */
 export class QueryLogApi extends BaseApi {

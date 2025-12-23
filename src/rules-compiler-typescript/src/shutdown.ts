@@ -3,8 +3,8 @@
  * Handles SIGTERM, SIGINT signals and cleanup
  */
 
-import { ShutdownError } from './errors';
-import type { Logger } from './types';
+import { ShutdownError } from './errors.js';
+import type { Logger } from './types.js';
 
 /**
  * Cleanup function type

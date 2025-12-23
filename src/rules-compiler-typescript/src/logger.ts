@@ -3,7 +3,7 @@
  * Supports both human-readable and structured (JSON) output formats
  */
 
-import type { Logger } from './types';
+import type { Logger } from './types.js';
 
 /**
  * Log level enumeration
@@ -100,14 +100,14 @@ export function createLogger(config: Partial<LoggerConfig> | boolean = false): E
       : { ...DEFAULT_CONFIG, ...config };
 
   // Check environment variables
-  if (process.env.DEBUG) {
+  if (process.env['DEBUG']) {
     resolvedConfig.debugEnabled = true;
   }
-  if (process.env.LOG_FORMAT === 'json') {
+  if (process.env['LOG_FORMAT'] === 'json') {
     resolvedConfig.jsonFormat = true;
   }
-  if (process.env.LOG_LEVEL) {
-    const envLevel = process.env.LOG_LEVEL.toUpperCase();
+  if (process.env['LOG_LEVEL']) {
+    const envLevel = process.env['LOG_LEVEL'].toUpperCase();
     const levelMap: Record<string, LogLevel> = {
       DEBUG: LogLevel.DEBUG,
       INFO: LogLevel.INFO,
@@ -116,7 +116,10 @@ export function createLogger(config: Partial<LoggerConfig> | boolean = false): E
       SILENT: LogLevel.SILENT,
     };
     if (envLevel in levelMap) {
-      resolvedConfig.minLevel = levelMap[envLevel];
+      const level = levelMap[envLevel];
+      if (level !== undefined) {
+        resolvedConfig.minLevel = level;
+      }
     }
   }
 
@@ -221,7 +224,7 @@ export function createLogger(config: Partial<LoggerConfig> | boolean = false): E
 /**
  * Default logger instance (debug disabled unless DEBUG env var is set)
  */
-export const logger = createLogger(!!process.env.DEBUG);
+export const logger = createLogger(!!process.env['DEBUG']);
 
 /**
  * Creates a JSON-formatted logger for production

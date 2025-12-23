@@ -2,7 +2,7 @@
  * Linear API client wrapper for documentation import
  */
 
-import { LinearClient, Project, Issue, Team, Document } from "@linear/sdk";
+import { LinearClient } from "@linear/sdk";
 import {
   ImportConfig,
   LinearImportResult,
@@ -37,8 +37,12 @@ export class LinearImporter {
         if (teams.nodes.length === 0) {
           throw new Error("No teams found in Linear workspace");
         }
-        this.teamId = teams.nodes[0].id;
-        console.log(`Using team: ${teams.nodes[0].name}`);
+        const firstTeam = teams.nodes[0];
+        if (!firstTeam) {
+          throw new Error("No teams found in Linear workspace");
+        }
+        this.teamId = firstTeam.id;
+        console.log(`Using team: ${firstTeam.name}`);
       }
     } catch (error) {
       throw new Error(`Failed to initialize Linear client: ${error}`);
@@ -149,8 +153,12 @@ export class LinearImporter {
     });
 
     if (projects.nodes.length > 0) {
+      const existingProject = projects.nodes[0];
+      if (!existingProject) {
+        throw new Error("Project found but could not be accessed");
+      }
       console.log(`Found existing project: ${projectName}`);
-      return projects.nodes[0].id;
+      return existingProject.id;
     }
 
     // Create new project
@@ -161,6 +169,10 @@ export class LinearImporter {
 
     const teams = await this.client.teams();
     const team = teams.nodes.find((t) => t.id === this.teamId) || teams.nodes[0];
+
+    if (!team) {
+      throw new Error("No team available for project creation");
+    }
 
     const projectPayload = await this.client.createProject({
       name: projectName,

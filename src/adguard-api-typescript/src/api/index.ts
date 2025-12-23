@@ -2,13 +2,13 @@
  * AdGuard DNS API Clients
  */
 
-export * from './base';
-export * from './account';
-export * from './auth';
-export * from './devices';
-export * from './dns-servers';
-export * from './statistics';
-export * from './query-log';
-export * from './filter-lists';
-export * from './web-services';
-export * from './dedicated-ips';
+export * from './base.js';
+export * from './account.js';
+export * from './auth.js';
+export * from './devices.js';
+export * from './dns-servers.js';
+export * from './statistics.js';
+export * from './query-log.js';
+export * from './filter-lists.js';
+export * from './web-services.js';
+export * from './dedicated-ips.js';

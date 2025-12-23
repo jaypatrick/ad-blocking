@@ -57,7 +57,7 @@ async function main(): Promise<void> {
   const options = program.opts();
 
   // Check for API key
-  const apiKey = process.env.LINEAR_API_KEY;
+  const apiKey = process.env['LINEAR_API_KEY'];
   if (!apiKey) {
     console.error("Error: LINEAR_API_KEY environment variable is required");
     console.error("\nTo get your API key:");
@@ -68,12 +68,12 @@ async function main(): Promise<void> {
   }
 
   const importConfig: ImportConfig = {
-    teamId: options.team || process.env.LINEAR_TEAM_ID || "",
-    projectName: options.project || process.env.LINEAR_PROJECT_NAME || "",
-    createProject: options.project !== false,
-    createIssues: options.issues !== false,
-    createDocuments: options.docs !== false,
-    dryRun: options.dryRun,
+    teamId: options['team'] || process.env['LINEAR_TEAM_ID'] || "",
+    projectName: options['project'] || process.env['LINEAR_PROJECT_NAME'] || "",
+    createProject: options['project'] !== false,
+    createIssues: options['issues'] !== false,
+    createDocuments: options['docs'] !== false,
+    dryRun: options['dryRun'],
   };
 
   try {
@@ -81,7 +81,7 @@ async function main(): Promise<void> {
     await importer.initialize();
 
     // Handle list commands
-    if (options.listTeams) {
+    if (options['listTeams']) {
       console.log("\nAvailable Teams:");
       const teams = await importer.listTeams();
       for (const team of teams) {
@@ -90,7 +90,7 @@ async function main(): Promise<void> {
       return;
     }
 
-    if (options.listProjects) {
+    if (options['listProjects']) {
       console.log("\nExisting Projects:");
       const projects = await importer.listProjects();
       if (projects.length === 0) {
@@ -104,7 +104,7 @@ async function main(): Promise<void> {
     }
 
     // Validate file exists
-    const filePath = resolve(options.file);
+    const filePath = resolve(options['file']);
     if (!existsSync(filePath)) {
       console.error(`Error: Documentation file not found: ${filePath}`);
       process.exit(1);
@@ -119,7 +119,7 @@ async function main(): Promise<void> {
     const components = extractComponents(document);
     const sections = flattenSections(document);
 
-    if (options.verbose) {
+    if (options['verbose']) {
       console.log(`\n  Sections: ${sections.length}`);
       console.log(`  Roadmap items: ${roadmapItems.length}`);
       console.log(`  Components: ${components.length}`);

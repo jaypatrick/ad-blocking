@@ -11,7 +11,7 @@ import {
   Logger,
   maskApiKey,
   validateAuthentication,
-} from './helpers/configuration';
+} from './helpers/configuration.js';
 import {
   AccountApi,
   AuthApi,
@@ -22,15 +22,15 @@ import {
   FilterListsApi,
   WebServicesApi,
   DedicatedIpApi,
-} from './api';
+} from './api/index.js';
 import {
   DeviceRepository,
   DnsServerRepository,
   UserRulesRepository,
   StatisticsRepository,
   QueryLogRepository,
-} from './repositories';
-import { ApiNotConfiguredError } from './errors';
+} from './repositories/index.js';
+import { ApiNotConfiguredError } from './errors/index.js';
 
 /** AdGuard DNS API Client Factory */
 export class ApiClientFactory {

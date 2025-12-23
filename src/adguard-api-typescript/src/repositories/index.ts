@@ -2,9 +2,9 @@
  * Repository exports
  */
 
-export * from './base';
-export * from './device';
-export * from './dns-server';
-export * from './user-rules';
-export * from './statistics';
-export * from './query-log';
+export * from './base.js';
+export * from './device.js';
+export * from './dns-server.js';
+export * from './user-rules.js';
+export * from './statistics.js';
+export * from './query-log.js';

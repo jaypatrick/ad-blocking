@@ -2,10 +2,10 @@
  * User Rules repository
  */
 
-import { BaseRepository } from './base';
-import { DnsServersApi } from '../api/dns-servers';
-import { Logger } from '../helpers/configuration';
-import { UserRulesSettings, UserRulesSettingsUpdate } from '../models';
+import { BaseRepository } from './base.js';
+import { DnsServersApi } from '../api/dns-servers.js';
+import { Logger } from '../helpers/configuration.js';
+import { UserRulesSettings, UserRulesSettingsUpdate } from '../models/index.js';
 
 /** User Rules repository for managing DNS server user rules */
 export class UserRulesRepository extends BaseRepository {

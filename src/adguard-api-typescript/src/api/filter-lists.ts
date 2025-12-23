@@ -2,9 +2,9 @@
  * Filter Lists API client
  */
 
-import { BaseApi } from './base';
-import { ApiConfiguration } from '../helpers/configuration';
-import { FilterList } from '../models';
+import { BaseApi } from './base.js';
+import { ApiConfiguration } from '../helpers/configuration.js';
+import { FilterList } from '../models/index.js';
 
 /** Filter Lists API endpoints */
 export class FilterListsApi extends BaseApi {

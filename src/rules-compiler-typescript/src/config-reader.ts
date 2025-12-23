@@ -8,20 +8,20 @@ import { extname, resolve } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { parse as parseToml } from '@iarna/toml';
 import type { IConfiguration } from '@adguard/hostlist-compiler';
-import type { ConfigurationFormat, ExtendedConfiguration, Logger } from './types';
-import { logger as defaultLogger } from './logger';
+import type { ConfigurationFormat, ExtendedConfiguration, Logger } from './types.js';
+import { logger as defaultLogger } from './logger.js';
 import {
   ConfigNotFoundError,
   ConfigParseError,
   ConfigurationError,
   ErrorCode,
-} from './errors';
+} from './errors.js';
 import {
   assertValidConfiguration,
   checkFileSize,
   checkSourceCount,
   DEFAULT_RESOURCE_LIMITS,
-} from './validation';
+} from './validation.js';
 
 /**
  * Detects configuration format from file extension
@@ -207,7 +207,7 @@ export function readConfiguration(
   extendedConfig._sourcePath = resolvedPath;
 
   const configRecord = config as unknown as Record<string, unknown>;
-  const versionValue = configRecord.version;
+  const versionValue = configRecord['version'];
   const version = typeof versionValue === 'string' || typeof versionValue === 'number' ? String(versionValue) : 'unknown';
   logger.info(`Loaded configuration: ${config.name} v${version}`);
   return extendedConfig;

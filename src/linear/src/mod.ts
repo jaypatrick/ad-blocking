@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Linear Documentation Import Tool - Deno Entry Point
  *

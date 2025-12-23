@@ -2,10 +2,10 @@
  * Devices menu
  */
 
-import { BaseMenu, MenuItem } from './base';
-import { DeviceRepository } from '../../repositories/device';
-import { DnsServerRepository } from '../../repositories/dns-server';
-import { DeviceType } from '../../models';
+import { BaseMenu, MenuItem } from './base.js';
+import { DeviceRepository } from '../../repositories/device.js';
+import { DnsServerRepository } from '../../repositories/dns-server.js';
+import { DeviceType } from '../../models/index.js';
 import {
   createTable,
   displayTable,
@@ -13,7 +13,7 @@ import {
   showSuccess,
   showNoItems,
   withSpinner,
-} from '../utils';
+} from '../utils.js';
 
 export class DevicesMenu extends BaseMenu {
   protected get title(): string {
