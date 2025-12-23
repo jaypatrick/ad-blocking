@@ -197,7 +197,7 @@ npm ci                    # Install dependencies
 npm run build             # Build TypeScript
 npm test                  # Run Jest tests
 npm run start             # Run interactive CLI
-npm run dev               # Run with ts-node
+npm run dev               # Run with tsx
 
 # CLI usage
 npm run start -- -k <api-key>              # With API key
