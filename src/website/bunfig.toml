@@ -1,8 +1,9 @@
 # Bun configuration for ad-blocking-website (Gatsby)
 # https://bun.sh/docs/runtime/bunfig
 #
-# Note: Gatsby has experimental Bun support. Use `bun install` for faster
-# dependency installation, but run Gatsby commands through npm/npx for stability.
+# Note: Gatsby has experimental Bun support. This repo uses Bun-based scripts
+# (e.g., `bun install` / `bunx --bun gatsby`) experimentally; if you hit issues,
+# you can fall back to running Gatsby commands via npm/npx.
 
 [install]
 # Use exact versions for reproducible builds
