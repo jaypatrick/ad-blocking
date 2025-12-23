@@ -1,0 +1,32 @@
+{
+  "$schema": "https://deno.land/x/deno/cli/schemas/config-file.v1.json",
+  "name": "@adguard/api-typescript",
+  "version": "1.0.0",
+  "exports": "./src/mod.ts",
+  "tasks": {
+    "start": "deno run --allow-read --allow-write --allow-env --allow-net src/mod.ts",
+    "sync": "deno run --allow-read --allow-write --allow-env --allow-net src/mod.ts sync",
+    "test": "deno test --allow-read --allow-write --allow-env --allow-net src/",
+    "check": "deno check src/mod.ts",
+    "lint": "deno lint src/",
+    "fmt": "deno fmt src/"
+  },
+  "imports": {
+    "node:fs": "node:fs",
+    "node:path": "node:path",
+    "node:process": "node:process",
+    "node:url": "node:url",
+    "axios": "npm:axios@^1.7.0",
+    "axios-retry": "npm:axios-retry@^4.0.0",
+    "chalk": "npm:chalk@^4.1.2",
+    "commander": "npm:commander@^12.0.0",
+    "inquirer": "npm:inquirer@^8.2.6",
+    "ora": "npm:ora@^5.4.1",
+    "cli-table3": "npm:cli-table3@^0.6.5"
+  },
+  "compilerOptions": {
+    "lib": ["deno.ns", "deno.unstable", "dom"],
+    "strict": true
+  },
+  "nodeModulesDir": "auto"
+}
