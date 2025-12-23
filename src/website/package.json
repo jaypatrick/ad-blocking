@@ -6,10 +6,15 @@
     "clean": "gatsby clean",
     "develop": "gatsby develop",
     "build": "gatsby build",
-    "serve": "gatsby serve"
+    "serve": "gatsby serve",
+    "bun:clean": "bun run clean",
+    "bun:develop": "bunx --bun gatsby develop",
+    "bun:build": "bunx --bun gatsby build",
+    "bun:serve": "bunx --bun gatsby serve"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.0.0",
+    "bun": ">=1.0.0"
   },
   "dependencies": {
     "gatsby": "^5.15.0",

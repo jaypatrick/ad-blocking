@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This repository is a comprehensive multi-language toolkit for ad-blocking, network protection, and AdGuard DNS management:
 
 ### Rules Compilers (4 languages)
-- **TypeScript** (`src/rules-compiler-typescript/`) - Node.js 18+ with Deno support, optional Rust frontend
+- **TypeScript** (`src/rules-compiler-typescript/`) - Node.js 18+, Deno 2.0+, and Bun 1.0+ support, optional Rust frontend
 - **C#/.NET 10** (`src/rules-compiler-dotnet/`) - Library and Spectre.Console CLI with DI support
 - **Python 3.9+** (`src/rules-compiler-python/`) - pip-installable package with CLI and API
 - **Rust** (`src/rules-compiler-rust/`) - High-performance single binary with zero runtime deps
@@ -23,9 +23,9 @@ This repository is a comprehensive multi-language toolkit for ad-blocking, netwo
 
 ### API Client & Tools
 - **AdGuard API Client - .NET** (`src/adguard-api-dotnet/`) - C# SDK for AdGuard DNS API v1.11
-- **AdGuard API Client - TypeScript** (`src/adguard-api-typescript/`) - TypeScript SDK with Node.js and Deno support
+- **AdGuard API Client - TypeScript** (`src/adguard-api-typescript/`) - TypeScript SDK with Node.js, Deno, and Bun support
 - **Console UI** (`src/adguard-api-dotnet/src/AdGuard.ConsoleUI/`) - Spectre.Console interactive interface
-- **Linear Import Tool** (`src/linear/`) - TypeScript tool with Node.js and Deno support
+- **Linear Import Tool** (`src/linear/`) - TypeScript tool with Node.js, Deno, and Bun support
 
 ### Website
 - **Gatsby Site** (`src/website/`) - Portfolio site deployed to GitHub Pages
@@ -79,6 +79,21 @@ npm run dev               # Run with ts-node
 npm run compile -- -c config.yaml -r -d
 npm run compile -- --help
 npm run compile -- --version
+
+# Bun commands (alternative runtime)
+bun install               # Install dependencies
+bun run bun:build         # Build with Bun
+bun run bun:dev           # Run with Bun
+bun run bun:compile       # Compile filter rules
+bun run bun:compile:yaml  # Compile using YAML config
+bun run bun:compile:toml  # Compile using TOML config
+bun run bun:test          # Run tests with Bun
+
+# Deno commands (alternative runtime)
+deno task compile         # Compile filter rules
+deno task check           # Type check
+deno task lint            # Lint
+deno task fmt             # Format
 ```
 
 ### Shell Scripts (`src/rules-compiler-shell/`)
@@ -186,6 +201,12 @@ npm ci
 npm run develop    # Dev server at localhost:8000
 npm run build      # Production build
 npm run serve      # Serve local build
+
+# Bun commands (experimental Gatsby support)
+bun install              # Install dependencies (faster)
+bun run bun:develop      # Dev server with Bun
+bun run bun:build        # Production build with Bun
+bun run bun:serve        # Serve local build with Bun
 ```
 
 ### AdGuard API TypeScript SDK (`src/adguard-api-typescript/`)
@@ -204,7 +225,14 @@ npm run start -- -k <api-key>              # With API key
 npm run start -- -e ADGUARD_API_KEY        # From env var
 npm run start -- sync -f rules.txt         # Sync rules to AdGuard
 
-# Deno
+# Bun commands (alternative runtime)
+bun install               # Install dependencies
+bun run bun:build         # Build with Bun
+bun run bun:start         # Run interactive CLI
+bun run bun:dev           # Run with Bun
+bun run bun:test          # Run tests with Bun
+
+# Deno commands (alternative runtime)
 deno task start                            # Run interactive CLI
 deno task check                            # Type check
 deno task lint                             # Lint
@@ -221,7 +249,14 @@ npm run build             # Build TypeScript
 npm run import:docs       # Import documentation
 npm run import:dry-run    # Preview import
 
-# Deno
+# Bun commands (alternative runtime)
+bun install               # Install dependencies
+bun run bun:build         # Build with Bun
+bun run bun:import        # Run import
+bun run bun:import:docs   # Import documentation
+bun run bun:import:dry-run # Preview import
+
+# Deno commands (alternative runtime)
 deno task import                           # Run import
 deno task import:docs                      # Import documentation
 deno task import:dry-run                   # Preview import
@@ -318,6 +353,7 @@ cargo test config::                       # Tests in module
 - `src/mod.ts` - Deno entry point
 - `frontend-rust/` - Optional Rust CLI frontend
 - Deno support via `deno.json`
+- Bun support via `bunfig.toml` and `bun:*` npm scripts
 - ESLint and Jest for testing
 
 ### Shell Scripts (`src/rules-compiler-shell/`)
@@ -367,20 +403,22 @@ cargo test config::                       # Tests in module
 
 ### API Client - TypeScript (`src/adguard-api-typescript/`)
 - TypeScript SDK for AdGuard DNS API v1.11 with feature parity to .NET version
-- Node.js 18+ and Deno support via `deno.json`
+- Node.js 18+, Deno 2.0+, and Bun 1.0+ support
 - `src/client.ts` - Main `AdGuardDnsClient` class with fluent API
 - `src/api/` - API endpoint implementations (account, devices, DNS servers, statistics, etc.)
 - `src/repositories/` - Higher-level repository pattern abstractions
 - `src/cli/` - Interactive CLI with menu-driven interface
 - `src/mod.ts` - Deno entry point
+- Bun support via `bunfig.toml` and `bun:*` npm scripts
 - Key classes: `AdGuardDnsClient`, `DeviceRepository`, `DnsServerRepository`, `UserRulesRepository`
 - Dependencies: axios, commander, inquirer, chalk
 
 ### Linear Import Tool (`src/linear/`)
 - TypeScript tool for importing documentation into Linear project management
-- Node.js 18+ and Deno support via `deno.json`
+- Node.js 18+, Deno 2.0+, and Bun 1.0+ support
 - `src/linear-import.ts` - Main CLI entry point (Node.js)
 - `src/mod.ts` - Deno entry point
+- Bun support via `bunfig.toml` and `bun:*` npm scripts
 - `src/parser.ts` - Markdown documentation parser
 - `src/linear-client.ts` - Linear API client wrapper
 - `src/types.ts` - TypeScript type definitions
@@ -458,6 +496,7 @@ GitHub Actions workflows validate:
 | .NET SDK | 10.0+ | .NET compiler, API client |
 | Node.js | 22.x LTS | All compilers, Website |
 | Deno | 2.0+ | TypeScript projects (alternative to Node.js) |
+| Bun | 1.0+ | TypeScript projects (alternative to Node.js) |
 | PowerShell | 7+ | PowerShell scripts |
 | Python | 3.9+ | Python compiler |
 | Rust | 1.85+ | Rust compiler (install via rustup) |

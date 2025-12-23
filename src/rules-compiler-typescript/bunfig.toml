@@ -1,0 +1,15 @@
+# Bun configuration for rules-compiler-typescript
+# https://bun.sh/docs/runtime/bunfig
+
+[install]
+# Use exact versions for reproducible builds
+exact = true
+
+[run]
+# Enable shell completions
+shell = true
+
+[test]
+# Test configuration
+coverage = false
+coverageDir = "coverage"
