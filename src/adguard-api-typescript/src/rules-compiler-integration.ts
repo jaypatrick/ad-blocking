@@ -7,9 +7,9 @@
 
 import { promises as fs } from 'fs';
 import * as path from 'path';
-import { UserRulesRepository } from './repositories/user-rules';
-import { DnsServerRepository } from './repositories/dns-server';
-import { Logger, silentLogger } from './helpers/configuration';
+import { UserRulesRepository } from './repositories/user-rules.js';
+import { DnsServerRepository } from './repositories/dns-server.js';
+import { Logger, silentLogger } from './helpers/configuration.js';
 
 /** Result of a rules compilation and sync operation */
 export interface RulesSyncResult {

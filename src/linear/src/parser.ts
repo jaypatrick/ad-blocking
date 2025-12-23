@@ -40,8 +40,14 @@ export function parseMarkdown(content: string): ParsedDocument {
       }
       contentBuffer = [];
 
-      const level = headingMatch[1].length;
+      const hashMarks = headingMatch[1];
       const sectionTitle = headingMatch[2];
+
+      if (!hashMarks || !sectionTitle) {
+        continue;
+      }
+
+      const level = hashMarks.length;
 
       // First h1 is the document title
       if (level === 1 && !title) {
@@ -57,17 +63,22 @@ export function parseMarkdown(content: string): ParsedDocument {
       };
 
       // Find parent section
-      while (
-        sectionStack.length > 0 &&
-        sectionStack[sectionStack.length - 1].level >= level
-      ) {
-        sectionStack.pop();
+      while (sectionStack.length > 0) {
+        const lastSection = sectionStack[sectionStack.length - 1];
+        if (lastSection && lastSection.level >= level) {
+          sectionStack.pop();
+        } else {
+          break;
+        }
       }
 
       if (sectionStack.length === 0) {
         sections.push(newSection);
       } else {
-        sectionStack[sectionStack.length - 1].subsections.push(newSection);
+        const parentSection = sectionStack[sectionStack.length - 1];
+        if (parentSection) {
+          parentSection.subsections.push(newSection);
+        }
       }
 
       sectionStack.push(newSection);
@@ -120,11 +131,15 @@ export function extractRoadmapItems(document: ParsedDocument): RoadmapItem[] {
   let match;
 
   while ((match = checkboxRegex.exec(content)) !== null) {
-    roadmapItems.push({
-      title: match[2].trim(),
-      description: "",
-      completed: match[1] === "x",
-    });
+    const checkbox = match[1];
+    const itemTitle = match[2];
+    if (checkbox !== undefined && itemTitle !== undefined) {
+      roadmapItems.push({
+        title: itemTitle.trim(),
+        description: "",
+        completed: checkbox === "x",
+      });
+    }
   }
 
   return roadmapItems;
@@ -156,8 +171,8 @@ export function extractComponents(document: ParsedDocument): ComponentInfo[] {
     const nameMatch = subsection.title.match(/^\d+\.\s*(.+?)(?:\s*\(|$)/);
 
     const component: ComponentInfo = {
-      name: nameMatch ? nameMatch[1].trim() : subsection.title,
-      path: pathMatch ? pathMatch[1] : "",
+      name: nameMatch?.[1]?.trim() ?? subsection.title,
+      path: pathMatch?.[1] ?? "",
       purpose: "",
       techStack: [],
       keyFiles: [],
@@ -165,7 +180,7 @@ export function extractComponents(document: ParsedDocument): ComponentInfo[] {
 
     // Extract purpose from content
     const purposeMatch = subsection.content.match(/\*\*Purpose:\*\*\s*(.+)/);
-    if (purposeMatch) {
+    if (purposeMatch?.[1]) {
       component.purpose = purposeMatch[1].trim();
     }
 
@@ -173,7 +188,7 @@ export function extractComponents(document: ParsedDocument): ComponentInfo[] {
     const techStackSection = subsection.content.match(
       /\*\*Technology Stack:\*\*\n([\s\S]*?)(?=\n\*\*|\n---|\n###|$)/
     );
-    if (techStackSection) {
+    if (techStackSection?.[1]) {
       const techItems = techStackSection[1].match(/^-\s+(.+)/gm);
       if (techItems) {
         component.techStack = techItems.map((item) =>
@@ -186,11 +201,11 @@ export function extractComponents(document: ParsedDocument): ComponentInfo[] {
     const tableMatch = subsection.content.match(
       /\| File \| Description \|\n\|[-\s|]+\|\n([\s\S]*?)(?=\n\n|\n---|\n###|$)/
     );
-    if (tableMatch) {
+    if (tableMatch?.[1]) {
       const rows = tableMatch[1].split("\n").filter((row) => row.trim());
       for (const row of rows) {
         const cells = row.split("|").filter((cell) => cell.trim());
-        if (cells.length >= 2) {
+        if (cells.length >= 2 && cells[0] && cells[1]) {
           component.keyFiles.push({
             file: cells[0].replace(/`/g, "").trim(),
             description: cells[1].trim(),
@@ -216,9 +231,11 @@ export function getSectionByPath(
   let sections = document.sections;
 
   for (let i = 0; i < parts.length; i++) {
-    const part = parts[i].toLowerCase();
+    const part = parts[i];
+    if (!part) continue;
+
     const found = sections.find((s) =>
-      s.title.toLowerCase().includes(part)
+      s.title.toLowerCase().includes(part.toLowerCase())
     );
     if (!found) return null;
     if (i === parts.length - 1) return found;

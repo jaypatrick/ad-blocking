@@ -2,10 +2,10 @@
  * Statistics repository
  */
 
-import { BaseRepository } from './base';
-import { StatisticsApi } from '../api/statistics';
-import { Logger } from '../helpers/configuration';
-import { DateTime } from '../helpers/datetime';
+import { BaseRepository } from './base.js';
+import { StatisticsApi } from '../api/statistics.js';
+import { Logger } from '../helpers/configuration.js';
+import { DateTime } from '../helpers/datetime.js';
 import {
   TimeQueriesStatsList,
   CategoryQueriesStatsList,
@@ -15,7 +15,7 @@ import {
   DeviceQueriesStatsList,
   DomainQueriesStatsList,
   StatsQueryParams,
-} from '../models';
+} from '../models/index.js';
 
 /** Time range presets */
 export type TimeRange = 'today' | '24h' | '7d' | '30d' | 'custom';

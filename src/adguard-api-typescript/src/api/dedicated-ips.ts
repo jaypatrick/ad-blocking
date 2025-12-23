@@ -2,9 +2,9 @@
  * Dedicated IP Addresses API client
  */
 
-import { BaseApi } from './base';
-import { ApiConfiguration } from '../helpers/configuration';
-import { DedicatedIPv4Address } from '../models';
+import { BaseApi } from './base.js';
+import { ApiConfiguration } from '../helpers/configuration.js';
+import { DedicatedIPv4Address } from '../models/index.js';
 
 /** Dedicated IP Addresses API endpoints */
 export class DedicatedIpApi extends BaseApi {

@@ -2,7 +2,7 @@
  * Device-related models
  */
 
-import { DeviceType } from './enums';
+import { DeviceType } from './enums.js';
 
 /** IP address info */
 export interface IpAddress {

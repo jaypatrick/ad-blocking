@@ -2,12 +2,12 @@
  * Authentication API client
  */
 
-import { BaseApi } from './base';
-import { ApiConfiguration } from '../helpers/configuration';
+import { BaseApi } from './base.js';
+import { ApiConfiguration } from '../helpers/configuration.js';
 import {
   AccessTokenCredentials,
   AccessTokenResponse,
-} from '../models';
+} from '../models/index.js';
 
 /** Authentication API endpoints */
 export class AuthApi extends BaseApi {

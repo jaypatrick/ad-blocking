@@ -3,7 +3,7 @@
  * Provides promise-based timeout handling for production safety
  */
 
-import { CompilationTimeoutError } from './errors';
+import { CompilationTimeoutError } from './errors.js';
 
 /**
  * Wraps a promise with a timeout

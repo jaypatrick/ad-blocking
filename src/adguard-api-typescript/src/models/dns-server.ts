@@ -2,8 +2,8 @@
  * DNS Server-related models
  */
 
-import { BlockingMode, DayOfWeek, FilterListCategoryType } from './enums';
-import { Limit } from './account';
+import { BlockingMode, DayOfWeek, FilterListCategoryType } from './enums.js';
+import { Limit } from './account.js';
 
 /** Blocking mode settings */
 export interface BlockingModeSettings {

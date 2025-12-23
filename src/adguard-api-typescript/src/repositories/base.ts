@@ -2,12 +2,12 @@
  * Base repository class with common error handling
  */
 
-import { Logger, silentLogger } from '../helpers/configuration';
+import { Logger, silentLogger } from '../helpers/configuration.js';
 import {
   ApiError,
   EntityNotFoundError,
   RepositoryError,
-} from '../errors';
+} from '../errors/index.js';
 
 /** Repository operation callback */
 export type RepositoryOperation<T> = () => Promise<T>;

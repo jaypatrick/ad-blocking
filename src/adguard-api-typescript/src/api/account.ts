@@ -2,9 +2,9 @@
  * Account API client
  */
 
-import { BaseApi } from './base';
-import { ApiConfiguration } from '../helpers/configuration';
-import { AccountLimits } from '../models';
+import { BaseApi } from './base.js';
+import { ApiConfiguration } from '../helpers/configuration.js';
+import { AccountLimits } from '../models/index.js';
 
 /** Account API endpoints */
 export class AccountApi extends BaseApi {

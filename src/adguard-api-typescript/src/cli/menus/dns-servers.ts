@@ -2,8 +2,8 @@
  * DNS Servers menu
  */
 
-import { BaseMenu, MenuItem } from './base';
-import { DnsServerRepository } from '../../repositories/dns-server';
+import { BaseMenu, MenuItem } from './base.js';
+import { DnsServerRepository } from '../../repositories/dns-server.js';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import {
   createTable,
@@ -12,7 +12,7 @@ import {
   showSuccess,
   showNoItems,
   withSpinner,
-} from '../utils';
+} from '../utils.js';
 
 export class DnsServersMenu extends BaseMenu {
   protected get title(): string {

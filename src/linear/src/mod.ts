@@ -7,14 +7,20 @@
  * @module
  */
 
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-
 // Re-export modules for library usage
-export * from './types.ts';
-export { parseMarkdownFile, parseMarkdown, extractRoadmapItems, extractComponents, getSectionByPath, flattenSections } from './parser.ts';
-export { LinearImporter } from './linear-client.ts';
+export * from './types.js';
+export { parseMarkdownFile, parseMarkdown, extractRoadmapItems, extractComponents, getSectionByPath, flattenSections } from './parser.js';
+export { LinearImporter } from './linear-client.js';
+
+// Type declaration for Deno global (when running in Deno runtime)
+declare const Deno: {
+  mainModule: string;
+  args: string[];
+  env: {
+    get(key: string): string | undefined;
+  };
+  exit(code: number): never;
+};
 
 // Deno CLI entry point
 const isDeno = typeof Deno !== 'undefined';
@@ -22,20 +28,30 @@ const isMainModule = isDeno && Deno.mainModule === import.meta.url;
 
 if (isMainModule) {
   const { Command } = await import('commander');
-  const { resolve, dirname, fromFileUrl } = await import('node:path');
+  const { resolve, dirname } = await import('node:path');
+  const { fileURLToPath } = await import('node:url');
   const { existsSync } = await import('node:fs');
 
-  const { LinearImporter } = await import('./linear-client.ts');
+  const { LinearImporter } = await import('./linear-client.js');
   const {
     parseMarkdownFile,
     extractRoadmapItems,
     extractComponents,
     flattenSections,
-  } = await import('./parser.ts');
-  const { ImportConfig } = await import('./types.ts');
+  } = await import('./parser.js');
+
+  // Type definition for ImportConfig (from types.js)
+  interface ImportConfig {
+    teamId: string;
+    projectName: string;
+    createProject: boolean;
+    createIssues: boolean;
+    createDocuments: boolean;
+    dryRun: boolean;
+  }
 
   // Get module directory for default paths
-  const __dirname = dirname(fromFileUrl(import.meta.url));
+  const __dirname = dirname(fileURLToPath(import.meta.url));
   const DEFAULT_DOC_PATH = resolve(__dirname, '../../../docs/LINEAR_DOCUMENTATION.md');
 
   async function main(): Promise<void> {
@@ -72,12 +88,12 @@ if (isMainModule) {
     }
 
     const importConfig: ImportConfig = {
-      teamId: options.team || Deno.env.get('LINEAR_TEAM_ID') || '',
-      projectName: options.project || Deno.env.get('LINEAR_PROJECT_NAME') || '',
-      createProject: options.project !== false,
-      createIssues: options.issues !== false,
-      createDocuments: options.docs !== false,
-      dryRun: options.dryRun,
+      teamId: options['team'] || Deno.env.get('LINEAR_TEAM_ID') || '',
+      projectName: options['project'] || Deno.env.get('LINEAR_PROJECT_NAME') || '',
+      createProject: options['project'] !== false,
+      createIssues: options['issues'] !== false,
+      createDocuments: options['docs'] !== false,
+      dryRun: options['dryRun'],
     };
 
     try {
@@ -85,7 +101,7 @@ if (isMainModule) {
       await importer.initialize();
 
       // Handle list commands
-      if (options.listTeams) {
+      if (options['listTeams']) {
         console.log('\nAvailable Teams:');
         const teams = await importer.listTeams();
         for (const team of teams) {
@@ -94,7 +110,7 @@ if (isMainModule) {
         return;
       }
 
-      if (options.listProjects) {
+      if (options['listProjects']) {
         console.log('\nExisting Projects:');
         const projects = await importer.listProjects();
         if (projects.length === 0) {
@@ -108,7 +124,7 @@ if (isMainModule) {
       }
 
       // Validate file exists
-      const filePath = resolve(options.file);
+      const filePath = resolve(options['file']);
       if (!existsSync(filePath)) {
         console.error(`Error: Documentation file not found: ${filePath}`);
         Deno.exit(1);
@@ -123,7 +139,7 @@ if (isMainModule) {
       const components = extractComponents(document);
       const sections = flattenSections(document);
 
-      if (options.verbose) {
+      if (options['verbose']) {
         console.log(`\n  Sections: ${sections.length}`);
         console.log(`  Roadmap items: ${roadmapItems.length}`);
         console.log(`  Components: ${components.length}`);
