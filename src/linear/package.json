@@ -15,7 +15,6 @@
     "import": "node dist/linear-import.js",
     "import:docs": "node dist/linear-import.js --file ../../docs/LINEAR_DOCUMENTATION.md",
     "import:dry-run": "node dist/linear-import.js --file ../../docs/LINEAR_DOCUMENTATION.md --dry-run",
-    "dev": "node --import tsx src/linear-import.ts",
     "bun:build": "bun build src/linear-import.ts --outdir dist --target node",
     "bun:import": "bun run src/linear-import.ts",
     "bun:import:docs": "bun run src/linear-import.ts --file ../../docs/LINEAR_DOCUMENTATION.md",
@@ -36,9 +35,8 @@
     "commander": "^13.1.0"
   },
   "devDependencies": {
-    "@types/node": "^22.15.0",
-    "tsx": "^4.19.0",
-    "typescript": "^5.8.0"
+    "@types/node": "^20.14.0",
+    "typescript": "^5.4.5"
   },
   "engines": {
     "node": ">=18.0.0",
