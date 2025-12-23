@@ -9,5 +9,3 @@
 exact = true
 
 # Gatsby may have issues with some hoisting
-[install.scopes]
-# Add any scope-specific configurations here if needed
