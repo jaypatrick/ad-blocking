@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This repository is a comprehensive multi-language toolkit for ad-blocking, network protection, and AdGuard DNS management:
 
 ### Rules Compilers (4 languages)
-- **TypeScript** (`src/rules-compiler-typescript/`) - Node.js 18+, Deno 2.0+, and Bun 1.0+ support, optional Rust frontend
+- **TypeScript** (`src/rules-compiler-typescript/`) - Node.js 18+ with Deno and Bun support, optional Rust frontend
 - **C#/.NET 10** (`src/rules-compiler-dotnet/`) - Library and Spectre.Console CLI with DI support
 - **Python 3.9+** (`src/rules-compiler-python/`) - pip-installable package with CLI and API
 - **Rust** (`src/rules-compiler-rust/`) - High-performance single binary with zero runtime deps
@@ -88,12 +88,6 @@ bun run bun:compile       # Compile filter rules
 bun run bun:compile:yaml  # Compile using YAML config
 bun run bun:compile:toml  # Compile using TOML config
 bun run bun:test          # Run tests with Bun
-
-# Deno commands (alternative runtime)
-deno task compile         # Compile filter rules
-deno task check           # Type check
-deno task lint            # Lint
-deno task fmt             # Format
 ```
 
 ### Shell Scripts (`src/rules-compiler-shell/`)
@@ -207,60 +201,6 @@ bun install              # Install dependencies (faster)
 bun run bun:develop      # Dev server with Bun
 bun run bun:build        # Production build with Bun
 bun run bun:serve        # Serve local build with Bun
-```
-
-### AdGuard API TypeScript SDK (`src/adguard-api-typescript/`)
-```bash
-cd src/adguard-api-typescript
-
-# Node.js
-npm ci                    # Install dependencies
-npm run build             # Build TypeScript
-npm test                  # Run Jest tests
-npm run start             # Run interactive CLI
-npm run dev               # Run with tsx
-
-# CLI usage
-npm run start -- -k <api-key>              # With API key
-npm run start -- -e ADGUARD_API_KEY        # From env var
-npm run start -- sync -f rules.txt         # Sync rules to AdGuard
-
-# Bun commands (alternative runtime)
-bun install               # Install dependencies
-bun run bun:build         # Build with Bun
-bun run bun:start         # Run interactive CLI
-bun run bun:dev           # Run with Bun
-bun run bun:test          # Run tests with Bun
-
-# Deno commands (alternative runtime)
-deno task start                            # Run interactive CLI
-deno task check                            # Type check
-deno task lint                             # Lint
-deno task fmt                              # Format
-```
-
-### Linear Import Tool (`src/linear/`)
-```bash
-cd src/linear
-
-# Node.js
-npm ci                    # Install dependencies
-npm run build             # Build TypeScript
-npm run import:docs       # Import documentation
-npm run import:dry-run    # Preview import
-
-# Bun commands (alternative runtime)
-bun install               # Install dependencies
-bun run bun:build         # Build with Bun
-bun run bun:import        # Run import
-bun run bun:import:docs   # Import documentation
-bun run bun:import:dry-run # Preview import
-
-# Deno commands (alternative runtime)
-deno task import                           # Run import
-deno task import:docs                      # Import documentation
-deno task import:dry-run                   # Preview import
-deno task check                            # Type check
 ```
 
 ### PowerShell RulesCompiler Module (`src/adguard-api-powershell/`)
@@ -495,8 +435,7 @@ GitHub Actions workflows validate:
 |-------------|---------|--------------|
 | .NET SDK | 10.0+ | .NET compiler, API client |
 | Node.js | 22.x LTS | All compilers, Website |
-| Deno | 2.0+ | TypeScript projects (alternative to Node.js) |
-| Bun | 1.0+ | TypeScript projects (alternative to Node.js) |
+| Bun | 1.0+ | TypeScript projects (optional alternative to Node.js) |
 | PowerShell | 7+ | PowerShell scripts |
 | Python | 3.9+ | Python compiler |
 | Rust | 1.85+ | Rust compiler (install via rustup) |
