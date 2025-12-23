@@ -1,0 +1,10 @@
+# Bun configuration for linear-import
+# https://bun.sh/docs/runtime/bunfig
+
+[install]
+# Use exact versions for reproducible builds
+exact = true
+
+[run]
+# Enable shell completions
+shell = true

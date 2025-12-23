@@ -24,7 +24,16 @@
     "lint": "eslint src/",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "bun:build": "bun build src/cli.ts --outdir dist --target node",
+    "bun:start": "bun dist/cli.js",
+    "bun:dev": "bun run src/cli.ts",
+    "bun:compile": "bun run src/cli.ts",
+    "bun:compile:yaml": "bun run src/cli.ts -c compiler-config.yaml",
+    "bun:compile:toml": "bun run src/cli.ts -c compiler-config.toml",
+    "bun:lint": "bun run lint",
+    "bun:test": "bun test",
+    "bun:test:coverage": "bun test --coverage"
   },
   "keywords": [
     "adguard",
@@ -51,6 +60,7 @@
     "yaml": "^2.8.0"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.0.0",
+    "bun": ">=1.0.0"
   }
 }
