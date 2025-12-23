@@ -22,7 +22,7 @@ const isMainModule = isDeno && Deno.mainModule === import.meta.url;
 if (isMainModule) {
   // Dynamic import to avoid loading CLI dependencies when used as library
   const { Command } = await import('commander');
-  const inquirer = await import('inquirer');
+  const inquirer = (await import('inquirer')).default;
   const chalk = (await import('chalk')).default;
 
   const { AdGuardDnsClient } = await import('./client.ts');
@@ -51,7 +51,7 @@ if (isMainModule) {
     }
 
     // Prompt for API key
-    const { apiKey } = await inquirer.default.prompt([
+    const { apiKey } = await inquirer.prompt([
       {
         type: 'password',
         name: 'apiKey',
@@ -115,7 +115,7 @@ if (isMainModule) {
       while (true) {
         showHeader('Main Menu');
 
-        const { choice } = await inquirer.default.prompt([
+        const { choice } = await inquirer.prompt([
           {
             type: 'list',
             name: 'choice',
@@ -127,7 +127,7 @@ if (isMainModule) {
               { name: '📊 Statistics', value: 'statistics' },
               { name: '📋 Query Log', value: 'queryLog' },
               { name: '👤 Account & Info', value: 'account' },
-              new inquirer.default.Separator(),
+              new inquirer.Separator(),
               { name: '🚪 Exit', value: 'exit' },
             ],
           },
