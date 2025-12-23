@@ -19,6 +19,7 @@
     "bun:build": "bun build src/cli/index.ts --outdir dist/cli --target node",
     "bun:start": "bun dist/cli/index.js",
     "bun:dev": "bun run src/cli/index.ts",
+    "bun:lint": "bun run lint",
     "bun:test": "bun test",
     "bun:test:coverage": "bun test --coverage",
     "bun:test:watch": "bun test --watch"
