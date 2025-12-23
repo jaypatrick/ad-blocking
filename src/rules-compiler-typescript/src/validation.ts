@@ -68,7 +68,7 @@ function validateSource(source: unknown, index: number): string[] {
     errors.push(`${prefix}.source: is required`);
   } else if (typeof sourceObj['source'] !== 'string') {
     errors.push(`${prefix}.source: must be a string`);
-  } else if ((sourceObj['source'] as string).trim() === '') {
+  } else if (sourceObj['source'].trim() === '') {
     errors.push(`${prefix}.source: cannot be empty`);
   }
 
@@ -76,7 +76,7 @@ function validateSource(source: unknown, index: number): string[] {
   if (sourceObj['type'] !== undefined) {
     if (typeof sourceObj['type'] !== 'string') {
       errors.push(`${prefix}.type: must be a string`);
-    } else if (!['adblock', 'hosts'].includes(sourceObj['type'] as string)) {
+    } else if (!['adblock', 'hosts'].includes(sourceObj['type'])) {
       errors.push(`${prefix}.type: must be 'adblock' or 'hosts'`);
     }
   }
@@ -168,7 +168,7 @@ export function validateConfiguration(config: unknown): ValidationResult {
     errors.push('name: is required');
   } else if (typeof configObj['name'] !== 'string') {
     errors.push('name: must be a string');
-  } else if ((configObj['name'] as string).trim() === '') {
+  } else if (configObj['name'].trim() === '') {
     errors.push('name: cannot be empty');
   }
 
