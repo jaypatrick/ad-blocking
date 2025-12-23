@@ -369,7 +369,7 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<numb
   }
 }
 
-// Run if executed directly
-if (require.main === module) {
+// Run if executed directly (ES module check)
+if (import.meta.url === `file://${process.argv[1]}`) {
   void main().then((code) => process.exit(code));
 }

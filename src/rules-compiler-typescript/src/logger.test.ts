@@ -2,6 +2,7 @@
  * Tests for enhanced logger
  */
 
+import { jest } from '@jest/globals';
 import {
   createLogger,
   createProductionLogger,
@@ -12,10 +13,10 @@ import {
 
 describe('createLogger', () => {
   let consoleSpy: {
-    log: jest.SpyInstance;
-    warn: jest.SpyInstance;
-    error: jest.SpyInstance;
-    debug: jest.SpyInstance;
+    log: jest.SpiedFunction<typeof console.log>;
+    warn: jest.SpiedFunction<typeof console.warn>;
+    error: jest.SpiedFunction<typeof console.error>;
+    debug: jest.SpiedFunction<typeof console.debug>;
   };
 
   beforeEach(() => {
