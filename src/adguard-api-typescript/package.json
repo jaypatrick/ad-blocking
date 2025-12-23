@@ -51,6 +51,7 @@
     "chalk": "^5.4.0",
     "commander": "^13.1.0",
     "@inquirer/prompts": "^7.4.0",
+    "inquirer": "^9.0.0",
     "ora": "^8.2.0",
     "cli-table3": "^0.6.5"
   },
