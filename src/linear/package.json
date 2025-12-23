@@ -4,11 +4,18 @@
   "description": "Import documentation into Linear project management",
   "type": "module",
   "main": "dist/linear-import.js",
+  "exports": {
+    ".": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/linear-import.js"
+    }
+  },
   "scripts": {
     "build": "tsc",
     "import": "node dist/linear-import.js",
     "import:docs": "node dist/linear-import.js --file ../../docs/LINEAR_DOCUMENTATION.md",
-    "import:dry-run": "node dist/linear-import.js --file ../../docs/LINEAR_DOCUMENTATION.md --dry-run"
+    "import:dry-run": "node dist/linear-import.js --file ../../docs/LINEAR_DOCUMENTATION.md --dry-run",
+    "dev": "node --import tsx src/linear-import.ts"
   },
   "keywords": [
     "linear",
@@ -26,6 +33,10 @@
   },
   "devDependencies": {
     "@types/node": "^22.15.0",
+    "tsx": "^4.19.0",
     "typescript": "^5.8.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

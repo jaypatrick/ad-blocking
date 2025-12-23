@@ -18,10 +18,10 @@
     "node:url": "node:url",
     "axios": "npm:axios@^1.9.0",
     "axios-retry": "npm:axios-retry@^4.5.0",
-    "chalk": "npm:chalk@^4.1.2",
+    "chalk": "npm:chalk@^5.4.0",
     "commander": "npm:commander@^13.1.0",
-    "inquirer": "npm:inquirer@^8.2.6",
-    "ora": "npm:ora@^5.4.1",
+    "@inquirer/prompts": "npm:@inquirer/prompts@^7.4.0",
+    "ora": "npm:ora@^8.2.0",
     "cli-table3": "npm:cli-table3@^0.6.5"
   },
   "compilerOptions": {
