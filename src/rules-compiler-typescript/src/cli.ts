@@ -55,7 +55,7 @@ export function parseArgs(args: string[]): CliOptions {
       case '-f':
       case '--format':
         if (!nextArg || !['json', 'yaml', 'toml'].includes(nextArg)) {
-          throw new Error(`Invalid format: ${nextArg ?? 'undefined'}. Must be json, yaml, or toml.`);
+          throw new Error(`Invalid format: ${nextArg}. Must be json, yaml, or toml.`);
         }
         options.format = nextArg as ConfigurationFormat;
         i++;

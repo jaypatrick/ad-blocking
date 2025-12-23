@@ -168,8 +168,10 @@ export class LinearImporter {
     }
 
     const teams = await this.client.teams();
+    if (teams.nodes.length === 0) {
+      throw new Error("No teams found in Linear workspace");
+    }
     const team = teams.nodes.find((t) => t.id === this.teamId) || teams.nodes[0];
-
     if (!team) {
       throw new Error("No team available for project creation");
     }
