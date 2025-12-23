@@ -8,7 +8,11 @@
     "build": "tsc",
     "import": "node dist/linear-import.js",
     "import:docs": "node dist/linear-import.js --file ../../docs/LINEAR_DOCUMENTATION.md",
-    "import:dry-run": "node dist/linear-import.js --file ../../docs/LINEAR_DOCUMENTATION.md --dry-run"
+    "import:dry-run": "node dist/linear-import.js --file ../../docs/LINEAR_DOCUMENTATION.md --dry-run",
+    "bun:build": "bun build src/linear-import.ts --outdir dist --target node",
+    "bun:import": "bun run src/linear-import.ts",
+    "bun:import:docs": "bun run src/linear-import.ts --file ../../docs/LINEAR_DOCUMENTATION.md",
+    "bun:import:dry-run": "bun run src/linear-import.ts --file ../../docs/LINEAR_DOCUMENTATION.md --dry-run"
   },
   "keywords": [
     "linear",
@@ -27,5 +31,9 @@
   "devDependencies": {
     "@types/node": "^20.14.0",
     "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "bun": ">=1.0.0"
   }
 }

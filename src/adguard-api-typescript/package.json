@@ -15,7 +15,14 @@
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
-    "clean": "rm -rf dist coverage"
+    "clean": "rm -rf dist coverage",
+    "bun:build": "bun build src/cli/index.ts --outdir dist/cli --target node",
+    "bun:start": "bun dist/cli/index.js",
+    "bun:dev": "bun run src/cli/index.ts",
+    "bun:lint": "bun run lint",
+    "bun:test": "bun test",
+    "bun:test:coverage": "bun test --coverage",
+    "bun:test:watch": "bun test --watch"
   },
   "keywords": [
     "adguard",
@@ -49,6 +56,7 @@
     "cli-table3": "^0.6.5"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.0.0",
+    "bun": ">=1.0.0"
   }
 }
