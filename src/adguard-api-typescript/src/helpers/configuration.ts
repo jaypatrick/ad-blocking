@@ -290,7 +290,7 @@ export function createRetryableClient(
   return <T>(request: () => Promise<T>) => {
     return executeWithRetry(request, {
       ...retryOptions,
-      onRetry: (error: Error, attempt: number, delay: number) => {
+      onRetry: (error, attempt, delay) => {
         config.logger?.warn(
           `Request failed, retrying (attempt ${attempt}): ${error.message}. Waiting ${delay}ms...`
         );

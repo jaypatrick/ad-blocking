@@ -63,11 +63,13 @@ export function parseMarkdown(content: string): ParsedDocument {
       };
 
       // Find parent section
-      while (
-        sectionStack.length > 0 &&
-        sectionStack[sectionStack.length - 1]!.level >= level
-      ) {
-        sectionStack.pop();
+      while (sectionStack.length > 0) {
+        const lastSection = sectionStack[sectionStack.length - 1];
+        if (lastSection && lastSection.level >= level) {
+          sectionStack.pop();
+        } else {
+          break;
+        }
       }
 
       if (sectionStack.length === 0) {
