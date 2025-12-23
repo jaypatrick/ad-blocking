@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This repository is a comprehensive multi-language toolkit for ad-blocking, network protection, and AdGuard DNS management:
 
 ### Rules Compilers (4 languages)
-- **TypeScript** (`src/rules-compiler-typescript/`) - Node.js 18+ with Deno support, optional Rust frontend
+- **TypeScript** (`src/rules-compiler-typescript/`) - Node.js 18+ with Deno and Bun support, optional Rust frontend
 - **C#/.NET 10** (`src/rules-compiler-dotnet/`) - Library and Spectre.Console CLI with DI support
 - **Python 3.9+** (`src/rules-compiler-python/`) - pip-installable package with CLI and API
 - **Rust** (`src/rules-compiler-rust/`) - High-performance single binary with zero runtime deps
@@ -77,6 +77,14 @@ npm run dev               # Run with ts-node
 npm run compile -- -c config.yaml -r -d
 npm run compile -- --help
 npm run compile -- --version
+
+# Bun commands (alternative runtime)
+bun install               # Install dependencies
+bun run bun:build         # Build with Bun
+bun run bun:dev           # Run with Bun
+bun run bun:compile       # Compile filter rules
+bun run bun:compile:yaml  # Compile using YAML config
+bun run bun:test          # Run tests with Bun
 ```
 
 ### Shell Scripts (`src/rules-compiler-shell/`)
@@ -184,6 +192,12 @@ npm ci
 npm run develop    # Dev server at localhost:8000
 npm run build      # Production build
 npm run serve      # Serve local build
+
+# Bun commands (experimental Gatsby support)
+bun install              # Install dependencies (faster)
+bun run bun:develop      # Dev server with Bun
+bun run bun:build        # Production build with Bun
+bun run bun:serve        # Serve local build with Bun
 ```
 
 ### PowerShell RulesCompiler Module (`src/adguard-api-powershell/`)
@@ -276,6 +290,7 @@ cargo test config::                       # Tests in module
 - `src/mod.ts` - Deno entry point
 - `frontend-rust/` - Optional Rust CLI frontend
 - Deno support via `deno.json`
+- Bun support via `bunfig.toml` and `bun:*` npm scripts
 - ESLint and Jest for testing
 
 ### Shell Scripts (`src/rules-compiler-shell/`)
@@ -394,6 +409,7 @@ GitHub Actions workflows validate:
 |-------------|---------|--------------|
 | .NET SDK | 10.0+ | .NET compiler, API client |
 | Node.js | 22.x LTS | All compilers, Website |
+| Bun | 1.0+ | TypeScript projects (optional alternative to Node.js) |
 | PowerShell | 7+ | PowerShell scripts |
 | Python | 3.9+ | Python compiler |
 | Rust | 1.85+ | Rust compiler (install via rustup) |
