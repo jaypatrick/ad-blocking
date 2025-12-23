@@ -84,6 +84,7 @@ bun run bun:build         # Build with Bun
 bun run bun:dev           # Run with Bun
 bun run bun:compile       # Compile filter rules
 bun run bun:compile:yaml  # Compile using YAML config
+bun run bun:compile:toml  # Compile using TOML config
 bun run bun:test          # Run tests with Bun
 ```
 
