@@ -17,10 +17,10 @@
     "node:path": "node:path",
     "node:process": "node:process",
     "node:url": "node:url",
-    "@linear/sdk": "npm:@linear/sdk@^24.0.0",
-    "dotenv": "npm:dotenv@^16.4.5",
-    "marked": "npm:marked@^12.0.2",
-    "commander": "npm:commander@^12.1.0"
+    "@linear/sdk": "npm:@linear/sdk@^37.0.0",
+    "dotenv": "npm:dotenv@^16.5.0",
+    "marked": "npm:marked@^15.0.0",
+    "commander": "npm:commander@^13.1.0"
   },
   "compilerOptions": {
     "lib": ["deno.ns", "deno.unstable", "dom"],
