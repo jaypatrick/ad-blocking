@@ -16,7 +16,7 @@
     "node:path": "node:path",
     "node:crypto": "node:crypto",
     "node:process": "node:process",
-    "yaml": "npm:yaml@^2.7.1",
+    "yaml": "npm:yaml@^2.8.0",
     "@iarna/toml": "npm:@iarna/toml@^2.2.5",
     "@adguard/hostlist-compiler": "npm:@adguard/hostlist-compiler@^1.0.39"
   },

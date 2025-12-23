@@ -22,8 +22,10 @@ This repository is a comprehensive multi-language toolkit for ad-blocking, netwo
 - **RulesCompiler Module** (`src/adguard-api-powershell/`) - Full-featured PowerShell API with Pester tests
 
 ### API Client & Tools
-- **AdGuard API Client** (`src/adguard-api-dotnet/`) - C# SDK for AdGuard DNS API v1.11
+- **AdGuard API Client - .NET** (`src/adguard-api-dotnet/`) - C# SDK for AdGuard DNS API v1.11
+- **AdGuard API Client - TypeScript** (`src/adguard-api-typescript/`) - TypeScript SDK with Node.js, Deno, and Bun support
 - **Console UI** (`src/adguard-api-dotnet/src/AdGuard.ConsoleUI/`) - Spectre.Console interactive interface
+- **Linear Import Tool** (`src/linear/`) - TypeScript tool with Node.js, Deno, and Bun support
 
 ### Website
 - **Gatsby Site** (`src/website/`) - Portfolio site deployed to GitHub Pages
@@ -332,12 +334,35 @@ cargo test config::                       # Tests in module
 - Key structs: `RulesCompiler`, `CompilerConfiguration`, `CompilerResult`, `VersionInfo`
 - LTO optimization enabled for small binary size
 
-### API Client (`src/adguard-api-dotnet/`)
+### API Client - .NET (`src/adguard-api-dotnet/`)
 - Auto-generated from `api/openapi.json` (primary) and `api/openapi.yaml` (optional) - AdGuard DNS API v1.11
 - `Helpers/ConfigurationHelper.cs` - Fluent auth, timeouts, user agent
 - `Helpers/RetryPolicyHelper.cs` - Polly-based retry for 408/429/5xx
 - Uses Newtonsoft.Json and JsonSubTypes
 - Benchmarks project for performance testing
+
+### API Client - TypeScript (`src/adguard-api-typescript/`)
+- TypeScript SDK for AdGuard DNS API v1.11 with feature parity to .NET version
+- Node.js 18+, Deno 2.0+, and Bun 1.0+ support
+- `src/client.ts` - Main `AdGuardDnsClient` class with fluent API
+- `src/api/` - API endpoint implementations (account, devices, DNS servers, statistics, etc.)
+- `src/repositories/` - Higher-level repository pattern abstractions
+- `src/cli/` - Interactive CLI with menu-driven interface
+- `src/mod.ts` - Deno entry point
+- Bun support via `bunfig.toml` and `bun:*` npm scripts
+- Key classes: `AdGuardDnsClient`, `DeviceRepository`, `DnsServerRepository`, `UserRulesRepository`
+- Dependencies: axios, commander, inquirer, chalk
+
+### Linear Import Tool (`src/linear/`)
+- TypeScript tool for importing documentation into Linear project management
+- Node.js 18+, Deno 2.0+, and Bun 1.0+ support
+- `src/linear-import.ts` - Main CLI entry point (Node.js)
+- `src/mod.ts` - Deno entry point
+- Bun support via `bunfig.toml` and `bun:*` npm scripts
+- `src/parser.ts` - Markdown documentation parser
+- `src/linear-client.ts` - Linear API client wrapper
+- `src/types.ts` - TypeScript type definitions
+- Dependencies: @linear/sdk, commander, marked, dotenv
 
 ### Console UI (`src/adguard-api-dotnet/src/AdGuard.ConsoleUI/`)
 - Spectre.Console menu-driven interface
