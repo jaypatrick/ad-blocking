@@ -124,7 +124,7 @@ export function extractRoadmapItems(document: ParsedDocument): RoadmapItem[] {
 
   // Parse checkbox items from roadmap section
   const content = roadmapSection.content +
-    roadmapSection.subsections.map((s: DocumentSection) => s.content).join("\n");
+    roadmapSection.subsections.map((s) => s.content).join("\n");
 
   const checkboxRegex = /^-\s*\[([ x])\]\s*(.+)$/gm;
   let match;
