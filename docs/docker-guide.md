@@ -12,16 +12,16 @@ The repository includes a pre-configured Docker environment with all necessary d
 FROM mcr.microsoft.com/dotnet/sdk:10.0-noble
 
 # Build arguments for version control
-ARG NODE_VERSION=22
+ARG DENO_VERSION=2.x
 ARG RUST_VERSION=stable
 
 # Includes installation of:
-# - Node.js 22.x LTS
+# - Deno 2.x
 # - Python 3.12 with pip
 # - Rust stable toolchain
 # - PowerShell 7
 # - yq (YAML processor)
-# - hostlist-compiler (pre-installed globally)
+# - hostlist-compiler (via Deno npm compatibility)
 
 WORKDIR /workspace
 ```
@@ -31,19 +31,18 @@ WORKDIR /workspace
 | Component | Version | Purpose |
 |-----------|---------|---------|
 | .NET SDK | 10.0 | .NET compiler, API client |
-| Node.js | 22.x LTS | TypeScript compiler, hostlist-compiler |
-| npm | Latest | Package management |
+| Deno | 2.x | TypeScript compiler, hostlist-compiler |
 | Python | 3.12 | Python compiler |
 | Rust | Stable | Rust compiler |
 | PowerShell | 7.x | PowerShell scripts and modules |
 | Git | Latest | Version control |
 | yq | Latest | YAML processing for shell scripts |
-| hostlist-compiler | Latest | Pre-installed globally |
+| hostlist-compiler | Latest | Via Deno npm compatibility |
 | Ubuntu | 24.04 (Noble) | Base OS |
 
 ### Pre-installed Tools
 
-- **npm global packages**: `@adguard/hostlist-compiler`, `typescript`, `ts-node`
+- **Deno packages**: `@adguard/hostlist-compiler` (via npm: specifier)
 - **Python packages**: `pytest`, `pytest-cov`, `mypy`, `ruff`, `pyyaml`, `tomlkit`
 - **Rust components**: `clippy`, `rustfmt`
 - **PowerShell modules**: `Pester`, `PSScriptAnalyzer`
@@ -60,7 +59,7 @@ docker build -f Dockerfile.warp -t ad-blocking-dev .
 
 ```bash
 docker build -f Dockerfile.warp \
-  --build-arg NODE_VERSION=22 \
+  --build-arg DENO_VERSION=2.x \
   --build-arg RUST_VERSION=stable \
   -t ad-blocking-dev:custom .
 ```
@@ -104,7 +103,7 @@ docker run -d \
 Then execute commands:
 
 ```bash
-docker exec ad-blocking-container npm run compile
+docker exec ad-blocking-container deno task compile
 ```
 
 ## Docker Compose
@@ -171,9 +170,9 @@ ADGUARD_API_KEY=your-api-key-here
 ### Initial Setup (Inside Container)
 
 ```bash
-# TypeScript compiler
+# TypeScript compiler (Deno caches dependencies automatically)
 cd /workspace/src/rules-compiler-typescript
-npm ci
+deno cache src/mod.ts
 
 # .NET projects
 cd /workspace/src/rules-compiler-dotnet
@@ -189,18 +188,14 @@ pip install -e ".[dev]"
 # Rust compiler
 cd /workspace/src/rules-compiler-rust
 cargo build
-
-# Website (optional)
-cd /workspace/src/website
-npm ci
 ```
 
 ### Compiling Filter Rules
 
 ```bash
-# TypeScript
+# TypeScript (Deno)
 cd /workspace/src/rules-compiler-typescript
-npm run compile
+deno task compile
 
 # .NET
 cd /workspace/src/rules-compiler-dotnet
@@ -225,9 +220,9 @@ pwsh -Command "Import-Module ./src/adguard-api-powershell/Invoke-RulesCompiler.p
 ### Running Tests
 
 ```bash
-# TypeScript tests
+# TypeScript tests (Deno)
 cd /workspace/src/rules-compiler-typescript
-npm test
+deno task test
 
 # .NET tests
 cd /workspace/src/rules-compiler-dotnet
@@ -264,8 +259,7 @@ For [Warp](https://www.warp.dev/) terminal users, a pre-built environment is ava
 
 ```bash
 # The environment automatically runs these setup commands:
-cd ad-blocking/src/rules-compiler-typescript && npm install
-cd ad-blocking/src/website && npm install
+cd ad-blocking/src/rules-compiler-typescript && deno cache src/mod.ts
 cd ad-blocking/src/adguard-api-dotnet && dotnet restore
 ```
 
@@ -293,7 +287,7 @@ jobs:
           docker run --rm \
             -v ${{ github.workspace }}:/workspace \
             ad-blocking-dev \
-            bash -c "cd /workspace/src/rules-compiler-typescript && npm ci && npm test"
+            bash -c "cd /workspace/src/rules-compiler-typescript && deno task test"
 
       - name: Run .NET tests
         run: |
@@ -328,16 +322,16 @@ If you encounter permission issues with mounted volumes:
 docker run -it -v $(pwd):/workspace -u $(id -u):$(id -g) ad-blocking-dev
 ```
 
-### Node Modules Issues
+### Deno Cache Issues
 
-If `node_modules` has issues between host and container:
+If Deno cache has issues between host and container:
 
 ```bash
-# Remove node_modules and reinstall inside container
+# Clear Deno cache and re-cache dependencies
 docker run -it -v $(pwd):/workspace ad-blocking-dev bash -c "
-  rm -rf /workspace/src/rules-compiler-typescript/node_modules
+  rm -rf /root/.deno/deps
   cd /workspace/src/rules-compiler-typescript
-  npm ci
+  deno cache src/mod.ts
 "
 ```
 
@@ -385,7 +379,7 @@ Reset named volumes if caching causes problems:
 
 ```bash
 # Remove all ad-blocking volumes
-docker volume rm ad-blocking-node-ts ad-blocking-node-web ad-blocking-cargo-registry ad-blocking-cargo-git ad-blocking-nuget
+docker volume rm ad-blocking-deno-cache ad-blocking-node-web ad-blocking-cargo-registry ad-blocking-cargo-git ad-blocking-nuget
 
 # Or remove all unused volumes
 docker volume prune

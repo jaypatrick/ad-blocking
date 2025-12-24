@@ -10,14 +10,13 @@ A comprehensive TypeScript SDK for the AdGuard DNS API v1.11 with feature parity
 - **Retry Policies**: Automatic retry with exponential backoff for transient errors
 - **CLI Application**: Interactive console UI for managing AdGuard DNS
 - **Rules Compiler Integration**: Sync compiled filter rules to AdGuard DNS
-- **Comprehensive Tests**: Full test coverage with Jest
+- **Comprehensive Tests**: Full test coverage with Deno test
 
 ## Installation
 
 ```bash
 cd src/adguard-api-typescript
-npm install
-npm run build
+deno cache src/mod.ts
 ```
 
 ## Quick Start
@@ -60,13 +59,13 @@ const client = new AdGuardDnsClient(config);
 
 ```bash
 # Interactive mode
-npm start
+deno task start
 
 # Or with API key
-npm start -- --api-key your-key
+deno task start -- --api-key your-key
 
 # Sync rules from file
-npm start -- sync --file rules/adguard_user_filter.txt
+deno task start -- sync --file rules/adguard_user_filter.txt
 ```
 
 ## Architecture
@@ -223,13 +222,13 @@ await integration.syncRules('server-id', {
 
 ```bash
 # Run all tests
-npm test
+deno task test
 
 # Run with coverage
-npm run test:coverage
+deno task test:coverage
 
 # Run specific test file
-npx jest tests/helpers/datetime.test.ts
+deno test tests/helpers/datetime.test.ts
 ```
 
 ## CLI Commands
@@ -237,7 +236,7 @@ npx jest tests/helpers/datetime.test.ts
 ### Interactive Mode
 
 ```bash
-npm start
+deno task start
 ```
 
 Navigate through menus:
@@ -252,13 +251,13 @@ Navigate through menus:
 
 ```bash
 # Sync rules from file
-npm start -- sync --file rules.txt --server server-id
+deno task start -- sync --file rules.txt --server server-id
 
 # With verbose logging
-npm start -- sync --file rules.txt --verbose
+deno task start -- sync --file rules.txt --verbose
 
 # Append to existing rules
-npm start -- sync --file rules.txt --append
+deno task start -- sync --file rules.txt --append
 ```
 
 ## Feature Parity with adguard-api-dotnet

@@ -28,7 +28,7 @@ This repository is a comprehensive multi-language toolkit for ad-blocking, netwo
 - **Linear Import Tool** (`src/linear/`) - TypeScript tool with Deno support
 
 ### Website
-- **Gatsby Site** (`src/website/`) - Portfolio site deployed to GitHub Pages (Node.js)
+- **Gatsby Site** (`src/website/`) - Portfolio site deployed to GitHub Pages (requires Node.js)
 
 ### Configuration Support
 All compilers support JSON, YAML, and TOML configuration formats with full @adguard/hostlist-compiler compatibility.
@@ -41,7 +41,7 @@ A fully-featured Docker environment with all compilers and tools:
 # Dockerfile.warp
 FROM mcr.microsoft.com/dotnet/sdk:10.0-noble
 # Includes: .NET 10 SDK, Deno 2.x, Python 3.12, Rust stable, PowerShell 7
-# Pre-installed: hostlist-compiler, yq, pytest, ruff, clippy, Pester
+# Pre-installed: hostlist-compiler (via Deno), yq, pytest, ruff, clippy, Pester
 ```
 
 Build and run:
@@ -214,6 +214,7 @@ deno task check            # Type check
 
 ### Gatsby Website (`src/website/`)
 ```bash
+# Note: Website still uses Node.js/npm (Gatsby is a Node.js framework)
 cd src/website
 npm ci
 npm run develop    # Dev server at localhost:8000
@@ -443,8 +444,8 @@ RemoveComments, Compress, RemoveModifiers, Validate, ValidateAllowIp, Deduplicat
 
 GitHub Actions workflows validate:
 - `.github/workflows/dotnet.yml` - Builds/tests .NET projects (API client and rules compiler) with .NET 10
-- `.github/workflows/typescript.yml` - Deno 2.x for TypeScript projects, Node.js 22 for website
-- `.github/workflows/gatsby.yml` - Builds website and deploys to GitHub Pages
+- `.github/workflows/typescript.yml` - Deno 2.x for all TypeScript projects
+- `.github/workflows/gatsby.yml` - Builds website (Node.js) and deploys to GitHub Pages
 - `.github/workflows/security.yml` - Consolidated security scanning (CodeQL, DevSkim, PSScriptAnalyzer)
 - `.github/workflows/release.yml` - Builds and publishes release binaries (.NET, Rust, Python)
 - `.github/workflows/claude.yml` - Claude AI integration for @claude mentions
@@ -456,11 +457,11 @@ GitHub Actions workflows validate:
 |-------------|---------|--------------|
 | .NET SDK | 10.0+ | .NET compiler, API client |
 | Deno | 2.0+ | TypeScript projects (rules compiler, API client, linear) |
-| Node.js | 22.x LTS | Website (Gatsby) |
+| Node.js | 22.x LTS | Website only (Gatsby) |
 | PowerShell | 7+ | PowerShell scripts |
 | Python | 3.9+ | Python compiler |
 | Rust | 1.85+ | Rust compiler (install via rustup) |
-| hostlist-compiler | Latest | All compilers (`npm install -g @adguard/hostlist-compiler`) |
+| hostlist-compiler | Latest | All compilers (via Deno: `deno run npm:@adguard/hostlist-compiler`) |
 | Docker | 24.0+ | Container development (optional but recommended) |
 
 ## Key File Locations

@@ -101,14 +101,13 @@ export class DevicesMenu extends BaseMenu {
     if (!name.trim()) return;
 
     const deviceTypes = Object.values(DeviceType);
-    const { deviceType } = await require('inquirer').prompt([
-      {
-        type: 'list',
-        name: 'deviceType',
-        message: 'Select device type:',
-        choices: deviceTypes,
-      },
-    ]);
+    const deviceType = await this.selectItem(
+      'Select device type:',
+      deviceTypes,
+      (t: DeviceType) => t
+    );
+
+    if (!deviceType) return;
 
     const dnsServer = await this.selectItem(
       'Select DNS server:',

@@ -1,4 +1,7 @@
-# Sample workflow for building and deploying a Gatsby site to GitHub Pages
+# Workflow for building and deploying the Gatsby website to GitHub Pages
+#
+# Note: The website (src/website/) is a Gatsby/React application that requires Node.js.
+# This is separate from the TypeScript projects which use Deno.
 #
 # To get started with Gatsby see: https://www.gatsbyjs.com/docs/quick-start/
 #

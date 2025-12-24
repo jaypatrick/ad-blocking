@@ -1,12 +1,12 @@
 # =============================================================================
 # Docker Development Environment for ad-blocking toolkit
-# Includes: .NET 10, Node.js 22 LTS, Python 3.12, Rust, PowerShell 7
+# Includes: .NET 10, Deno 2.x, Python 3.12, Rust, PowerShell 7
 # =============================================================================
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0-noble
 
 # Build arguments for version control
-ARG NODE_VERSION=22
+ARG DENO_VERSION=2.x
 ARG PYTHON_VERSION=3.12
 ARG RUST_VERSION=stable
 
@@ -15,12 +15,12 @@ ENV DEBIAN_FRONTEND=noninteractive \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     DOTNET_NOLOGO=1 \
     DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1 \
-    NODE_ENV=development \
+    DENO_DIR=/root/.deno \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     CARGO_HOME=/root/.cargo \
     RUSTUP_HOME=/root/.rustup \
-    PATH="/root/.cargo/bin:${PATH}"
+    PATH="/root/.deno/bin:/root/.cargo/bin:${PATH}"
 
 # =============================================================================
 # Base dependencies
@@ -43,15 +43,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # =============================================================================
-# Node.js 22.x LTS via NodeSource
+# Deno 2.x
 # =============================================================================
-RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - && \
-    apt-get install -y --no-install-recommends nodejs && \
-    npm install -g npm@latest && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN curl -fsSL https://deno.land/install.sh | sh && \
+    ln -s /root/.deno/bin/deno /usr/local/bin/deno
 
-# Install global npm packages
-RUN npm install -g @adguard/hostlist-compiler typescript ts-node
+# Install hostlist-compiler via Deno's npm compatibility
+# Create a wrapper script for hostlist-compiler
+RUN echo '#!/bin/sh\ndeno run --allow-read --allow-write --allow-env --allow-net --allow-run npm:@adguard/hostlist-compiler "$@"' > /usr/local/bin/hostlist-compiler && \
+    chmod +x /usr/local/bin/hostlist-compiler && \
+    deno cache npm:@adguard/hostlist-compiler
 
 # =============================================================================
 # Python 3.12
@@ -107,8 +108,7 @@ RUN curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_a
 # =============================================================================
 RUN echo "=== Installed Versions ===" && \
     echo "dotnet: $(dotnet --version)" && \
-    echo "node: $(node --version)" && \
-    echo "npm: $(npm --version)" && \
+    echo "deno: $(deno --version | head -1)" && \
     echo "python: $(python --version)" && \
     echo "pip: $(pip --version)" && \
     echo "rustc: $(rustc --version)" && \
@@ -116,7 +116,7 @@ RUN echo "=== Installed Versions ===" && \
     echo "pwsh: $(pwsh --version)" && \
     echo "git: $(git --version)" && \
     echo "yq: $(yq --version)" && \
-    echo "hostlist-compiler: $(hostlist-compiler --version)" && \
+    echo "hostlist-compiler: available via deno" && \
     echo "=========================="
 
 # =============================================================================
