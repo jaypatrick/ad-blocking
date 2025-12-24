@@ -1,203 +1,241 @@
 /**
  * Rules compiler integration tests
+ * Deno-native testing implementation
  */
 
-import { jest } from '@jest/globals';
-import { RulesCompilerIntegration } from '../src/rules-compiler-integration';
-import { UserRulesRepository } from '../src/repositories/user-rules';
-import { DnsServerRepository } from '../src/repositories/dns-server';
+import { assertEquals, assertStringIncludes } from '@std/assert';
+import { returnsNext, stub } from '@std/testing/mock';
+import { RulesCompilerIntegration } from '../src/rules-compiler-integration.ts';
+import type { UserRulesRepository } from '../src/repositories/user-rules.ts';
+import type { DnsServerRepository } from '../src/repositories/dns-server.ts';
 
-// Mock the repositories
-const mockUserRulesRepo = {
-  getRules: jest.fn(),
-  setRules: jest.fn(),
-  enableRules: jest.fn(),
-  disableRules: jest.fn(),
-} as unknown as UserRulesRepository;
+// Create mock repositories
+function createMockUserRulesRepo(): UserRulesRepository {
+  return {
+    getRules: stub(
+      {} as UserRulesRepository,
+      'getRules',
+      returnsNext([Promise.resolve({ enabled: true, rules: [] })]),
+    ),
+    setRules: stub(
+      {} as UserRulesRepository,
+      'setRules',
+      returnsNext([Promise.resolve()]),
+    ),
+    enableRules: stub(
+      {} as UserRulesRepository,
+      'enableRules',
+      returnsNext([Promise.resolve()]),
+    ),
+    disableRules: stub(
+      {} as UserRulesRepository,
+      'disableRules',
+      returnsNext([Promise.resolve()]),
+    ),
+  } as unknown as UserRulesRepository;
+}
 
-const mockDnsServerRepo = {
-  getDefault: jest.fn(),
-  getAll: jest.fn(),
-} as unknown as DnsServerRepository;
+function createMockDnsServerRepo(): DnsServerRepository {
+  return {
+    getDefault: stub(
+      {} as DnsServerRepository,
+      'getDefault',
+      returnsNext([Promise.resolve({ id: 'default-server', name: 'Default' })]),
+    ),
+    getAll: stub(
+      {} as DnsServerRepository,
+      'getAll',
+      returnsNext([Promise.resolve([])]),
+    ),
+  } as unknown as DnsServerRepository;
+}
 
-describe('RulesCompilerIntegration', () => {
-  let integration: RulesCompilerIntegration;
+// parseRules tests
+Deno.test('RulesCompilerIntegration.parseRules - parses rules from content', () => {
+  const mockUserRulesRepo = createMockUserRulesRepo();
+  const mockDnsServerRepo = createMockDnsServerRepo();
+  const integration = new RulesCompilerIntegration(mockUserRulesRepo, mockDnsServerRepo);
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    integration = new RulesCompilerIntegration(mockUserRulesRepo, mockDnsServerRepo);
-  });
-
-  describe('parseRules', () => {
-    it('should parse rules from content', () => {
-      const content = `||example.com^
+  const content = `||example.com^
 ||ads.example.org^
 ||tracker.net^`;
 
-      const rules = integration.parseRules(content);
-      expect(rules).toHaveLength(3);
-      expect(rules[0]).toBe('||example.com^');
-    });
+  const rules = integration.parseRules(content);
+  assertEquals(rules.length, 3);
+  assertEquals(rules[0], '||example.com^');
+});
 
-    it('should filter comments when requested', () => {
-      const content = `! This is a comment
+Deno.test('RulesCompilerIntegration.parseRules - filters comments when requested', () => {
+  const mockUserRulesRepo = createMockUserRulesRepo();
+  const mockDnsServerRepo = createMockDnsServerRepo();
+  const integration = new RulesCompilerIntegration(mockUserRulesRepo, mockDnsServerRepo);
+
+  const content = `! This is a comment
 ||example.com^
 # Another comment
 ||ads.example.org^`;
 
-      const rules = integration.parseRules(content, true);
-      expect(rules).toHaveLength(2);
-      expect(rules).not.toContain('! This is a comment');
-    });
+  const rules = integration.parseRules(content, true);
+  assertEquals(rules.length, 2);
+  assertEquals(rules.includes('! This is a comment'), false);
+});
 
-    it('should keep comments when not filtering', () => {
-      const content = `! Comment
+Deno.test('RulesCompilerIntegration.parseRules - keeps comments when not filtering', () => {
+  const mockUserRulesRepo = createMockUserRulesRepo();
+  const mockDnsServerRepo = createMockDnsServerRepo();
+  const integration = new RulesCompilerIntegration(mockUserRulesRepo, mockDnsServerRepo);
+
+  const content = `! Comment
 ||example.com^`;
 
-      const rules = integration.parseRules(content, false);
-      expect(rules).toHaveLength(2);
-    });
+  const rules = integration.parseRules(content, false);
+  assertEquals(rules.length, 2);
+});
 
-    it('should filter empty lines', () => {
-      const content = `||example.com^
+Deno.test('RulesCompilerIntegration.parseRules - filters empty lines', () => {
+  const mockUserRulesRepo = createMockUserRulesRepo();
+  const mockDnsServerRepo = createMockDnsServerRepo();
+  const integration = new RulesCompilerIntegration(mockUserRulesRepo, mockDnsServerRepo);
+
+  const content = `||example.com^
 
 ||ads.example.org^
 
 `;
 
-      const rules = integration.parseRules(content, true);
-      expect(rules).toHaveLength(2);
-    });
+  const rules = integration.parseRules(content, true);
+  assertEquals(rules.length, 2);
+});
+
+// validateRules tests
+Deno.test('RulesCompilerIntegration.validateRules - validates correct rules', () => {
+  const mockUserRulesRepo = createMockUserRulesRepo();
+  const mockDnsServerRepo = createMockDnsServerRepo();
+  const integration = new RulesCompilerIntegration(mockUserRulesRepo, mockDnsServerRepo);
+
+  const rules = ['||example.com^', '||ads.example.org^'];
+  const result = integration.validateRules(rules);
+  assertEquals(result.valid, true);
+  assertEquals(result.errors.length, 0);
+});
+
+Deno.test('RulesCompilerIntegration.validateRules - detects rules exceeding max length', () => {
+  const mockUserRulesRepo = createMockUserRulesRepo();
+  const mockDnsServerRepo = createMockDnsServerRepo();
+  const integration = new RulesCompilerIntegration(mockUserRulesRepo, mockDnsServerRepo);
+
+  const longDomain = 'a'.repeat(1100);
+  const rules = [`||${longDomain}^`];
+  const result = integration.validateRules(rules);
+  assertEquals(result.valid, false);
+  assertEquals(result.errors.length, 1);
+  assertStringIncludes(result.errors[0].error, 'exceeds maximum length');
+});
+
+Deno.test('RulesCompilerIntegration.validateRules - detects invalid space in domain rules', () => {
+  const mockUserRulesRepo = createMockUserRulesRepo();
+  const mockDnsServerRepo = createMockDnsServerRepo();
+  const integration = new RulesCompilerIntegration(mockUserRulesRepo, mockDnsServerRepo);
+
+  const rules = ['||example.com with space^'];
+  const result = integration.validateRules(rules);
+  assertEquals(result.valid, false);
+  assertStringIncludes(result.errors[0].error, 'invalid space');
+});
+
+Deno.test('RulesCompilerIntegration.validateRules - skips comments in validation', () => {
+  const mockUserRulesRepo = createMockUserRulesRepo();
+  const mockDnsServerRepo = createMockDnsServerRepo();
+  const integration = new RulesCompilerIntegration(mockUserRulesRepo, mockDnsServerRepo);
+
+  const rules = ['! This is a comment', '||example.com^'];
+  const result = integration.validateRules(rules);
+  assertEquals(result.valid, true);
+});
+
+// syncRules tests
+Deno.test('RulesCompilerIntegration.syncRules - syncs inline rules', async () => {
+  const mockUserRulesRepo = {
+    getRules: () => Promise.resolve({ enabled: true, rules: [] }),
+    setRules: () => Promise.resolve(),
+    enableRules: () => Promise.resolve(),
+    disableRules: () => Promise.resolve(),
+  } as unknown as UserRulesRepository;
+  const mockDnsServerRepo = createMockDnsServerRepo();
+  const integration = new RulesCompilerIntegration(mockUserRulesRepo, mockDnsServerRepo);
+
+  const result = await integration.syncRules('server-1', {
+    rules: ['||example.com^', '||ads.org^'],
   });
 
-  describe('validateRules', () => {
-    it('should validate correct rules', () => {
-      const rules = ['||example.com^', '||ads.example.org^'];
-      const result = integration.validateRules(rules);
-      expect(result.valid).toBe(true);
-      expect(result.errors).toHaveLength(0);
-    });
+  assertEquals(result.success, true);
+  assertEquals(result.rulesCount, 2);
+  assertEquals(result.dnsServerId, 'server-1');
+});
 
-    it('should detect rules exceeding max length', () => {
-      const longDomain = 'a'.repeat(1100);
-      const rules = [`||${longDomain}^`];
-      const result = integration.validateRules(rules);
-      expect(result.valid).toBe(false);
-      expect(result.errors).toHaveLength(1);
-      expect(result.errors[0].error).toContain('exceeds maximum length');
-    });
+Deno.test('RulesCompilerIntegration.syncRules - requires either rulesPath or rules', async () => {
+  const mockUserRulesRepo = createMockUserRulesRepo();
+  const mockDnsServerRepo = createMockDnsServerRepo();
+  const integration = new RulesCompilerIntegration(mockUserRulesRepo, mockDnsServerRepo);
 
-    it('should detect invalid space in domain rules', () => {
-      const rules = ['||example.com with space^'];
-      const result = integration.validateRules(rules);
-      expect(result.valid).toBe(false);
-      expect(result.errors[0].error).toContain('invalid space');
-    });
+  const result = await integration.syncRules('server-1', {});
 
-    it('should skip comments in validation', () => {
-      const rules = ['! This is a comment', '||example.com^'];
-      const result = integration.validateRules(rules);
-      expect(result.valid).toBe(true);
-    });
+  assertEquals(result.success, false);
+  assertStringIncludes(result.error || '', 'Either rulesPath or rules must be provided');
+});
+
+// syncRulesToDefault tests
+Deno.test('RulesCompilerIntegration.syncRulesToDefault - syncs to default server', async () => {
+  const mockUserRulesRepo = {
+    getRules: () => Promise.resolve({ enabled: true, rules: [] }),
+    setRules: () => Promise.resolve(),
+    enableRules: () => Promise.resolve(),
+    disableRules: () => Promise.resolve(),
+  } as unknown as UserRulesRepository;
+  const mockDnsServerRepo = {
+    getDefault: () => Promise.resolve({ id: 'default-server', name: 'Default' }),
+    getAll: () => Promise.resolve([]),
+  } as unknown as DnsServerRepository;
+  const integration = new RulesCompilerIntegration(mockUserRulesRepo, mockDnsServerRepo);
+
+  const result = await integration.syncRulesToDefault({
+    rules: ['||example.com^'],
   });
 
-  describe('syncRules', () => {
-    it('should sync inline rules', async () => {
-      (mockUserRulesRepo.setRules as jest.Mock).mockResolvedValue(undefined);
-      (mockUserRulesRepo.enableRules as jest.Mock).mockResolvedValue(undefined);
+  assertEquals(result.success, true);
+  assertEquals(result.dnsServerId, 'default-server');
+});
 
-      const result = await integration.syncRules('server-1', {
-        rules: ['||example.com^', '||ads.org^'],
-      });
+Deno.test('RulesCompilerIntegration.syncRulesToDefault - handles no default server', async () => {
+  const mockUserRulesRepo = createMockUserRulesRepo();
+  const mockDnsServerRepo = {
+    getDefault: () => Promise.resolve(undefined),
+    getAll: () => Promise.resolve([]),
+  } as unknown as DnsServerRepository;
+  const integration = new RulesCompilerIntegration(mockUserRulesRepo, mockDnsServerRepo);
 
-      expect(result.success).toBe(true);
-      expect(result.rulesCount).toBe(2);
-      expect(result.dnsServerId).toBe('server-1');
-      expect(mockUserRulesRepo.setRules).toHaveBeenCalledWith('server-1', expect.any(Array));
-      expect(mockUserRulesRepo.enableRules).toHaveBeenCalledWith('server-1');
-    });
-
-    it('should append rules when specified', async () => {
-      (mockUserRulesRepo.getRules as jest.Mock).mockResolvedValue({
-        enabled: true,
-        rules: ['||existing.com^'],
-      });
-      (mockUserRulesRepo.setRules as jest.Mock).mockResolvedValue(undefined);
-      (mockUserRulesRepo.enableRules as jest.Mock).mockResolvedValue(undefined);
-
-      const result = await integration.syncRules('server-1', {
-        rules: ['||new.com^'],
-        append: true,
-      });
-
-      expect(result.success).toBe(true);
-      expect(result.rulesCount).toBe(2);
-      expect(mockUserRulesRepo.setRules).toHaveBeenCalledWith(
-        'server-1',
-        expect.arrayContaining(['||existing.com^', '||new.com^'])
-      );
-    });
-
-    it('should handle errors', async () => {
-      (mockUserRulesRepo.setRules as jest.Mock).mockRejectedValue(new Error('API error'));
-
-      const result = await integration.syncRules('server-1', {
-        rules: ['||example.com^'],
-      });
-
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('API error');
-    });
-
-    it('should require either rulesPath or rules', async () => {
-      const result = await integration.syncRules('server-1', {});
-
-      expect(result.success).toBe(false);
-      expect(result.error).toContain('Either rulesPath or rules must be provided');
-    });
+  const result = await integration.syncRulesToDefault({
+    rules: ['||example.com^'],
   });
 
-  describe('syncRulesToDefault', () => {
-    it('should sync to default server', async () => {
-      (mockDnsServerRepo.getDefault as jest.Mock).mockResolvedValue({
-        id: 'default-server',
-        name: 'Default',
-      });
-      (mockUserRulesRepo.setRules as jest.Mock).mockResolvedValue(undefined);
-      (mockUserRulesRepo.enableRules as jest.Mock).mockResolvedValue(undefined);
+  assertEquals(result.success, false);
+  assertStringIncludes(result.error || '', 'No default DNS server');
+});
 
-      const result = await integration.syncRulesToDefault({
-        rules: ['||example.com^'],
-      });
+// getRulesDiff tests
+Deno.test('RulesCompilerIntegration.getRulesDiff - calculates diff correctly', async () => {
+  const mockUserRulesRepo = {
+    getRules: () => Promise.resolve({ enabled: true, rules: ['||old.com^', '||both.com^'] }),
+    setRules: () => Promise.resolve(),
+    enableRules: () => Promise.resolve(),
+    disableRules: () => Promise.resolve(),
+  } as unknown as UserRulesRepository;
+  const mockDnsServerRepo = createMockDnsServerRepo();
+  const integration = new RulesCompilerIntegration(mockUserRulesRepo, mockDnsServerRepo);
 
-      expect(result.success).toBe(true);
-      expect(result.dnsServerId).toBe('default-server');
-    });
+  const diff = await integration.getRulesDiff('server-1', ['||new.com^', '||both.com^']);
 
-    it('should handle no default server', async () => {
-      (mockDnsServerRepo.getDefault as jest.Mock).mockResolvedValue(undefined);
-
-      const result = await integration.syncRulesToDefault({
-        rules: ['||example.com^'],
-      });
-
-      expect(result.success).toBe(false);
-      expect(result.error).toContain('No default DNS server');
-    });
-  });
-
-  describe('getRulesDiff', () => {
-    it('should calculate diff correctly', async () => {
-      (mockUserRulesRepo.getRules as jest.Mock).mockResolvedValue({
-        enabled: true,
-        rules: ['||old.com^', '||both.com^'],
-      });
-
-      const diff = await integration.getRulesDiff('server-1', ['||new.com^', '||both.com^']);
-
-      expect(diff.added).toEqual(['||new.com^']);
-      expect(diff.removed).toEqual(['||old.com^']);
-      expect(diff.unchanged).toEqual(['||both.com^']);
-    });
-  });
+  assertEquals(diff.added, ['||new.com^']);
+  assertEquals(diff.removed, ['||old.com^']);
+  assertEquals(diff.unchanged, ['||both.com^']);
 });

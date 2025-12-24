@@ -3,8 +3,8 @@
  * Deno-native testing implementation
  */
 
-import { assertEquals, assertStringIncludes } from 'https://deno.land/std@0.220.0/assert/mod.ts';
-import { stub, restore } from 'https://deno.land/std@0.220.0/testing/mock.ts';
+import { assertEquals, assertStringIncludes } from '@std/assert';
+import { stub } from '@std/testing/mock';
 import {
   createLogger,
   createProductionLogger,

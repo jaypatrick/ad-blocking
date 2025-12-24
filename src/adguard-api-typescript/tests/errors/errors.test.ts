@@ -1,7 +1,9 @@
 /**
  * Error classes tests
+ * Deno-native testing implementation
  */
 
+import { assertEquals, assertInstanceOf } from '@std/assert';
 import {
   ApiError,
   EntityNotFoundError,
@@ -10,131 +12,122 @@ import {
   AuthenticationError,
   ApiNotConfiguredError,
   RepositoryError,
-} from '../../src/errors';
-import { ErrorCodes } from '../../src/models';
+} from '../../src/errors/index.ts';
+import { ErrorCodes } from '../../src/models/index.ts';
 
-describe('Error classes', () => {
-  describe('ApiError', () => {
-    it('should create with message and status code', () => {
-      const error = new ApiError('Test error', 400);
-      expect(error.message).toBe('Test error');
-      expect(error.statusCode).toBe(400);
-      expect(error.name).toBe('ApiError');
-    });
+// ApiError tests
+Deno.test('ApiError - creates with message and status code', () => {
+  const error = new ApiError('Test error', 400);
+  assertEquals(error.message, 'Test error');
+  assertEquals(error.statusCode, 400);
+  assertEquals(error.name, 'ApiError');
+});
 
-    it('should include response', () => {
-      const response = {
-        error_code: ErrorCodes.BAD_REQUEST,
-        message: 'Bad request',
-        fields: [],
-      };
-      const error = new ApiError('Test error', 400, response);
-      expect(error.response).toEqual(response);
-      expect(error.errorCode).toBe(ErrorCodes.BAD_REQUEST);
-      expect(error.fieldErrors).toEqual([]);
-    });
+Deno.test('ApiError - includes response', () => {
+  const response = {
+    error_code: ErrorCodes.BAD_REQUEST,
+    message: 'Bad request',
+    fields: [],
+  };
+  const error = new ApiError('Test error', 400, response);
+  assertEquals(error.response, response);
+  assertEquals(error.errorCode, ErrorCodes.BAD_REQUEST);
+  assertEquals(error.fieldErrors, []);
+});
 
-    it('should be instanceof Error', () => {
-      const error = new ApiError('Test', 400);
-      expect(error instanceof Error).toBe(true);
-      expect(error instanceof ApiError).toBe(true);
-    });
-  });
+Deno.test('ApiError - is instanceof Error', () => {
+  const error = new ApiError('Test', 400);
+  assertInstanceOf(error, Error);
+  assertInstanceOf(error, ApiError);
+});
 
-  describe('EntityNotFoundError', () => {
-    it('should create with entity type', () => {
-      const error = new EntityNotFoundError('Device');
-      expect(error.message).toBe('Device not found');
-      expect(error.statusCode).toBe(404);
-      expect(error.entityType).toBe('Device');
-      expect(error.entityId).toBeUndefined();
-    });
+// EntityNotFoundError tests
+Deno.test('EntityNotFoundError - creates with entity type', () => {
+  const error = new EntityNotFoundError('Device');
+  assertEquals(error.message, 'Device not found');
+  assertEquals(error.statusCode, 404);
+  assertEquals(error.entityType, 'Device');
+  assertEquals(error.entityId, undefined);
+});
 
-    it('should create with entity type and ID', () => {
-      const error = new EntityNotFoundError('Device', 'abc123');
-      expect(error.message).toBe("Device with ID 'abc123' not found");
-      expect(error.entityId).toBe('abc123');
-    });
+Deno.test('EntityNotFoundError - creates with entity type and ID', () => {
+  const error = new EntityNotFoundError('Device', 'abc123');
+  assertEquals(error.message, "Device with ID 'abc123' not found");
+  assertEquals(error.entityId, 'abc123');
+});
 
-    it('should be instanceof ApiError', () => {
-      const error = new EntityNotFoundError('Device');
-      expect(error instanceof ApiError).toBe(true);
-      expect(error instanceof EntityNotFoundError).toBe(true);
-    });
-  });
+Deno.test('EntityNotFoundError - is instanceof ApiError', () => {
+  const error = new EntityNotFoundError('Device');
+  assertInstanceOf(error, ApiError);
+  assertInstanceOf(error, EntityNotFoundError);
+});
 
-  describe('ValidationError', () => {
-    it('should create with message', () => {
-      const error = new ValidationError('Invalid input');
-      expect(error.message).toBe('Invalid input');
-      expect(error.statusCode).toBe(400);
-      expect(error.name).toBe('ValidationError');
-    });
+// ValidationError tests
+Deno.test('ValidationError - creates with message', () => {
+  const error = new ValidationError('Invalid input');
+  assertEquals(error.message, 'Invalid input');
+  assertEquals(error.statusCode, 400);
+  assertEquals(error.name, 'ValidationError');
+});
 
-    it('should include response', () => {
-      const response = {
-        error_code: ErrorCodes.FIELD_REQUIRED,
-        message: 'Name is required',
-        fields: [{ field: 'name', error_code: ErrorCodes.FIELD_REQUIRED }],
-      };
-      const error = new ValidationError('Validation failed', response);
-      expect(error.fieldErrors).toHaveLength(1);
-    });
-  });
+Deno.test('ValidationError - includes response', () => {
+  const response = {
+    error_code: ErrorCodes.FIELD_REQUIRED,
+    message: 'Name is required',
+    fields: [{ field: 'name', error_code: ErrorCodes.FIELD_REQUIRED }],
+  };
+  const error = new ValidationError('Validation failed', response);
+  assertEquals(error.fieldErrors.length, 1);
+});
 
-  describe('RateLimitError', () => {
-    it('should create with message', () => {
-      const error = new RateLimitError('Too many requests');
-      expect(error.message).toBe('Too many requests');
-      expect(error.statusCode).toBe(429);
-      expect(error.retryAfter).toBeUndefined();
-    });
+// RateLimitError tests
+Deno.test('RateLimitError - creates with message', () => {
+  const error = new RateLimitError('Too many requests');
+  assertEquals(error.message, 'Too many requests');
+  assertEquals(error.statusCode, 429);
+  assertEquals(error.retryAfter, undefined);
+});
 
-    it('should include retry after', () => {
-      const error = new RateLimitError('Too many requests', 60);
-      expect(error.retryAfter).toBe(60);
-    });
-  });
+Deno.test('RateLimitError - includes retry after', () => {
+  const error = new RateLimitError('Too many requests', 60);
+  assertEquals(error.retryAfter, 60);
+});
 
-  describe('AuthenticationError', () => {
-    it('should create with default message', () => {
-      const error = new AuthenticationError();
-      expect(error.message).toBe('Authentication failed');
-      expect(error.statusCode).toBe(401);
-    });
+// AuthenticationError tests
+Deno.test('AuthenticationError - creates with default message', () => {
+  const error = new AuthenticationError();
+  assertEquals(error.message, 'Authentication failed');
+  assertEquals(error.statusCode, 401);
+});
 
-    it('should create with custom message', () => {
-      const error = new AuthenticationError('Invalid API key');
-      expect(error.message).toBe('Invalid API key');
-    });
-  });
+Deno.test('AuthenticationError - creates with custom message', () => {
+  const error = new AuthenticationError('Invalid API key');
+  assertEquals(error.message, 'Invalid API key');
+});
 
-  describe('ApiNotConfiguredError', () => {
-    it('should create with default message', () => {
-      const error = new ApiNotConfiguredError();
-      expect(error.message).toBe('API client is not configured. Call configure() first.');
-      expect(error.name).toBe('ApiNotConfiguredError');
-    });
+// ApiNotConfiguredError tests
+Deno.test('ApiNotConfiguredError - creates with default message', () => {
+  const error = new ApiNotConfiguredError();
+  assertEquals(error.message, 'API client is not configured. Call configure() first.');
+  assertEquals(error.name, 'ApiNotConfiguredError');
+});
 
-    it('should create with custom message', () => {
-      const error = new ApiNotConfiguredError('Custom message');
-      expect(error.message).toBe('Custom message');
-    });
-  });
+Deno.test('ApiNotConfiguredError - creates with custom message', () => {
+  const error = new ApiNotConfiguredError('Custom message');
+  assertEquals(error.message, 'Custom message');
+});
 
-  describe('RepositoryError', () => {
-    it('should create with operation', () => {
-      const error = new RepositoryError('Get device');
-      expect(error.message).toBe('Get device failed');
-      expect(error.operation).toBe('Get device');
-      expect(error.innerCause).toBeUndefined();
-    });
+// RepositoryError tests
+Deno.test('RepositoryError - creates with operation', () => {
+  const error = new RepositoryError('Get device');
+  assertEquals(error.message, 'Get device failed');
+  assertEquals(error.operation, 'Get device');
+  assertEquals(error.innerCause, undefined);
+});
 
-    it('should include cause', () => {
-      const cause = new Error('Network error');
-      const error = new RepositoryError('Get device', cause);
-      expect(error.message).toBe('Get device failed: Network error');
-      expect(error.innerCause).toBe(cause);
-    });
-  });
+Deno.test('RepositoryError - includes cause', () => {
+  const cause = new Error('Network error');
+  const error = new RepositoryError('Get device', cause);
+  assertEquals(error.message, 'Get device failed: Network error');
+  assertEquals(error.innerCause, cause);
 });
