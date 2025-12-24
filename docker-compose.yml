@@ -117,24 +117,6 @@ services:
       - ad-blocking-net
 
   # ---------------------------------------------------------------------------
-  # Gatsby Website development server (requires Node.js - uses separate image)
-  # ---------------------------------------------------------------------------
-  website:
-    image: node:22-slim
-    container_name: ad-blocking-website
-    volumes:
-      - .:/workspace
-      - node_modules_web:/workspace/src/website/node_modules
-    ports:
-      - "8000:8000"
-    working_dir: /workspace/src/website
-    command: sh -c "npm ci && npm run develop -- --host 0.0.0.0"
-    profiles:
-      - website
-    networks:
-      - ad-blocking-net
-
-  # ---------------------------------------------------------------------------
   # Test runner service (runs all tests)
   # ---------------------------------------------------------------------------
   test:
@@ -202,8 +184,6 @@ services:
 volumes:
   deno_cache:
     name: ad-blocking-deno-cache
-  node_modules_web:
-    name: ad-blocking-node-web
   cargo_registry:
     name: ad-blocking-cargo-registry
   cargo_git:

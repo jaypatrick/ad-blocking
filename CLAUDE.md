@@ -27,9 +27,6 @@ This repository is a comprehensive multi-language toolkit for ad-blocking, netwo
 - **Console UI** (`src/adguard-api-dotnet/src/AdGuard.ConsoleUI/`) - Spectre.Console interactive interface
 - **Linear Import Tool** (`src/linear/`) - TypeScript tool with Deno support
 
-### Website
-- **Gatsby Site** (`src/website/`) - Portfolio site deployed to GitHub Pages (requires Node.js)
-
 ### Configuration Support
 All compilers support JSON, YAML, and TOML configuration formats with full @adguard/hostlist-compiler compatibility.
 
@@ -55,7 +52,6 @@ Docker Compose (recommended):
 docker compose up -d dev           # Start dev environment
 docker compose exec dev bash       # Enter container
 docker compose --profile test run --rm test  # Run all tests
-docker compose --profile website up website  # Start website dev server
 ```
 
 Warp Environment: `jaysonknight/warp-env:ad-blocking` (ID: `Egji4sZU4TNIOwNasFU73A`)
@@ -210,16 +206,6 @@ deno task test             # Run tests
 deno task lint             # Lint source files
 deno task fmt              # Format source files
 deno task check            # Type check
-```
-
-### Gatsby Website (`src/website/`)
-```bash
-# Note: Website still uses Node.js/npm (Gatsby is a Node.js framework)
-cd src/website
-npm ci
-npm run develop    # Dev server at localhost:8000
-npm run build      # Production build
-npm run serve      # Serve local build
 ```
 
 ### PowerShell RulesCompiler Module (`src/adguard-api-powershell/`)
@@ -445,7 +431,6 @@ RemoveComments, Compress, RemoveModifiers, Validate, ValidateAllowIp, Deduplicat
 GitHub Actions workflows validate:
 - `.github/workflows/dotnet.yml` - Builds/tests .NET projects (API client and rules compiler) with .NET 10
 - `.github/workflows/typescript.yml` - Deno 2.x for all TypeScript projects
-- `.github/workflows/gatsby.yml` - Builds website (Node.js) and deploys to GitHub Pages
 - `.github/workflows/security.yml` - Consolidated security scanning (CodeQL, DevSkim, PSScriptAnalyzer)
 - `.github/workflows/release.yml` - Builds and publishes release binaries (.NET, Rust, Python)
 - `.github/workflows/claude.yml` - Claude AI integration for @claude mentions
@@ -457,7 +442,6 @@ GitHub Actions workflows validate:
 |-------------|---------|--------------|
 | .NET SDK | 10.0+ | .NET compiler, API client |
 | Deno | 2.0+ | TypeScript projects (rules compiler, API client, linear) |
-| Node.js | 22.x LTS | Website only (Gatsby) |
 | PowerShell | 7+ | PowerShell scripts |
 | Python | 3.9+ | Python compiler |
 | Rust | 1.85+ | Rust compiler (install via rustup) |
