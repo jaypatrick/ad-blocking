@@ -4,25 +4,25 @@
  */
 
 // Enums
-export * from './enums.js';
+export * from './enums.ts';
 
 // Account models
-export * from './account.js';
+export * from './account.ts';
 
 // Authentication models
-export * from './auth.js';
+export * from './auth.ts';
 
 // Device models
-export * from './device.js';
+export * from './device.ts';
 
 // DNS Server models
-export * from './dns-server.js';
+export * from './dns-server.ts';
 
 // Statistics models
-export * from './statistics.js';
+export * from './statistics.ts';
 
 // Query log models
-export * from './query-log.js';
+export * from './query-log.ts';
 
 // Error models
-export * from './errors.js';
+export * from './errors.ts';

@@ -11,7 +11,7 @@ import {
   PathTraversalError,
   ResourceLimitError,
   ErrorCode,
-} from './errors.js';
+} from './errors.ts';
 
 /**
  * Validation result

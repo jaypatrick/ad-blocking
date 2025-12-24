@@ -3,13 +3,14 @@
  *
  * This module provides utilities to compile filter rules from configuration
  * files and push them to AdGuard DNS as user rules.
+ * Deno-only implementation
  */
 
-import { promises as fs } from 'fs';
-import * as path from 'path';
-import { UserRulesRepository } from './repositories/user-rules.js';
-import { DnsServerRepository } from './repositories/dns-server.js';
-import { Logger, silentLogger } from './helpers/configuration.js';
+import { promises as fs } from 'node:fs';
+import * as path from 'node:path';
+import { UserRulesRepository } from './repositories/user-rules.ts';
+import { DnsServerRepository } from './repositories/dns-server.ts';
+import { Logger, silentLogger } from './helpers/configuration.ts';
 
 /** Result of a rules compilation and sync operation */
 export interface RulesSyncResult {
@@ -69,7 +70,7 @@ export class RulesCompilerIntegration {
 
     const absolutePath = path.isAbsolute(filePath)
       ? filePath
-      : path.resolve(process.cwd(), filePath);
+      : path.resolve(Deno.cwd(), filePath);
 
     const content = await fs.readFile(absolutePath, 'utf-8');
     let lines = content.split('\n');

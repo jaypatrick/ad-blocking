@@ -2,15 +2,15 @@
  * DNS Server repository
  */
 
-import { BaseRepository } from './base.js';
-import { DnsServersApi } from '../api/dns-servers.js';
-import { Logger } from '../helpers/configuration.js';
+import { BaseRepository } from './base.ts';
+import { DnsServersApi } from '../api/dns-servers.ts';
+import { Logger } from '../helpers/configuration.ts';
 import {
   DNSServer,
   DNSServerCreate,
   DNSServerUpdate,
   DNSServerSettingsUpdate,
-} from '../models/index.js';
+} from '../models/index.ts';
 
 /** DNS Server repository for managing DNS servers/profiles */
 export class DnsServerRepository extends BaseRepository {

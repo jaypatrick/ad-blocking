@@ -3,7 +3,7 @@
  * Supports both human-readable and structured (JSON) output formats
  */
 
-import type { Logger } from './types.js';
+import type { Logger } from './types.ts';
 
 /**
  * Log level enumeration
@@ -99,15 +99,25 @@ export function createLogger(config: Partial<LoggerConfig> | boolean = false): E
       ? { ...DEFAULT_CONFIG, debugEnabled: config }
       : { ...DEFAULT_CONFIG, ...config };
 
+  // Helper to get environment variables
+  const getEnv = (key: string): string | undefined => {
+    try {
+      return Deno.env.get(key);
+    } catch {
+      return undefined;
+    }
+  };
+
   // Check environment variables
-  if (process.env['DEBUG']) {
+  if (getEnv('DEBUG')) {
     resolvedConfig.debugEnabled = true;
   }
-  if (process.env['LOG_FORMAT'] === 'json') {
+  if (getEnv('LOG_FORMAT') === 'json') {
     resolvedConfig.jsonFormat = true;
   }
-  if (process.env['LOG_LEVEL']) {
-    const envLevel = process.env['LOG_LEVEL'].toUpperCase();
+  const logLevel = getEnv('LOG_LEVEL');
+  if (logLevel) {
+    const envLevel = logLevel.toUpperCase();
     const levelMap: Record<string, LogLevel> = {
       DEBUG: LogLevel.DEBUG,
       INFO: LogLevel.INFO,
@@ -222,9 +232,20 @@ export function createLogger(config: Partial<LoggerConfig> | boolean = false): E
 }
 
 /**
+ * Helper to get environment variable
+ */
+function getEnvVar(key: string): string | undefined {
+  try {
+    return Deno.env.get(key);
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * Default logger instance (debug disabled unless DEBUG env var is set)
  */
-export const logger = createLogger(!!process.env['DEBUG']);
+export const logger = createLogger(!!getEnvVar('DEBUG'));
 
 /**
  * Creates a JSON-formatted logger for production

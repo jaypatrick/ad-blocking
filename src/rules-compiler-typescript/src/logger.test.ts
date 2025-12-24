@@ -1,207 +1,259 @@
 /**
  * Tests for enhanced logger
+ * Deno-native testing implementation
  */
 
-import { jest } from '@jest/globals';
+import { assertEquals, assertStringIncludes } from 'https://deno.land/std@0.220.0/assert/mod.ts';
+import { stub, restore } from 'https://deno.land/std@0.220.0/testing/mock.ts';
 import {
   createLogger,
   createProductionLogger,
   createDevelopmentLogger,
   parseLogLevel,
   LogLevel,
-} from './logger';
+} from './logger.ts';
 
-describe('createLogger', () => {
-  let consoleSpy: {
-    log: jest.SpiedFunction<typeof console.log>;
-    warn: jest.SpiedFunction<typeof console.warn>;
-    error: jest.SpiedFunction<typeof console.error>;
-    debug: jest.SpiedFunction<typeof console.debug>;
+// Helper to capture console output
+function setupConsoleMocks() {
+  const logs: string[] = [];
+  const warns: string[] = [];
+  const errors: string[] = [];
+  const debugs: string[] = [];
+
+  const logStub = stub(console, 'log', (...args: unknown[]) => {
+    logs.push(String(args[0]));
+  });
+  const warnStub = stub(console, 'warn', (...args: unknown[]) => {
+    warns.push(String(args[0]));
+  });
+  const errorStub = stub(console, 'error', (...args: unknown[]) => {
+    errors.push(String(args[0]));
+  });
+  const debugStub = stub(console, 'debug', (...args: unknown[]) => {
+    debugs.push(String(args[0]));
+  });
+
+  return {
+    logs,
+    warns,
+    errors,
+    debugs,
+    restore: () => {
+      logStub.restore();
+      warnStub.restore();
+      errorStub.restore();
+      debugStub.restore();
+    },
   };
+}
 
-  beforeEach(() => {
-    consoleSpy = {
-      log: jest.spyOn(console, 'log').mockImplementation(),
-      warn: jest.spyOn(console, 'warn').mockImplementation(),
-      error: jest.spyOn(console, 'error').mockImplementation(),
-      debug: jest.spyOn(console, 'debug').mockImplementation(),
-    };
-  });
+// createLogger tests
+Deno.test('createLogger - creates logger with default config', () => {
+  const logger = createLogger();
+  assertEquals(logger.config !== undefined, true);
+  assertEquals(logger.config.debugEnabled, false);
+  assertEquals(logger.config.jsonFormat, false);
+});
 
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
+Deno.test('createLogger - supports boolean parameter for backwards compatibility', () => {
+  const logger = createLogger(true);
+  assertEquals(logger.config.debugEnabled, true);
+});
 
-  it('should create logger with default config', () => {
-    const logger = createLogger();
-    expect(logger.config).toBeDefined();
-    expect(logger.config.debugEnabled).toBe(false);
-    expect(logger.config.jsonFormat).toBe(false);
-  });
-
-  it('should support boolean parameter for backwards compatibility', () => {
-    const logger = createLogger(true);
-    expect(logger.config.debugEnabled).toBe(true);
-  });
-
-  it('should log info messages', () => {
+Deno.test('createLogger - logs info messages', () => {
+  const mocks = setupConsoleMocks();
+  try {
     const logger = createLogger();
     logger.info('Test message');
 
-    expect(consoleSpy.log).toHaveBeenCalled();
-    const call = consoleSpy.log.mock.calls[0][0];
-    expect(call).toContain('[INFO]');
-    expect(call).toContain('Test message');
-  });
+    assertEquals(mocks.logs.length > 0, true);
+    assertStringIncludes(mocks.logs[0], '[INFO]');
+    assertStringIncludes(mocks.logs[0], 'Test message');
+  } finally {
+    mocks.restore();
+  }
+});
 
-  it('should log warn messages', () => {
+Deno.test('createLogger - logs warn messages', () => {
+  const mocks = setupConsoleMocks();
+  try {
     const logger = createLogger();
     logger.warn('Warning message');
 
-    expect(consoleSpy.warn).toHaveBeenCalled();
-    const call = consoleSpy.warn.mock.calls[0][0];
-    expect(call).toContain('[WARN]');
-    expect(call).toContain('Warning message');
-  });
+    assertEquals(mocks.warns.length > 0, true);
+    assertStringIncludes(mocks.warns[0], '[WARN]');
+    assertStringIncludes(mocks.warns[0], 'Warning message');
+  } finally {
+    mocks.restore();
+  }
+});
 
-  it('should log error messages', () => {
+Deno.test('createLogger - logs error messages', () => {
+  const mocks = setupConsoleMocks();
+  try {
     const logger = createLogger();
     logger.error('Error message');
 
-    expect(consoleSpy.error).toHaveBeenCalled();
-    const call = consoleSpy.error.mock.calls[0][0];
-    expect(call).toContain('[ERROR]');
-    expect(call).toContain('Error message');
-  });
+    assertEquals(mocks.errors.length > 0, true);
+    assertStringIncludes(mocks.errors[0], '[ERROR]');
+    assertStringIncludes(mocks.errors[0], 'Error message');
+  } finally {
+    mocks.restore();
+  }
+});
 
-  it('should not log debug when disabled', () => {
+Deno.test('createLogger - does not log debug when disabled', () => {
+  const mocks = setupConsoleMocks();
+  try {
     const logger = createLogger({ debugEnabled: false });
     logger.debug('Debug message');
 
-    expect(consoleSpy.debug).not.toHaveBeenCalled();
-  });
+    assertEquals(mocks.debugs.length, 0);
+  } finally {
+    mocks.restore();
+  }
+});
 
-  it('should log debug when enabled', () => {
+Deno.test('createLogger - logs debug when enabled', () => {
+  const mocks = setupConsoleMocks();
+  try {
     const logger = createLogger({ debugEnabled: true, minLevel: LogLevel.DEBUG });
     logger.debug('Debug message');
 
-    expect(consoleSpy.debug).toHaveBeenCalled();
-    const call = consoleSpy.debug.mock.calls[0][0];
-    expect(call).toContain('[DEBUG]');
-    expect(call).toContain('Debug message');
-  });
+    assertEquals(mocks.debugs.length > 0, true);
+    assertStringIncludes(mocks.debugs[0], '[DEBUG]');
+    assertStringIncludes(mocks.debugs[0], 'Debug message');
+  } finally {
+    mocks.restore();
+  }
+});
 
-  it('should output JSON format when configured', () => {
+Deno.test('createLogger - outputs JSON format when configured', () => {
+  const mocks = setupConsoleMocks();
+  try {
     const logger = createLogger({ jsonFormat: true });
     logger.info('Test message');
 
-    expect(consoleSpy.log).toHaveBeenCalled();
-    const output = consoleSpy.log.mock.calls[0][0];
-
+    assertEquals(mocks.logs.length > 0, true);
     // Should be valid JSON
-    const parsed = JSON.parse(output);
-    expect(parsed.level).toBe('INFO');
-    expect(parsed.message).toBe('Test message');
-    expect(parsed.timestamp).toBeDefined();
-  });
+    const parsed = JSON.parse(mocks.logs[0]);
+    assertEquals(parsed.level, 'INFO');
+    assertEquals(parsed.message, 'Test message');
+    assertEquals(parsed.timestamp !== undefined, true);
+  } finally {
+    mocks.restore();
+  }
+});
 
-  it('should include app name in JSON output', () => {
+Deno.test('createLogger - includes app name in JSON output', () => {
+  const mocks = setupConsoleMocks();
+  try {
     const logger = createLogger({ jsonFormat: true, appName: 'my-app' });
     logger.info('Test');
 
-    const output = consoleSpy.log.mock.calls[0][0];
-    const parsed = JSON.parse(output);
-    expect(parsed.app).toBe('my-app');
-  });
+    const parsed = JSON.parse(mocks.logs[0]);
+    assertEquals(parsed.app, 'my-app');
+  } finally {
+    mocks.restore();
+  }
+});
 
-  it('should respect minimum log level', () => {
+Deno.test('createLogger - respects minimum log level', () => {
+  const mocks = setupConsoleMocks();
+  try {
     const logger = createLogger({ minLevel: LogLevel.WARN });
 
     logger.info('Info');
     logger.warn('Warn');
 
-    expect(consoleSpy.log).not.toHaveBeenCalled();
-    expect(consoleSpy.warn).toHaveBeenCalled();
-  });
+    assertEquals(mocks.logs.length, 0);
+    assertEquals(mocks.warns.length > 0, true);
+  } finally {
+    mocks.restore();
+  }
+});
 
-  it('should create child logger with additional context', () => {
+Deno.test('createLogger - creates child logger with additional context', () => {
+  const mocks = setupConsoleMocks();
+  try {
     const logger = createLogger({ jsonFormat: true });
     const child = logger.child({ requestId: '123' });
 
     child.info('Test');
 
-    const output = consoleSpy.log.mock.calls[0][0];
-    const parsed = JSON.parse(output);
-    expect(parsed.context.requestId).toBe('123');
-  });
+    const parsed = JSON.parse(mocks.logs[0]);
+    assertEquals(parsed.context.requestId, '123');
+  } finally {
+    mocks.restore();
+  }
+});
 
-  it('should check if log level is enabled', () => {
-    const logger = createLogger({ minLevel: LogLevel.WARN });
+Deno.test('createLogger - checks if log level is enabled', () => {
+  const logger = createLogger({ minLevel: LogLevel.WARN });
 
-    expect(logger.isLevelEnabled(LogLevel.INFO)).toBe(false);
-    expect(logger.isLevelEnabled(LogLevel.WARN)).toBe(true);
-    expect(logger.isLevelEnabled(LogLevel.ERROR)).toBe(true);
-  });
+  assertEquals(logger.isLevelEnabled(LogLevel.INFO), false);
+  assertEquals(logger.isLevelEnabled(LogLevel.WARN), true);
+  assertEquals(logger.isLevelEnabled(LogLevel.ERROR), true);
+});
 
-  it('should include extra args in output', () => {
+Deno.test('createLogger - includes extra args in output', () => {
+  const mocks = setupConsoleMocks();
+  try {
     const logger = createLogger({ jsonFormat: true });
     logger.info('Test', { extra: 'data' });
 
-    const output = consoleSpy.log.mock.calls[0][0];
-    const parsed = JSON.parse(output);
-    expect(parsed.args).toBeDefined();
-    expect(parsed.args[0]).toEqual({ extra: 'data' });
-  });
+    const parsed = JSON.parse(mocks.logs[0]);
+    assertEquals(parsed.args !== undefined, true);
+    assertEquals(parsed.args[0].extra, 'data');
+  } finally {
+    mocks.restore();
+  }
 });
 
-describe('createProductionLogger', () => {
-  it('should create JSON-formatted logger', () => {
-    const logger = createProductionLogger();
-    expect(logger.config.jsonFormat).toBe(true);
-    expect(logger.config.debugEnabled).toBe(false);
-  });
-
-  it('should use custom app name', () => {
-    const logger = createProductionLogger('custom-app');
-    expect(logger.config.appName).toBe('custom-app');
-  });
+// createProductionLogger tests
+Deno.test('createProductionLogger - creates JSON-formatted logger', () => {
+  const logger = createProductionLogger();
+  assertEquals(logger.config.jsonFormat, true);
+  assertEquals(logger.config.debugEnabled, false);
 });
 
-describe('createDevelopmentLogger', () => {
-  it('should enable debug logging', () => {
-    const logger = createDevelopmentLogger();
-    expect(logger.config.debugEnabled).toBe(true);
-    expect(logger.config.jsonFormat).toBe(false);
-    expect(logger.config.minLevel).toBe(LogLevel.DEBUG);
-  });
+Deno.test('createProductionLogger - uses custom app name', () => {
+  const logger = createProductionLogger('custom-app');
+  assertEquals(logger.config.appName, 'custom-app');
 });
 
-describe('parseLogLevel', () => {
-  it('should parse valid log levels', () => {
-    expect(parseLogLevel('DEBUG')).toBe(LogLevel.DEBUG);
-    expect(parseLogLevel('INFO')).toBe(LogLevel.INFO);
-    expect(parseLogLevel('WARN')).toBe(LogLevel.WARN);
-    expect(parseLogLevel('ERROR')).toBe(LogLevel.ERROR);
-    expect(parseLogLevel('SILENT')).toBe(LogLevel.SILENT);
-  });
-
-  it('should be case-insensitive', () => {
-    expect(parseLogLevel('debug')).toBe(LogLevel.DEBUG);
-    expect(parseLogLevel('Info')).toBe(LogLevel.INFO);
-    expect(parseLogLevel('WARNING')).toBe(LogLevel.WARN);
-  });
-
-  it('should default to INFO for unknown levels', () => {
-    expect(parseLogLevel('unknown')).toBe(LogLevel.INFO);
-    expect(parseLogLevel('')).toBe(LogLevel.INFO);
-  });
+// createDevelopmentLogger tests
+Deno.test('createDevelopmentLogger - enables debug logging', () => {
+  const logger = createDevelopmentLogger();
+  assertEquals(logger.config.debugEnabled, true);
+  assertEquals(logger.config.jsonFormat, false);
+  assertEquals(logger.config.minLevel, LogLevel.DEBUG);
 });
 
-describe('LogLevel', () => {
-  it('should have correct ordering', () => {
-    expect(LogLevel.DEBUG).toBeLessThan(LogLevel.INFO);
-    expect(LogLevel.INFO).toBeLessThan(LogLevel.WARN);
-    expect(LogLevel.WARN).toBeLessThan(LogLevel.ERROR);
-    expect(LogLevel.ERROR).toBeLessThan(LogLevel.SILENT);
-  });
+// parseLogLevel tests
+Deno.test('parseLogLevel - parses valid log levels', () => {
+  assertEquals(parseLogLevel('DEBUG'), LogLevel.DEBUG);
+  assertEquals(parseLogLevel('INFO'), LogLevel.INFO);
+  assertEquals(parseLogLevel('WARN'), LogLevel.WARN);
+  assertEquals(parseLogLevel('ERROR'), LogLevel.ERROR);
+  assertEquals(parseLogLevel('SILENT'), LogLevel.SILENT);
+});
+
+Deno.test('parseLogLevel - is case-insensitive', () => {
+  assertEquals(parseLogLevel('debug'), LogLevel.DEBUG);
+  assertEquals(parseLogLevel('Info'), LogLevel.INFO);
+  assertEquals(parseLogLevel('WARNING'), LogLevel.WARN);
+});
+
+Deno.test('parseLogLevel - defaults to INFO for unknown levels', () => {
+  assertEquals(parseLogLevel('unknown'), LogLevel.INFO);
+  assertEquals(parseLogLevel(''), LogLevel.INFO);
+});
+
+// LogLevel ordering tests
+Deno.test('LogLevel - has correct ordering', () => {
+  assertEquals(LogLevel.DEBUG < LogLevel.INFO, true);
+  assertEquals(LogLevel.INFO < LogLevel.WARN, true);
+  assertEquals(LogLevel.WARN < LogLevel.ERROR, true);
+  assertEquals(LogLevel.ERROR < LogLevel.SILENT, true);
 });

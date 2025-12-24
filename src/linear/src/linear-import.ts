@@ -1,12 +1,13 @@
-#!/usr/bin/env node
+#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-net
 /**
  * Linear Documentation Import Tool
  *
  * Import ad-blocking repository documentation into Linear project management.
+ * Deno-only implementation.
  *
  * Usage:
- *   npm run import:docs          # Import documentation with default settings
- *   npm run import:dry-run       # Preview what would be imported
+ *   deno task import:docs          # Import documentation with default settings
+ *   deno task import:dry-run       # Preview what would be imported
  *
  * Environment Variables:
  *   LINEAR_API_KEY     - Your Linear API key (required)
@@ -16,18 +17,18 @@
 
 import { Command } from "commander";
 import { config } from "dotenv";
-import { resolve, dirname } from "path";
-import { fileURLToPath } from "url";
-import { existsSync } from "fs";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import { existsSync } from "node:fs";
 
-import { LinearImporter } from "./linear-client.js";
+import { LinearImporter } from "./linear-client.ts";
 import {
   parseMarkdownFile,
   extractRoadmapItems,
   extractComponents,
   flattenSections,
-} from "./parser.js";
-import { ImportConfig } from "./types.js";
+} from "./parser.ts";
+import { ImportConfig } from "./types.ts";
 
 // Load environment variables
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -52,24 +53,24 @@ async function main(): Promise<void> {
     .option("--list-teams", "List available teams and exit")
     .option("--list-projects", "List existing projects and exit")
     .option("-v, --verbose", "Verbose output")
-    .parse(process.argv);
+    .parse(Deno.args);
 
   const options = program.opts();
 
   // Check for API key
-  const apiKey = process.env['LINEAR_API_KEY'];
+  const apiKey = Deno.env.get('LINEAR_API_KEY');
   if (!apiKey) {
     console.error("Error: LINEAR_API_KEY environment variable is required");
     console.error("\nTo get your API key:");
     console.error("1. Go to Linear Settings > API");
     console.error("2. Create a new personal API key");
     console.error("3. Set it in your .env file or environment");
-    process.exit(1);
+    Deno.exit(1);
   }
 
   const importConfig: ImportConfig = {
-    teamId: options['team'] || process.env['LINEAR_TEAM_ID'] || "",
-    projectName: options['project'] || process.env['LINEAR_PROJECT_NAME'] || "",
+    teamId: options['team'] || Deno.env.get('LINEAR_TEAM_ID') || "",
+    projectName: options['project'] || Deno.env.get('LINEAR_PROJECT_NAME') || "",
     createProject: options['project'] !== false,
     createIssues: options['issues'] !== false,
     createDocuments: options['docs'] !== false,
@@ -107,7 +108,7 @@ async function main(): Promise<void> {
     const filePath = resolve(options['file']);
     if (!existsSync(filePath)) {
       console.error(`Error: Documentation file not found: ${filePath}`);
-      process.exit(1);
+      Deno.exit(1);
     }
 
     console.log(`\nParsing documentation: ${filePath}`);
@@ -166,11 +167,11 @@ async function main(): Promise<void> {
     console.log("\nImport complete!");
   } catch (error) {
     console.error(`\nError: ${error}`);
-    process.exit(1);
+    Deno.exit(1);
   }
 }
 
 main().catch((error) => {
   console.error("Fatal error:", error);
-  process.exit(1);
+  Deno.exit(1);
 });

@@ -4,7 +4,7 @@
  */
 
 import axios, { AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
-import { RetryOptions, executeWithRetry } from './retry.js';
+import { RetryOptions, executeWithRetry } from './retry.ts';
 
 /** API base path */
 export const DEFAULT_BASE_PATH = 'https://api.adguard-dns.io';

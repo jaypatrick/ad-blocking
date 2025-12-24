@@ -25,7 +25,7 @@ export type {
   ExtendedConfiguration,
   Logger,
   CompileOptions,
-} from './types.js';
+} from './types.ts';
 
 // Configuration reader
 export {
@@ -33,8 +33,8 @@ export {
   findDefaultConfig,
   readConfiguration,
   toJson,
-} from './config-reader.js';
-export type { ReadConfigurationOptions } from './config-reader.js';
+} from './config-reader.ts';
+export type { ReadConfigurationOptions } from './config-reader.ts';
 
 // Compiler
 export {
@@ -44,11 +44,11 @@ export {
   copyToRulesDirectory,
   compileFilters,
   runCompiler,
-} from './compiler.js';
-export type { CompilerOptions, ExtendedCompileOptions } from './compiler.js';
+} from './compiler.ts';
+export type { CompilerOptions, ExtendedCompileOptions } from './compiler.ts';
 
 // CLI
-export { parseArgs, showHelp, showVersion, getVersionInfo, main } from './cli.js';
+export { parseArgs, showHelp, showVersion, getVersionInfo, main } from './cli.ts';
 
 // Logger
 export {
@@ -58,8 +58,8 @@ export {
   parseLogLevel,
   logger,
   LogLevel,
-} from './logger.js';
-export type { LoggerConfig, ExtendedLogger } from './logger.js';
+} from './logger.ts';
+export type { LoggerConfig, ExtendedLogger } from './logger.ts';
 
 // Errors
 export {
@@ -79,8 +79,8 @@ export {
   wrapError,
   isCompilerError,
   isRecoverable,
-} from './errors.js';
-export type { ErrorContext } from './errors.js';
+} from './errors.ts';
+export type { ErrorContext } from './errors.ts';
 
 // Validation
 export {
@@ -93,8 +93,8 @@ export {
   checkFileSize,
   checkSourceCount,
   DEFAULT_RESOURCE_LIMITS,
-} from './validation.js';
-export type { ValidationResult, ResourceLimits } from './validation.js';
+} from './validation.ts';
+export type { ValidationResult, ResourceLimits } from './validation.ts';
 
 // Shutdown
 export {
@@ -103,8 +103,8 @@ export {
   initializeShutdownHandler,
   createShutdownAwareAbortController,
   withShutdownCheck,
-} from './shutdown.js';
-export type { CleanupFn, ShutdownConfig } from './shutdown.js';
+} from './shutdown.ts';
+export type { CleanupFn, ShutdownConfig } from './shutdown.ts';
 
 // Timeout utilities
 export {
@@ -113,5 +113,5 @@ export {
   withRetry,
   debounce,
   throttle,
-} from './timeout.js';
-export type { TimeoutController, RetryConfig } from './timeout.js';
+} from './timeout.ts';
+export type { TimeoutController, RetryConfig } from './timeout.ts';

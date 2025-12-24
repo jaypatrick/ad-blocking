@@ -2,9 +2,9 @@
  * Web Services API client
  */
 
-import { BaseApi } from './base.js';
-import { ApiConfiguration } from '../helpers/configuration.js';
-import { WebService } from '../models/index.js';
+import { BaseApi } from './base.ts';
+import { ApiConfiguration } from '../helpers/configuration.ts';
+import { WebService } from '../models/index.ts';
 
 /** Web Services API endpoints */
 export class WebServicesApi extends BaseApi {

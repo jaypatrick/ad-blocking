@@ -1,23 +1,24 @@
-#!/usr/bin/env node
+#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run
 /**
  * Command-line interface for the Rules Compiler TypeScript Frontend
  * Production-ready with graceful shutdown and structured error handling
+ * Deno-only implementation
  */
 
 import { resolve } from 'node:path';
-import type { CliOptions, ConfigurationFormat, VersionInfo } from './types.js';
-import { runCompiler } from './compiler.js';
-import { findDefaultConfig, readConfiguration, toJson } from './config-reader.js';
-import { createLogger, createProductionLogger } from './logger.js';
-import { initializeShutdownHandler, ShutdownHandler } from './shutdown.js';
-import { isCompilerError } from './errors.js';
+import type { CliOptions, ConfigurationFormat, VersionInfo } from './types.ts';
+import { runCompiler } from './compiler.ts';
+import { findDefaultConfig, readConfiguration, toJson } from './config-reader.ts';
+import { createLogger, createProductionLogger } from './logger.ts';
+import { initializeShutdownHandler, ShutdownHandler } from './shutdown.ts';
+import { isCompilerError } from './errors.ts';
 
 /** Package version */
 const VERSION = '1.0.0';
 
 /**
  * Parses command line arguments
- * @param args - Command line arguments (process.argv.slice(2))
+ * @param args - Command line arguments (Deno.args)
  * @returns Parsed CLI options
  */
 export function parseArgs(args: string[]): CliOptions {
@@ -97,7 +98,7 @@ export function showHelp(): void {
   console.log(`
 AdGuard Filter Rules Compiler (TypeScript Frontend)
 
-Usage: rules-compiler [OPTIONS] [CONFIG_PATH]
+Usage: deno task compile [OPTIONS] [CONFIG_PATH]
 
 Options:
   -c, --config PATH     Path to configuration file
@@ -125,13 +126,13 @@ Supported Configuration Formats:
   - TOML  (.toml)
 
 Examples:
-  rules-compiler                          # Use default config
-  rules-compiler -c config.yaml           # Specific config file
-  rules-compiler -c config.json -r        # Compile and copy to rules
-  rules-compiler -c config.toml -o out.txt
-  rules-compiler --show-config -c config.yaml
-  rules-compiler --json-logs -c config.yaml  # Production mode with JSON logs
-  rules-compiler --timeout 60000 -c config.yaml  # 60 second timeout
+  deno task compile                         # Use default config
+  deno task compile -c config.yaml          # Specific config file
+  deno task compile -c config.json -r       # Compile and copy to rules
+  deno task compile -c config.toml -o out.txt
+  deno task compile --show-config -c config.yaml
+  deno task compile --json-logs -c config.yaml  # Production mode with JSON logs
+  deno task compile --timeout 60000 -c config.yaml  # 60 second timeout
 `);
 }
 
@@ -142,10 +143,10 @@ Examples:
 export function getVersionInfo(): VersionInfo {
   return {
     moduleVersion: VERSION,
-    nodeVersion: process.version,
+    nodeVersion: `Deno ${Deno.version.deno}`,
     platform: {
-      os: process.platform,
-      arch: process.arch,
+      os: Deno.build.os,
+      arch: Deno.build.arch,
     },
   };
 }
@@ -162,7 +163,9 @@ export function showVersion(): void {
   console.log('Platform Information:');
   console.log(`  OS: ${info.platform.os}`);
   console.log(`  Architecture: ${info.platform.arch}`);
-  console.log(`  Node.js: ${info.nodeVersion}`);
+  console.log(`  Runtime: ${info.nodeVersion}`);
+  console.log(`  TypeScript: ${Deno.version.typescript}`);
+  console.log(`  V8: ${Deno.version.v8}`);
 }
 
 /**
@@ -204,7 +207,7 @@ function showConfig(configPath: string, format?: ConfigurationFormat): void {
 
   console.log(`  Sources: ${config.sources?.length || 0}`);
   console.log(`  Transformations: ${formatTransformations(configRecord['transformations'])}`);
-  
+
   console.log('');
   console.log('JSON representation:');
   console.log(toJson(config));
@@ -259,7 +262,7 @@ function parseExtendedArgs(args: string[]): ExtendedCliOptions {
  * @param args - Command line arguments
  * @returns Exit code
  */
-export async function main(args: string[] = process.argv.slice(2)): Promise<number> {
+export async function main(args: string[] = Deno.args): Promise<number> {
   let shutdownHandler: ShutdownHandler | undefined;
 
   try {
@@ -369,7 +372,8 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<numb
   }
 }
 
-// Run if executed directly (ES module check)
-if (import.meta.url === `file://${process.argv[1]}`) {
-  void main().then((code) => process.exit(code));
+// Run if executed directly
+if (import.meta.main) {
+  const code = await main();
+  Deno.exit(code);
 }

@@ -2,8 +2,8 @@
  * Query Log menu
  */
 
-import { BaseMenu, MenuItem } from './base.js';
-import { QueryLogRepository } from '../../repositories/query-log.js';
+import { BaseMenu, MenuItem } from './base.ts';
+import { QueryLogRepository } from '../../repositories/query-log.ts';
 import {
   createTable,
   displayTable,
@@ -13,8 +13,8 @@ import {
   withSpinner,
   formatRelativeTime,
   truncate,
-} from '../utils.js';
-import { FilteringActionStatus } from '../../models/index.js';
+} from '../utils.ts';
+import { FilteringActionStatus } from '../../models/index.ts';
 
 export class QueryLogMenu extends BaseMenu {
   protected get title(): string {

@@ -1,10 +1,11 @@
 /**
  * Graceful shutdown handler for production deployments
  * Handles SIGTERM, SIGINT signals and cleanup
+ * Deno-only implementation
  */
 
-import { ShutdownError } from './errors.js';
-import type { Logger } from './types.js';
+import { ShutdownError } from './errors.ts';
+import type { Logger } from './types.ts';
 
 /**
  * Cleanup function type
@@ -29,6 +30,11 @@ const DEFAULT_SHUTDOWN_CONFIG: ShutdownConfig = {
 };
 
 /**
+ * Deno signal type
+ */
+type DenoSignal = 'SIGTERM' | 'SIGINT' | 'SIGHUP';
+
+/**
  * Manages graceful shutdown with signal handling
  */
 export class ShutdownHandler {
@@ -37,7 +43,7 @@ export class ShutdownHandler {
   private shutdownPromise: Promise<void> | null = null;
   private readonly config: ShutdownConfig;
   private readonly logger?: Logger;
-  private signalHandlers: Map<NodeJS.Signals, () => void> = new Map();
+  private signalHandlers: Map<DenoSignal, () => void> = new Map();
 
   constructor(config: Partial<ShutdownConfig> = {}) {
     this.config = { ...DEFAULT_SHUTDOWN_CONFIG, ...config };
@@ -65,24 +71,24 @@ export class ShutdownHandler {
    * Starts listening for shutdown signals
    */
   listen(): void {
-    const signals: NodeJS.Signals[] = ['SIGTERM', 'SIGINT', 'SIGHUP'];
+    const signals: DenoSignal[] = ['SIGTERM', 'SIGINT', 'SIGHUP'];
 
     for (const signal of signals) {
       const handler = (): void => {
         void this.handleSignal(signal);
       };
       this.signalHandlers.set(signal, handler);
-      process.on(signal, handler);
+      try {
+        Deno.addSignalListener(signal, handler);
+      } catch {
+        // Signal may not be available on all platforms
+        this.logger?.debug(`Signal ${signal} not available on this platform`);
+      }
     }
 
-    // Handle uncaught exceptions
-    process.on('uncaughtException', (error) => {
-      this.logger?.error(`Uncaught exception: ${error.message}`);
-      void this.shutdown('uncaughtException');
-    });
-
-    // Handle unhandled rejections
-    process.on('unhandledRejection', (reason) => {
+    // Handle unhandled rejections using globalThis event listener
+    globalThis.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
+      const reason = event.reason;
       const message = reason instanceof Error ? reason.message : String(reason);
       this.logger?.error(`Unhandled rejection: ${message}`);
     });
@@ -95,7 +101,11 @@ export class ShutdownHandler {
    */
   unlisten(): void {
     for (const [signal, handler] of this.signalHandlers) {
-      process.removeListener(signal, handler);
+      try {
+        Deno.removeSignalListener(signal, handler);
+      } catch {
+        // Signal may not have been registered
+      }
     }
     this.signalHandlers.clear();
     this.logger?.debug('Shutdown handler removed');

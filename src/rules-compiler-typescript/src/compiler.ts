@@ -7,16 +7,16 @@ import compile, { type IConfiguration } from '@adguard/hostlist-compiler';
 import { writeFileSync, readFileSync, existsSync, copyFileSync, mkdirSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
-import type { CompilerResult, CompileOptions, Logger } from './types.js';
-import { readConfiguration } from './config-reader.js';
-import { logger as defaultLogger } from './logger.js';
+import type { CompilerResult, CompileOptions, Logger } from './types.ts';
+import { readConfiguration } from './config-reader.ts';
+import { logger as defaultLogger } from './logger.ts';
 import {
   CompilationError,
   ErrorCode,
   isCompilerError,
-} from './errors.js';
-import { withTimeout } from './timeout.js';
-import { DEFAULT_RESOURCE_LIMITS, checkFileSize } from './validation.js';
+} from './errors.ts';
+import { withTimeout } from './timeout.ts';
+import { DEFAULT_RESOURCE_LIMITS, checkFileSize } from './validation.ts';
 
 /**
  * Writes compiled rules to an output file

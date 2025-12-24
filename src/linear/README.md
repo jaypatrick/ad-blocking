@@ -13,16 +13,14 @@ This tool parses the repository's Linear documentation (`docs/LINEAR_DOCUMENTATI
 
 ## Prerequisites
 
-- Node.js 20+
-- npm or yarn
+- Deno 2.0+
 - Linear account with API access
 
 ## Installation
 
 ```bash
 cd src/linear
-npm install
-npm run build
+# No installation needed - Deno handles dependencies automatically
 ```
 
 ## Configuration
@@ -50,29 +48,29 @@ npm run build
 
 ```bash
 # Full import with default settings
-npm run import:docs
+deno task import
 
 # Dry run (preview without making changes)
-npm run import:dry-run
+deno task import --dry-run
 
 # Custom file path
-npm run import -- --file /path/to/documentation.md
+deno task import --file /path/to/documentation.md
 
 # Specify project name
-npm run import -- --project "My Project Name"
+deno task import --project "My Project Name"
 
 # Use specific team
-npm run import -- --team team_id_here
+deno task import --team team_id_here
 ```
 
 ### List Available Resources
 
 ```bash
 # List available teams
-npm run import -- --list-teams
+deno task import --list-teams
 
 # List existing projects
-npm run import -- --list-projects
+deno task import --list-projects
 ```
 
 ### Command Options
@@ -126,25 +124,31 @@ src/linear/
 │   ├── types.ts          # TypeScript interfaces
 │   ├── parser.ts         # Markdown parsing logic
 │   ├── linear-client.ts  # Linear API wrapper
-│   └── linear-import.ts  # Main entry point
+│   ├── linear-import.ts  # Node.js entry point
+│   └── mod.ts            # Deno entry point
 ├── .env.example          # Environment configuration template
-├── package.json          # Dependencies and scripts
-├── tsconfig.json         # TypeScript configuration
+├── deno.json             # Deno configuration and tasks
 └── README.md             # This file
 ```
 
 ## Development
 
-### Build
+### Type Check
 
 ```bash
-npm run build
+deno task check
+```
+
+### Lint
+
+```bash
+deno task lint
 ```
 
 ### Run directly
 
 ```bash
-node dist/linear-import.js --help
+deno run --allow-read --allow-write --allow-env --allow-net src/mod.ts --help
 ```
 
 ## Troubleshooting

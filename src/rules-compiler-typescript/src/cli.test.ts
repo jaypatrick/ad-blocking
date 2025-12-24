@@ -1,114 +1,118 @@
 /**
  * Tests for CLI argument parsing
+ * Deno-native testing implementation
  */
 
-import { parseArgs } from './cli';
+import { assertEquals, assertThrows } from 'https://deno.land/std@0.220.0/assert/mod.ts';
+import { parseArgs } from './cli.ts';
 
-describe('parseArgs', () => {
-  it('should return default options with no arguments', () => {
-    const options = parseArgs([]);
-    expect(options.copyToRules).toBe(false);
-    expect(options.version).toBe(false);
-    expect(options.help).toBe(false);
-    expect(options.debug).toBe(false);
-    expect(options.configPath).toBeUndefined();
-    expect(options.outputPath).toBeUndefined();
-  });
+Deno.test('parseArgs - returns default options with no arguments', () => {
+  const options = parseArgs([]);
+  assertEquals(options.copyToRules, false);
+  assertEquals(options.version, false);
+  assertEquals(options.help, false);
+  assertEquals(options.debug, false);
+  assertEquals(options.configPath, undefined);
+  assertEquals(options.outputPath, undefined);
+});
 
-  it('should parse -c flag for config path', () => {
-    const options = parseArgs(['-c', 'config.yaml']);
-    expect(options.configPath).toBe('config.yaml');
-  });
+Deno.test('parseArgs - parses -c flag for config path', () => {
+  const options = parseArgs(['-c', 'config.yaml']);
+  assertEquals(options.configPath, 'config.yaml');
+});
 
-  it('should parse --config flag for config path', () => {
-    const options = parseArgs(['--config', 'config.json']);
-    expect(options.configPath).toBe('config.json');
-  });
+Deno.test('parseArgs - parses --config flag for config path', () => {
+  const options = parseArgs(['--config', 'config.json']);
+  assertEquals(options.configPath, 'config.json');
+});
 
-  it('should parse -o flag for output path', () => {
-    const options = parseArgs(['-o', 'output.txt']);
-    expect(options.outputPath).toBe('output.txt');
-  });
+Deno.test('parseArgs - parses -o flag for output path', () => {
+  const options = parseArgs(['-o', 'output.txt']);
+  assertEquals(options.outputPath, 'output.txt');
+});
 
-  it('should parse --output flag for output path', () => {
-    const options = parseArgs(['--output', 'rules.txt']);
-    expect(options.outputPath).toBe('rules.txt');
-  });
+Deno.test('parseArgs - parses --output flag for output path', () => {
+  const options = parseArgs(['--output', 'rules.txt']);
+  assertEquals(options.outputPath, 'rules.txt');
+});
 
-  it('should parse -r flag for copy to rules', () => {
-    const options = parseArgs(['-r']);
-    expect(options.copyToRules).toBe(true);
-  });
+Deno.test('parseArgs - parses -r flag for copy to rules', () => {
+  const options = parseArgs(['-r']);
+  assertEquals(options.copyToRules, true);
+});
 
-  it('should parse --copy-to-rules flag', () => {
-    const options = parseArgs(['--copy-to-rules']);
-    expect(options.copyToRules).toBe(true);
-  });
+Deno.test('parseArgs - parses --copy-to-rules flag', () => {
+  const options = parseArgs(['--copy-to-rules']);
+  assertEquals(options.copyToRules, true);
+});
 
-  it('should parse -f flag for format', () => {
-    const options = parseArgs(['-f', 'yaml']);
-    expect(options.format).toBe('yaml');
-  });
+Deno.test('parseArgs - parses -f flag for format', () => {
+  const options = parseArgs(['-f', 'yaml']);
+  assertEquals(options.format, 'yaml');
+});
 
-  it('should parse --format flag', () => {
-    const options = parseArgs(['--format', 'toml']);
-    expect(options.format).toBe('toml');
-  });
+Deno.test('parseArgs - parses --format flag', () => {
+  const options = parseArgs(['--format', 'toml']);
+  assertEquals(options.format, 'toml');
+});
 
-  it('should throw error for invalid format', () => {
-    expect(() => parseArgs(['-f', 'xml'])).toThrow('Invalid format: xml');
-  });
+Deno.test('parseArgs - throws error for invalid format', () => {
+  assertThrows(
+    () => parseArgs(['-f', 'xml']),
+    Error,
+    'Invalid format: xml'
+  );
+});
 
-  it('should parse -v flag for version', () => {
-    const options = parseArgs(['-v']);
-    expect(options.version).toBe(true);
-  });
+Deno.test('parseArgs - parses -v flag for version', () => {
+  const options = parseArgs(['-v']);
+  assertEquals(options.version, true);
+});
 
-  it('should parse --version flag', () => {
-    const options = parseArgs(['--version']);
-    expect(options.version).toBe(true);
-  });
+Deno.test('parseArgs - parses --version flag', () => {
+  const options = parseArgs(['--version']);
+  assertEquals(options.version, true);
+});
 
-  it('should parse -h flag for help', () => {
-    const options = parseArgs(['-h']);
-    expect(options.help).toBe(true);
-  });
+Deno.test('parseArgs - parses -h flag for help', () => {
+  const options = parseArgs(['-h']);
+  assertEquals(options.help, true);
+});
 
-  it('should parse --help flag', () => {
-    const options = parseArgs(['--help']);
-    expect(options.help).toBe(true);
-  });
+Deno.test('parseArgs - parses --help flag', () => {
+  const options = parseArgs(['--help']);
+  assertEquals(options.help, true);
+});
 
-  it('should parse -d flag for debug', () => {
-    const options = parseArgs(['-d']);
-    expect(options.debug).toBe(true);
-  });
+Deno.test('parseArgs - parses -d flag for debug', () => {
+  const options = parseArgs(['-d']);
+  assertEquals(options.debug, true);
+});
 
-  it('should parse --debug flag', () => {
-    const options = parseArgs(['--debug']);
-    expect(options.debug).toBe(true);
-  });
+Deno.test('parseArgs - parses --debug flag', () => {
+  const options = parseArgs(['--debug']);
+  assertEquals(options.debug, true);
+});
 
-  it('should parse --show-config flag', () => {
-    const options = parseArgs(['--show-config']);
-    expect(options.showConfig).toBe(true);
-  });
+Deno.test('parseArgs - parses --show-config flag', () => {
+  const options = parseArgs(['--show-config']);
+  assertEquals(options.showConfig, true);
+});
 
-  it('should parse positional config path', () => {
-    const options = parseArgs(['config.yaml']);
-    expect(options.configPath).toBe('config.yaml');
-  });
+Deno.test('parseArgs - parses positional config path', () => {
+  const options = parseArgs(['config.yaml']);
+  assertEquals(options.configPath, 'config.yaml');
+});
 
-  it('should parse multiple flags together', () => {
-    const options = parseArgs(['-c', 'config.yaml', '-o', 'output.txt', '-r', '-d']);
-    expect(options.configPath).toBe('config.yaml');
-    expect(options.outputPath).toBe('output.txt');
-    expect(options.copyToRules).toBe(true);
-    expect(options.debug).toBe(true);
-  });
+Deno.test('parseArgs - parses multiple flags together', () => {
+  const options = parseArgs(['-c', 'config.yaml', '-o', 'output.txt', '-r', '-d']);
+  assertEquals(options.configPath, 'config.yaml');
+  assertEquals(options.outputPath, 'output.txt');
+  assertEquals(options.copyToRules, true);
+  assertEquals(options.debug, true);
+});
 
-  it('should parse --rules-dir flag', () => {
-    const options = parseArgs(['--rules-dir', '/custom/rules']);
-    expect(options.rulesDirectory).toBe('/custom/rules');
-  });
+Deno.test('parseArgs - parses --rules-dir flag', () => {
+  const options = parseArgs(['--rules-dir', '/custom/rules']);
+  assertEquals(options.rulesDirectory, '/custom/rules');
 });

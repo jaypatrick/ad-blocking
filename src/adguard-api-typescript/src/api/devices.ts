@@ -2,8 +2,8 @@
  * Devices API client
  */
 
-import { BaseApi } from './base.js';
-import { ApiConfiguration } from '../helpers/configuration.js';
+import { BaseApi } from './base.ts';
+import { ApiConfiguration } from '../helpers/configuration.ts';
 import {
   Device,
   DeviceCreate,
@@ -11,7 +11,7 @@ import {
   DeviceSettingsUpdate,
   DedicatedIps,
   LinkDedicatedIPv4,
-} from '../models/index.js';
+} from '../models/index.ts';
 
 /** Devices API endpoints */
 export class DevicesApi extends BaseApi {

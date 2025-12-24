@@ -9,15 +9,15 @@ import {
   createRetryableClient,
   Logger,
   silentLogger,
-} from '../helpers/configuration.js';
+} from '../helpers/configuration.ts';
 import {
   ApiError,
   ValidationError,
   EntityNotFoundError,
   RateLimitError,
   AuthenticationError,
-} from '../errors/index.js';
-import { ErrorResponse } from '../models/index.js';
+} from '../errors/index.ts';
+import { ErrorResponse } from '../models/index.ts';
 
 /** Base API client */
 export abstract class BaseApi {
