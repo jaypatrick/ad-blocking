@@ -20,6 +20,7 @@
     "check": "deno check src/mod.ts",
     "lint": "deno lint src/",
     "fmt": "deno fmt src/",
+    "fmt:check": "deno fmt --check src/",
     "version": "deno run --allow-read --allow-env src/mod.ts --version"
   },
   "imports": {
@@ -43,6 +44,7 @@
     "noImplicitAny": true,
     "strictNullChecks": true
   },
+  "nodeModulesDir": "auto",
   "fmt": {
     "indentWidth": 2,
     "lineWidth": 100,

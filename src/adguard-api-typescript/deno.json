@@ -15,7 +15,8 @@
     "test:coverage": "deno test --allow-read --allow-write --allow-env --allow-net --coverage=coverage tests/",
     "check": "deno check src/mod.ts",
     "lint": "deno lint src/",
-    "fmt": "deno fmt src/"
+    "fmt": "deno fmt src/",
+    "fmt:check": "deno fmt --check src/"
   },
   "imports": {
     "@std/assert": "jsr:@std/assert@^1",
