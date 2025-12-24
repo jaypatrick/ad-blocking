@@ -97,7 +97,7 @@ src/adguard-api-typescript/
 │   ├── repositories/     # High-level abstractions
 │   ├── client.ts         # Main client entry point
 │   └── index.ts          # Public exports
-├── tests/                # Jest tests
+├── tests/                # Deno tests
 └── api/                  # OpenAPI specification
 ```
 

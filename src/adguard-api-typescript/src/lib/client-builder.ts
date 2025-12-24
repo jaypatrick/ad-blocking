@@ -191,5 +191,5 @@ export function createClientBuilder(): AdGuardDnsClientBuilder {
 }
 
 // Re-export useful types and constants
-export { Logger, consoleLogger, silentLogger, DEFAULT_TIMEOUT, MIN_TIMEOUT, MAX_TIMEOUT };
+export { type Logger, consoleLogger, silentLogger, DEFAULT_TIMEOUT, MIN_TIMEOUT, MAX_TIMEOUT };
 export type { RetryOptions };

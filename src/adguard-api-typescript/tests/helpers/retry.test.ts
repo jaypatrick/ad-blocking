@@ -2,8 +2,9 @@
  * Retry policy helper tests
  */
 
-import { jest } from '@jest/globals';
-import { AxiosError } from 'axios';
+import { assertEquals, assertGreaterOrEqual, assertLess, assertLessOrEqual, assertRejects } from '@std/assert';
+import { spy, assertSpyCall, assertSpyCalls } from '@std/testing/mock';
+import { AxiosError, type AxiosResponse } from 'npm:axios';
 import {
   executeWithRetry,
   withRetry,
@@ -11,230 +12,242 @@ import {
   calculateDelay,
   createRateLimitRetryPolicy,
   DEFAULT_RETRY_OPTIONS,
-} from '../../src/helpers/retry';
+} from '../../src/helpers/retry.ts';
 
-describe('RetryPolicy', () => {
-  describe('isRetryableError', () => {
-    it('should return true for 408 status', () => {
-      const error = new AxiosError('Timeout');
-      error.response = { status: 408 } as any;
-      expect(isRetryableError(error)).toBe(true);
-    });
+// isRetryableError tests
+Deno.test('isRetryableError - should return true for 408 status', () => {
+  const error = new AxiosError('Timeout');
+  error.response = { status: 408 } as AxiosResponse;
+  assertEquals(isRetryableError(error), true);
+});
 
-    it('should return true for 429 status', () => {
-      const error = new AxiosError('Too Many Requests');
-      error.response = { status: 429 } as any;
-      expect(isRetryableError(error)).toBe(true);
-    });
+Deno.test('isRetryableError - should return true for 429 status', () => {
+  const error = new AxiosError('Too Many Requests');
+  error.response = { status: 429 } as AxiosResponse;
+  assertEquals(isRetryableError(error), true);
+});
 
-    it('should return true for 5xx status', () => {
-      for (const status of [500, 502, 503, 504]) {
-        const error = new AxiosError('Server Error');
-        error.response = { status } as any;
-        expect(isRetryableError(error)).toBe(true);
-      }
-    });
+Deno.test('isRetryableError - should return true for 5xx status', () => {
+  for (const status of [500, 502, 503, 504]) {
+    const error = new AxiosError('Server Error');
+    error.response = { status } as AxiosResponse;
+    assertEquals(isRetryableError(error), true);
+  }
+});
 
-    it('should return true for network errors', () => {
-      const error = new AxiosError('Network Error');
-      error.code = 'ECONNRESET';
-      expect(isRetryableError(error)).toBe(true);
-    });
+Deno.test('isRetryableError - should return true for network errors', () => {
+  const error = new AxiosError('Network Error');
+  error.code = 'ECONNRESET';
+  assertEquals(isRetryableError(error), true);
+});
 
-    it('should return false for 400 status', () => {
-      const error = new AxiosError('Bad Request');
-      error.response = { status: 400 } as any;
-      expect(isRetryableError(error)).toBe(false);
-    });
+Deno.test('isRetryableError - should return false for 400 status', () => {
+  const error = new AxiosError('Bad Request');
+  error.response = { status: 400 } as AxiosResponse;
+  assertEquals(isRetryableError(error), false);
+});
 
-    it('should return false for 401 status', () => {
-      const error = new AxiosError('Unauthorized');
-      error.response = { status: 401 } as any;
-      expect(isRetryableError(error)).toBe(false);
-    });
+Deno.test('isRetryableError - should return false for 401 status', () => {
+  const error = new AxiosError('Unauthorized');
+  error.response = { status: 401 } as AxiosResponse;
+  assertEquals(isRetryableError(error), false);
+});
 
-    it('should return false for non-Axios errors', () => {
-      const error = new Error('Generic error');
-      expect(isRetryableError(error)).toBe(false);
-    });
-  });
+Deno.test('isRetryableError - should return false for non-Axios errors', () => {
+  const error = new Error('Generic error');
+  assertEquals(isRetryableError(error), false);
+});
 
-  describe('calculateDelay', () => {
-    const baseOptions = {
-      maxRetries: 3,
-      initialDelayMs: 1000,
-      maxDelayMs: 30000,
-      backoff: 'exponential' as const,
-    };
+// calculateDelay tests
+Deno.test('calculateDelay - should calculate exponential delay', () => {
+  const baseOptions = {
+    maxRetries: 3,
+    initialDelayMs: 1000,
+    maxDelayMs: 30000,
+    backoff: 'exponential' as const,
+  };
 
-    it('should calculate exponential delay', () => {
-      // First retry: 1000ms
-      const delay1 = calculateDelay(1, baseOptions);
-      expect(delay1).toBeGreaterThanOrEqual(1000);
-      expect(delay1).toBeLessThan(1200); // Allow for jitter
+  // First retry: 1000ms
+  const delay1 = calculateDelay(1, baseOptions);
+  assertGreaterOrEqual(delay1, 1000);
+  assertLess(delay1, 1200); // Allow for jitter
 
-      // Second retry: 2000ms
-      const delay2 = calculateDelay(2, baseOptions);
-      expect(delay2).toBeGreaterThanOrEqual(2000);
-      expect(delay2).toBeLessThan(2400);
+  // Second retry: 2000ms
+  const delay2 = calculateDelay(2, baseOptions);
+  assertGreaterOrEqual(delay2, 2000);
+  assertLess(delay2, 2400);
 
-      // Third retry: 4000ms
-      const delay3 = calculateDelay(3, baseOptions);
-      expect(delay3).toBeGreaterThanOrEqual(4000);
-      expect(delay3).toBeLessThan(4800);
-    });
+  // Third retry: 4000ms
+  const delay3 = calculateDelay(3, baseOptions);
+  assertGreaterOrEqual(delay3, 4000);
+  assertLess(delay3, 4800);
+});
 
-    it('should calculate linear delay', () => {
-      const linearOptions = { ...baseOptions, backoff: 'linear' as const };
+Deno.test('calculateDelay - should calculate linear delay', () => {
+  const baseOptions = {
+    maxRetries: 3,
+    initialDelayMs: 1000,
+    maxDelayMs: 30000,
+    backoff: 'exponential' as const,
+  };
+  const linearOptions = { ...baseOptions, backoff: 'linear' as const };
 
-      const delay1 = calculateDelay(1, linearOptions);
-      expect(delay1).toBeGreaterThanOrEqual(1000);
-      expect(delay1).toBeLessThan(1200);
+  const delay1 = calculateDelay(1, linearOptions);
+  assertGreaterOrEqual(delay1, 1000);
+  assertLess(delay1, 1200);
 
-      const delay2 = calculateDelay(2, linearOptions);
-      expect(delay2).toBeGreaterThanOrEqual(2000);
-      expect(delay2).toBeLessThan(2400);
-    });
+  const delay2 = calculateDelay(2, linearOptions);
+  assertGreaterOrEqual(delay2, 2000);
+  assertLess(delay2, 2400);
+});
 
-    it('should cap at max delay', () => {
-      const delay = calculateDelay(10, baseOptions);
-      expect(delay).toBeLessThanOrEqual(baseOptions.maxDelayMs);
-    });
-  });
+Deno.test('calculateDelay - should cap at max delay', () => {
+  const baseOptions = {
+    maxRetries: 3,
+    initialDelayMs: 1000,
+    maxDelayMs: 30000,
+    backoff: 'exponential' as const,
+  };
+  const delay = calculateDelay(10, baseOptions);
+  assertLessOrEqual(delay, baseOptions.maxDelayMs);
+});
 
-  describe('executeWithRetry', () => {
-    it('should return result on success', async () => {
-      const result = await executeWithRetry(() => Promise.resolve('success'));
-      expect(result).toBe('success');
-    });
+// executeWithRetry tests
+Deno.test('executeWithRetry - should return result on success', async () => {
+  const result = await executeWithRetry(() => Promise.resolve('success'));
+  assertEquals(result, 'success');
+});
 
-    it('should retry on retryable error', async () => {
-      let attempts = 0;
-      const operation = jest.fn().mockImplementation(() => {
-        attempts++;
-        if (attempts < 3) {
-          const error = new AxiosError('Server Error');
-          error.response = { status: 500 } as any;
-          throw error;
-        }
-        return Promise.resolve('success');
-      });
-
-      const result = await executeWithRetry(operation, {
-        maxRetries: 3,
-        initialDelayMs: 10,
-      });
-
-      expect(result).toBe('success');
-      expect(operation).toHaveBeenCalledTimes(3);
-    });
-
-    it('should throw after max retries', async () => {
+Deno.test('executeWithRetry - should retry on retryable error', async () => {
+  let attempts = 0;
+  const operation = () => {
+    attempts++;
+    if (attempts < 3) {
       const error = new AxiosError('Server Error');
-      error.response = { status: 500 } as any;
+      error.response = { status: 500 } as AxiosResponse;
+      throw error;
+    }
+    return Promise.resolve('success');
+  };
+  const operationSpy = spy(operation);
 
-      await expect(
-        executeWithRetry(() => Promise.reject(error), {
-          maxRetries: 2,
-          initialDelayMs: 10,
-        })
-      ).rejects.toThrow();
-    });
-
-    it('should not retry non-retryable errors', async () => {
-      const error = new AxiosError('Bad Request');
-      error.response = { status: 400 } as any;
-      const operation = jest.fn().mockRejectedValue(error);
-
-      await expect(
-        executeWithRetry(operation, { maxRetries: 3, initialDelayMs: 10 })
-      ).rejects.toThrow();
-
-      expect(operation).toHaveBeenCalledTimes(1);
-    });
-
-    it('should call onRetry callback', async () => {
-      const error = new AxiosError('Server Error');
-      error.response = { status: 500 } as any;
-
-      let attempts = 0;
-      const operation = jest.fn().mockImplementation(() => {
-        attempts++;
-        if (attempts < 2) throw error;
-        return Promise.resolve('success');
-      });
-
-      const onRetry = jest.fn();
-
-      await executeWithRetry(operation, {
-        maxRetries: 3,
-        initialDelayMs: 10,
-        onRetry,
-      });
-
-      expect(onRetry).toHaveBeenCalledTimes(1);
-      expect(onRetry).toHaveBeenCalledWith(error, 1, expect.any(Number));
-    });
-
-    it('should use custom shouldRetry function', async () => {
-      const error = new Error('Custom error');
-      let attempts = 0;
-
-      const operation = jest.fn().mockImplementation(() => {
-        attempts++;
-        if (attempts < 2) throw error;
-        return Promise.resolve('success');
-      });
-
-      const result = await executeWithRetry(operation, {
-        maxRetries: 3,
-        initialDelayMs: 10,
-        shouldRetry: () => true,
-      });
-
-      expect(result).toBe('success');
-    });
+  const result = await executeWithRetry(operationSpy, {
+    maxRetries: 3,
+    initialDelayMs: 10,
   });
 
-  describe('withRetry', () => {
-    it('should create a retry-wrapped function', async () => {
-      const fn = jest.fn().mockResolvedValue('result');
-      const wrapped = withRetry(fn);
+  assertEquals(result, 'success');
+  assertSpyCalls(operationSpy, 3);
+});
 
-      const result = await wrapped('arg1', 'arg2');
+Deno.test('executeWithRetry - should throw after max retries', async () => {
+  const error = new AxiosError('Server Error');
+  error.response = { status: 500 } as AxiosResponse;
 
-      expect(result).toBe('result');
-      expect(fn).toHaveBeenCalledWith('arg1', 'arg2');
-    });
+  await assertRejects(
+    () => executeWithRetry(() => Promise.reject(error), {
+      maxRetries: 2,
+      initialDelayMs: 10,
+    }),
+    AxiosError
+  );
+});
+
+Deno.test('executeWithRetry - should not retry non-retryable errors', async () => {
+  const error = new AxiosError('Bad Request');
+  error.response = { status: 400 } as AxiosResponse;
+  const operation = () => Promise.reject(error);
+  const operationSpy = spy(operation);
+
+  await assertRejects(
+    () => executeWithRetry(operationSpy, { maxRetries: 3, initialDelayMs: 10 }),
+    AxiosError
+  );
+
+  assertSpyCalls(operationSpy, 1);
+});
+
+Deno.test('executeWithRetry - should call onRetry callback', async () => {
+  const error = new AxiosError('Server Error');
+  error.response = { status: 500 } as AxiosResponse;
+
+  let attempts = 0;
+  const operation = () => {
+    attempts++;
+    if (attempts < 2) throw error;
+    return Promise.resolve('success');
+  };
+
+  const onRetryFn = (_err: Error, _attempt: number, _delay: number) => {};
+  const onRetrySpy = spy(onRetryFn);
+
+  await executeWithRetry(operation, {
+    maxRetries: 3,
+    initialDelayMs: 10,
+    onRetry: onRetrySpy,
   });
 
-  describe('createRateLimitRetryPolicy', () => {
-    it('should create rate limit policy', () => {
-      const policy = createRateLimitRetryPolicy(5, 10000);
-      expect(policy.maxRetries).toBe(5);
-      expect(policy.initialDelayMs).toBe(10000);
-      expect(policy.backoff).toBe('linear');
-    });
+  assertSpyCalls(onRetrySpy, 1);
+  assertSpyCall(onRetrySpy, 0, {
+    args: [error, 1, onRetrySpy.calls[0].args[2]],
+  });
+});
 
-    it('should only retry 429 errors', () => {
-      const policy = createRateLimitRetryPolicy();
+Deno.test('executeWithRetry - should use custom shouldRetry function', async () => {
+  const error = new Error('Custom error');
+  let attempts = 0;
 
-      const error429 = new AxiosError('Too Many Requests');
-      error429.response = { status: 429 } as any;
-      expect(policy.shouldRetry!(error429, 1)).toBe(true);
+  const operation = () => {
+    attempts++;
+    if (attempts < 2) throw error;
+    return Promise.resolve('success');
+  };
 
-      const error500 = new AxiosError('Server Error');
-      error500.response = { status: 500 } as any;
-      expect(policy.shouldRetry!(error500, 1)).toBe(false);
-    });
+  const result = await executeWithRetry(operation, {
+    maxRetries: 3,
+    initialDelayMs: 10,
+    shouldRetry: () => true,
   });
 
-  describe('DEFAULT_RETRY_OPTIONS', () => {
-    it('should have correct defaults', () => {
-      expect(DEFAULT_RETRY_OPTIONS.maxRetries).toBe(3);
-      expect(DEFAULT_RETRY_OPTIONS.initialDelayMs).toBe(2000);
-      expect(DEFAULT_RETRY_OPTIONS.maxDelayMs).toBe(30000);
-      expect(DEFAULT_RETRY_OPTIONS.backoff).toBe('exponential');
-    });
-  });
+  assertEquals(result, 'success');
+});
+
+// withRetry tests
+Deno.test('withRetry - should create a retry-wrapped function', async () => {
+  const fn = (_arg1: string, _arg2: string) => Promise.resolve('result');
+  const fnSpy = spy(fn);
+  const wrapped = withRetry(fnSpy);
+
+  const result = await wrapped('arg1', 'arg2');
+
+  assertEquals(result, 'result');
+  assertSpyCall(fnSpy, 0, { args: ['arg1', 'arg2'] });
+});
+
+// createRateLimitRetryPolicy tests
+Deno.test('createRateLimitRetryPolicy - should create rate limit policy', () => {
+  const policy = createRateLimitRetryPolicy(5, 10000);
+  assertEquals(policy.maxRetries, 5);
+  assertEquals(policy.initialDelayMs, 10000);
+  assertEquals(policy.backoff, 'linear');
+});
+
+Deno.test('createRateLimitRetryPolicy - should only retry 429 errors', () => {
+  const policy = createRateLimitRetryPolicy();
+
+  const error429 = new AxiosError('Too Many Requests');
+  error429.response = { status: 429 } as AxiosResponse;
+  assertEquals(policy.shouldRetry!(error429, 1), true);
+
+  const error500 = new AxiosError('Server Error');
+  error500.response = { status: 500 } as AxiosResponse;
+  assertEquals(policy.shouldRetry!(error500, 1), false);
+});
+
+// DEFAULT_RETRY_OPTIONS tests
+Deno.test('DEFAULT_RETRY_OPTIONS - should have correct defaults', () => {
+  assertEquals(DEFAULT_RETRY_OPTIONS.maxRetries, 3);
+  assertEquals(DEFAULT_RETRY_OPTIONS.initialDelayMs, 2000);
+  assertEquals(DEFAULT_RETRY_OPTIONS.maxDelayMs, 30000);
+  assertEquals(DEFAULT_RETRY_OPTIONS.backoff, 'exponential');
 });

@@ -2,233 +2,219 @@
  * Client tests
  */
 
-/// <reference types="jest" />
+import { assertEquals, assertExists, assertThrows, assertInstanceOf } from '@std/assert';
+import { AdGuardDnsClient, ApiClientFactory, ConfigurationBuilder } from '../src/client.ts';
+import { ApiNotConfiguredError } from '../src/errors/index.ts';
 
-import { AdGuardDnsClient, ApiClientFactory, ConfigurationBuilder } from '../src/client';
-import { ApiNotConfiguredError } from '../src/errors';
-
-describe('AdGuardDnsClient', () => {
-  describe('withApiKey', () => {
-    it('should create client with API key', () => {
-      const client = AdGuardDnsClient.withApiKey('test-api-key');
-      expect(client).toBeInstanceOf(AdGuardDnsClient);
-      expect(client.account).toBeDefined();
-      expect(client.devices).toBeDefined();
-      expect(client.dnsServers).toBeDefined();
-    });
-  });
-
-  describe('withBearerToken', () => {
-    it('should create client with bearer token', () => {
-      const client = AdGuardDnsClient.withBearerToken('test-token');
-      expect(client).toBeInstanceOf(AdGuardDnsClient);
-    });
-  });
-
-  describe('fromEnv', () => {
-    it('should create client from custom environment variable', () => {
-      process.env.TEST_API_KEY = 'test-key';
-      const client = AdGuardDnsClient.fromEnv('TEST_API_KEY');
-      expect(client).toBeInstanceOf(AdGuardDnsClient);
-      delete process.env.TEST_API_KEY;
-    });
-
-    it('should prefer ADGUARD_AdGuard__ApiKey when no envVar specified', () => {
-      const originalDotNet = process.env.ADGUARD_AdGuard__ApiKey;
-      const originalLegacy = process.env.ADGUARD_API_KEY;
-
-      process.env.ADGUARD_AdGuard__ApiKey = 'dotnet-format-key';
-      process.env.ADGUARD_API_KEY = 'legacy-format-key';
-
-      const client = AdGuardDnsClient.fromEnv();
-      expect(client).toBeInstanceOf(AdGuardDnsClient);
-
-      // Restore original values
-      if (originalDotNet !== undefined) {
-        process.env.ADGUARD_AdGuard__ApiKey = originalDotNet;
-      } else {
-        delete process.env.ADGUARD_AdGuard__ApiKey;
-      }
-      if (originalLegacy !== undefined) {
-        process.env.ADGUARD_API_KEY = originalLegacy;
-      } else {
-        delete process.env.ADGUARD_API_KEY;
-      }
-    });
-
-    it('should fallback to ADGUARD_API_KEY when ADGUARD_AdGuard__ApiKey not set', () => {
-      const originalDotNet = process.env.ADGUARD_AdGuard__ApiKey;
-      const originalLegacy = process.env.ADGUARD_API_KEY;
-
-      delete process.env.ADGUARD_AdGuard__ApiKey;
-      process.env.ADGUARD_API_KEY = 'legacy-format-key';
-
-      const client = AdGuardDnsClient.fromEnv();
-      expect(client).toBeInstanceOf(AdGuardDnsClient);
-
-      // Restore original values
-      if (originalDotNet !== undefined) {
-        process.env.ADGUARD_AdGuard__ApiKey = originalDotNet;
-      }
-      if (originalLegacy !== undefined) {
-        process.env.ADGUARD_API_KEY = originalLegacy;
-      } else {
-        delete process.env.ADGUARD_API_KEY;
-      }
-    });
-
-    it('should throw when env var not set', () => {
-      expect(() => AdGuardDnsClient.fromEnv('NONEXISTENT_VAR')).toThrow();
-    });
-  });
-
-  describe('builder', () => {
-    it('should return ConfigurationBuilder', () => {
-      const builder = AdGuardDnsClient.builder();
-      expect(builder).toBeInstanceOf(ConfigurationBuilder);
-    });
-  });
-
-  describe('APIs and Repositories', () => {
-    let client: AdGuardDnsClient;
-
-    beforeAll(() => {
-      client = AdGuardDnsClient.withApiKey('test-key');
-    });
-
-    it('should have all APIs', () => {
-      expect(client.account).toBeDefined();
-      expect(client.auth).toBeDefined();
-      expect(client.devices).toBeDefined();
-      expect(client.dnsServers).toBeDefined();
-      expect(client.statistics).toBeDefined();
-      expect(client.queryLog).toBeDefined();
-      expect(client.filterLists).toBeDefined();
-      expect(client.webServices).toBeDefined();
-      expect(client.dedicatedIp).toBeDefined();
-    });
-
-    it('should have all repositories', () => {
-      expect(client.deviceRepository).toBeDefined();
-      expect(client.dnsServerRepository).toBeDefined();
-      expect(client.userRulesRepository).toBeDefined();
-      expect(client.statisticsRepository).toBeDefined();
-      expect(client.queryLogRepository).toBeDefined();
-    });
-  });
+// AdGuardDnsClient.withApiKey tests
+Deno.test('AdGuardDnsClient.withApiKey - should create client with API key', () => {
+  const client = AdGuardDnsClient.withApiKey('test-api-key');
+  assertInstanceOf(client, AdGuardDnsClient);
+  assertExists(client.account);
+  assertExists(client.devices);
+  assertExists(client.dnsServers);
 });
 
-describe('ApiClientFactory', () => {
-  let factory: ApiClientFactory;
+// AdGuardDnsClient.withBearerToken tests
+Deno.test('AdGuardDnsClient.withBearerToken - should create client with bearer token', () => {
+  const client = AdGuardDnsClient.withBearerToken('test-token');
+  assertInstanceOf(client, AdGuardDnsClient);
+});
 
-  beforeEach(() => {
-    factory = new ApiClientFactory();
-  });
+// AdGuardDnsClient.fromEnv tests
+Deno.test('AdGuardDnsClient.fromEnv - should create client from custom environment variable', () => {
+  Deno.env.set('TEST_API_KEY', 'test-key');
+  const client = AdGuardDnsClient.fromEnv('TEST_API_KEY');
+  assertInstanceOf(client, AdGuardDnsClient);
+  Deno.env.delete('TEST_API_KEY');
+});
 
-  describe('isConfigured', () => {
-    it('should return false when not configured', () => {
-      expect(factory.isConfigured).toBe(false);
-    });
+Deno.test('AdGuardDnsClient.fromEnv - should prefer ADGUARD_AdGuard__ApiKey when no envVar specified', () => {
+  const originalDotNet = Deno.env.get('ADGUARD_AdGuard__ApiKey');
+  const originalLegacy = Deno.env.get('ADGUARD_API_KEY');
 
-    it('should return true after configuration', () => {
-      factory.configure('test-key');
-      expect(factory.isConfigured).toBe(true);
-    });
-  });
+  Deno.env.set('ADGUARD_AdGuard__ApiKey', 'dotnet-format-key');
+  Deno.env.set('ADGUARD_API_KEY', 'legacy-format-key');
 
-  describe('configure', () => {
-    it('should configure with API key', () => {
-      factory.configure('test-key');
-      expect(factory.isConfigured).toBe(true);
-      expect(factory.maskedApiKey).toBe('********');
-    });
-  });
+  const client = AdGuardDnsClient.fromEnv();
+  assertInstanceOf(client, AdGuardDnsClient);
 
-  describe('configureWithBearerToken', () => {
-    it('should configure with bearer token', () => {
-      factory.configureWithBearerToken('test-token');
-      expect(factory.isConfigured).toBe(true);
-    });
-  });
+  // Restore original values
+  if (originalDotNet !== undefined) {
+    Deno.env.set('ADGUARD_AdGuard__ApiKey', originalDotNet);
+  } else {
+    Deno.env.delete('ADGUARD_AdGuard__ApiKey');
+  }
+  if (originalLegacy !== undefined) {
+    Deno.env.set('ADGUARD_API_KEY', originalLegacy);
+  } else {
+    Deno.env.delete('ADGUARD_API_KEY');
+  }
+});
 
-  describe('configureFromEnv', () => {
-    it('should configure from environment variable', () => {
-      process.env.TEST_KEY = 'env-key';
-      factory.configureFromEnv('TEST_KEY');
-      expect(factory.isConfigured).toBe(true);
-      delete process.env.TEST_KEY;
-    });
+Deno.test('AdGuardDnsClient.fromEnv - should fallback to ADGUARD_API_KEY when ADGUARD_AdGuard__ApiKey not set', () => {
+  const originalDotNet = Deno.env.get('ADGUARD_AdGuard__ApiKey');
+  const originalLegacy = Deno.env.get('ADGUARD_API_KEY');
 
-    it('should throw when env var not set', () => {
-      expect(() => factory.configureFromEnv('NONEXISTENT')).toThrow();
-    });
-  });
+  Deno.env.delete('ADGUARD_AdGuard__ApiKey');
+  Deno.env.set('ADGUARD_API_KEY', 'legacy-format-key');
 
-  describe('API factories', () => {
-    beforeEach(() => {
-      factory.configure('test-key');
-    });
+  const client = AdGuardDnsClient.fromEnv();
+  assertInstanceOf(client, AdGuardDnsClient);
 
-    it('should create AccountApi', () => {
-      const api = factory.createAccountApi();
-      expect(api).toBeDefined();
-    });
+  // Restore original values
+  if (originalDotNet !== undefined) {
+    Deno.env.set('ADGUARD_AdGuard__ApiKey', originalDotNet);
+  }
+  if (originalLegacy !== undefined) {
+    Deno.env.set('ADGUARD_API_KEY', originalLegacy);
+  } else {
+    Deno.env.delete('ADGUARD_API_KEY');
+  }
+});
 
-    it('should create DevicesApi', () => {
-      const api = factory.createDevicesApi();
-      expect(api).toBeDefined();
-    });
+Deno.test('AdGuardDnsClient.fromEnv - should throw when env var not set', () => {
+  assertThrows(() => AdGuardDnsClient.fromEnv('NONEXISTENT_VAR'));
+});
 
-    it('should create DnsServersApi', () => {
-      const api = factory.createDnsServersApi();
-      expect(api).toBeDefined();
-    });
+// AdGuardDnsClient.builder tests
+Deno.test('AdGuardDnsClient.builder - should return ConfigurationBuilder', () => {
+  const builder = AdGuardDnsClient.builder();
+  assertInstanceOf(builder, ConfigurationBuilder);
+});
 
-    it('should throw when not configured', () => {
-      const unconfigured = new ApiClientFactory();
-      expect(() => unconfigured.createAccountApi()).toThrow(ApiNotConfiguredError);
-    });
-  });
+// AdGuardDnsClient APIs and Repositories tests
+Deno.test('AdGuardDnsClient - should have all APIs', () => {
+  const client = AdGuardDnsClient.withApiKey('test-key');
+  assertExists(client.account);
+  assertExists(client.auth);
+  assertExists(client.devices);
+  assertExists(client.dnsServers);
+  assertExists(client.statistics);
+  assertExists(client.queryLog);
+  assertExists(client.filterLists);
+  assertExists(client.webServices);
+  assertExists(client.dedicatedIp);
+});
 
-  describe('Repository factories', () => {
-    beforeEach(() => {
-      factory.configure('test-key');
-    });
+Deno.test('AdGuardDnsClient - should have all repositories', () => {
+  const client = AdGuardDnsClient.withApiKey('test-key');
+  assertExists(client.deviceRepository);
+  assertExists(client.dnsServerRepository);
+  assertExists(client.userRulesRepository);
+  assertExists(client.statisticsRepository);
+  assertExists(client.queryLogRepository);
+});
 
-    it('should create DeviceRepository', () => {
-      const repo = factory.createDeviceRepository();
-      expect(repo).toBeDefined();
-    });
+// ApiClientFactory tests
+Deno.test('ApiClientFactory.isConfigured - should return false when not configured', () => {
+  const factory = new ApiClientFactory();
+  assertEquals(factory.isConfigured, false);
+});
 
-    it('should create DnsServerRepository', () => {
-      const repo = factory.createDnsServerRepository();
-      expect(repo).toBeDefined();
-    });
+Deno.test('ApiClientFactory.isConfigured - should return true after configuration', () => {
+  const factory = new ApiClientFactory();
+  factory.configure('test-key');
+  assertEquals(factory.isConfigured, true);
+});
 
-    it('should create UserRulesRepository', () => {
-      const repo = factory.createUserRulesRepository();
-      expect(repo).toBeDefined();
-    });
+Deno.test('ApiClientFactory.configure - should configure with API key', () => {
+  const factory = new ApiClientFactory();
+  factory.configure('test-key');
+  assertEquals(factory.isConfigured, true);
+  assertEquals(factory.maskedApiKey, '********');
+});
 
-    it('should create StatisticsRepository', () => {
-      const repo = factory.createStatisticsRepository();
-      expect(repo).toBeDefined();
-    });
+Deno.test('ApiClientFactory.configureWithBearerToken - should configure with bearer token', () => {
+  const factory = new ApiClientFactory();
+  factory.configureWithBearerToken('test-token');
+  assertEquals(factory.isConfigured, true);
+});
 
-    it('should create QueryLogRepository', () => {
-      const repo = factory.createQueryLogRepository();
-      expect(repo).toBeDefined();
-    });
-  });
+Deno.test('ApiClientFactory.configureFromEnv - should configure from environment variable', () => {
+  Deno.env.set('TEST_KEY', 'env-key');
+  const factory = new ApiClientFactory();
+  factory.configureFromEnv('TEST_KEY');
+  assertEquals(factory.isConfigured, true);
+  Deno.env.delete('TEST_KEY');
+});
 
-  describe('maskedApiKey', () => {
-    it('should return undefined when not configured', () => {
-      expect(factory.maskedApiKey).toBeUndefined();
-    });
+Deno.test('ApiClientFactory.configureFromEnv - should throw when env var not set', () => {
+  const factory = new ApiClientFactory();
+  assertThrows(() => factory.configureFromEnv('NONEXISTENT'));
+});
 
-    it('should return masked key when configured', () => {
-      factory.configure('abcdefghijklmnop');
-      expect(factory.maskedApiKey).toBe('abcd...mnop');
-    });
-  });
+// ApiClientFactory API factories tests
+Deno.test('ApiClientFactory.createAccountApi - should create AccountApi', () => {
+  const factory = new ApiClientFactory();
+  factory.configure('test-key');
+  const api = factory.createAccountApi();
+  assertExists(api);
+});
+
+Deno.test('ApiClientFactory.createDevicesApi - should create DevicesApi', () => {
+  const factory = new ApiClientFactory();
+  factory.configure('test-key');
+  const api = factory.createDevicesApi();
+  assertExists(api);
+});
+
+Deno.test('ApiClientFactory.createDnsServersApi - should create DnsServersApi', () => {
+  const factory = new ApiClientFactory();
+  factory.configure('test-key');
+  const api = factory.createDnsServersApi();
+  assertExists(api);
+});
+
+Deno.test('ApiClientFactory - should throw when not configured', () => {
+  const unconfigured = new ApiClientFactory();
+  assertThrows(() => unconfigured.createAccountApi(), ApiNotConfiguredError);
+});
+
+// ApiClientFactory Repository factories tests
+Deno.test('ApiClientFactory.createDeviceRepository - should create DeviceRepository', () => {
+  const factory = new ApiClientFactory();
+  factory.configure('test-key');
+  const repo = factory.createDeviceRepository();
+  assertExists(repo);
+});
+
+Deno.test('ApiClientFactory.createDnsServerRepository - should create DnsServerRepository', () => {
+  const factory = new ApiClientFactory();
+  factory.configure('test-key');
+  const repo = factory.createDnsServerRepository();
+  assertExists(repo);
+});
+
+Deno.test('ApiClientFactory.createUserRulesRepository - should create UserRulesRepository', () => {
+  const factory = new ApiClientFactory();
+  factory.configure('test-key');
+  const repo = factory.createUserRulesRepository();
+  assertExists(repo);
+});
+
+Deno.test('ApiClientFactory.createStatisticsRepository - should create StatisticsRepository', () => {
+  const factory = new ApiClientFactory();
+  factory.configure('test-key');
+  const repo = factory.createStatisticsRepository();
+  assertExists(repo);
+});
+
+Deno.test('ApiClientFactory.createQueryLogRepository - should create QueryLogRepository', () => {
+  const factory = new ApiClientFactory();
+  factory.configure('test-key');
+  const repo = factory.createQueryLogRepository();
+  assertExists(repo);
+});
+
+// maskedApiKey tests
+Deno.test('ApiClientFactory.maskedApiKey - should return undefined when not configured', () => {
+  const factory = new ApiClientFactory();
+  assertEquals(factory.maskedApiKey, undefined);
+});
+
+Deno.test('ApiClientFactory.maskedApiKey - should return masked key when configured', () => {
+  const factory = new ApiClientFactory();
+  factory.configure('abcdefghijklmnop');
+  assertEquals(factory.maskedApiKey, 'abcd...mnop');
 });

@@ -34,7 +34,7 @@
 export {
   AdGuardDnsClientBuilder,
   createClientBuilder,
-  Logger,
+  type Logger,
   consoleLogger,
   silentLogger,
   DEFAULT_TIMEOUT,
