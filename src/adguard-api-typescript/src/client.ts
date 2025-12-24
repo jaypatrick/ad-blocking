@@ -81,14 +81,33 @@ export class ApiClientFactory {
 
   /**
    * Configure from environment variable
-   * @param envVar - Environment variable name (default: ADGUARD_API_KEY)
+   *
+   * Supports multiple environment variable naming conventions:
+   * - .NET-compatible format: ADGUARD_AdGuard__ApiKey (recommended, tried first)
+   * - Legacy/alternative format: ADGUARD_API_KEY (fallback)
+   *
+   * @param envVar - Custom environment variable name (overrides default lookup)
    * @param logger - Optional logger
    */
-  configureFromEnv(envVar: string = 'ADGUARD_API_KEY', logger?: Logger): void {
-    const apiKey = process.env[envVar];
-    if (!apiKey) {
-      throw new Error(`Environment variable ${envVar} is not set`);
+  configureFromEnv(envVar?: string, logger?: Logger): void {
+    let apiKey: string | undefined;
+
+    if (envVar) {
+      // Use explicitly provided environment variable name
+      apiKey = process.env[envVar];
+      if (!apiKey) {
+        throw new Error(`Environment variable ${envVar} is not set`);
+      }
+    } else {
+      // Try .NET-compatible format first, then fallback to legacy format
+      apiKey = process.env['ADGUARD_AdGuard__ApiKey'] ?? process.env['ADGUARD_API_KEY'];
+      if (!apiKey) {
+        throw new Error(
+          'API key not configured. Set ADGUARD_AdGuard__ApiKey (recommended) or ADGUARD_API_KEY environment variable.'
+        );
+      }
     }
+
     this.configure(apiKey, logger);
   }
 
@@ -239,14 +258,33 @@ export class AdGuardDnsClient {
 
   /**
    * Create client from environment variable
-   * @param envVar - Environment variable name (default: ADGUARD_API_KEY)
+   *
+   * Supports multiple environment variable naming conventions:
+   * - .NET-compatible format: ADGUARD_AdGuard__ApiKey (recommended, tried first)
+   * - Legacy/alternative format: ADGUARD_API_KEY (fallback)
+   *
+   * @param envVar - Custom environment variable name (overrides default lookup)
    * @param logger - Optional logger
    */
-  static fromEnv(envVar: string = 'ADGUARD_API_KEY', logger?: Logger): AdGuardDnsClient {
-    const apiKey = process.env[envVar];
-    if (!apiKey) {
-      throw new Error(`Environment variable ${envVar} is not set`);
+  static fromEnv(envVar?: string, logger?: Logger): AdGuardDnsClient {
+    let apiKey: string | undefined;
+
+    if (envVar) {
+      // Use explicitly provided environment variable name
+      apiKey = process.env[envVar];
+      if (!apiKey) {
+        throw new Error(`Environment variable ${envVar} is not set`);
+      }
+    } else {
+      // Try .NET-compatible format first, then fallback to legacy format
+      apiKey = process.env['ADGUARD_AdGuard__ApiKey'] ?? process.env['ADGUARD_API_KEY'];
+      if (!apiKey) {
+        throw new Error(
+          'API key not configured. Set ADGUARD_AdGuard__ApiKey (recommended) or ADGUARD_API_KEY environment variable.'
+        );
+      }
     }
+
     return AdGuardDnsClient.withApiKey(apiKey, logger);
   }
 

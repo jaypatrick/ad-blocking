@@ -26,11 +26,55 @@ describe('AdGuardDnsClient', () => {
   });
 
   describe('fromEnv', () => {
-    it('should create client from environment variable', () => {
+    it('should create client from custom environment variable', () => {
       process.env.TEST_API_KEY = 'test-key';
       const client = AdGuardDnsClient.fromEnv('TEST_API_KEY');
       expect(client).toBeInstanceOf(AdGuardDnsClient);
       delete process.env.TEST_API_KEY;
+    });
+
+    it('should prefer ADGUARD_AdGuard__ApiKey when no envVar specified', () => {
+      const originalDotNet = process.env.ADGUARD_AdGuard__ApiKey;
+      const originalLegacy = process.env.ADGUARD_API_KEY;
+
+      process.env.ADGUARD_AdGuard__ApiKey = 'dotnet-format-key';
+      process.env.ADGUARD_API_KEY = 'legacy-format-key';
+
+      const client = AdGuardDnsClient.fromEnv();
+      expect(client).toBeInstanceOf(AdGuardDnsClient);
+
+      // Restore original values
+      if (originalDotNet !== undefined) {
+        process.env.ADGUARD_AdGuard__ApiKey = originalDotNet;
+      } else {
+        delete process.env.ADGUARD_AdGuard__ApiKey;
+      }
+      if (originalLegacy !== undefined) {
+        process.env.ADGUARD_API_KEY = originalLegacy;
+      } else {
+        delete process.env.ADGUARD_API_KEY;
+      }
+    });
+
+    it('should fallback to ADGUARD_API_KEY when ADGUARD_AdGuard__ApiKey not set', () => {
+      const originalDotNet = process.env.ADGUARD_AdGuard__ApiKey;
+      const originalLegacy = process.env.ADGUARD_API_KEY;
+
+      delete process.env.ADGUARD_AdGuard__ApiKey;
+      process.env.ADGUARD_API_KEY = 'legacy-format-key';
+
+      const client = AdGuardDnsClient.fromEnv();
+      expect(client).toBeInstanceOf(AdGuardDnsClient);
+
+      // Restore original values
+      if (originalDotNet !== undefined) {
+        process.env.ADGUARD_AdGuard__ApiKey = originalDotNet;
+      }
+      if (originalLegacy !== undefined) {
+        process.env.ADGUARD_API_KEY = originalLegacy;
+      } else {
+        delete process.env.ADGUARD_API_KEY;
+      }
     });
 
     it('should throw when env var not set', () => {
