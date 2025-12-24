@@ -221,8 +221,8 @@ export class RulesCompiler {
    * @param filePath Path to file
    * @returns Hex-encoded hash
    */
-  computeHash(filePath: string): string {
-    return computeHash(filePath);
+  async computeHash(filePath: string): Promise<string> {
+    return await computeHash(filePath);
   }
 
   /**

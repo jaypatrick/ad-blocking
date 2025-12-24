@@ -1,5 +1,6 @@
 /**
  * Models tests
+ * Deno-native testing implementation
  */
 
 import { assertEquals } from '@std/assert';
@@ -12,7 +13,8 @@ import {
   DayOfWeek,
 } from '../../src/models/index.ts';
 
-Deno.test('DeviceType enum - should have all device types', () => {
+// DeviceType enum tests
+Deno.test('DeviceType - has all device types', () => {
   assertEquals(DeviceType.WINDOWS, 'WINDOWS');
   assertEquals(DeviceType.ANDROID, 'ANDROID');
   assertEquals(DeviceType.MAC, 'MAC');
@@ -24,7 +26,8 @@ Deno.test('DeviceType enum - should have all device types', () => {
   assertEquals(DeviceType.UNKNOWN, 'UNKNOWN');
 });
 
-Deno.test('BlockingMode enum - should have all blocking modes', () => {
+// BlockingMode enum tests
+Deno.test('BlockingMode - has all blocking modes', () => {
   assertEquals(BlockingMode.NONE, 'NONE');
   assertEquals(BlockingMode.NULL_IP, 'NULL_IP');
   assertEquals(BlockingMode.REFUSED, 'REFUSED');
@@ -32,7 +35,8 @@ Deno.test('BlockingMode enum - should have all blocking modes', () => {
   assertEquals(BlockingMode.CUSTOM_IP, 'CUSTOM_IP');
 });
 
-Deno.test('CategoryType enum - should have all category types', () => {
+// CategoryType enum tests
+Deno.test('CategoryType - has all category types', () => {
   assertEquals(CategoryType.ADS, 'ADS');
   assertEquals(CategoryType.TRACKERS, 'TRACKERS');
   assertEquals(CategoryType.SOCIAL_MEDIA, 'SOCIAL_MEDIA');
@@ -40,7 +44,8 @@ Deno.test('CategoryType enum - should have all category types', () => {
   assertEquals(CategoryType.OTHERS, 'OTHERS');
 });
 
-Deno.test('FilteringActionStatus enum - should have all filtering statuses', () => {
+// FilteringActionStatus enum tests
+Deno.test('FilteringActionStatus - has all filtering statuses', () => {
   assertEquals(FilteringActionStatus.UNKNOWN, 'UNKNOWN');
   assertEquals(FilteringActionStatus.NONE, 'NONE');
   assertEquals(FilteringActionStatus.REQUEST_BLOCKED, 'REQUEST_BLOCKED');
@@ -50,7 +55,8 @@ Deno.test('FilteringActionStatus enum - should have all filtering statuses', () 
   assertEquals(FilteringActionStatus.MODIFIED, 'MODIFIED');
 });
 
-Deno.test('ErrorCodes enum - should have all error codes', () => {
+// ErrorCodes enum tests
+Deno.test('ErrorCodes - has all error codes', () => {
   assertEquals(ErrorCodes.BAD_REQUEST, 'BAD_REQUEST');
   assertEquals(ErrorCodes.FIELD_REQUIRED, 'FIELD_REQUIRED');
   assertEquals(ErrorCodes.FIELD_WRONG_VALUE, 'FIELD_WRONG_VALUE');
@@ -58,7 +64,8 @@ Deno.test('ErrorCodes enum - should have all error codes', () => {
   assertEquals(ErrorCodes.UNKNOWN, 'UNKNOWN');
 });
 
-Deno.test('DayOfWeek enum - should have all days', () => {
+// DayOfWeek enum tests
+Deno.test('DayOfWeek - has all days', () => {
   assertEquals(DayOfWeek.MONDAY, 'MONDAY');
   assertEquals(DayOfWeek.TUESDAY, 'TUESDAY');
   assertEquals(DayOfWeek.WEDNESDAY, 'WEDNESDAY');

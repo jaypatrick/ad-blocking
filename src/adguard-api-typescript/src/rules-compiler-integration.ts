@@ -6,8 +6,7 @@
  * Deno-only implementation
  */
 
-import { promises as fs } from 'node:fs';
-import * as path from 'node:path';
+import { isAbsolute, resolve, join } from '@std/path';
 import { UserRulesRepository } from './repositories/user-rules.ts';
 import { DnsServerRepository } from './repositories/dns-server.ts';
 import { Logger, silentLogger } from './helpers/configuration.ts';
@@ -68,11 +67,11 @@ export class RulesCompilerIntegration {
   ): Promise<string[]> {
     this.logger.debug(`Reading rules from: ${filePath}`);
 
-    const absolutePath = path.isAbsolute(filePath)
+    const absolutePath = isAbsolute(filePath)
       ? filePath
-      : path.resolve(Deno.cwd(), filePath);
+      : resolve(Deno.cwd(), filePath);
 
-    const content = await fs.readFile(absolutePath, 'utf-8');
+    const content = await Deno.readTextFile(absolutePath);
     let lines = content.split('\n');
 
     if (filterComments) {
@@ -208,7 +207,7 @@ export class RulesCompilerIntegration {
     rulesDirectory: string = 'rules',
     rulesFile: string = 'adguard_user_filter.txt'
   ): Promise<RulesSyncResult> {
-    const rulesPath = path.join(rulesDirectory, rulesFile);
+    const rulesPath = join(rulesDirectory, rulesFile);
     return this.syncRules(dnsServerId, {
       rulesPath,
       enable: true,

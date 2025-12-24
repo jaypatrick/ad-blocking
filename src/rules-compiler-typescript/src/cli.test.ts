@@ -3,7 +3,7 @@
  * Deno-native testing implementation
  */
 
-import { assertEquals, assertThrows } from 'https://deno.land/std@0.220.0/assert/mod.ts';
+import { assertEquals, assertThrows } from '@std/assert';
 import { parseArgs } from './cli.ts';
 
 Deno.test('parseArgs - returns default options with no arguments', () => {

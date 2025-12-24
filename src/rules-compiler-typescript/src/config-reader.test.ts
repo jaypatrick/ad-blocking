@@ -3,7 +3,7 @@
  * Deno-native testing implementation
  */
 
-import { assertEquals, assertThrows } from 'https://deno.land/std@0.220.0/assert/mod.ts';
+import { assertEquals, assertThrows } from '@std/assert';
 import { detectFormat } from './config-reader.ts';
 
 Deno.test('detectFormat - detects JSON format from .json extension', () => {
