@@ -297,6 +297,10 @@ cargo test config::                       # Tests in module
 - TypeScript wrapper around @adguard/hostlist-compiler
 - Deno 2.0+ runtime with npm compatibility
 - Supports JSON, YAML, and TOML configuration formats
+- **Library API** (`src/lib/`):
+  - `RulesCompiler` - Main service class with fluent builder pattern
+  - `ConfigurationBuilder` - Programmatic configuration creation
+  - Separate library export: `@rules-compiler/typescript/lib`
 - **Dual Mode Support**:
   - Interactive menu mode (default when no args)
   - CLI mode (when config path or action flags provided)
@@ -309,7 +313,7 @@ cargo test config::                       # Tests in module
 - `src/mod.ts` - Deno entry point
 - `frontend-rust/` - Optional Rust CLI frontend
 - `deno.json` - Deno configuration and tasks
-- Key classes: `ConsoleApplication`, menu utilities
+- Key classes: `RulesCompiler`, `RulesCompilerBuilder`, `ConfigurationBuilder`, `ConsoleApplication`
 - Uses Deno's built-in testing framework
 
 ### Shell Scripts (`src/rules-compiler-shell/`)
@@ -360,12 +364,16 @@ cargo test config::                       # Tests in module
 ### API Client - TypeScript (`src/adguard-api-typescript/`)
 - TypeScript SDK for AdGuard DNS API v1.11 with feature parity to .NET version
 - Deno 2.0+ runtime with npm compatibility
+- **Library API** (`src/lib/`):
+  - `AdGuardDnsClientBuilder` - Fluent builder for client configuration
+  - `PagedListBuilder` - Pagination support for list operations
+  - Separate library export: `@adguard/api-typescript/lib`
 - `src/client.ts` - Main `AdGuardDnsClient` class with fluent API
 - `src/api/` - API endpoint implementations (account, devices, DNS servers, statistics, etc.)
 - `src/repositories/` - Higher-level repository pattern abstractions
 - `src/cli/` - Interactive CLI with menu-driven interface
 - `src/mod.ts` - Deno entry point
-- Key classes: `AdGuardDnsClient`, `DeviceRepository`, `DnsServerRepository`, `UserRulesRepository`
+- Key classes: `AdGuardDnsClient`, `AdGuardDnsClientBuilder`, `DeviceRepository`, `DnsServerRepository`
 - Dependencies (via npm:): axios, commander, inquirer, chalk
 
 ### Linear Import Tool (`src/linear/`)

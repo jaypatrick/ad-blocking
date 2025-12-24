@@ -2,7 +2,11 @@
   "$schema": "https://deno.land/x/deno/cli/schemas/config-file.v1.json",
   "name": "@adguard/api-typescript",
   "version": "1.0.0",
-  "exports": "./src/mod.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./lib": "./src/lib/index.ts",
+    "./cli": "./src/cli/index.ts"
+  },
   "tasks": {
     "start": "deno run --allow-read --allow-write --allow-env --allow-net src/mod.ts",
     "sync": "deno run --allow-read --allow-write --allow-env --allow-net src/mod.ts sync",

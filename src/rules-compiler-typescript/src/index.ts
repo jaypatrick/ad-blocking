@@ -12,6 +12,29 @@
  * - Structured JSON logging
  * - Resource limits and timeouts
  *
+ * ## Library API
+ *
+ * For programmatic usage, use the high-level library API:
+ *
+ * ```typescript
+ * import { RulesCompiler, ConfigurationBuilder } from '@rules-compiler/typescript/lib';
+ *
+ * // Create a compiler
+ * const compiler = RulesCompiler.builder()
+ *   .withTimeout(60000)
+ *   .build();
+ *
+ * // Compile from config file
+ * const result = await compiler.compile({ configPath: 'config.yaml' });
+ *
+ * // Or build config programmatically
+ * const config = ConfigurationBuilder.create('My Filters')
+ *   .addSource('https://example.com/filters.txt')
+ *   .withPreset('basic')
+ *   .build();
+ * const rules = await compiler.compileFromConfig(config);
+ * ```
+ *
  * @packageDocumentation
  */
 
@@ -147,3 +170,22 @@ export {
   throttle,
 } from './timeout.ts';
 export type { TimeoutController, RetryConfig } from './timeout.ts';
+
+// Library API (high-level)
+export {
+  RulesCompiler,
+  RulesCompilerBuilder,
+  createRulesCompiler,
+  ConfigurationBuilder,
+  createConfiguration,
+  AVAILABLE_TRANSFORMATIONS,
+  TRANSFORMATION_DESCRIPTIONS,
+} from './lib/index.ts';
+export type {
+  RulesCompilerServiceOptions,
+  CompileRunOptions,
+  CompileProgressEvent,
+  Transformation,
+  SourceType,
+  SourceConfig,
+} from './lib/index.ts';
