@@ -75,7 +75,7 @@ export class RulesCompilerIntegration {
     let lines = content.split('\n');
 
     if (filterComments) {
-      lines = lines.filter(line => {
+      lines = lines.filter((line: string) => {
         const trimmed = line.trim();
         // Keep non-empty lines that aren't comments
         // AdGuard rules starting with ! are comments, but lines starting with || are rules
