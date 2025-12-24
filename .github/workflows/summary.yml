@@ -9,26 +9,27 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       issues: write
-      models: read
       contents: read
+      id-token: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run AI inference
-        id: inference
-        uses: actions/ai-inference@v1
+      - name: Summarize issue with Claude
+        uses: anthropics/claude-code-action@v1
         with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
-            Summarize the following GitHub issue in one paragraph:
+            Please read this GitHub issue and add a brief summary comment.
+
             Title: ${{ github.event.issue.title }}
             Body: ${{ github.event.issue.body }}
 
-      - name: Comment with AI summary
-        run: |
-          gh issue comment $ISSUE_NUMBER --body '${{ steps.inference.outputs.response }}'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
-          RESPONSE: ${{ steps.inference.outputs.response }}
+            Provide a one-paragraph summary of the issue, identifying:
+            - The type of issue (bug, feature request, question, etc.)
+            - The key points or requirements
+            - Any relevant context
+
+            Use `gh issue comment ${{ github.event.issue.number }}` with your Bash tool to post the summary.
+          claude_args: '--allowed-tools "Bash(gh issue comment:*)"'

@@ -1,0 +1,100 @@
+# Configuration for actions/labeler
+# Labels PRs based on modified file paths
+
+# Language/Runtime labels
+dotnet:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/adguard-api-dotnet/**'
+          - 'src/rules-compiler-dotnet/**'
+          - '**/*.cs'
+          - '**/*.csproj'
+          - '**/*.slnx'
+
+typescript:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/rules-compiler-typescript/**'
+          - 'src/adguard-api-typescript/**'
+          - 'src/linear/**'
+          - '**/*.ts'
+          - '**/deno.json'
+
+python:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/rules-compiler-python/**'
+          - '**/*.py'
+          - '**/pyproject.toml'
+          - '**/setup.py'
+
+rust:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/rules-compiler-rust/**'
+          - '**/*.rs'
+          - '**/Cargo.toml'
+          - '**/Cargo.lock'
+
+powershell:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/adguard-api-powershell/**'
+          - 'src/rules-compiler-shell/*.ps1'
+          - '**/*.ps1'
+          - '**/*.psm1'
+          - '**/*.psd1'
+
+shell:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/rules-compiler-shell/**'
+          - '**/*.sh'
+          - '**/*.zsh'
+          - '**/*.cmd'
+          - '**/*.bat'
+
+# Component labels
+rules-compiler:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/rules-compiler-*/**'
+
+api-client:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/adguard-api-*/**'
+
+filter-rules:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'rules/**'
+          - '**/*.txt'
+
+# Infrastructure labels
+ci:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/**'
+
+docker:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'Dockerfile*'
+          - 'docker-compose*.yml'
+          - '.dockerignore'
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/*.md'
+          - 'docs/**'
+
+configuration:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/*.json'
+          - '**/*.yaml'
+          - '**/*.yml'
+          - '**/*.toml'
+          - '!.github/**'
