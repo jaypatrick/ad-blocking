@@ -108,7 +108,7 @@ export function showNoItems(type: string): void {
 }
 
 /** Create a spinner */
-export function createSpinner(text: string): ora.Ora {
+export function createSpinner(text: string): ReturnType<typeof ora> {
   return ora({
     text,
     spinner: 'dots',

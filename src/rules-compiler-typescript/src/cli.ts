@@ -6,7 +6,7 @@
  * Deno-only implementation
  */
 
-import { resolve } from 'node:path';
+import { resolve } from '@std/path';
 import type { CliOptions, ConfigurationFormat, VersionInfo } from './types.ts';
 import { runCompiler } from './compiler.ts';
 import { findDefaultConfig, readConfiguration, toJson } from './config-reader.ts';

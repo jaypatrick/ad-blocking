@@ -2,19 +2,18 @@
  * Markdown documentation parser for Linear import
  */
 
-import { readFileSync } from "fs";
 import {
   DocumentSection,
   ParsedDocument,
   RoadmapItem,
   ComponentInfo,
-} from "./types.js";
+} from "./types.ts";
 
 /**
  * Parse a markdown file into structured sections
  */
 export function parseMarkdownFile(filePath: string): ParsedDocument {
-  const rawContent = readFileSync(filePath, "utf-8");
+  const rawContent = Deno.readTextFileSync(filePath);
   return parseMarkdown(rawContent);
 }
 
@@ -125,7 +124,7 @@ export function extractRoadmapItems(document: ParsedDocument): RoadmapItem[] {
 
   // Parse checkbox items from roadmap section
   const content = roadmapSection.content +
-    roadmapSection.subsections.map(s => s.content).join("\n");
+    roadmapSection.subsections.map((s: DocumentSection) => s.content).join("\n");
 
   const checkboxRegex = /^-\s*\[([ x])\]\s*(.+)$/gm;
   let match;
@@ -191,7 +190,7 @@ export function extractComponents(document: ParsedDocument): ComponentInfo[] {
     if (techStackSection?.[1]) {
       const techItems = techStackSection[1].match(/^-\s+(.+)/gm);
       if (techItems) {
-        component.techStack = techItems.map((item) =>
+        component.techStack = techItems.map((item: string) =>
           item.replace(/^-\s+/, "").trim()
         );
       }
@@ -202,9 +201,9 @@ export function extractComponents(document: ParsedDocument): ComponentInfo[] {
       /\| File \| Description \|\n\|[-\s|]+\|\n([\s\S]*?)(?=\n\n|\n---|\n###|$)/
     );
     if (tableMatch?.[1]) {
-      const rows = tableMatch[1].split("\n").filter((row) => row.trim());
+      const rows = tableMatch[1].split("\n").filter((row: string) => row.trim());
       for (const row of rows) {
-        const cells = row.split("|").filter((cell) => cell.trim());
+        const cells = row.split("|").filter((cell: string) => cell.trim());
         if (cells.length >= 2 && cells[0] && cells[1]) {
           component.keyFiles.push({
             file: cells[0].replace(/`/g, "").trim(),
@@ -234,7 +233,7 @@ export function getSectionByPath(
     const part = parts[i];
     if (!part) continue;
 
-    const found = sections.find((s) =>
+    const found = sections.find((s: DocumentSection) =>
       s.title.toLowerCase().includes(part.toLowerCase())
     );
     if (!found) return null;

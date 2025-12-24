@@ -34,14 +34,13 @@
 export {
   AdGuardDnsClientBuilder,
   createClientBuilder,
-  Logger,
   consoleLogger,
   silentLogger,
   DEFAULT_TIMEOUT,
   MIN_TIMEOUT,
   MAX_TIMEOUT,
 } from './client-builder.ts';
-export type { RetryOptions } from './client-builder.ts';
+export type { Logger, RetryOptions } from './client-builder.ts';
 
 // Pagination support
 export {
