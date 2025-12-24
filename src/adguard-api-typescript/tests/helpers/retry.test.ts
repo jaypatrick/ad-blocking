@@ -2,8 +2,7 @@
  * Retry policy helper tests
  */
 
-/// <reference types="jest" />
-
+import { jest } from '@jest/globals';
 import { AxiosError } from 'axios';
 import {
   executeWithRetry,

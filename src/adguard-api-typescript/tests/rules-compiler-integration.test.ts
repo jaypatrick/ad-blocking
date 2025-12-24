@@ -2,6 +2,7 @@
  * Rules compiler integration tests
  */
 
+import { jest } from '@jest/globals';
 import { RulesCompilerIntegration } from '../src/rules-compiler-integration';
 import { UserRulesRepository } from '../src/repositories/user-rules';
 import { DnsServerRepository } from '../src/repositories/dns-server';
