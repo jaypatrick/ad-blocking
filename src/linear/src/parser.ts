@@ -233,7 +233,7 @@ export function getSectionByPath(
     const part = parts[i];
     if (!part) continue;
 
-    const found = sections.find((s: DocumentSection) =>
+    const found = sections.find(s =>
       s.title.toLowerCase().includes(part.toLowerCase())
     );
     if (!found) return null;
