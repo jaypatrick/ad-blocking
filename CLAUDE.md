@@ -420,14 +420,13 @@ RemoveComments, Compress, RemoveModifiers, Validate, ValidateAllowIp, Deduplicat
 ## CI/CD Alignment
 
 GitHub Actions workflows validate:
-- `.github/workflows/dotnet.yml` - Builds/tests .NET projects with .NET 8
-- `.github/workflows/typescript.yml` - Node 20, tsc --noEmit, eslint for rules-compiler-typescript
+- `.github/workflows/dotnet.yml` - Builds/tests .NET projects (API client and rules compiler) with .NET 10
+- `.github/workflows/typescript.yml` - Node 20, tsc --noEmit, eslint for rules-compiler-typescript and website
 - `.github/workflows/gatsby.yml` - Builds website and deploys to GitHub Pages
-- `.github/workflows/powershell.yml` - PSScriptAnalyzer on PowerShell scripts
-- `.github/workflows/codeql.yml` - CodeQL security scanning
-- `.github/workflows/devskim.yml` - DevSkim security analysis
-- `.github/workflows/claude.yml` - Claude AI integration
-- `.github/workflows/claude-code-review.yml` - Automated code review
+- `.github/workflows/security.yml` - Consolidated security scanning (CodeQL, DevSkim, PSScriptAnalyzer)
+- `.github/workflows/release.yml` - Builds and publishes release binaries (.NET, Rust, Python)
+- `.github/workflows/claude.yml` - Claude AI integration for @claude mentions
+- `.github/workflows/claude-code-review.yml` - Automated PR code review
 
 ## Prerequisites
 
