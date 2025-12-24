@@ -3,7 +3,7 @@
  * Provides runtime validation for production safety
  */
 
-import { resolve, normalize, isAbsolute } from 'node:path';
+import { resolve, normalize, isAbsolute } from '@std/path';
 import type { IConfiguration } from '@adguard/hostlist-compiler';
 import {
   ConfigurationError,

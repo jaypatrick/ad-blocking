@@ -17,9 +17,8 @@
 
 import { Command } from "commander";
 import { config } from "dotenv";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { existsSync } from "node:fs";
+import { resolve } from "@std/path";
+import { existsSync } from "@std/fs";
 
 import { LinearImporter } from "./linear-client.ts";
 import {
@@ -31,7 +30,7 @@ import {
 import { ImportConfig } from "./types.ts";
 
 // Load environment variables
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __dirname = import.meta.dirname!;
 config({ path: resolve(__dirname, "../.env") });
 
 const DEFAULT_DOC_PATH = resolve(__dirname, "../../../docs/LINEAR_DOCUMENTATION.md");

@@ -3,8 +3,8 @@
  * Includes validation and sanitization for production safety
  */
 
-import { readFileSync, existsSync, statSync } from 'node:fs';
-import { extname, resolve } from 'node:path';
+import { existsSync } from '@std/fs';
+import { extname, resolve } from '@std/path';
 import { parse as parseYaml } from 'yaml';
 import { parse as parseToml } from '@iarna/toml';
 import type { IConfiguration } from '@adguard/hostlist-compiler';
@@ -159,11 +159,11 @@ export function readConfiguration(
   }
 
   // Check file size
-  const stats = statSync(resolvedPath);
+  const stats = Deno.statSync(resolvedPath);
   const maxSize = options.resourceLimits?.maxConfigFileSize ?? DEFAULT_RESOURCE_LIMITS.maxConfigFileSize;
-  checkFileSize(stats.size, maxSize, 'configuration file');
+  checkFileSize(stats.size ?? 0, maxSize, 'configuration file');
 
-  const content = readFileSync(resolvedPath, 'utf8');
+  const content = Deno.readTextFileSync(resolvedPath);
   const detectedFormat = format ?? detectFormat(resolvedPath);
 
   logger.debug(`Configuration format: ${detectedFormat}`);

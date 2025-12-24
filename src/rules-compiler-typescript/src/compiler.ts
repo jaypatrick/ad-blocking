@@ -4,9 +4,9 @@
  */
 
 import compile, { type IConfiguration } from '@adguard/hostlist-compiler';
-import { writeFileSync, readFileSync, existsSync, copyFileSync, mkdirSync, statSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
-import { createHash } from 'node:crypto';
+import { existsSync } from '@std/fs';
+import { dirname, join, resolve } from '@std/path';
+import { crypto } from '@std/crypto';
 import type { CompilerResult, CompileOptions, Logger } from './types.ts';
 import { readConfiguration } from './config-reader.ts';
 import { logger as defaultLogger } from './logger.ts';
@@ -34,12 +34,12 @@ export function writeOutput(
   // Ensure output directory exists
   const outputDir = dirname(outputPath);
   if (!existsSync(outputDir)) {
-    mkdirSync(outputDir, { recursive: true });
+    Deno.mkdirSync(outputDir, { recursive: true });
     logger.debug(`Created output directory: ${outputDir}`);
   }
 
   const content = rules.join('\n');
-  writeFileSync(outputPath, content, 'utf8');
+  Deno.writeTextFileSync(outputPath, content);
 
   logger.info(`Wrote ${rules.length} lines to ${outputPath}`);
 }
@@ -54,7 +54,7 @@ export function countRules(filePath: string): number {
     return 0;
   }
 
-  const content = readFileSync(filePath, 'utf8');
+  const content = Deno.readTextFileSync(filePath);
   const lines = content.split('\n');
 
   return lines.filter((line) => {
@@ -71,9 +71,11 @@ export function countRules(filePath: string): number {
  * @param filePath - Path to file
  * @returns Hex-encoded hash string
  */
-export function computeHash(filePath: string): string {
-  const content = readFileSync(filePath);
-  return createHash('sha384').update(content).digest('hex');
+export async function computeHash(filePath: string): Promise<string> {
+  const content = Deno.readFileSync(filePath);
+  const hashBuffer = await crypto.subtle.digest('SHA-384', content);
+  const hashArray = new Uint8Array(hashBuffer);
+  return Array.from(hashArray).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 /**
@@ -91,10 +93,10 @@ export function copyToRulesDirectory(
 
   const destDir = dirname(destPath);
   if (!existsSync(destDir)) {
-    mkdirSync(destDir, { recursive: true });
+    Deno.mkdirSync(destDir, { recursive: true });
   }
 
-  copyFileSync(sourcePath, destPath);
+  Deno.copyFileSync(sourcePath, destPath);
   logger.info(`Copied to rules directory: ${destPath}`);
 }
 
@@ -225,13 +227,13 @@ export async function runCompiler(options: ExtendedCompileOptions): Promise<Comp
     writeOutput(result.outputPath, rules, logger);
 
     // Check output file size
-    const outputStats = statSync(result.outputPath);
+    const outputStats = Deno.statSync(result.outputPath);
     const maxOutputSize = options.maxOutputSize ?? DEFAULT_RESOURCE_LIMITS.maxOutputFileSize;
-    checkFileSize(outputStats.size, maxOutputSize, 'output file');
+    checkFileSize(outputStats.size ?? 0, maxOutputSize, 'output file');
 
     // Calculate statistics
     result.ruleCount = countRules(result.outputPath);
-    result.outputHash = computeHash(result.outputPath);
+    result.outputHash = await computeHash(result.outputPath);
 
     logger.debug(`Hash: ${result.outputHash}`);
 

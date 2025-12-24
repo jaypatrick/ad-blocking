@@ -9,7 +9,7 @@ import {
   ParsedDocument,
   RoadmapItem,
   ComponentInfo,
-} from "./types.js";
+} from "./types.ts";
 
 export class LinearImporter {
   private client: LinearClient;

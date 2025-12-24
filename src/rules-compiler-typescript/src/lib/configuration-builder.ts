@@ -26,28 +26,10 @@
  * ```
  */
 
-import type { IConfiguration } from '@adguard/hostlist-compiler';
+import type { IConfiguration, Transformation, SourceType } from '@adguard/hostlist-compiler';
 
-/**
- * Available transformation types
- */
-export type Transformation =
-  | 'RemoveComments'
-  | 'Compress'
-  | 'RemoveModifiers'
-  | 'Validate'
-  | 'ValidateAllowIp'
-  | 'Deduplicate'
-  | 'InvertAllow'
-  | 'RemoveEmptyLines'
-  | 'TrimLines'
-  | 'InsertFinalNewLine'
-  | 'ConvertToAscii';
-
-/**
- * Source type for filter sources
- */
-export type SourceType = 'adblock' | 'hosts';
+// Re-export the types for external use
+export type { Transformation, SourceType };
 
 /**
  * Source configuration for filter sources
@@ -305,16 +287,16 @@ export class ConfigurationBuilder {
 
     // Add optional fields only if set
     if (this.description) {
-      (config as Record<string, unknown>)['description'] = this.description;
+      config.description = this.description;
     }
     if (this.version) {
-      (config as Record<string, unknown>)['version'] = this.version;
+      config.version = this.version;
     }
     if (this.license) {
-      (config as Record<string, unknown>)['license'] = this.license;
+      config.license = this.license;
     }
     if (this.homepage) {
-      (config as Record<string, unknown>)['homepage'] = this.homepage;
+      config.homepage = this.homepage;
     }
     if (this.transformations.length > 0) {
       config.transformations = this.transformations;
@@ -326,10 +308,10 @@ export class ConfigurationBuilder {
       config.exclusions = this.exclusions;
     }
     if (this.inclusionsSources.length > 0) {
-      (config as Record<string, unknown>)['inclusionsSources'] = this.inclusionsSources;
+      config.inclusions_sources = this.inclusionsSources;
     }
     if (this.exclusionsSources.length > 0) {
-      (config as Record<string, unknown>)['exclusionsSources'] = this.exclusionsSources;
+      config.exclusions_sources = this.exclusionsSources;
     }
 
     return config;
@@ -376,13 +358,11 @@ export const AVAILABLE_TRANSFORMATIONS: readonly Transformation[] = [
   'Compress',
   'RemoveModifiers',
   'Validate',
-  'ValidateAllowIp',
   'Deduplicate',
   'InvertAllow',
   'RemoveEmptyLines',
   'TrimLines',
   'InsertFinalNewLine',
-  'ConvertToAscii',
 ] as const;
 
 /**
@@ -393,11 +373,9 @@ export const TRANSFORMATION_DESCRIPTIONS: Record<Transformation, string> = {
   Compress: 'Converts hosts format to adblock syntax',
   RemoveModifiers: 'Removes unsupported modifiers from rules',
   Validate: 'Removes dangerous/incompatible rules',
-  ValidateAllowIp: 'Like Validate but allows IP address rules',
   Deduplicate: 'Removes duplicate rules',
   InvertAllow: 'Converts @@exceptions to blocking rules',
   RemoveEmptyLines: 'Removes blank lines',
   TrimLines: 'Trims whitespace from lines',
   InsertFinalNewLine: 'Ensures file ends with newline',
-  ConvertToAscii: 'Converts IDN to punycode',
 };
