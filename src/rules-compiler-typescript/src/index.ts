@@ -50,6 +50,38 @@ export type { CompilerOptions, ExtendedCompileOptions } from './compiler.ts';
 // CLI
 export { parseArgs, showHelp, showVersion, getVersionInfo, main } from './cli.ts';
 
+// Console (Interactive Mode)
+export {
+  // Utilities
+  formatValue,
+  createTable,
+  createKeyValueTable,
+  displayTable,
+  showSuccess,
+  showError,
+  showWarning,
+  showInfo,
+  showHeader,
+  showPanel,
+  showRule,
+  showNoItems,
+  createSpinner,
+  withSpinner,
+  generateBanner,
+  showWelcomeBanner,
+  truncate,
+  formatElapsed,
+  formatBytes,
+  colorStatus,
+  dim,
+  bold,
+  chalk,
+  // Application
+  ConsoleApplication,
+  runInteractive,
+} from './console/index.ts';
+export type { ConsoleAppOptions } from './console/index.ts';
+
 // Logger
 export {
   createLogger,

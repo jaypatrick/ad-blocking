@@ -2,6 +2,7 @@
 /**
  * Command-line interface for the Rules Compiler TypeScript Frontend
  * Production-ready with graceful shutdown and structured error handling
+ * Supports both interactive and command-line modes
  * Deno-only implementation
  */
 
@@ -12,6 +13,7 @@ import { findDefaultConfig, readConfiguration, toJson } from './config-reader.ts
 import { createLogger, createProductionLogger } from './logger.ts';
 import { initializeShutdownHandler, ShutdownHandler } from './shutdown.ts';
 import { isCompilerError } from './errors.ts';
+import { runInteractive } from './console/app.ts';
 
 /** Package version */
 const VERSION = '1.0.0';
@@ -28,6 +30,9 @@ export function parseArgs(args: string[]): CliOptions {
     help: false,
     debug: false,
     showConfig: false,
+    interactive: false,
+    compile: false,
+    validate: false,
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -80,6 +85,16 @@ export function parseArgs(args: string[]): CliOptions {
       case '--show-config':
         options.showConfig = true;
         break;
+      case '-i':
+      case '--interactive':
+        options.interactive = true;
+        break;
+      case '--compile':
+        options.compile = true;
+        break;
+      case '--validate':
+        options.validate = true;
+        break;
       default:
         // Allow positional config path
         if (arg && !arg.startsWith('-') && !options.configPath) {
@@ -98,7 +113,12 @@ export function showHelp(): void {
   console.log(`
 AdGuard Filter Rules Compiler (TypeScript Frontend)
 
-Usage: deno task compile [OPTIONS] [CONFIG_PATH]
+Usage: deno task start [OPTIONS] [CONFIG_PATH]
+
+Modes:
+  -i, --interactive     Run in interactive menu mode (default when no args)
+  --compile             Run in CLI mode (compile and exit)
+  --validate            Validate configuration only
 
 Options:
   -c, --config PATH     Path to configuration file
@@ -126,13 +146,14 @@ Supported Configuration Formats:
   - TOML  (.toml)
 
 Examples:
-  deno task compile                         # Use default config
-  deno task compile -c config.yaml          # Specific config file
-  deno task compile -c config.json -r       # Compile and copy to rules
-  deno task compile -c config.toml -o out.txt
-  deno task compile --show-config -c config.yaml
-  deno task compile --json-logs -c config.yaml  # Production mode with JSON logs
-  deno task compile --timeout 60000 -c config.yaml  # 60 second timeout
+  deno task start                           # Interactive menu mode
+  deno task interactive                     # Explicit interactive mode
+  deno task compile                         # CLI compile mode
+  deno task start -c config.yaml            # CLI mode with specific config
+  deno task start -c config.json -r         # Compile and copy to rules
+  deno task start --validate -c config.yaml # Validate only
+  deno task start --show-config -c config.yaml
+  deno task start --json-logs -c config.yaml  # Production mode
 `);
 }
 
@@ -258,6 +279,66 @@ function parseExtendedArgs(args: string[]): ExtendedCliOptions {
 }
 
 /**
+ * Determines if CLI mode should be used
+ */
+function shouldUseCLIMode(options: ExtendedCliOptions): boolean {
+  // Explicit flags
+  if (options.interactive) return false;
+  if (options.compile) return true;
+  if (options.validate) return true;
+
+  // If config path provided, use CLI mode
+  if (options.configPath) return true;
+
+  // If any action flags are set, use CLI mode
+  if (options.showConfig) return true;
+  if (options.copyToRules) return true;
+  if (options.outputPath) return true;
+
+  // Production flags indicate CLI mode
+  if (options.jsonLogs) return true;
+  if (options.timeout) return true;
+
+  // Default to interactive mode
+  return false;
+}
+
+/**
+ * Run validation mode
+ */
+async function runValidationMode(
+  configPath: string,
+  format: ConfigurationFormat | undefined,
+  logger: ReturnType<typeof createLogger>
+): Promise<number> {
+  try {
+    const config = readConfiguration(configPath, format, logger);
+    const { validateConfiguration } = await import('./validation.ts');
+    const result = validateConfiguration(config);
+
+    if (result.valid) {
+      console.log('Configuration is valid!');
+      if (result.warnings.length > 0) {
+        console.log('\nWarnings:');
+        for (const warning of result.warnings) {
+          console.log(`  - ${warning}`);
+        }
+      }
+      return 0;
+    } else {
+      console.error('Configuration has errors:');
+      for (const error of result.errors) {
+        console.error(`  - ${error}`);
+      }
+      return 1;
+    }
+  } catch (error) {
+    console.error(`Error validating configuration: ${error instanceof Error ? error.message : String(error)}`);
+    return 1;
+  }
+}
+
+/**
  * Main CLI entry point
  * @param args - Command line arguments
  * @returns Exit code
@@ -280,6 +361,17 @@ export async function main(args: string[] = Deno.args): Promise<number> {
       return 0;
     }
 
+    // Determine mode
+    if (!shouldUseCLIMode(options)) {
+      // Interactive mode
+      return await runInteractive({
+        configPath: options.configPath,
+        format: options.format,
+        debug: options.debug,
+      });
+    }
+
+    // CLI mode
     // Create logger (JSON format for production, human-readable for development)
     const logger = options.jsonLogs
       ? createProductionLogger()
@@ -306,6 +398,11 @@ export async function main(args: string[] = Deno.args): Promise<number> {
         return 1;
       }
       configPath = defaultConfig;
+    }
+
+    // Validate only mode
+    if (options.validate) {
+      return await runValidationMode(configPath, options.format, logger);
     }
 
     // Show config only

@@ -31,6 +31,12 @@ export interface CliOptions {
   debug: boolean;
   /** Show config only (don't compile) */
   showConfig: boolean;
+  /** Run in interactive mode */
+  interactive: boolean;
+  /** Run in compile mode (non-interactive) */
+  compile: boolean;
+  /** Validate configuration only */
+  validate: boolean;
 }
 
 /**
