@@ -261,7 +261,7 @@ export class AdGuardDnsClient {
    *
    * Supports multiple environment variable naming conventions:
    * - .NET-compatible format: ADGUARD_AdGuard__ApiKey (recommended, tried first)
-   * - TypeScript format: ADGUARD_API_KEY (fallback)
+   * - Legacy/alternative format: ADGUARD_API_KEY (fallback)
    *
    * @param envVar - Custom environment variable name (overrides default lookup)
    * @param logger - Optional logger
