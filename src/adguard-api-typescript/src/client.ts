@@ -11,7 +11,7 @@ import {
   Logger,
   maskApiKey,
   validateAuthentication,
-} from './helpers/configuration.js';
+} from './helpers/configuration.ts';
 import {
   AccountApi,
   AuthApi,
@@ -22,15 +22,15 @@ import {
   FilterListsApi,
   WebServicesApi,
   DedicatedIpApi,
-} from './api/index.js';
+} from './api/index.ts';
 import {
   DeviceRepository,
   DnsServerRepository,
   UserRulesRepository,
   StatisticsRepository,
   QueryLogRepository,
-} from './repositories/index.js';
-import { ApiNotConfiguredError } from './errors/index.js';
+} from './repositories/index.ts';
+import { ApiNotConfiguredError } from './errors/index.ts';
 
 /** AdGuard DNS API Client Factory */
 export class ApiClientFactory {
@@ -94,13 +94,13 @@ export class ApiClientFactory {
 
     if (envVar) {
       // Use explicitly provided environment variable name
-      apiKey = process.env[envVar];
+      apiKey = Deno.env.get(envVar);
       if (!apiKey) {
         throw new Error(`Environment variable ${envVar} is not set`);
       }
     } else {
       // Try .NET-compatible format first, then fallback to legacy format
-      apiKey = process.env['ADGUARD_AdGuard__ApiKey'] ?? process.env['ADGUARD_API_KEY'];
+      apiKey = Deno.env.get('ADGUARD_AdGuard__ApiKey') ?? Deno.env.get('ADGUARD_API_KEY');
       if (!apiKey) {
         throw new Error(
           'API key not configured. Set ADGUARD_AdGuard__ApiKey (recommended) or ADGUARD_API_KEY environment variable.'
@@ -271,13 +271,13 @@ export class AdGuardDnsClient {
 
     if (envVar) {
       // Use explicitly provided environment variable name
-      apiKey = process.env[envVar];
+      apiKey = Deno.env.get(envVar);
       if (!apiKey) {
         throw new Error(`Environment variable ${envVar} is not set`);
       }
     } else {
       // Try .NET-compatible format first, then fallback to legacy format
-      apiKey = process.env['ADGUARD_AdGuard__ApiKey'] ?? process.env['ADGUARD_API_KEY'];
+      apiKey = Deno.env.get('ADGUARD_AdGuard__ApiKey') ?? Deno.env.get('ADGUARD_API_KEY');
       if (!apiKey) {
         throw new Error(
           'API key not configured. Set ADGUARD_AdGuard__ApiKey (recommended) or ADGUARD_API_KEY environment variable.'

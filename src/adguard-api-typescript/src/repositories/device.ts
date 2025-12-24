@@ -2,9 +2,9 @@
  * Device repository
  */
 
-import { BaseRepository } from './base.js';
-import { DevicesApi } from '../api/devices.js';
-import { Logger } from '../helpers/configuration.js';
+import { BaseRepository } from './base.ts';
+import { DevicesApi } from '../api/devices.ts';
+import { Logger } from '../helpers/configuration.ts';
 import {
   Device,
   DeviceCreate,
@@ -12,7 +12,7 @@ import {
   DeviceSettingsUpdate,
   DedicatedIps,
   LinkDedicatedIPv4,
-} from '../models/index.js';
+} from '../models/index.ts';
 
 /** Device repository for managing devices */
 export class DeviceRepository extends BaseRepository {

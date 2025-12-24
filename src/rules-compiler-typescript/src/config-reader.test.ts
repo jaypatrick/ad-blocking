@@ -1,38 +1,49 @@
 /**
  * Tests for configuration reader
+ * Deno-native testing implementation
  */
 
-import { detectFormat } from './config-reader';
+import { assertEquals, assertThrows } from 'https://deno.land/std@0.220.0/assert/mod.ts';
+import { detectFormat } from './config-reader.ts';
 
-describe('detectFormat', () => {
-  it('should detect JSON format from .json extension', () => {
-    expect(detectFormat('config.json')).toBe('json');
-    expect(detectFormat('/path/to/compiler-config.json')).toBe('json');
-  });
+Deno.test('detectFormat - detects JSON format from .json extension', () => {
+  assertEquals(detectFormat('config.json'), 'json');
+  assertEquals(detectFormat('/path/to/compiler-config.json'), 'json');
+});
 
-  it('should detect YAML format from .yaml extension', () => {
-    expect(detectFormat('config.yaml')).toBe('yaml');
-    expect(detectFormat('/path/to/compiler-config.yaml')).toBe('yaml');
-  });
+Deno.test('detectFormat - detects YAML format from .yaml extension', () => {
+  assertEquals(detectFormat('config.yaml'), 'yaml');
+  assertEquals(detectFormat('/path/to/compiler-config.yaml'), 'yaml');
+});
 
-  it('should detect YAML format from .yml extension', () => {
-    expect(detectFormat('config.yml')).toBe('yaml');
-    expect(detectFormat('/path/to/compiler-config.yml')).toBe('yaml');
-  });
+Deno.test('detectFormat - detects YAML format from .yml extension', () => {
+  assertEquals(detectFormat('config.yml'), 'yaml');
+  assertEquals(detectFormat('/path/to/compiler-config.yml'), 'yaml');
+});
 
-  it('should detect TOML format from .toml extension', () => {
-    expect(detectFormat('config.toml')).toBe('toml');
-    expect(detectFormat('/path/to/compiler-config.toml')).toBe('toml');
-  });
+Deno.test('detectFormat - detects TOML format from .toml extension', () => {
+  assertEquals(detectFormat('config.toml'), 'toml');
+  assertEquals(detectFormat('/path/to/compiler-config.toml'), 'toml');
+});
 
-  it('should be case-insensitive for extensions', () => {
-    expect(detectFormat('config.JSON')).toBe('json');
-    expect(detectFormat('config.YAML')).toBe('yaml');
-    expect(detectFormat('config.TOML')).toBe('toml');
-  });
+Deno.test('detectFormat - is case-insensitive for extensions', () => {
+  assertEquals(detectFormat('config.JSON'), 'json');
+  assertEquals(detectFormat('config.YAML'), 'yaml');
+  assertEquals(detectFormat('config.TOML'), 'toml');
+});
 
-  it('should throw error for unknown extension', () => {
-    expect(() => detectFormat('config.xml')).toThrow('Unknown configuration file extension: .xml');
-    expect(() => detectFormat('config.txt')).toThrow('Unknown configuration file extension: .txt');
-  });
+Deno.test('detectFormat - throws error for unknown extension .xml', () => {
+  assertThrows(
+    () => detectFormat('config.xml'),
+    Error,
+    'Unknown configuration file extension: .xml'
+  );
+});
+
+Deno.test('detectFormat - throws error for unknown extension .txt', () => {
+  assertThrows(
+    () => detectFormat('config.txt'),
+    Error,
+    'Unknown configuration file extension: .txt'
+  );
 });

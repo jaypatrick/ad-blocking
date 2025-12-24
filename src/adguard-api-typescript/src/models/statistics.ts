@@ -2,7 +2,7 @@
  * Statistics-related models
  */
 
-import { CategoryType } from './enums.js';
+import { CategoryType } from './enums.ts';
 
 /** Base queries statistics */
 export interface QueriesStats {

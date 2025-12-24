@@ -9,7 +9,7 @@ import {
   DnsQueryType,
   SecureDnsProtoType,
   RegularDnsProtoType,
-} from './enums.js';
+} from './enums.ts';
 
 /** Filtering info in query log */
 export interface FilteringInfo {

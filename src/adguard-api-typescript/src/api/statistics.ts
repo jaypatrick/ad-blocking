@@ -2,8 +2,8 @@
  * Statistics API client
  */
 
-import { BaseApi } from './base.js';
-import { ApiConfiguration } from '../helpers/configuration.js';
+import { BaseApi } from './base.ts';
+import { ApiConfiguration } from '../helpers/configuration.ts';
 import {
   TimeQueriesStatsList,
   CategoryQueriesStatsList,
@@ -14,7 +14,7 @@ import {
   DomainQueriesStatsList,
   StatsQueryParams,
   DetailedStatsQueryParams,
-} from '../models/index.js';
+} from '../models/index.ts';
 
 /** Statistics API endpoints */
 export class StatisticsApi extends BaseApi {

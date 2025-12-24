@@ -2,45 +2,32 @@
  * Linear Documentation Import Tool - Deno Entry Point
  *
  * This module provides Deno-compatible exports and CLI entry point.
- * It uses Node.js compatibility layer for file system operations.
+ * Uses Deno's Node.js compatibility layer for file system operations.
  *
  * @module
  */
 
 // Re-export modules for library usage
-export * from './types.js';
-export { parseMarkdownFile, parseMarkdown, extractRoadmapItems, extractComponents, getSectionByPath, flattenSections } from './parser.js';
-export { LinearImporter } from './linear-client.js';
-
-// Type declaration for Deno global (when running in Deno runtime)
-declare const Deno: {
-  mainModule: string;
-  args: string[];
-  env: {
-    get(key: string): string | undefined;
-  };
-  exit(code: number): never;
-};
+export * from './types.ts';
+export { parseMarkdownFile, parseMarkdown, extractRoadmapItems, extractComponents, getSectionByPath, flattenSections } from './parser.ts';
+export { LinearImporter } from './linear-client.ts';
 
 // Deno CLI entry point
-const isDeno = typeof Deno !== 'undefined';
-const isMainModule = isDeno && Deno.mainModule === import.meta.url;
-
-if (isMainModule) {
+if (import.meta.main) {
   const { Command } = await import('commander');
   const { resolve, dirname } = await import('node:path');
   const { fileURLToPath } = await import('node:url');
   const { existsSync } = await import('node:fs');
 
-  const { LinearImporter } = await import('./linear-client.js');
+  const { LinearImporter } = await import('./linear-client.ts');
   const {
     parseMarkdownFile,
     extractRoadmapItems,
     extractComponents,
     flattenSections,
-  } = await import('./parser.js');
+  } = await import('./parser.ts');
 
-  // Type definition for ImportConfig (from types.js)
+  // Type definition for ImportConfig
   interface ImportConfig {
     teamId: string;
     projectName: string;

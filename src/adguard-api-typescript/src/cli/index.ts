@@ -1,24 +1,25 @@
-#!/usr/bin/env node
+#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-net
 
 /**
  * AdGuard DNS CLI
  * Interactive console UI for managing AdGuard DNS
+ * Deno-compatible implementation
  */
 
 import { Command } from 'commander';
 import inquirer from 'inquirer';
 import chalk from 'chalk';
-import { AdGuardDnsClient } from '../client.js';
-import { RulesCompilerIntegration } from '../rules-compiler-integration.js';
-import { consoleLogger, maskApiKey } from '../helpers/configuration.js';
-import { showHeader, showSuccess, showError, showInfo, withSpinner } from './utils.js';
-import { DevicesMenu } from './menus/devices.js';
-import { DnsServersMenu } from './menus/dns-servers.js';
-import { UserRulesMenu } from './menus/user-rules.js';
-import { StatisticsMenu } from './menus/statistics.js';
-import { QueryLogMenu } from './menus/query-log.js';
-import { AccountMenu } from './menus/account.js';
-import { VERSION, API_VERSION } from '../index.js';
+import { AdGuardDnsClient } from '../client.ts';
+import { RulesCompilerIntegration } from '../rules-compiler-integration.ts';
+import { consoleLogger, maskApiKey } from '../helpers/configuration.ts';
+import { showHeader, showSuccess, showError, showInfo, withSpinner } from './utils.ts';
+import { DevicesMenu } from './menus/devices.ts';
+import { DnsServersMenu } from './menus/dns-servers.ts';
+import { UserRulesMenu } from './menus/user-rules.ts';
+import { StatisticsMenu } from './menus/statistics.ts';
+import { QueryLogMenu } from './menus/query-log.ts';
+import { AccountMenu } from './menus/account.ts';
+import { VERSION, API_VERSION } from '../index.ts';
 
 const program = new Command();
 
@@ -55,7 +56,7 @@ async function getApiKey(options: { apiKey?: string; envVar?: string }): Promise
 
   // Check environment variable
   const envVar = options.envVar || 'ADGUARD_API_KEY';
-  const envKey = process.env[envVar];
+  const envKey = Deno.env.get(envVar);
   if (envKey) {
     return envKey;
   }
@@ -96,7 +97,7 @@ async function runInteractive(options: { apiKey?: string; envVar?: string; verbo
 
     if (!connected) {
       showError('Failed to connect to AdGuard DNS API. Please check your API key.');
-      process.exit(1);
+      Deno.exit(1);
     }
 
     showSuccess('Connected to AdGuard DNS API');
@@ -146,7 +147,7 @@ async function runInteractive(options: { apiKey?: string; envVar?: string; verbo
       if (choice === 'exit') {
         console.log();
         showInfo('Goodbye!');
-        process.exit(0);
+        Deno.exit(0);
       }
 
       const menu = menus[choice as keyof typeof menus];
@@ -160,7 +161,7 @@ async function runInteractive(options: { apiKey?: string; envVar?: string; verbo
     }
   } catch (error) {
     showError(error instanceof Error ? error.message : String(error));
-    process.exit(1);
+    Deno.exit(1);
   }
 }
 
@@ -203,11 +204,11 @@ async function runSync(options: {
       showSuccess(`Synced ${result.rulesCount} rules to ${result.dnsServerId}`);
     } else {
       showError(`Failed to sync rules: ${result.error}`);
-      process.exit(1);
+      Deno.exit(1);
     }
   } catch (error) {
     showError(error instanceof Error ? error.message : String(error));
-    process.exit(1);
+    Deno.exit(1);
   }
 }
 

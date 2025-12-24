@@ -2,17 +2,17 @@
  * Account menu
  */
 
-import { BaseMenu, MenuItem } from './base.js';
-import { AccountApi } from '../../api/account.js';
-import { FilterListsApi } from '../../api/filter-lists.js';
-import { WebServicesApi } from '../../api/web-services.js';
+import { BaseMenu, MenuItem } from './base.ts';
+import { AccountApi } from '../../api/account.ts';
+import { FilterListsApi } from '../../api/filter-lists.ts';
+import { WebServicesApi } from '../../api/web-services.ts';
 import {
   createTable,
   displayTable,
   showPanel,
   withSpinner,
   truncate,
-} from '../utils.js';
+} from '../utils.ts';
 
 export class AccountMenu extends BaseMenu {
   protected get title(): string {

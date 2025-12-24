@@ -3,7 +3,7 @@
  */
 
 import inquirer from 'inquirer';
-import { showHeader, showError } from '../utils.js';
+import { showHeader, showError } from '../utils.ts';
 
 /** Menu action type */
 export type MenuAction = () => Promise<void>;

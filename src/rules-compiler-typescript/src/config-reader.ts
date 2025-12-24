@@ -8,20 +8,20 @@ import { extname, resolve } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { parse as parseToml } from '@iarna/toml';
 import type { IConfiguration } from '@adguard/hostlist-compiler';
-import type { ConfigurationFormat, ExtendedConfiguration, Logger } from './types.js';
-import { logger as defaultLogger } from './logger.js';
+import type { ConfigurationFormat, ExtendedConfiguration, Logger } from './types.ts';
+import { logger as defaultLogger } from './logger.ts';
 import {
   ConfigNotFoundError,
   ConfigParseError,
   ConfigurationError,
   ErrorCode,
-} from './errors.js';
+} from './errors.ts';
 import {
   assertValidConfiguration,
   checkFileSize,
   checkSourceCount,
   DEFAULT_RESOURCE_LIMITS,
-} from './validation.js';
+} from './validation.ts';
 
 /**
  * Detects configuration format from file extension
@@ -111,7 +111,7 @@ const DEFAULT_CONFIG_PATHS = [
  * @param basePath - Base path to search from
  * @returns Path to config file or undefined
  */
-export function findDefaultConfig(basePath: string = process.cwd()): string | undefined {
+export function findDefaultConfig(basePath: string = Deno.cwd()): string | undefined {
   for (const configPath of DEFAULT_CONFIG_PATHS) {
     const fullPath = resolve(basePath, configPath);
     if (existsSync(fullPath)) {

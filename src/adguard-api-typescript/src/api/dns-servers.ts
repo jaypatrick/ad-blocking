@@ -2,14 +2,14 @@
  * DNS Servers API client
  */
 
-import { BaseApi } from './base.js';
-import { ApiConfiguration } from '../helpers/configuration.js';
+import { BaseApi } from './base.ts';
+import { ApiConfiguration } from '../helpers/configuration.ts';
 import {
   DNSServer,
   DNSServerCreate,
   DNSServerUpdate,
   DNSServerSettingsUpdate,
-} from '../models/index.js';
+} from '../models/index.ts';
 
 /** DNS Servers API endpoints */
 export class DnsServersApi extends BaseApi {

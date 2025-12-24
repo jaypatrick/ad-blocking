@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This repository is a comprehensive multi-language toolkit for ad-blocking, network protection, and AdGuard DNS management:
 
 ### Rules Compilers (4 languages)
-- **TypeScript** (`src/rules-compiler-typescript/`) - Node.js 18+ with Deno and Bun support, optional Rust frontend
+- **TypeScript** (`src/rules-compiler-typescript/`) - Deno 2.0+ with npm compatibility
 - **C#/.NET 10** (`src/rules-compiler-dotnet/`) - Library and Spectre.Console CLI with DI support
 - **Python 3.9+** (`src/rules-compiler-python/`) - pip-installable package with CLI and API
 - **Rust** (`src/rules-compiler-rust/`) - High-performance single binary with zero runtime deps
@@ -23,12 +23,12 @@ This repository is a comprehensive multi-language toolkit for ad-blocking, netwo
 
 ### API Client & Tools
 - **AdGuard API Client - .NET** (`src/adguard-api-dotnet/`) - C# SDK for AdGuard DNS API v1.11
-- **AdGuard API Client - TypeScript** (`src/adguard-api-typescript/`) - TypeScript SDK with Node.js, Deno, and Bun support
+- **AdGuard API Client - TypeScript** (`src/adguard-api-typescript/`) - TypeScript SDK with Deno support
 - **Console UI** (`src/adguard-api-dotnet/src/AdGuard.ConsoleUI/`) - Spectre.Console interactive interface
-- **Linear Import Tool** (`src/linear/`) - TypeScript tool with Node.js, Deno, and Bun support
+- **Linear Import Tool** (`src/linear/`) - TypeScript tool with Deno support
 
 ### Website
-- **Gatsby Site** (`src/website/`) - Portfolio site deployed to GitHub Pages
+- **Gatsby Site** (`src/website/`) - Portfolio site deployed to GitHub Pages (Node.js)
 
 ### Configuration Support
 All compilers support JSON, YAML, and TOML configuration formats with full @adguard/hostlist-compiler compatibility.
@@ -40,7 +40,7 @@ A fully-featured Docker environment with all compilers and tools:
 ```dockerfile
 # Dockerfile.warp
 FROM mcr.microsoft.com/dotnet/sdk:10.0-noble
-# Includes: .NET 10 SDK, Node.js 22 LTS, Python 3.12, Rust stable, PowerShell 7
+# Includes: .NET 10 SDK, Deno 2.x, Python 3.12, Rust stable, PowerShell 7
 # Pre-installed: hostlist-compiler, yq, pytest, ruff, clippy, Pester
 ```
 
@@ -65,29 +65,23 @@ Warp Environment: `jaysonknight/warp-env:ad-blocking` (ID: `Egji4sZU4TNIOwNasFU7
 ### TypeScript Rules Compiler (`src/rules-compiler-typescript/`)
 ```bash
 cd src/rules-compiler-typescript
-npm ci                    # Install dependencies
-npm run build             # Build TypeScript
-npm test                  # Run Jest tests
-npm run test:coverage     # Run tests with coverage
-npm run lint              # ESLint
-npm run compile           # Compile filter rules
-npm run compile:yaml      # Compile using YAML config
-npm run compile:toml      # Compile using TOML config
-npm run dev               # Run with ts-node
+
+# Deno tasks
+deno task compile              # Compile filter rules
+deno task compile:yaml         # Compile using YAML config
+deno task compile:toml         # Compile using TOML config
+deno task dev                  # Run with watch mode
+deno task test                 # Run Deno tests
+deno task test:coverage        # Run tests with coverage
+deno task lint                 # Lint source files
+deno task fmt                  # Format source files
+deno task check                # Type check
+deno task version              # Show version
 
 # CLI with options
-npm run compile -- -c config.yaml -r -d
-npm run compile -- --help
-npm run compile -- --version
-
-# Bun commands (alternative runtime)
-bun install               # Install dependencies
-bun run bun:build         # Build with Bun
-bun run bun:dev           # Run with Bun
-bun run bun:compile       # Compile filter rules
-bun run bun:compile:yaml  # Compile using YAML config
-bun run bun:compile:toml  # Compile using TOML config
-bun run bun:test          # Run tests with Bun
+deno task compile -- -c config.yaml -r -d
+deno run --allow-read --allow-write --allow-env --allow-run src/mod.ts --help
+deno run --allow-read --allow-write --allow-env --allow-run src/mod.ts --version
 ```
 
 ### Shell Scripts (`src/rules-compiler-shell/`)
@@ -188,6 +182,36 @@ dotnet run --project src/AdGuard.ConsoleUI/AdGuard.ConsoleUI.csproj
 dotnet run --project src/AdGuard.ApiClient.Benchmarks -c Release
 ```
 
+### TypeScript API Client (`src/adguard-api-typescript/`)
+```bash
+cd src/adguard-api-typescript
+
+# Deno tasks
+deno task start            # Start CLI
+deno task sync             # Sync rules
+deno task cli              # Run CLI directly
+deno task test             # Run tests
+deno task test:coverage    # Run tests with coverage
+deno task lint             # Lint source files
+deno task fmt              # Format source files
+deno task check            # Type check
+```
+
+### Linear Import Tool (`src/linear/`)
+```bash
+cd src/linear
+
+# Deno tasks
+deno task import           # Run import tool
+deno task import:docs      # Import documentation
+deno task import:dry-run   # Preview import
+deno task cli              # Run CLI directly
+deno task test             # Run tests
+deno task lint             # Lint source files
+deno task fmt              # Format source files
+deno task check            # Type check
+```
+
 ### Gatsby Website (`src/website/`)
 ```bash
 cd src/website
@@ -195,12 +219,6 @@ npm ci
 npm run develop    # Dev server at localhost:8000
 npm run build      # Production build
 npm run serve      # Serve local build
-
-# Bun commands (experimental Gatsby support)
-bun install              # Install dependencies (faster)
-bun run bun:develop      # Dev server with Bun
-bun run bun:build        # Production build with Bun
-bun run bun:serve        # Serve local build with Bun
 ```
 
 ### PowerShell RulesCompiler Module (`src/adguard-api-powershell/`)
@@ -229,12 +247,12 @@ Invoke-ScriptAnalyzer -Path src/adguard-api-powershell -Recurse
 
 ## Running Individual Tests
 
-### TypeScript (Jest)
+### TypeScript (Deno)
 ```bash
 cd src/rules-compiler-typescript
-npx jest cli.test.ts                       # By file
-npx jest -t "should compile rules"         # By test name
-npm run test:coverage                      # With coverage
+deno test src/cli.test.ts                  # By file
+deno test --filter "parseArgs"             # By test name
+deno task test:coverage                    # With coverage
 ```
 
 ### .NET (xUnit)
@@ -286,15 +304,15 @@ cargo test config::                       # Tests in module
 
 ### Rules Compiler - TypeScript (`src/rules-compiler-typescript/`)
 - TypeScript wrapper around @adguard/hostlist-compiler
+- Deno 2.0+ runtime with npm compatibility
 - Supports JSON, YAML, and TOML configuration formats
 - `src/cli.ts` - Command-line interface with argument parsing
 - `src/config-reader.ts` - Multi-format configuration reader
 - `src/compiler.ts` - Core compilation logic
 - `src/mod.ts` - Deno entry point
 - `frontend-rust/` - Optional Rust CLI frontend
-- Deno support via `deno.json`
-- Bun support via `bunfig.toml` and `bun:*` npm scripts
-- ESLint and Jest for testing
+- `deno.json` - Deno configuration and tasks
+- Uses Deno's built-in testing framework
 
 ### Shell Scripts (`src/rules-compiler-shell/`)
 - Cross-platform shell scripts for filter compilation
@@ -330,7 +348,7 @@ cargo test config::                       # Tests in module
 - `src/compiler.rs` - `RulesCompiler` struct and `compile_rules()` function
 - `src/main.rs` - clap-based CLI with argument parsing
 - `src/error.rs` - `CompilerError` enum with thiserror
-- Single binary distribution with zero runtime dependencies (except Node.js for hostlist-compiler)
+- Single binary distribution with zero runtime dependencies (except hostlist-compiler)
 - Key structs: `RulesCompiler`, `CompilerConfiguration`, `CompilerResult`, `VersionInfo`
 - LTO optimization enabled for small binary size
 
@@ -343,26 +361,24 @@ cargo test config::                       # Tests in module
 
 ### API Client - TypeScript (`src/adguard-api-typescript/`)
 - TypeScript SDK for AdGuard DNS API v1.11 with feature parity to .NET version
-- Node.js 18+, Deno 2.0+, and Bun 1.0+ support
+- Deno 2.0+ runtime with npm compatibility
 - `src/client.ts` - Main `AdGuardDnsClient` class with fluent API
 - `src/api/` - API endpoint implementations (account, devices, DNS servers, statistics, etc.)
 - `src/repositories/` - Higher-level repository pattern abstractions
 - `src/cli/` - Interactive CLI with menu-driven interface
 - `src/mod.ts` - Deno entry point
-- Bun support via `bunfig.toml` and `bun:*` npm scripts
 - Key classes: `AdGuardDnsClient`, `DeviceRepository`, `DnsServerRepository`, `UserRulesRepository`
-- Dependencies: axios, commander, inquirer, chalk
+- Dependencies (via npm:): axios, commander, inquirer, chalk
 
 ### Linear Import Tool (`src/linear/`)
 - TypeScript tool for importing documentation into Linear project management
-- Node.js 18+, Deno 2.0+, and Bun 1.0+ support
-- `src/linear-import.ts` - Main CLI entry point (Node.js)
+- Deno 2.0+ runtime with npm compatibility
+- `src/linear-import.ts` - Main CLI entry point
 - `src/mod.ts` - Deno entry point
-- Bun support via `bunfig.toml` and `bun:*` npm scripts
 - `src/parser.ts` - Markdown documentation parser
 - `src/linear-client.ts` - Linear API client wrapper
 - `src/types.ts` - TypeScript type definitions
-- Dependencies: @linear/sdk, commander, marked, dotenv
+- Dependencies (via npm:): @linear/sdk, commander, marked, dotenv
 
 ### Console UI (`src/adguard-api-dotnet/src/AdGuard.ConsoleUI/`)
 - Spectre.Console menu-driven interface
@@ -412,8 +428,14 @@ RemoveComments, Compress, RemoveModifiers, Validate, ValidateAllowIp, Deduplicat
 | Variable | Description |
 |----------|-------------|
 | `AdGuard:ApiKey` | API credential for console UI (can also prompt interactively) |
+| `ADGUARD_API_KEY` | API credential for TypeScript client |
+| `ADGUARD_AdGuard__ApiKey` | .NET-compatible API credential format |
 | `LINEAR_API_KEY` | For Linear import scripts (`src/linear/`) |
-| `DEBUG` | Set to any value to enable debug logging in PowerShell modules |
+| `LINEAR_TEAM_ID` | Optional Linear team ID |
+| `LINEAR_PROJECT_NAME` | Optional Linear project name |
+| `DEBUG` | Set to any value to enable debug logging |
+| `LOG_LEVEL` | Log level (DEBUG, INFO, WARN, ERROR, SILENT) |
+| `LOG_FORMAT` | Set to `json` for structured logging |
 | `RULESCOMPILER_config` | Default configuration file path (.NET compiler) |
 | `RULESCOMPILER_Logging__LogLevel__Default` | Log level for .NET compiler |
 
@@ -421,7 +443,7 @@ RemoveComments, Compress, RemoveModifiers, Validate, ValidateAllowIp, Deduplicat
 
 GitHub Actions workflows validate:
 - `.github/workflows/dotnet.yml` - Builds/tests .NET projects (API client and rules compiler) with .NET 10
-- `.github/workflows/typescript.yml` - Node 20, tsc --noEmit, eslint for rules-compiler-typescript and website
+- `.github/workflows/typescript.yml` - Deno 2.x for TypeScript projects, Node.js 22 for website
 - `.github/workflows/gatsby.yml` - Builds website and deploys to GitHub Pages
 - `.github/workflows/security.yml` - Consolidated security scanning (CodeQL, DevSkim, PSScriptAnalyzer)
 - `.github/workflows/release.yml` - Builds and publishes release binaries (.NET, Rust, Python)
@@ -433,8 +455,8 @@ GitHub Actions workflows validate:
 | Requirement | Version | Required For |
 |-------------|---------|--------------|
 | .NET SDK | 10.0+ | .NET compiler, API client |
-| Node.js | 22.x LTS | All compilers, Website |
-| Bun | 1.0+ | TypeScript projects (optional alternative to Node.js) |
+| Deno | 2.0+ | TypeScript projects (rules compiler, API client, linear) |
+| Node.js | 22.x LTS | Website (Gatsby) |
 | PowerShell | 7+ | PowerShell scripts |
 | Python | 3.9+ | Python compiler |
 | Rust | 1.85+ | Rust compiler (install via rustup) |
@@ -445,6 +467,7 @@ GitHub Actions workflows validate:
 
 - **Main filter list**: `rules/adguard_user_filter.txt`
 - **Compiler configs**: `src/rules-compiler-*/`
+- **Deno configs**: `src/*/deno.json`
 - **OpenAPI spec**: `api/openapi.yaml`
 - **Docker config**: `Dockerfile.warp`, `docker-compose.yml`, `.dockerignore`
 - **Documentation**: `docs/`

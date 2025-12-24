@@ -2,24 +2,16 @@
  * AdGuard DNS API TypeScript SDK - Deno Entry Point
  *
  * This module provides Deno-compatible exports and CLI entry point.
- * It uses Node.js compatibility layer for network and file system operations.
+ * Uses Deno's Node.js compatibility layer for network and file system operations.
  *
  * @module
  */
-
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 
 // Re-export everything from the main index
 export * from './index.ts';
 
 // Deno CLI entry point
-// Check if running as main module in Deno
-const isDeno = typeof Deno !== 'undefined';
-const isMainModule = isDeno && Deno.mainModule === import.meta.url;
-
-if (isMainModule) {
+if (import.meta.main) {
   // Dynamic import to avoid loading CLI dependencies when used as library
   const { Command } = await import('commander');
   const inquirer = (await import('inquirer')).default;
