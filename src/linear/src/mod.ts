@@ -1,21 +1,19 @@
 /**
- * Linear Documentation Import Tool - Deno/Bun Entry Point
+ * Linear Documentation Import Tool - Deno Entry Point
  *
- * This module provides Deno and Bun compatible exports and CLI entry point.
- * Uses Node.js compatibility layer for file system operations.
+ * This module provides Deno-compatible exports and CLI entry point.
+ * Uses Deno's Node.js compatibility layer for file system operations.
  *
  * @module
  */
-
-import { getEnv, getArgs, exit, isMainModule } from './runtime.ts';
 
 // Re-export modules for library usage
 export * from './types.ts';
 export { parseMarkdownFile, parseMarkdown, extractRoadmapItems, extractComponents, getSectionByPath, flattenSections } from './parser.ts';
 export { LinearImporter } from './linear-client.ts';
 
-// CLI entry point (Deno/Bun)
-if (isMainModule(import.meta)) {
+// Deno CLI entry point
+if (import.meta.main) {
   const { Command } = await import('commander');
   const { resolve, dirname } = await import('node:path');
   const { fileURLToPath } = await import('node:url');
@@ -61,24 +59,24 @@ if (isMainModule(import.meta)) {
       .option('--list-projects', 'List existing projects and exit')
       .option('-v, --verbose', 'Verbose output');
 
-    await program.parseAsync(getArgs(), { from: 'user' });
+    await program.parseAsync(Deno.args, { from: 'user' });
 
     const options = program.opts();
 
     // Check for API key
-    const apiKey = getEnv('LINEAR_API_KEY');
+    const apiKey = Deno.env.get('LINEAR_API_KEY');
     if (!apiKey) {
       console.error('Error: LINEAR_API_KEY environment variable is required');
       console.error('\nTo get your API key:');
       console.error('1. Go to Linear Settings > API');
       console.error('2. Create a new personal API key');
       console.error('3. Set it in your .env file or environment');
-      exit(1);
+      Deno.exit(1);
     }
 
     const importConfig: ImportConfig = {
-      teamId: options['team'] || getEnv('LINEAR_TEAM_ID') || '',
-      projectName: options['project'] || getEnv('LINEAR_PROJECT_NAME') || '',
+      teamId: options['team'] || Deno.env.get('LINEAR_TEAM_ID') || '',
+      projectName: options['project'] || Deno.env.get('LINEAR_PROJECT_NAME') || '',
       createProject: options['project'] !== false,
       createIssues: options['issues'] !== false,
       createDocuments: options['docs'] !== false,
@@ -116,7 +114,7 @@ if (isMainModule(import.meta)) {
       const filePath = resolve(options['file']);
       if (!existsSync(filePath)) {
         console.error(`Error: Documentation file not found: ${filePath}`);
-        exit(1);
+        Deno.exit(1);
       }
 
       console.log(`\nParsing documentation: ${filePath}`);
@@ -175,12 +173,12 @@ if (isMainModule(import.meta)) {
       console.log('\nImport complete!');
     } catch (error) {
       console.error(`\nError: ${error}`);
-      exit(1);
+      Deno.exit(1);
     }
   }
 
   main().catch((error) => {
     console.error('Fatal error:', error);
-    exit(1);
+    Deno.exit(1);
   });
 }

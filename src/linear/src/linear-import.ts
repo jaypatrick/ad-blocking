@@ -3,7 +3,7 @@
  * Linear Documentation Import Tool
  *
  * Import ad-blocking repository documentation into Linear project management.
- * Deno and Bun compatible implementation.
+ * Deno-only implementation.
  *
  * Usage:
  *   deno task import:docs          # Import documentation with default settings
@@ -29,7 +29,6 @@ import {
   flattenSections,
 } from "./parser.ts";
 import { ImportConfig } from "./types.ts";
-import { getEnv, getArgs, exit } from "./runtime.ts";
 
 // Load environment variables
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -54,24 +53,24 @@ async function main(): Promise<void> {
     .option("--list-teams", "List available teams and exit")
     .option("--list-projects", "List existing projects and exit")
     .option("-v, --verbose", "Verbose output")
-    .parse(getArgs());
+    .parse(Deno.args);
 
   const options = program.opts();
 
   // Check for API key
-  const apiKey = getEnv('LINEAR_API_KEY');
+  const apiKey = Deno.env.get('LINEAR_API_KEY');
   if (!apiKey) {
     console.error("Error: LINEAR_API_KEY environment variable is required");
     console.error("\nTo get your API key:");
     console.error("1. Go to Linear Settings > API");
     console.error("2. Create a new personal API key");
     console.error("3. Set it in your .env file or environment");
-    exit(1);
+    Deno.exit(1);
   }
 
   const importConfig: ImportConfig = {
-    teamId: options['team'] || getEnv('LINEAR_TEAM_ID') || "",
-    projectName: options['project'] || getEnv('LINEAR_PROJECT_NAME') || "",
+    teamId: options['team'] || Deno.env.get('LINEAR_TEAM_ID') || "",
+    projectName: options['project'] || Deno.env.get('LINEAR_PROJECT_NAME') || "",
     createProject: options['project'] !== false,
     createIssues: options['issues'] !== false,
     createDocuments: options['docs'] !== false,
@@ -109,7 +108,7 @@ async function main(): Promise<void> {
     const filePath = resolve(options['file']);
     if (!existsSync(filePath)) {
       console.error(`Error: Documentation file not found: ${filePath}`);
-      exit(1);
+      Deno.exit(1);
     }
 
     console.log(`\nParsing documentation: ${filePath}`);
@@ -168,11 +167,11 @@ async function main(): Promise<void> {
     console.log("\nImport complete!");
   } catch (error) {
     console.error(`\nError: ${error}`);
-    exit(1);
+    Deno.exit(1);
   }
 }
 
 main().catch((error) => {
   console.error("Fatal error:", error);
-  exit(1);
+  Deno.exit(1);
 });
