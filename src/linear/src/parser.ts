@@ -190,7 +190,7 @@ export function extractComponents(document: ParsedDocument): ComponentInfo[] {
     if (techStackSection?.[1]) {
       const techItems = techStackSection[1].match(/^-\s+(.+)/gm);
       if (techItems) {
-        component.techStack = techItems.map((item: string) =>
+        component.techStack = techItems.map((item) =>
           item.replace(/^-\s+/, "").trim()
         );
       }
