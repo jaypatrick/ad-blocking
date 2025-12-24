@@ -115,3 +115,21 @@ export {
   throttle,
 } from './timeout.ts';
 export type { TimeoutController, RetryConfig } from './timeout.ts';
+
+// Runtime abstraction (Deno/Bun compatibility)
+export {
+  detectRuntime,
+  runtime,
+  isDeno,
+  isBun,
+  isNode,
+  getEnv,
+  getArgs,
+  exit,
+  cwd,
+  getVersionInfo as getRuntimeVersionInfo,
+  addSignalListener,
+  removeSignalListener,
+  isMainModule,
+} from './runtime.ts';
+export type { Runtime, Signal, SignalHandler } from './runtime.ts';

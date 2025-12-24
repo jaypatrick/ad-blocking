@@ -2,7 +2,7 @@
 /**
  * Command-line interface for the Rules Compiler TypeScript Frontend
  * Production-ready with graceful shutdown and structured error handling
- * Deno-compatible implementation
+ * Deno and Bun compatible implementation
  */
 
 import { resolve } from 'node:path';
@@ -12,6 +12,13 @@ import { findDefaultConfig, readConfiguration, toJson } from './config-reader.ts
 import { createLogger, createProductionLogger } from './logger.ts';
 import { initializeShutdownHandler, ShutdownHandler } from './shutdown.ts';
 import { isCompilerError } from './errors.ts';
+import {
+  getArgs,
+  exit,
+  getVersionInfo as getRuntimeInfo,
+  isMainModule,
+  isDeno,
+} from './runtime.ts';
 
 /** Package version */
 const VERSION = '1.0.0';
@@ -141,12 +148,14 @@ Examples:
  * @returns Version info object
  */
 export function getVersionInfo(): VersionInfo {
+  const runtimeInfo = getRuntimeInfo();
+  const runtimeLabel = runtimeInfo.runtime.charAt(0).toUpperCase() + runtimeInfo.runtime.slice(1);
   return {
     moduleVersion: VERSION,
-    nodeVersion: `Deno ${Deno.version.deno}`,
+    nodeVersion: `${runtimeLabel} ${runtimeInfo.version}`,
     platform: {
-      os: Deno.build.os,
-      arch: Deno.build.arch,
+      os: runtimeInfo.os,
+      arch: runtimeInfo.arch,
     },
   };
 }
@@ -164,8 +173,13 @@ export function showVersion(): void {
   console.log(`  OS: ${info.platform.os}`);
   console.log(`  Architecture: ${info.platform.arch}`);
   console.log(`  Runtime: ${info.nodeVersion}`);
-  console.log(`  TypeScript: ${Deno.version.typescript}`);
-  console.log(`  V8: ${Deno.version.v8}`);
+  // Show additional version info if available (Deno-specific)
+  if (isDeno) {
+    // deno-lint-ignore no-explicit-any
+    const deno = (globalThis as any).Deno;
+    console.log(`  TypeScript: ${deno.version.typescript}`);
+    console.log(`  V8: ${deno.version.v8}`);
+  }
 }
 
 /**
@@ -262,7 +276,7 @@ function parseExtendedArgs(args: string[]): ExtendedCliOptions {
  * @param args - Command line arguments
  * @returns Exit code
  */
-export async function main(args: string[] = Deno.args): Promise<number> {
+export async function main(args: string[] = getArgs()): Promise<number> {
   let shutdownHandler: ShutdownHandler | undefined;
 
   try {
@@ -373,7 +387,7 @@ export async function main(args: string[] = Deno.args): Promise<number> {
 }
 
 // Run if executed directly
-if (import.meta.main) {
+if (isMainModule(import.meta)) {
   const code = await main();
-  Deno.exit(code);
+  exit(code);
 }

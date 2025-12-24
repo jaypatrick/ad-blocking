@@ -1,17 +1,19 @@
 /**
- * AdGuard DNS API TypeScript SDK - Deno Entry Point
+ * AdGuard DNS API TypeScript SDK - Deno/Bun Entry Point
  *
- * This module provides Deno-compatible exports and CLI entry point.
- * Uses Deno's Node.js compatibility layer for network and file system operations.
+ * This module provides Deno and Bun compatible exports and CLI entry point.
+ * Uses Node.js compatibility layer for network and file system operations.
  *
  * @module
  */
 
+import { getEnv, getArgs, exit, isMainModule } from './runtime.ts';
+
 // Re-export everything from the main index
 export * from './index.ts';
 
-// Deno CLI entry point
-if (import.meta.main) {
+// CLI entry point (Deno/Bun)
+if (isMainModule(import.meta)) {
   // Dynamic import to avoid loading CLI dependencies when used as library
   const { Command } = await import('commander');
   const inquirer = (await import('inquirer')).default;
@@ -37,7 +39,7 @@ if (import.meta.main) {
 
     // Check environment variable
     const envVar = options.envVar || 'ADGUARD_API_KEY';
-    const envKey = Deno.env.get(envVar);
+    const envKey = getEnv(envVar);
     if (envKey) {
       return envKey;
     }
@@ -78,7 +80,7 @@ if (import.meta.main) {
 
       if (!connected) {
         showError('Failed to connect to AdGuard DNS API. Please check your API key.');
-        Deno.exit(1);
+        exit(1);
       }
 
       showSuccess('Connected to AdGuard DNS API');
@@ -128,7 +130,7 @@ if (import.meta.main) {
         if (choice === 'exit') {
           console.log();
           showInfo('Goodbye!');
-          Deno.exit(0);
+          exit(0);
         }
 
         const menu = menus[choice as keyof typeof menus];
@@ -142,7 +144,7 @@ if (import.meta.main) {
       }
     } catch (error) {
       showError(error instanceof Error ? error.message : String(error));
-      Deno.exit(1);
+      exit(1);
     }
   }
 
@@ -185,11 +187,11 @@ if (import.meta.main) {
         showSuccess(`Synced ${result.rulesCount} rules to ${result.dnsServerId}`);
       } else {
         showError(`Failed to sync rules: ${result.error}`);
-        Deno.exit(1);
+        exit(1);
       }
     } catch (error) {
       showError(error instanceof Error ? error.message : String(error));
-      Deno.exit(1);
+      exit(1);
     }
   }
 
@@ -221,5 +223,5 @@ if (import.meta.main) {
       await runSync(options);
     });
 
-  await program.parseAsync(Deno.args);
+  await program.parseAsync(getArgs());
 }

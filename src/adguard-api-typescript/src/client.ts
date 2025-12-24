@@ -12,6 +12,7 @@ import {
   maskApiKey,
   validateAuthentication,
 } from './helpers/configuration.ts';
+import { getEnv } from './runtime.ts';
 import {
   AccountApi,
   AuthApi,
@@ -94,13 +95,13 @@ export class ApiClientFactory {
 
     if (envVar) {
       // Use explicitly provided environment variable name
-      apiKey = Deno.env.get(envVar);
+      apiKey = getEnv(envVar);
       if (!apiKey) {
         throw new Error(`Environment variable ${envVar} is not set`);
       }
     } else {
       // Try .NET-compatible format first, then fallback to legacy format
-      apiKey = Deno.env.get('ADGUARD_AdGuard__ApiKey') ?? Deno.env.get('ADGUARD_API_KEY');
+      apiKey = getEnv('ADGUARD_AdGuard__ApiKey') ?? getEnv('ADGUARD_API_KEY');
       if (!apiKey) {
         throw new Error(
           'API key not configured. Set ADGUARD_AdGuard__ApiKey (recommended) or ADGUARD_API_KEY environment variable.'
@@ -271,13 +272,13 @@ export class AdGuardDnsClient {
 
     if (envVar) {
       // Use explicitly provided environment variable name
-      apiKey = Deno.env.get(envVar);
+      apiKey = getEnv(envVar);
       if (!apiKey) {
         throw new Error(`Environment variable ${envVar} is not set`);
       }
     } else {
       // Try .NET-compatible format first, then fallback to legacy format
-      apiKey = Deno.env.get('ADGUARD_AdGuard__ApiKey') ?? Deno.env.get('ADGUARD_API_KEY');
+      apiKey = getEnv('ADGUARD_AdGuard__ApiKey') ?? getEnv('ADGUARD_API_KEY');
       if (!apiKey) {
         throw new Error(
           'API key not configured. Set ADGUARD_AdGuard__ApiKey (recommended) or ADGUARD_API_KEY environment variable.'

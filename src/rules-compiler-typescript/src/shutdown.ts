@@ -1,11 +1,12 @@
 /**
  * Graceful shutdown handler for production deployments
  * Handles SIGTERM, SIGINT signals and cleanup
- * Deno-compatible implementation
+ * Deno and Bun compatible implementation
  */
 
 import { ShutdownError } from './errors.ts';
 import type { Logger } from './types.ts';
+import { addSignalListener, removeSignalListener, type Signal } from './runtime.ts';
 
 /**
  * Cleanup function type
@@ -30,11 +31,6 @@ const DEFAULT_SHUTDOWN_CONFIG: ShutdownConfig = {
 };
 
 /**
- * Deno signal type
- */
-type DenoSignal = 'SIGTERM' | 'SIGINT' | 'SIGHUP';
-
-/**
  * Manages graceful shutdown with signal handling
  */
 export class ShutdownHandler {
@@ -43,7 +39,7 @@ export class ShutdownHandler {
   private shutdownPromise: Promise<void> | null = null;
   private readonly config: ShutdownConfig;
   private readonly logger?: Logger;
-  private signalHandlers: Map<DenoSignal, () => void> = new Map();
+  private signalHandlers: Map<Signal, () => void> = new Map();
 
   constructor(config: Partial<ShutdownConfig> = {}) {
     this.config = { ...DEFAULT_SHUTDOWN_CONFIG, ...config };
@@ -71,7 +67,7 @@ export class ShutdownHandler {
    * Starts listening for shutdown signals
    */
   listen(): void {
-    const signals: DenoSignal[] = ['SIGTERM', 'SIGINT', 'SIGHUP'];
+    const signals: Signal[] = ['SIGTERM', 'SIGINT', 'SIGHUP'];
 
     for (const signal of signals) {
       const handler = (): void => {
@@ -79,7 +75,7 @@ export class ShutdownHandler {
       };
       this.signalHandlers.set(signal, handler);
       try {
-        Deno.addSignalListener(signal, handler);
+        addSignalListener(signal, handler);
       } catch {
         // Signal may not be available on all platforms
         this.logger?.debug(`Signal ${signal} not available on this platform`);
@@ -102,7 +98,7 @@ export class ShutdownHandler {
   unlisten(): void {
     for (const [signal, handler] of this.signalHandlers) {
       try {
-        Deno.removeSignalListener(signal, handler);
+        removeSignalListener(signal, handler);
       } catch {
         // Signal may not have been registered
       }

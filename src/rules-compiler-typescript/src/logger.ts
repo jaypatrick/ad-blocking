@@ -4,6 +4,7 @@
  */
 
 import type { Logger } from './types.ts';
+import { getEnv as getRuntimeEnv } from './runtime.ts';
 
 /**
  * Log level enumeration
@@ -99,22 +100,14 @@ export function createLogger(config: Partial<LoggerConfig> | boolean = false): E
       ? { ...DEFAULT_CONFIG, debugEnabled: config }
       : { ...DEFAULT_CONFIG, ...config };
 
-  // Check environment variables (Deno-compatible)
-  const getEnv = (key: string): string | undefined => {
-    try {
-      return Deno.env.get(key);
-    } catch {
-      return undefined;
-    }
-  };
-
-  if (getEnv('DEBUG')) {
+  // Check environment variables (Deno/Bun compatible via runtime abstraction)
+  if (getRuntimeEnv('DEBUG')) {
     resolvedConfig.debugEnabled = true;
   }
-  if (getEnv('LOG_FORMAT') === 'json') {
+  if (getRuntimeEnv('LOG_FORMAT') === 'json') {
     resolvedConfig.jsonFormat = true;
   }
-  const logLevel = getEnv('LOG_LEVEL');
+  const logLevel = getRuntimeEnv('LOG_LEVEL');
   if (logLevel) {
     const envLevel = logLevel.toUpperCase();
     const levelMap: Record<string, LogLevel> = {
@@ -231,20 +224,9 @@ export function createLogger(config: Partial<LoggerConfig> | boolean = false): E
 }
 
 /**
- * Helper to get environment variable in Deno
- */
-function getEnvVar(key: string): string | undefined {
-  try {
-    return Deno.env.get(key);
-  } catch {
-    return undefined;
-  }
-}
-
-/**
  * Default logger instance (debug disabled unless DEBUG env var is set)
  */
-export const logger = createLogger(!!getEnvVar('DEBUG'));
+export const logger = createLogger(!!getRuntimeEnv('DEBUG'));
 
 /**
  * Creates a JSON-formatted logger for production
