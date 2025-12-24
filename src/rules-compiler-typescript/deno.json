@@ -2,9 +2,16 @@
   "$schema": "https://deno.land/x/deno/cli/schemas/config-file.v1.json",
   "name": "@rules-compiler/typescript",
   "version": "1.0.0",
-  "exports": "./src/mod.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./lib": "./src/lib/index.ts",
+    "./console": "./src/console/index.ts",
+    "./cli": "./src/cli.ts"
+  },
   "tasks": {
-    "compile": "deno run --allow-read --allow-write --allow-env --allow-run src/mod.ts",
+    "start": "deno run --allow-read --allow-write --allow-env --allow-run src/mod.ts",
+    "interactive": "deno run --allow-read --allow-write --allow-env --allow-run src/mod.ts --interactive",
+    "compile": "deno run --allow-read --allow-write --allow-env --allow-run src/mod.ts --compile",
     "compile:yaml": "deno run --allow-read --allow-write --allow-env --allow-run src/mod.ts -c compiler-config.yaml",
     "compile:toml": "deno run --allow-read --allow-write --allow-env --allow-run src/mod.ts -c compiler-config.toml",
     "dev": "deno run --allow-read --allow-write --allow-env --allow-run --watch src/mod.ts",
@@ -23,7 +30,12 @@
     "node:crypto": "node:crypto",
     "yaml": "npm:yaml@^2.8.0",
     "@iarna/toml": "npm:@iarna/toml@^2.2.5",
-    "@adguard/hostlist-compiler": "npm:@adguard/hostlist-compiler@^1.0.39"
+    "@adguard/hostlist-compiler": "npm:@adguard/hostlist-compiler@^1.0.39",
+    "chalk": "npm:chalk@^5.4.0",
+    "cli-table3": "npm:cli-table3@^0.6.5",
+    "ora": "npm:ora@^8.2.0",
+    "figlet": "npm:figlet@^1.8.0",
+    "@inquirer/prompts": "npm:@inquirer/prompts@^7.4.0"
   },
   "compilerOptions": {
     "lib": ["deno.ns", "deno.unstable", "dom"],

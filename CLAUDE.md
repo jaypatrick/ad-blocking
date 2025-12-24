@@ -63,7 +63,9 @@ Warp Environment: `jaysonknight/warp-env:ad-blocking` (ID: `Egji4sZU4TNIOwNasFU7
 cd src/rules-compiler-typescript
 
 # Deno tasks
-deno task compile              # Compile filter rules
+deno task start                # Start (auto-detect interactive or CLI mode)
+deno task interactive          # Interactive menu mode
+deno task compile              # CLI compile mode
 deno task compile:yaml         # Compile using YAML config
 deno task compile:toml         # Compile using TOML config
 deno task dev                  # Run with watch mode
@@ -75,7 +77,9 @@ deno task check                # Type check
 deno task version              # Show version
 
 # CLI with options
-deno task compile -- -c config.yaml -r -d
+deno task start -- -c config.yaml -r -d     # CLI mode with config
+deno task start -- --interactive            # Force interactive mode
+deno task start -- --validate -c config.yaml  # Validate only
 deno run --allow-read --allow-write --allow-env --allow-run src/mod.ts --help
 deno run --allow-read --allow-write --allow-env --allow-run src/mod.ts --version
 ```
@@ -293,12 +297,23 @@ cargo test config::                       # Tests in module
 - TypeScript wrapper around @adguard/hostlist-compiler
 - Deno 2.0+ runtime with npm compatibility
 - Supports JSON, YAML, and TOML configuration formats
-- `src/cli.ts` - Command-line interface with argument parsing
+- **Library API** (`src/lib/`):
+  - `RulesCompiler` - Main service class with fluent builder pattern
+  - `ConfigurationBuilder` - Programmatic configuration creation
+  - Separate library export: `@rules-compiler/typescript/lib`
+- **Dual Mode Support**:
+  - Interactive menu mode (default when no args)
+  - CLI mode (when config path or action flags provided)
+- `src/cli.ts` - Command-line interface with argument parsing and mode detection
 - `src/config-reader.ts` - Multi-format configuration reader
 - `src/compiler.ts` - Core compilation logic
+- `src/console/` - Interactive console UI components:
+  - `app.ts` - `ConsoleApplication` class with menu-driven interface
+  - `utils.ts` - Console utilities (spinners, tables, colored output)
 - `src/mod.ts` - Deno entry point
 - `frontend-rust/` - Optional Rust CLI frontend
 - `deno.json` - Deno configuration and tasks
+- Key classes: `RulesCompiler`, `RulesCompilerBuilder`, `ConfigurationBuilder`, `ConsoleApplication`
 - Uses Deno's built-in testing framework
 
 ### Shell Scripts (`src/rules-compiler-shell/`)
@@ -349,12 +364,16 @@ cargo test config::                       # Tests in module
 ### API Client - TypeScript (`src/adguard-api-typescript/`)
 - TypeScript SDK for AdGuard DNS API v1.11 with feature parity to .NET version
 - Deno 2.0+ runtime with npm compatibility
+- **Library API** (`src/lib/`):
+  - `AdGuardDnsClientBuilder` - Fluent builder for client configuration
+  - `PagedListBuilder` - Pagination support for list operations
+  - Separate library export: `@adguard/api-typescript/lib`
 - `src/client.ts` - Main `AdGuardDnsClient` class with fluent API
 - `src/api/` - API endpoint implementations (account, devices, DNS servers, statistics, etc.)
 - `src/repositories/` - Higher-level repository pattern abstractions
 - `src/cli/` - Interactive CLI with menu-driven interface
 - `src/mod.ts` - Deno entry point
-- Key classes: `AdGuardDnsClient`, `DeviceRepository`, `DnsServerRepository`, `UserRulesRepository`
+- Key classes: `AdGuardDnsClient`, `AdGuardDnsClientBuilder`, `DeviceRepository`, `DnsServerRepository`
 - Dependencies (via npm:): axios, commander, inquirer, chalk
 
 ### Linear Import Tool (`src/linear/`)
