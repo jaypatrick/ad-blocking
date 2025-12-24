@@ -8,14 +8,15 @@ This guide will help you get up and running with the ad-blocking toolkit.
 
 | Requirement | Version | Purpose | Installation |
 |-------------|---------|---------|--------------|
-| Node.js | 18+ | All compilers, Website | [nodejs.org](https://nodejs.org/) |
-| hostlist-compiler | Latest | Filter compilation | `npm install -g @adguard/hostlist-compiler` |
+| Deno | 2.0+ | TypeScript compilers and tools | [deno.land](https://deno.land/) |
+| hostlist-compiler | Latest | Filter compilation | `deno run npm:@adguard/hostlist-compiler` |
 
 ### Language-Specific Requirements
 
 | Language | Requirement | Version | Installation |
 |----------|-------------|---------|--------------|
-| .NET | .NET SDK | 8.0+ | [dotnet.microsoft.com](https://dotnet.microsoft.com/download/dotnet/8.0) |
+| TypeScript | Deno | 2.0+ | [deno.land](https://deno.land/) |
+| .NET | .NET SDK | 10.0+ | [dotnet.microsoft.com](https://dotnet.microsoft.com/download/dotnet/10.0) |
 | Python | Python | 3.9+ | [python.org](https://www.python.org/) |
 | Rust | Rust | 1.70+ | [rustup.rs](https://rustup.rs/) |
 | PowerShell | PowerShell | 7+ | [GitHub](https://github.com/PowerShell/PowerShell) |
@@ -29,31 +30,35 @@ git clone https://github.com/jaypatrick/ad-blocking.git
 cd ad-blocking
 ```
 
-### 2. Install hostlist-compiler
+### 2. Install Deno
 
-All compilers require the underlying `@adguard/hostlist-compiler` npm package:
+All TypeScript compilers use Deno as their runtime:
 
 ```bash
-npm install -g @adguard/hostlist-compiler
+# macOS/Linux
+curl -fsSL https://deno.land/install.sh | sh
+
+# Windows (PowerShell)
+irm https://deno.land/install.ps1 | iex
 ```
 
 Verify installation:
 
 ```bash
-hostlist-compiler --version
+deno --version
 ```
+
+The `@adguard/hostlist-compiler` package is accessed via Deno's npm compatibility.
 
 ### 3. Choose Your Compiler
 
 Pick the compiler that best fits your workflow:
 
-#### TypeScript (Node.js)
+#### TypeScript (Deno)
 
 ```bash
 cd src/rules-compiler-typescript
-npm install
-npm run build
-npm run compile
+deno task compile
 ```
 
 #### .NET
@@ -126,8 +131,8 @@ transformations:
 ### 2. Compile Your Filter
 
 ```bash
-# TypeScript
-npm run compile -- -c my-config.yaml -o my-filter.txt
+# TypeScript (Deno)
+deno task compile -- -c my-config.yaml -o my-filter.txt
 
 # .NET
 dotnet run --project src/RulesCompiler.Console -- -c my-config.yaml -o my-filter.txt
@@ -195,8 +200,7 @@ docker run -it -v $(pwd):/workspace ad-blocking-dev
 
 # Inside the container
 cd /workspace/src/rules-compiler-typescript
-npm install
-npm run compile
+deno task compile
 ```
 
 See [Docker Guide](docker-guide.md) for more details.
@@ -212,10 +216,16 @@ See [Docker Guide](docker-guide.md) for more details.
 
 ### hostlist-compiler not found
 
-Make sure Node.js is in your PATH and reinstall:
+The hostlist-compiler is accessed via Deno's npm compatibility. Make sure Deno is installed:
 
 ```bash
-npm install -g @adguard/hostlist-compiler
+deno --version
+```
+
+You can run hostlist-compiler directly with:
+
+```bash
+deno run --allow-all npm:@adguard/hostlist-compiler --version
 ```
 
 ### Permission denied on Linux/macOS

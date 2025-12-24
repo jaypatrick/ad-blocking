@@ -1,5 +1,5 @@
-# This workflow will build and test TypeScript/Deno projects
-name: Deno Build
+# This workflow will build and test TypeScript projects using Deno
+name: Deno TypeScript Build
 
 on:
   push:
@@ -94,28 +94,3 @@ jobs:
 
     - name: Format check
       run: deno fmt --check src/
-
-  build-website:
-    name: Build Website (Node.js)
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./src/website
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
-        cache: 'npm'
-        cache-dependency-path: './src/website/package-lock.json'
-
-    - name: Install dependencies
-      run: npm ci
-
-    - name: Build Gatsby site
-      run: npm run build
-      env:
-        NODE_ENV: production

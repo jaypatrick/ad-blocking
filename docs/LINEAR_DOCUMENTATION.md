@@ -68,8 +68,8 @@ A comprehensive, multi-component ad-blocking solution designed for network-level
 **Technology Stack:**
 - TypeScript 5.4.5
 - @adguard/hostlist-compiler v1.0.39
-- Jest 29.7.0 (testing)
-- Node.js 20
+- Deno test (testing)
+- Deno 2.0+
 
 **Key Files:**
 | File | Description |
@@ -234,8 +234,8 @@ ad-blocking/
 |------------|---------|---------|
 | TypeScript | 5.4.5 | Strongly-typed JavaScript |
 | @adguard/hostlist-compiler | 1.0.39 | Core compilation engine |
-| Node.js | 20 | JavaScript runtime |
-| Jest | 29.7.0 | Testing framework |
+| Deno | 2.0+ | TypeScript/JavaScript runtime |
+| Deno test | built-in | Testing framework |
 
 ### Frontend
 | Technology | Version | Purpose |
@@ -285,16 +285,14 @@ Full API documentation available in `/docs/api/`.
 ## Quick Start
 
 ### Prerequisites
-- Node.js 20+
+- Deno 2.0+
 - .NET 10 SDK
 - PowerShell 7+
 
 ### Filter Compiler
 ```bash
-cd src/filter-compiler
-npm install
-npm run build
-npm run compile
+cd src/rules-compiler-typescript
+deno task compile
 ```
 
 ### API Client
@@ -308,7 +306,7 @@ dotnet test
 ### Website
 ```bash
 cd src/website
-npm install
+npm install  # Website still uses Node.js/Gatsby
 npm run develop
 ```
 
@@ -318,8 +316,8 @@ npm run develop
 
 ### TypeScript Tests
 ```bash
-cd src/filter-compiler
-npm test
+cd src/rules-compiler-typescript
+deno task test
 ```
 
 ### .NET Tests

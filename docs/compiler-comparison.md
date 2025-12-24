@@ -7,35 +7,33 @@ This guide helps you choose the right rules compiler for your use case. All comp
 | Feature | TypeScript | .NET | Python | Rust | PowerShell | Shell |
 |---------|------------|------|--------|------|------------|-------|
 | Language | TypeScript | C# | Python | Rust | PowerShell | Bash/PS1 |
-| Runtime | Node.js 18+ | .NET 10 | Python 3.9+ | None | PowerShell 7+ | Bash/PowerShell |
+| Runtime | Deno 2.0+ | .NET 10 | Python 3.9+ | None | PowerShell 7+ | Bash/PowerShell |
 | Config Formats | JSON, YAML, TOML | JSON, YAML, TOML | JSON, YAML, TOML | JSON, YAML, TOML | JSON | JSON, YAML, TOML |
 | Library API | No | Yes | Yes | Yes | Yes | No |
 | CLI | Yes | Yes | Yes | Yes | Yes | Yes |
 | Interactive Mode | No | Yes | No | No | Yes | No |
-| Tests | Jest | xUnit | pytest | cargo test | Pester | No |
+| Tests | Deno test | xUnit | pytest | cargo test | Pester | No |
 | Binary Distribution | No | No | No | Yes | No | No |
-| Deno Support | Yes | No | No | No | No | No |
 
 ## Detailed Comparison
 
 ### TypeScript Compiler
 
-**Best for**: Node.js/JavaScript developers, Deno users, CI/CD pipelines
+**Best for**: TypeScript/JavaScript developers, CI/CD pipelines
 
 ```bash
 cd src/rules-compiler-typescript
-npm install
-npm run compile
+deno task compile
 ```
 
 **Pros**:
-- Native JavaScript ecosystem integration
-- Deno support for TypeScript execution
+- Native TypeScript execution with Deno
+- Built-in npm compatibility
 - Optional Rust CLI frontend for performance
-- Familiar tooling (npm, ESLint, Jest)
+- Secure by default (explicit permissions)
 
 **Cons**:
-- Requires Node.js runtime
+- Requires Deno runtime
 - No library API for programmatic use
 - Slower startup than compiled languages
 
@@ -144,7 +142,7 @@ cargo build --release
 
 **Pros**:
 - Single statically-linked binary
-- Zero runtime dependencies (except Node.js for hostlist-compiler)
+- Zero runtime dependencies (except Deno for hostlist-compiler)
 - Fastest startup time
 - Small binary size with LTO
 - Memory safe
@@ -247,7 +245,7 @@ Get-CompilerVersion | Format-List
 
 | Compiler | Startup Time | Memory Usage | Build Time |
 |----------|--------------|--------------|------------|
-| TypeScript | Medium | Medium | Fast (npm install) |
+| TypeScript | Medium | Medium | Fast (deno cache) |
 | .NET | Medium | Medium | Medium (dotnet restore) |
 | Python | Medium | Low | Fast (pip install) |
 | Rust | Fast | Low | Slow (cargo build) |
@@ -259,10 +257,10 @@ Get-CompilerVersion | Format-List
 ## Decision Matrix
 
 ### Choose TypeScript if:
-- You're already using Node.js
-- You want Deno support
+- You're already using Deno or TypeScript
+- You want native TypeScript execution
 - Your team knows JavaScript/TypeScript
-- You need CI/CD integration with npm
+- You need secure, sandboxed execution
 
 ### Choose .NET if:
 - You're in a C#/.NET environment
@@ -313,7 +311,7 @@ Get-CompilerVersion | Format-List
 | **Advanced** |
 | Library API | No | Yes | Yes | Yes |
 | Interactive | No | Yes | No | No |
-| Tests | Jest | xUnit | pytest | cargo test |
+| Tests | Deno test | xUnit | pytest | cargo test |
 | DI Support | No | Yes | No | No |
 | Async | Yes | Yes | No | Planned |
 
@@ -327,8 +325,8 @@ All compilers use the same configuration format, so you can:
 
 Example workflow:
 ```bash
-# Development with TypeScript
-npm run compile -- -c config.yaml -o output.txt
+# Development with TypeScript (Deno)
+deno task compile -- -c config.yaml -o output.txt
 
 # CI/CD with Rust for speed
 ./target/release/rules-compiler -c config.yaml -o output.txt

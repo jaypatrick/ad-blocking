@@ -11,15 +11,14 @@ services:
       context: .
       dockerfile: Dockerfile.warp
       args:
-        NODE_VERSION: 22
+        DENO_VERSION: 2.x
         RUST_VERSION: stable
     image: ad-blocking-dev:latest
     container_name: ad-blocking-dev
     volumes:
       - .:/workspace
       # Named volumes for dependency caching
-      - node_modules_ts:/workspace/src/rules-compiler-typescript/node_modules
-      - node_modules_web:/workspace/src/website/node_modules
+      - deno_cache:/root/.deno
       - cargo_registry:/root/.cargo/registry
       - cargo_git:/root/.cargo/git
       - nuget_packages:/root/.nuget/packages
@@ -44,9 +43,9 @@ services:
     container_name: ad-blocking-typescript
     volumes:
       - .:/workspace
-      - node_modules_ts:/workspace/src/rules-compiler-typescript/node_modules
+      - deno_cache:/root/.deno
     working_dir: /workspace/src/rules-compiler-typescript
-    command: npm run compile
+    command: deno task compile
     depends_on:
       - dev
     profiles:
@@ -118,13 +117,10 @@ services:
       - ad-blocking-net
 
   # ---------------------------------------------------------------------------
-  # Gatsby Website development server
+  # Gatsby Website development server (requires Node.js - uses separate image)
   # ---------------------------------------------------------------------------
   website:
-    build:
-      context: .
-      dockerfile: Dockerfile.warp
-    image: ad-blocking-dev:latest
+    image: node:22-slim
     container_name: ad-blocking-website
     volumes:
       - .:/workspace
@@ -132,9 +128,7 @@ services:
     ports:
       - "8000:8000"
     working_dir: /workspace/src/website
-    command: npm run develop -- --host 0.0.0.0
-    depends_on:
-      - dev
+    command: sh -c "npm ci && npm run develop -- --host 0.0.0.0"
     profiles:
       - website
     networks:
@@ -151,7 +145,7 @@ services:
     container_name: ad-blocking-test
     volumes:
       - .:/workspace
-      - node_modules_ts:/workspace/src/rules-compiler-typescript/node_modules
+      - deno_cache:/root/.deno
       - nuget_packages:/root/.nuget/packages
       - cargo_registry:/root/.cargo/registry
       - cargo_git:/root/.cargo/git
@@ -159,7 +153,7 @@ services:
     command: >
       bash -c "
         echo '=== Running TypeScript Tests ===' &&
-        cd /workspace/src/rules-compiler-typescript && npm test &&
+        cd /workspace/src/rules-compiler-typescript && deno task test &&
         echo '=== Running .NET Tests ===' &&
         cd /workspace/src/rules-compiler-dotnet && dotnet test RulesCompiler.slnx &&
         echo '=== Running Python Tests ===' &&
@@ -206,8 +200,8 @@ services:
 # Named volumes for dependency caching
 # =============================================================================
 volumes:
-  node_modules_ts:
-    name: ad-blocking-node-ts
+  deno_cache:
+    name: ad-blocking-deno-cache
   node_modules_web:
     name: ad-blocking-node-web
   cargo_registry:
