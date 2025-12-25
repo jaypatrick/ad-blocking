@@ -67,7 +67,7 @@ if (import.meta.main) {
       const apiKey = await getApiKey(options);
       const logger = options.verbose ? consoleLogger : undefined;
 
-      showInfo(`Connecting with API key: ${maskApiKey(apiKey)}`);
+      showInfo('Connecting with API key...');
 
       const client = AdGuardDnsClient.withApiKey(apiKey, logger);
 
