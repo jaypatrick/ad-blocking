@@ -481,6 +481,12 @@ $RECYCLE.BIN/
 .env.*
 !.env.example
 *.env
+# Direnv variables (Unix/Linux only)
+.envrc
+..envrc.*
+!.envrc.example
+*.envrc
+
 
 # TypeScript build output
 src/rules-compiler-typescript/dist/
@@ -501,3 +507,4 @@ src/rules-compiler-typescript/dist/
 # Gatsby
 src/website/public/
 src/website/.cache/
+
