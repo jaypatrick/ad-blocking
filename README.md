@@ -27,7 +27,7 @@ A comprehensive multi-language toolkit for ad-blocking, network protection, and 
 - [Console Applications](#console-applications)
   - [.NET Console UI](#net-console-ui)
   - [Rust CLI](#rust-cli)
-- [Website](#website)
+  - [TypeScript CLI](#typescript-cli)
 - [Configuration](#configuration)
 - [Testing](#testing)
 - [CI/CD](#cicd)
@@ -41,7 +41,7 @@ A comprehensive multi-language toolkit for ad-blocking, network protection, and 
 
 | Language | Runtime | Distribution | Key Features |
 |----------|---------|--------------|--------------|
-| **TypeScript** | Node.js 18+ | npm | Deno support, optional Rust frontend |
+| **TypeScript** | Deno 2.0+ | Deno | Secure by default, built-in TypeScript, optional Rust frontend |
 | **C#/.NET** | .NET 10 | NuGet/Binary | Interactive CLI, config validation, DI support |
 | **Python** | Python 3.9+ | pip | Type hints, PyPI-ready packaging |
 | **Rust** | Native binary | Cargo/Binary | Zero-runtime deps, LTO optimization |
@@ -58,6 +58,7 @@ All compilers wrap [@adguard/hostlist-compiler](https://github.com/AdguardTeam/H
 | SDK | Language | Features |
 |-----|----------|----------|
 | **C# SDK** | .NET 10 | Full async/await, Polly resilience (retry on 408/429/5xx), DI support |
+| **TypeScript SDK** | Deno 2.0+ | Full API coverage, repository pattern, retry policies, interactive CLI |
 | **Rust SDK** | Rust 2024 | Auto-generated from OpenAPI, Tokio async runtime, single binary |
 
 Both SDKs provide complete coverage of AdGuard DNS API v1.11 including devices, DNS servers, query logs, statistics, filter lists, web services, and dedicated IP management.
@@ -70,8 +71,8 @@ Both SDKs provide complete coverage of AdGuard DNS API v1.11 including devices, 
 ### Additional Features
 
 - **Shell Scripts**: Bash, Zsh, PowerShell Core, and Windows Batch wrappers
-- **Docker Environment**: Pre-configured container with .NET 10, Node.js 20, PowerShell 7
-- **Comprehensive Testing**: Jest, xUnit, pytest, cargo test, Pester across all components
+- **Docker Environment**: Pre-configured container with .NET 10, Deno, PowerShell 7
+- **Comprehensive Testing**: Deno test, xUnit, pytest, cargo test, Pester across all components
 - **CI/CD Integration**: GitHub Actions for build, test, security scanning, and releases
 
 ## Project Structure
@@ -83,7 +84,6 @@ ad-blocking/
 │   │   ├── dotnet.yml                 # .NET build and test
 │   │   ├── typescript.yml             # TypeScript lint and build
 │   │   ├── powershell.yml             # PowerShell linting
-│   │   ├── gatsby.yml                 # Website deployment
 │   │   ├── release.yml                # Build and publish binaries
 │   │   ├── codeql.yml                 # CodeQL security scanning
 │   │   ├── devskim.yml                # DevSkim security analysis
@@ -119,11 +119,14 @@ ad-blocking/
 │   ├── adguard-api-rust/              # Rust API SDK + CLI
 │   │   ├── adguard-api-lib/           # Rust SDK library
 │   │   └── adguard-api-cli/           # Interactive CLI application
+│   ├── adguard-api-typescript/        # TypeScript API SDK + CLI
+│   │   ├── src/api/                   # API client implementations
+│   │   ├── src/cli/                   # Interactive CLI application
+│   │   └── tests/                     # Deno test suite
 │   ├── adguard-api-powershell/        # PowerShell modules
 │   │   ├── Invoke-RulesCompiler.psm1  # Rules compiler module
 │   │   ├── RulesCompiler.psd1         # Module manifest
 │   │   └── Tests/                     # Pester test suite
-│   ├── website/                       # Gatsby portfolio site
 │   └── linear/                        # Linear integration scripts
 ├── Dockerfile.warp                    # Docker dev environment
 ├── CLAUDE.md                          # AI assistant instructions
@@ -137,18 +140,24 @@ ad-blocking/
 
 | Requirement | Version | Required For |
 |-------------|---------|--------------|
-| [Node.js](https://nodejs.org/) | 18+ | All compilers, Website |
+| [Deno](https://deno.land/) | 2.0+ | TypeScript compiler, TypeScript API client |
 | [hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler) | Latest | All compilers |
 | [.NET SDK](https://dotnet.microsoft.com/download/dotnet/10.0) | 10.0+ | .NET compiler, API client |
 | [Python](https://www.python.org/) | 3.9+ | Python compiler |
 | [Rust](https://rustup.rs/) | 1.70+ | Rust compiler |
 | [PowerShell](https://github.com/PowerShell/PowerShell) | 7+ | PowerShell scripts |
 
-### Install hostlist-compiler
+### Install Deno
 
 ```bash
-npm install -g @adguard/hostlist-compiler
+# macOS/Linux
+curl -fsSL https://deno.land/install.sh | sh
+
+# Windows (PowerShell)
+irm https://deno.land/install.ps1 | iex
 ```
+
+The `@adguard/hostlist-compiler` package is accessed via Deno's npm compatibility.
 
 ### Clone and Setup
 
@@ -157,7 +166,7 @@ git clone https://github.com/jaypatrick/ad-blocking.git
 cd ad-blocking
 
 # TypeScript compiler
-cd src/rules-compiler-typescript && npm install
+cd src/rules-compiler-typescript && deno cache src/mod.ts
 
 # .NET projects
 cd ../rules-compiler-dotnet && dotnet restore RulesCompiler.slnx
@@ -174,7 +183,7 @@ cd ../rules-compiler-rust && cargo build --release
 
 ```bash
 # TypeScript
-cd src/rules-compiler-typescript && npm run compile
+cd src/rules-compiler-typescript && deno task compile
 
 # .NET
 cd src/rules-compiler-dotnet && dotnet run --project src/RulesCompiler.Console
@@ -204,11 +213,11 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0-noble
 
 # Includes:
 # - .NET 10 SDK
-# - Node.js 20.x LTS
+# - Deno 2.0+
 # - PowerShell 7
 # - Git
 
-WORKDIR /workspace
+WORKSPACE /workspace
 ```
 
 ### Build and Run
@@ -220,8 +229,8 @@ docker build -f Dockerfile.warp -t ad-blocking-dev .
 # Run interactive container
 docker run -it -v $(pwd):/workspace ad-blocking-dev
 
-# Inside container, install dependencies
-cd /workspace/src/rules-compiler-typescript && npm install
+# Inside container, cache Deno dependencies
+cd /workspace/src/rules-compiler-typescript && deno cache src/mod.ts
 cd /workspace/src/rules-compiler-dotnet && dotnet restore RulesCompiler.slnx
 ```
 
@@ -256,36 +265,33 @@ All compilers wrap [@adguard/hostlist-compiler](https://github.com/AdguardTeam/H
 ```bash
 cd src/rules-compiler-typescript
 
-# Install
-npm install
-
-# Build
-npm run build
-
 # Compile rules
-npm run compile                     # Default config
-npm run compile:yaml                # YAML config
-npm run compile:toml                # TOML config
+deno task compile                   # Default config
+deno task compile:yaml              # YAML config
+deno task compile:toml              # TOML config
 
 # CLI options
-npm run compile -- -c config.yaml   # Specific config
-npm run compile -- -r               # Copy to rules/
-npm run compile -- -d               # Debug output
-npm run compile -- --help           # Show help
-npm run compile -- --version        # Show version
+deno task compile -- -c config.yaml # Specific config
+deno task compile -- -r             # Copy to rules/
+deno task compile -- -d             # Debug output
+deno task compile -- --help         # Show help
+deno task compile -- --version      # Show version
+
+# Interactive console mode
+deno task interactive               # Interactive menu
 
 # Development
-npm run dev                         # Run with ts-node
-npm run lint                        # ESLint
-npm test                            # Jest tests
-npm run test:coverage               # With coverage
+deno task dev                       # Run with watch mode
+deno task lint                      # Deno lint
+deno task test                      # Deno tests
+deno task test:coverage             # With coverage
 ```
 
 **Features**:
-- Node.js 18+ with cross-runtime compatibility
-- Deno support via `deno.json` and `src/mod.ts`
+- Deno 2.0+ runtime with secure-by-default permissions
+- Built-in TypeScript support, no build step required
 - Optional Rust CLI frontend (`frontend-rust/`)
-- ESLint and Jest testing
+- Deno native testing and linting
 
 ### .NET Compiler
 
@@ -543,7 +549,7 @@ Invoke-ScriptAnalyzer -Path src/adguard-api-powershell -Recurse
 
 ## AdGuard API Clients
 
-Complete SDK implementations for the [AdGuard DNS API v1.11](https://api.adguard-dns.io/static/swagger/swagger.json) in both C# and Rust.
+Complete SDK implementations for the [AdGuard DNS API v1.11](https://api.adguard-dns.io/static/swagger/swagger.json) in C#, TypeScript, and Rust.
 
 ### C# SDK
 
@@ -643,7 +649,54 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-### API Coverage (Both SDKs)
+### TypeScript SDK
+
+**Location**: `src/adguard-api-typescript/`
+
+```bash
+cd src/adguard-api-typescript
+
+# Run tests
+deno task test
+
+# Run CLI
+deno task start
+```
+
+**Features**:
+- Auto-generated types from OpenAPI specification
+- Repository pattern with high-level abstractions
+- Automatic retry with exponential backoff using axios-retry
+- Interactive CLI with inquirer prompts
+- Deno 2.0+ runtime with secure-by-default permissions
+- Full test coverage with Deno test
+
+**Usage Example**:
+
+```typescript
+import { AdGuardDnsClient } from './src/index.ts';
+
+// Configure client
+const client = AdGuardDnsClient.withApiKey('your-api-key');
+
+// Or from environment variable
+const client = AdGuardDnsClient.fromEnv('ADGUARD_API_KEY');
+
+// List all devices
+const devices = await client.devices.listDevices();
+for (const device of devices) {
+    console.log(`${device.name}: ${device.id}`);
+}
+
+// Get account limits
+const limits = await client.account.getAccountLimits();
+console.log(`Devices: ${limits.devices_count}/${limits.devices_limit}`);
+
+// Use repositories for higher-level operations
+const stats = await client.statisticsRepository.getSummary();
+```
+
+### API Coverage (All SDKs)
 
 | API | Description |
 |-----|-------------|
@@ -758,24 +811,40 @@ export ADGUARD_AdGuard__ApiKey="your-api-key-here"
 $env:ADGUARD_AdGuard__ApiKey="your-api-key-here"
 ```
 
-## Website
+### TypeScript CLI
 
-**Location**: `src/website/`
-
-Gatsby-based portfolio website deployed to GitHub Pages.
+**Location**: `src/adguard-api-typescript/`
 
 ```bash
-cd src/website
+cd src/adguard-api-typescript
 
-# Install dependencies
-npm install
+# Run interactively
+deno task start
 
-# Development
-npm run develop              # Dev server at localhost:8000
+# Or with API key
+deno task start -- --api-key your-key
 
-# Production
-npm run build                # Build static site
-npm run serve                # Serve build locally
+# Sync rules from file
+deno task start -- sync --file rules/adguard_user_filter.txt
+```
+
+**Features**:
+- Interactive menu-driven interface using inquirer and ora
+- Full feature parity with .NET Console UI
+- Repository pattern with high-level abstractions
+- Automatic retry with exponential backoff
+- TypeScript types from OpenAPI specification
+- Deno's secure-by-default permission model
+
+**Configuration**:
+
+Set environment variable:
+```bash
+# Linux/macOS
+export ADGUARD_API_KEY="your-api-key-here"
+
+# Windows PowerShell
+$env:ADGUARD_API_KEY="your-api-key-here"
 ```
 
 ## Configuration
@@ -881,14 +950,13 @@ source = "https://easylist.to/easylist/easylist.txt"
 
 ## Testing
 
-### TypeScript (Jest)
+### TypeScript (Deno)
 
 ```bash
 cd src/rules-compiler-typescript
-npm test                            # Run all tests
-npx jest cli.test.ts                # Specific file
-npx jest -t "should compile"        # By test name
-npm run test:coverage               # With coverage
+deno task test                      # Run all tests
+deno test src/cli.test.ts           # Specific file
+deno task test:coverage             # With coverage
 ```
 
 ### .NET (xUnit)
@@ -952,7 +1020,8 @@ Invoke-ScriptAnalyzer -Path src/adguard-api-powershell -Recurse
 
 | Component | Framework | Command |
 |-----------|-----------|---------|
-| TypeScript Compiler | Jest | `npm test` |
+| TypeScript Compiler | Deno test | `deno task test` |
+| TypeScript API Client | Deno test | `deno task test` |
 | .NET Compiler | xUnit | `dotnet test RulesCompiler.slnx` |
 | .NET API Client | xUnit | `dotnet test src/AdGuard.ApiClient.sln` |
 | Python Compiler | pytest | `pytest` |
@@ -969,7 +1038,6 @@ GitHub Actions workflows:
 | `dotnet.yml` | Build and test .NET projects with .NET 10 |
 | `typescript.yml` | TypeScript build, lint, and test |
 | `powershell.yml` | PSScriptAnalyzer linting |
-| `gatsby.yml` | Build and deploy website to GitHub Pages |
 | `release.yml` | Build and publish binaries on version tags |
 | `codeql.yml` | CodeQL security scanning |
 | `devskim.yml` | DevSkim security analysis |
@@ -1000,6 +1068,7 @@ Download the latest release from the [Releases page](https://github.com/jaypatri
 ### API Reference
 
 - [C# API Client README](src/adguard-api-dotnet/README.md)
+- [TypeScript API Client README](src/adguard-api-typescript/README.md)
 - [Rust API Client README](src/adguard-api-rust/README.md)
 - [API Client Usage Guide](docs/guides/api-client-usage.md)
 - [API Client Examples](docs/guides/api-client-examples.md)

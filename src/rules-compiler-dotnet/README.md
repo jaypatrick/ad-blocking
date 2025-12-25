@@ -1,6 +1,6 @@
 # Rules Compiler (.NET)
 
-A .NET 8 library and console application for compiling AdGuard filter rules using [@adguard/hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler).
+A .NET 10 library and console application for compiling AdGuard filter rules using [@adguard/hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler).
 
 ## Features
 
@@ -15,9 +15,9 @@ A .NET 8 library and console application for compiling AdGuard filter rules usin
 
 | Requirement | Version | Notes |
 |-------------|---------|-------|
-| .NET SDK | 8.0+ | Cross-platform runtime |
-| Node.js | 18+ | Required for hostlist-compiler |
-| hostlist-compiler | Latest | `npm install -g @adguard/hostlist-compiler` |
+| .NET SDK | 10.0+ | Cross-platform runtime |
+| Deno | 2.0+ | Required for hostlist-compiler |
+| hostlist-compiler | Latest | Accessed via Deno's npm compatibility |
 
 ## Installation
 

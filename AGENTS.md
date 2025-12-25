@@ -4,30 +4,31 @@
 
 - `rules/` contains the tracked filter list (`rules/adguard_user_filter.txt`) and compiler configuration files (`rules/Config/`).
 - `src/` contains the multi-language toolchain:
-  - `src/rules-compiler-*` (TypeScript, .NET, Python, Rust, shell) compilers that wrap `@adguard/hostlist-compiler`.
-  - `src/adguard-api-dotnet/` and `src/adguard-api-rust/` SDKs + interactive clients for the AdGuard DNS API.
+  - `src/rules-compiler-*` (TypeScript/Deno, .NET, Python, Rust, shell) compilers that wrap `@adguard/hostlist-compiler`.
+  - `src/adguard-api-dotnet/`, `src/adguard-api-typescript/`, and `src/adguard-api-rust/` SDKs + interactive clients for the AdGuard DNS API.
   - `src/adguard-api-powershell/` PowerShell modules and Pester tests.
-  - `src/website/` Gatsby site sources and build output inputs.
 - `docs/` holds guides and reference documentation.
 
 ## Build, Test, and Development Commands
 
 - Compile rules (any platform): `./src/rules-compiler-shell/compile-rules.sh -c rules/Config/config.yaml -r` (see `src/rules-compiler-shell/`).
 - TypeScript compiler (`src/rules-compiler-typescript/`):
-  - `npm ci` / `npm install` — install deps
-  - `npm run build` — `tsc` build to `dist/`
-  - `npm run lint` — ESLint
-  - `npm test` — Jest
+  - `deno cache src/mod.ts` — cache dependencies
+  - `deno task compile` — compile rules
+  - `deno task lint` — Deno lint
+  - `deno task test` — Deno tests
+- TypeScript API client (`src/adguard-api-typescript/`):
+  - `deno task start` — interactive CLI
+  - `deno task test` — run tests
 - .NET (`src/rules-compiler-dotnet/`, `src/adguard-api-dotnet/`): `dotnet restore`, `dotnet build`, `dotnet test`
 - Python (`src/rules-compiler-python/`): `pip install -e ".[dev]"`, `pytest`, `ruff check .`, `mypy .`
 - Rust (`src/rules-compiler-rust/`, `src/adguard-api-rust/`): `cargo build`, `cargo test`, `cargo fmt`, `cargo clippy`
-- Website (`src/website/`): `npm ci`, `npm run develop`, `npm run build`
 - Docker dev env: `docker build -f Dockerfile.warp .` (use when you want a pre-baked toolchain).
 
 ## Coding Style & Naming Conventions
 
-- Follow the conventions of each language and keep changes scoped to the module you’re touching.
-- TypeScript: 2-space indentation, `eslint` enforced; tests use `*.test.ts`.
+- Follow the conventions of each language and keep changes scoped to the module you're touching.
+- TypeScript/Deno: 2-space indentation, `deno lint` enforced; tests use `*.test.ts` with Deno test.
 - .NET: match existing casing (PascalCase types/methods); prefer nullable-safe APIs; keep solutions in `.slnx`.
 - Python: `ruff` (line length 100) + `mypy` (typed, strict-ish); tests use `tests/test_*.py`.
 - PowerShell: use approved verbs and keep functions discoverable (`Verb-Noun`); PSScriptAnalyzer is run in CI.
@@ -35,7 +36,7 @@
 ## Testing Guidelines
 
 - Add/adjust tests alongside changes (unit tests preferred; integration tests where appropriate).
-- Run the closest test suite first (e.g., `npm test`, `dotnet test`, `pytest`, `cargo test`, `Invoke-Pester`).
+- Run the closest test suite first (e.g., `deno task test`, `dotnet test`, `pytest`, `cargo test`, `Invoke-Pester`).
 
 ## Commit & Pull Request Guidelines
 

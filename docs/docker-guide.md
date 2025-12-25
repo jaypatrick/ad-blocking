@@ -119,7 +119,6 @@ The repository includes a `docker-compose.yml` for multi-service orchestration.
 | `dotnet-compiler` | .NET rules compiler | compile |
 | `python-compiler` | Python rules compiler | compile |
 | `rust-compiler` | Rust rules compiler | compile |
-| `website` | Gatsby development server | website |
 | `test` | Run all tests | test |
 | `console-ui` | AdGuard Console UI | console |
 
@@ -144,9 +143,6 @@ docker compose --profile compile run --rm typescript-compiler
 
 # Run all compilers
 docker compose --profile compile up
-
-# Start website development server
-docker compose --profile website up website
 
 # Run all tests
 docker compose --profile test run --rm test
