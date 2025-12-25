@@ -1,14 +1,16 @@
 # =============================================================================
 # Docker Development Environment for ad-blocking toolkit
-# Includes: .NET 10, Deno 2.x, Python 3.12, Rust, PowerShell 7
+# Includes: .NET 10, Deno 2.x, Python 3.13, Rust 1.85+, PowerShell 7
 # =============================================================================
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0-noble
 
 # Build arguments for version control
-ARG DENO_VERSION=2.x
-ARG PYTHON_VERSION=3.12
-ARG RUST_VERSION=stable
+ARG DENO_VERSION=2.6.3
+ARG PYTHON_VERSION=3.13
+ARG RUST_VERSION=1.85
+ARG PWSH_VERSION=7.5.4
+ARG YQ_VERSION=v4.44.7
 
 # Environment variables
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -43,19 +45,27 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # =============================================================================
-# Deno 2.x
+# Deno 2.6.3
 # =============================================================================
-RUN curl -fsSL https://deno.land/install.sh | sh && \
-    ln -s /root/.deno/bin/deno /usr/local/bin/deno
+RUN curl -fsSL https://deno.land/install.sh | DENO_INSTALL=/usr/local sh -s v${DENO_VERSION} && \
+    deno --version
 
-# Install hostlist-compiler via Deno's npm compatibility
+# Pre-cache NPM dependencies used by the TypeScript compiler
+RUN deno cache npm:@adguard/hostlist-compiler@^1.0.39 && \
+    deno cache npm:yaml@^2.8.2 && \
+    deno cache npm:@iarna/toml@^2.2.5 && \
+    deno cache npm:chalk@^5.6.2 && \
+    deno cache npm:cli-table3@^0.6.5 && \
+    deno cache npm:ora@^8.2.0 && \
+    deno cache npm:figlet@^1.9.4 && \
+    deno cache npm:@inquirer/prompts@^7.10.1
+
 # Create a wrapper script for hostlist-compiler
-RUN echo '#!/bin/sh\ndeno run --allow-read --allow-write --allow-env --allow-net --allow-run npm:@adguard/hostlist-compiler "$@"' > /usr/local/bin/hostlist-compiler && \
-    chmod +x /usr/local/bin/hostlist-compiler && \
-    deno cache npm:@adguard/hostlist-compiler
+RUN echo '#!/bin/sh\nexec deno run --allow-read --allow-write --allow-env --allow-net --allow-run npm:@adguard/hostlist-compiler "$@"' > /usr/local/bin/hostlist-compiler && \
+    chmod +x /usr/local/bin/hostlist-compiler
 
 # =============================================================================
-# Python 3.12
+# Python 3.13
 # =============================================================================
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
@@ -64,44 +74,55 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-dev \
     && ln -sf /usr/bin/python3 /usr/bin/python \
     && pip3 install --no-cache-dir --break-system-packages \
-        pip \
-        setuptools \
+        pip>=24.0 \
+        setuptools>=61.0 \
         wheel \
-        pytest \
-        pytest-cov \
-        mypy \
-        ruff \
-        pyyaml \
-        tomlkit \
+        pytest>=7.0 \
+        pytest-cov>=4.0 \
+        mypy>=1.0 \
+        ruff>=0.1.0 \
+        pyyaml>=6.0 \
+        tomlkit>=0.12.0 \
+        types-PyYAML>=6.0 \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # =============================================================================
-# Rust (stable toolchain)
+# Rust 1.85+ (required by Cargo.toml)
 # =============================================================================
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain ${RUST_VERSION} && \
     . "$CARGO_HOME/env" && \
-    rustup component add clippy rustfmt
+    rustup component add clippy rustfmt && \
+    rustc --version && \
+    cargo --version
 
 # =============================================================================
-# PowerShell 7
+# PowerShell 7.5.4
 # =============================================================================
 RUN wget -q "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb" -O packages-microsoft-prod.deb && \
     dpkg -i packages-microsoft-prod.deb && \
     rm packages-microsoft-prod.deb && \
     apt-get update && \
     apt-get install -y --no-install-recommends powershell && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    apt-get clean && rm -rf /var/lib/apt/lists/* && \
+    pwsh --version
 
-# Install PowerShell modules
+# Install PowerShell modules (Pester for testing, PSScriptAnalyzer for linting)
 RUN pwsh -Command "Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted" && \
-    pwsh -Command "Install-Module -Name Pester -Scope AllUsers -Force" && \
-    pwsh -Command "Install-Module -Name PSScriptAnalyzer -Scope AllUsers -Force"
+    pwsh -Command "Install-Module -Name Pester -MinimumVersion 5.0 -Scope AllUsers -Force" && \
+    pwsh -Command "Install-Module -Name PSScriptAnalyzer -Scope AllUsers -Force" && \
+    pwsh -Command "Get-Module -ListAvailable Pester, PSScriptAnalyzer"
 
 # =============================================================================
 # YAML/TOML tools (yq for shell scripts)
 # =============================================================================
-RUN curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq && \
-    chmod +x /usr/local/bin/yq
+RUN curl -sL "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64" -o /usr/local/bin/yq && \
+    chmod +x /usr/local/bin/yq && \
+    yq --version
+
+# =============================================================================
+# .NET workload and tool installation
+# =============================================================================
+RUN dotnet --info
 
 # =============================================================================
 # Verification and final setup
@@ -116,7 +137,6 @@ RUN echo "=== Installed Versions ===" && \
     echo "pwsh: $(pwsh --version)" && \
     echo "git: $(git --version)" && \
     echo "yq: $(yq --version)" && \
-    echo "hostlist-compiler: available via deno" && \
     echo "=========================="
 
 # =============================================================================
