@@ -23,7 +23,7 @@ This directory contains comprehensive documentation for the ad-blocking reposito
 | [Configuration Reference](configuration-reference.md) | Full configuration schema documentation |
 | [Compiler Comparison](compiler-comparison.md) | Feature comparison of all compilers |
 | [Release Guide](release-guide.md) | Creating releases with automatic binary builds |
-| [API Client Usage Guide](guides/api-client-usage.md) | AdGuard DNS API client usage |
+| [API Client Usage Guide](guides/api-client-usage.md) | AdGuard DNS API client usage (C# examples) |
 | [API Client Examples](guides/api-client-examples.md) | Code examples with helper classes |
 | [ConsoleUI Architecture](guides/consoleui-architecture.md) | Console UI design documentation |
 
@@ -72,8 +72,9 @@ Auto-generated API documentation for the AdGuard DNS API Client (v1.11).
 | Project | Location |
 |---------|----------|
 | Repository Overview | [README.md](../README.md) |
-| API Client | [src/adguard-api-dotnet/README.md](../src/adguard-api-dotnet/README.md) |
-| Console UI | [src/adguard-api-dotnet/src/AdGuard.ConsoleUI/README.md](../src/adguard-api-dotnet/src/AdGuard.ConsoleUI/README.md) |
+| .NET API Client | [src/adguard-api-dotnet/README.md](../src/adguard-api-dotnet/README.md) |
+| TypeScript API Client | [src/adguard-api-typescript/README.md](../src/adguard-api-typescript/README.md) |
+| Rust API Client | [src/adguard-api-rust/README.md](../src/adguard-api-rust/README.md) |
 | .NET Compiler | [src/rules-compiler-dotnet/README.md](../src/rules-compiler-dotnet/README.md) |
 | Python Compiler | [src/rules-compiler-python/README.md](../src/rules-compiler-python/README.md) |
 | Rust Compiler | [src/rules-compiler-rust/README.md](../src/rules-compiler-rust/README.md) |
