@@ -93,6 +93,13 @@ function Invoke-Webhook {
     )
 
     BEGIN {
+        # Display banner
+        Write-Host ""
+        Write-Host "╔═══════════════════════════════════════════════════════╗" -ForegroundColor Cyan
+        Write-Host "║       AdGuard Webhook Invocation Service             ║" -ForegroundColor Cyan
+        Write-Host "╚═══════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+        Write-Host ""
+
         # Create WebhookConfiguration using the new OOP class
         $config = [WebhookConfiguration]::new()
         $config.WebhookUrl = $WebhookUrl.ToString()
@@ -107,11 +114,19 @@ function Invoke-Webhook {
         # Create WebhookInvoker
         $invoker = [WebhookInvoker]::new($config)
 
-        # Display initial parameters (backward compatibility)
-        Write-Output $WebhookUrl
-        Write-Output $WaitTime
-        Write-Output $RetryCount
-        Write-Output $RetryInterval
+        # Display configuration with colors
+        Write-Host "Configuration:" -ForegroundColor Yellow
+        Write-Host "  └─ URL:            " -NoNewline -ForegroundColor Gray
+        Write-Host $WebhookUrl.Host -ForegroundColor White
+        Write-Host "  └─ Wait Time:      " -NoNewline -ForegroundColor Gray
+        Write-Host "${WaitTime}ms" -ForegroundColor White
+        Write-Host "  └─ Retry Count:    " -NoNewline -ForegroundColor Gray
+        Write-Host $RetryCount -ForegroundColor White
+        Write-Host "  └─ Retry Interval: " -NoNewline -ForegroundColor Gray
+        Write-Host "${RetryInterval}s" -ForegroundColor White
+        Write-Host "  └─ Mode:           " -NoNewline -ForegroundColor Gray
+        Write-Host $(if ($Continuous) { "Continuous" } else { "Single" }) -ForegroundColor $(if ($Continuous) { "Magenta" } else { "Cyan" })
+        Write-Host ""
 
         $currentDate = Get-Date -DisplayHint Time
     }
@@ -130,12 +145,23 @@ function Invoke-Webhook {
                 if ($success) {
                     $summary = $invoker.Statistics.GetDetailedSummary()
                     
-                    # Display backward-compatible output
+                    # Display success with visual feedback
                     $elapsedTime = New-TimeSpan -Start $currentDate
-                    Write-Host $elapsedTime "TOTAL elapsed time since invocation"
-                    Write-Host "Public IP address has been updated." -ForegroundColor Green
-                    Write-Host $elapsedTime.TotalSeconds "seconds elapsed since $currentDate" -ForegroundColor Magenta
-                    Write-Host "Webhook invoked successfully $($summary.SuccessfulAttempts) time(s)." -ForegroundColor Blue
+                    Write-Host ""
+                    Write-Host "╔═══════════════════════════════════════════════════════╗" -ForegroundColor Green
+                    Write-Host "║             ✓ WEBHOOK INVOKED SUCCESSFULLY            ║" -ForegroundColor Green
+                    Write-Host "╚═══════════════════════════════════════════════════════╝" -ForegroundColor Green
+                    Write-Host ""
+                    Write-Host "Results:" -ForegroundColor Yellow
+                    Write-Host "  └─ Status:         " -NoNewline -ForegroundColor Gray
+                    Write-Host "SUCCESS" -ForegroundColor Green
+                    Write-Host "  └─ Attempts:       " -NoNewline -ForegroundColor Gray
+                    Write-Host "$($summary.SuccessfulAttempts) successful" -ForegroundColor Green
+                    Write-Host "  └─ Elapsed Time:   " -NoNewline -ForegroundColor Gray
+                    Write-Host "$($elapsedTime.TotalSeconds.ToString('F2'))s" -ForegroundColor White
+                    Write-Host "  └─ IP Updated:     " -NoNewline -ForegroundColor Gray
+                    Write-Host "Public IP address has been updated" -ForegroundColor Cyan
+                    Write-Host ""
                     
                     # Show statistics
                     $invoker.ShowFinalStatistics()
@@ -147,7 +173,13 @@ function Invoke-Webhook {
                     }
                 }
                 else {
-                    Write-Error "Webhook invocation failed after $($config.RetryCount + 1) attempts"
+                    Write-Host ""
+                    Write-Host "╔═══════════════════════════════════════════════════════╗" -ForegroundColor Red
+                    Write-Host "║               ✗ WEBHOOK INVOCATION FAILED            ║" -ForegroundColor Red
+                    Write-Host "╚═══════════════════════════════════════════════════════╝" -ForegroundColor Red
+                    Write-Host ""
+                    Write-Host "Failed after $($config.RetryCount + 1) attempts" -ForegroundColor Red
+                    Write-Host ""
                     return [PSCustomObject]@{
                         Success = $false
                         Statistics = $invoker.Statistics
@@ -156,8 +188,17 @@ function Invoke-Webhook {
             }
         }
         catch {
-            Write-Error $_ -ErrorAction Continue
-            Write-Host $_.ScriptStackTrace
+            Write-Host ""
+            Write-Host "╔═══════════════════════════════════════════════════════╗" -ForegroundColor Red
+            Write-Host "║                    ✗ ERROR OCCURRED                   ║" -ForegroundColor Red
+            Write-Host "╚═══════════════════════════════════════════════════════╝" -ForegroundColor Red
+            Write-Host ""
+            Write-Host "Error Details:" -ForegroundColor Yellow
+            Write-Host "  └─ Message: " -NoNewline -ForegroundColor Gray
+            Write-Host $_.Exception.Message -ForegroundColor Red
+            Write-Host ""
+            Write-Host $_.ScriptStackTrace -ForegroundColor DarkGray
+            Write-Host ""
             return [PSCustomObject]@{
                 Success = $false
                 Error = $_

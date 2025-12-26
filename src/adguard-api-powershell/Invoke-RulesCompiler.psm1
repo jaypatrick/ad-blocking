@@ -423,29 +423,43 @@ function Invoke-RulesCompiler {
         $startTime = Get-Date
         $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
         $logger = [CompilerLogger]::FromEnvironment()
+        
+        # Display banner
+        Write-Host ""
+        Write-Host "╔════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
+        Write-Host "║          AdGuard Filter Rules Compiler v2.0              ║" -ForegroundColor Cyan
+        Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+        Write-Host ""
     }
 
     PROCESS {
-        $logger.Info('AdGuard Filter Compiler starting...')
+        Write-Host "Starting compilation pipeline..." -ForegroundColor Yellow
+        Write-Host ""
 
         try {
             # Step 1: Read configuration
-            $logger.Info('Step 1/3: Reading configuration...')
+            Write-Host "├── [1/3] Reading configuration..." -ForegroundColor Cyan
             $config = Read-CompilerConfiguration -ConfigPath $ConfigPath
-            $logger.Info("Configuration loaded: $($config.Name)")
+            Write-Host "│   └─ Loaded: " -NoNewline -ForegroundColor Gray
+            Write-Host "$($config.Name) v$($config.Version)" -ForegroundColor Green
+            Write-Host "│" -ForegroundColor Gray
 
             # Step 2: Compile filters
-            $logger.Info('Step 2/3: Compiling filters...')
+            Write-Host "├── [2/3] Compiling filters..." -ForegroundColor Cyan
             $compileResult = Invoke-FilterCompiler -ConfigPath $ConfigPath -OutputPath $OutputPath
 
             if (-not $compileResult.Success) {
                 throw "Compilation failed: $($compileResult.ErrorMessage)"
             }
+            
+            Write-Host "│   └─ Generated: " -NoNewline -ForegroundColor Gray
+            Write-Host "$($compileResult.RuleCount) rules" -ForegroundColor Green
+            Write-Host "│" -ForegroundColor Gray
 
             # Step 3: Copy to rules directory (if requested)
             $copyResult = $null
             if ($CopyToRules) {
-                $logger.Info('Step 3/3: Copying to rules directory...')
+                Write-Host "└── [3/3] Copying to rules directory..." -ForegroundColor Cyan
                 $copyParams = @{
                     SourcePath = $compileResult.OutputPath
                     Force      = $true
@@ -454,15 +468,36 @@ function Invoke-RulesCompiler {
                     $copyParams['DestinationPath'] = $RulesPath
                 }
                 $copyResult = Write-CompiledOutput @copyParams
+                Write-Host "    └─ Destination: " -NoNewline -ForegroundColor Gray
+                Write-Host $copyResult.DestinationPath -ForegroundColor Green
             }
             else {
-                $logger.Info('Step 3/3: Skipping copy to rules (use -CopyToRules to enable)')
+                Write-Host "└── [3/3] Skipping copy (use -CopyToRules to enable)" -ForegroundColor DarkGray
             }
 
             $stopwatch.Stop()
             $elapsed = $stopwatch.ElapsedMilliseconds
-
-            $logger.Info("Compilation completed successfully in ${elapsed}ms")
+            
+            # Display success banner
+            Write-Host ""
+            Write-Host "╔════════════════════════════════════════════════════════════╗" -ForegroundColor Green
+            Write-Host "║            ✓ COMPILATION COMPLETED SUCCESSFULLY           ║" -ForegroundColor Green
+            Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Green
+            Write-Host ""
+            Write-Host "Results Summary:" -ForegroundColor Yellow
+            Write-Host "  └─ Configuration:  " -NoNewline -ForegroundColor Gray
+            Write-Host "$($config.Name) v$($config.Version)" -ForegroundColor White
+            Write-Host "  └─ Rules Count:    " -NoNewline -ForegroundColor Gray
+            Write-Host $compileResult.RuleCount -ForegroundColor Green
+            Write-Host "  └─ Output File:    " -NoNewline -ForegroundColor Gray
+            Write-Host $(Split-Path $compileResult.OutputPath -Leaf) -ForegroundColor Cyan
+            Write-Host "  └─ Elapsed Time:   " -NoNewline -ForegroundColor Gray
+            Write-Host "$($elapsed)ms" -ForegroundColor White
+            if ($CopyToRules) {
+                Write-Host "  └─ Copied To:      " -NoNewline -ForegroundColor Gray
+                Write-Host $(Split-Path $copyResult.DestinationPath -Leaf) -ForegroundColor Magenta
+            }
+            Write-Host ""
 
             return [PSCustomObject]@{
                 Success           = $true
@@ -480,7 +515,19 @@ function Invoke-RulesCompiler {
         }
         catch {
             $stopwatch.Stop()
-            $logger.Error("Compilation failed: $($_.Exception.Message)")
+            
+            # Display failure banner
+            Write-Host ""
+            Write-Host "╔════════════════════════════════════════════════════════════╗" -ForegroundColor Red
+            Write-Host "║                 ✗ COMPILATION FAILED                    ║" -ForegroundColor Red
+            Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Red
+            Write-Host ""
+            Write-Host "Error Details:" -ForegroundColor Yellow
+            Write-Host "  └─ Message: " -NoNewline -ForegroundColor Gray
+            Write-Host $_.Exception.Message -ForegroundColor Red
+            Write-Host "  └─ Elapsed: " -NoNewline -ForegroundColor Gray
+            Write-Host "$($stopwatch.ElapsedMilliseconds)ms" -ForegroundColor White
+            Write-Host ""
 
             return [PSCustomObject]@{
                 Success           = $false
