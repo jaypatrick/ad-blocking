@@ -1035,6 +1035,34 @@ function Invoke-RulesCompiler {
     BEGIN {
         $startTime = Get-Date
         $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+
+        # Load from environment variables if not specified
+        if (-not $ConfigPath -and $env:ADGUARD_COMPILER_CONFIG) {
+            $ConfigPath = $env:ADGUARD_COMPILER_CONFIG
+            Write-CompilerLog -Level DEBUG -Message "Using config path from ADGUARD_COMPILER_CONFIG: $ConfigPath"
+        }
+
+        if (-not $OutputPath -and $env:ADGUARD_COMPILER_OUTPUT) {
+            $OutputPath = $env:ADGUARD_COMPILER_OUTPUT
+            Write-CompilerLog -Level DEBUG -Message "Using output path from ADGUARD_COMPILER_OUTPUT: $OutputPath"
+        }
+
+        if (-not $RulesPath -and $env:ADGUARD_COMPILER_RULES_DIR) {
+            $RulesPath = $env:ADGUARD_COMPILER_RULES_DIR
+            Write-CompilerLog -Level DEBUG -Message "Using rules path from ADGUARD_COMPILER_RULES_DIR: $RulesPath"
+        }
+
+        # Check for verbose/debug mode from environment
+        if ($env:ADGUARD_COMPILER_VERBOSE -eq 'true' -or $env:ADGUARD_COMPILER_VERBOSE -eq '1') {
+            $VerbosePreference = 'Continue'
+            Write-CompilerLog -Level DEBUG -Message "Verbose mode enabled via ADGUARD_COMPILER_VERBOSE"
+        }
+
+        # Copy to rules if environment variable is set
+        if ((-not $CopyToRules.IsPresent) -and ($env:ADGUARD_COMPILER_COPY_TO_RULES -eq 'true' -or $env:ADGUARD_COMPILER_COPY_TO_RULES -eq '1')) {
+            $CopyToRules = $true
+            Write-CompilerLog -Level DEBUG -Message "Copy to rules enabled via ADGUARD_COMPILER_COPY_TO_RULES"
+        }
     }
 
     PROCESS {
