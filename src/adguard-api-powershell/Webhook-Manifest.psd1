@@ -9,10 +9,10 @@
 @{
 
     # Script module or binary module file associated with this manifest.
-    # RootModule = ''
+    RootModule = 'Invoke-WebHook.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.4.0'
+    ModuleVersion     = '2.0.0'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -27,13 +27,13 @@
     CompanyName       = 'JK.com'
 
     # Copyright statement for this module
-    Copyright         = '(c) Jayson Knight. All rights reserved.'
+    Copyright         = '(c) 2025 Jayson Knight. All rights reserved.'
 
     # Description of the functionality provided by this module
-    # Description = ''
+    Description = 'AdGuard webhook invocation with OOP design, retry logic, statistics tracking, and structured logging. Leverages shared classes from Common and AdGuardWebhook modules.'
 
     # Minimum version of the PowerShell engine required by this module
-    # PowerShellVersion = ''
+    PowerShellVersion = '7.0'
 
     # Name of the PowerShell host required by this module
     # PowerShellHostName = ''
@@ -51,7 +51,18 @@
     # ProcessorArchitecture = ''
 
     # Modules that must be imported into the global environment prior to importing this module
-    # RequiredModules = @()
+    RequiredModules = @(
+        @{
+            ModuleName = 'Common'
+            ModuleVersion = '1.0.0'
+            GUID = '9f8c4d2e-5b3a-4f1e-8c9d-2a6b7e4f3c1d'
+        }
+        @{
+            ModuleName = 'AdGuardWebhook'
+            ModuleVersion = '2.0.0'
+            GUID = '5c2e9f1d-3b7a-4e8f-9c1d-6a4e2b8f7d3c'
+        }
+    )
 
     # Assemblies that must be loaded prior to importing this module
     # RequiredAssemblies = @()
@@ -69,7 +80,7 @@
     # NestedModules = @()
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-    FunctionsToExport = @()
+    FunctionsToExport = @('Invoke-Webhook')
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
     CmdletsToExport   = @()

@@ -179,4 +179,5 @@ class CompilerConfiguration {
 }
 
 # Export the class
+Export-ModuleMember -Variable CompilerConfiguration
 Export-ModuleMember -Function @()
