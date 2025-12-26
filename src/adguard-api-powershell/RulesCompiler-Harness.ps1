@@ -33,10 +33,7 @@ param(
     [switch]$CopyToRules,
 
     [Parameter()]
-    [string]$ConfigPath,
-
-    [Parameter()]
-    [switch]$Verbose
+    [string]$ConfigPath
 )
 
 # Import the module
