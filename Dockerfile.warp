@@ -122,7 +122,7 @@ RUN pwsh -Command "Set-PSRepository -Name 'PSGallery' -InstallationPolicy Truste
 # =============================================================================
 # YAML/TOML tools (yq for shell scripts)
 # =============================================================================
-RUN curl -sL "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64" -o /usr/local/bin/yq && \
+RUN wget -q "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64" -O /usr/local/bin/yq && \
     chmod +x /usr/local/bin/yq && \
     yq --version
 
