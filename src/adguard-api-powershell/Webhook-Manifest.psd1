@@ -52,16 +52,8 @@
 
     # Modules that must be imported into the global environment prior to importing this module
     RequiredModules = @(
-        @{
-            ModuleName = 'Common'
-            ModuleVersion = '1.0.0'
-            GUID = '9f8c4d2e-5b3a-4f1e-8c9d-2a6b7e4f3c1d'
-        }
-        @{
-            ModuleName = 'AdGuardWebhook'
-            ModuleVersion = '2.0.0'
-            GUID = '5c2e9f1d-3b7a-4e8f-9c1d-6a4e2b8f7d3c'
-        }
+        '..\powershell-modules\Common\Common.psd1',
+        '..\powershell-modules\AdGuardWebhook\AdGuardWebhook.psd1'
     )
 
     # Assemblies that must be loaded prior to importing this module

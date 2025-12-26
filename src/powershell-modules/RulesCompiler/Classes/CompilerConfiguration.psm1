@@ -117,13 +117,15 @@ class CompilerConfiguration {
     hidden [string]DetectFormat([string]$path) {
         $extension = [System.IO.Path]::GetExtension($path).ToLower()
         
-        switch ($extension) {
-            '.json' { return 'json' }
-            '.yaml' { return 'yaml' }
-            '.yml'  { return 'yaml' }
-            '.toml' { return 'toml' }
+        $detectedFormat = switch ($extension) {
+            '.json' { 'json' }
+            '.yaml' { 'yaml' }
+            '.yml'  { 'yaml' }
+            '.toml' { 'toml' }
             default { throw "Unknown configuration file extension: $extension" }
         }
+        
+        return $detectedFormat
     }
     
     # Validate configuration

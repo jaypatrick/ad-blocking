@@ -20,9 +20,9 @@
     )
     
     # Classes to load
-    ScriptsToProcess = @(
-        'Classes\WebhookConfiguration.psm1'
-        'Classes\WebhookStatistics.psm1'
+    NestedModules = @(
+        'Classes\WebhookConfiguration.psm1',
+        'Classes\WebhookStatistics.psm1',
         'Classes\WebhookInvoker.psm1'
     )
     

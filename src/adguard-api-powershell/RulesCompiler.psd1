@@ -52,16 +52,8 @@
 
     # Modules that must be imported into the global environment prior to importing this module
     RequiredModules = @(
-        @{
-            ModuleName = 'Common'
-            ModuleVersion = '1.0.0'
-            GUID = '9f8c4d2e-5b3a-4f1e-8c9d-2a6b7e4f3c1d'
-        }
-        @{
-            ModuleName = 'RulesCompiler'
-            ModuleVersion = '2.0.0'
-            GUID = '7e4f3c1d-2a6b-4f8c-9d5e-1b3a8f2e9c4d'
-        }
+        '..\powershell-modules\Common\Common.psd1',
+        '..\powershell-modules\RulesCompiler\RulesCompiler.psd1'
     )
 
     # Assemblies that must be loaded prior to importing this module
