@@ -52,15 +52,15 @@ function Get-PlatformInfo {
     param()
 
     $platform = $PSVersionTable.Platform
-    $isWindows = $IsWindows -or ($null -eq $platform) -or ($platform -eq 'Win32NT')
-    $isLinux = $IsLinux -or ($platform -eq 'Unix' -and $PSVersionTable.OS -match 'Linux')
-    $isMacOS = $IsMacOS -or ($platform -eq 'Unix' -and $PSVersionTable.OS -match 'Darwin')
+    $onWindows = $IsWindows -or ($null -eq $platform) -or ($platform -eq 'Win32NT')
+    $onLinux = $IsLinux -or ($platform -eq 'Unix' -and $PSVersionTable.OS -match 'Linux')
+    $onMacOS = $IsMacOS -or ($platform -eq 'Unix' -and $PSVersionTable.OS -match 'Darwin')
 
     return [PSCustomObject]@{
-        Platform    = if ($isWindows) { 'Windows' } elseif ($isMacOS) { 'macOS' } elseif ($isLinux) { 'Linux' } else { 'Unknown' }
-        IsWindows   = $isWindows
-        IsLinux     = $isLinux
-        IsMacOS     = $isMacOS
+        Platform    = if ($onWindows) { 'Windows' } elseif ($onMacOS) { 'macOS' } elseif ($onLinux) { 'Linux' } else { 'Unknown' }
+        IsWindows   = $onWindows
+        IsLinux     = $onLinux
+        IsMacOS     = $onMacOS
         PathSeparator = [System.IO.Path]::DirectorySeparatorChar
         OS          = $PSVersionTable.OS
     }
@@ -225,7 +225,7 @@ function ConvertFrom-Yaml {
                     $inArray = $false
                 }
 
-                if ($value -eq '' -or $value -eq $null) {
+                if ($value -eq '' -or $null -eq $value) {
                     # This might be the start of a nested structure
                     $currentArrayName = $key
                 }

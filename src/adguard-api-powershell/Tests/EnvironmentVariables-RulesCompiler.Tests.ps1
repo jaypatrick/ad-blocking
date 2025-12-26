@@ -54,7 +54,7 @@ Describe "Environment Variables - RulesCompiler Module" {
             $env:ADGUARD_COMPILER_CONFIG = "test-config.json"
             
             # Mock the functions to prevent actual compilation
-            Mock Read-CompilerConfiguration { 
+            Mock Read-CompilerConfiguration -ModuleName Invoke-RulesCompiler { 
                 [PSCustomObject]@{
                     name = 'Test Config'
                     version = '1.0.0'
@@ -62,7 +62,7 @@ Describe "Environment Variables - RulesCompiler Module" {
                     _sourcePath = $ConfigPath
                 }
             }
-            Mock Invoke-FilterCompiler { 
+            Mock Invoke-FilterCompiler -ModuleName Invoke-RulesCompiler { 
                 [PSCustomObject]@{
                     Success = $true
                     RuleCount = 100
@@ -74,7 +74,7 @@ Describe "Environment Variables - RulesCompiler Module" {
             
             { Invoke-RulesCompiler } | Should -Not -Throw
             
-            Should -Invoke Read-CompilerConfiguration -ParameterFilter { 
+            Should -Invoke Read-CompilerConfiguration -ModuleName Invoke-RulesCompiler -ParameterFilter { 
                 $ConfigPath -eq "test-config.json" 
             }
         }
