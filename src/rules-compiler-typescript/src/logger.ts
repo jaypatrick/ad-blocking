@@ -94,10 +94,9 @@ export interface ExtendedLogger extends Logger {
  */
 export function createLogger(config: Partial<LoggerConfig> | boolean = false): ExtendedLogger {
   // Handle legacy boolean parameter for backwards compatibility
-  const resolvedConfig: LoggerConfig =
-    typeof config === 'boolean'
-      ? { ...DEFAULT_CONFIG, debugEnabled: config }
-      : { ...DEFAULT_CONFIG, ...config };
+  const resolvedConfig: LoggerConfig = typeof config === 'boolean'
+    ? { ...DEFAULT_CONFIG, debugEnabled: config }
+    : { ...DEFAULT_CONFIG, ...config };
 
   // Helper to get environment variables
   const getEnv = (key: string): string | undefined => {

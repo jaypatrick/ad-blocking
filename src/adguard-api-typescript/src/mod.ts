@@ -19,8 +19,10 @@ if (import.meta.main) {
 
   const { AdGuardDnsClient } = await import('./client.ts');
   const { RulesCompilerIntegration } = await import('./rules-compiler-integration.ts');
-  const { consoleLogger, maskApiKey } = await import('./helpers/configuration.ts');
-  const { showHeader, showSuccess, showError, showInfo, withSpinner } = await import('./cli/utils.ts');
+  const { consoleLogger } = await import('./helpers/configuration.ts');
+  const { showHeader, showSuccess, showError, showInfo, withSpinner } = await import(
+    './cli/utils.ts'
+  );
   const { DevicesMenu } = await import('./cli/menus/devices.ts');
   const { DnsServersMenu } = await import('./cli/menus/dns-servers.ts');
   const { UserRulesMenu } = await import('./cli/menus/user-rules.ts');
@@ -55,7 +57,9 @@ if (import.meta.main) {
     return apiKey;
   }
 
-  async function runInteractive(options: { apiKey?: string; envVar?: string; verbose?: boolean }): Promise<void> {
+  async function runInteractive(
+    options: { apiKey?: string; envVar?: string; verbose?: boolean },
+  ): Promise<void> {
     console.log();
     console.log(chalk.bold.blue('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
     console.log(chalk.bold.blue('  AdGuard DNS CLI (Deno)'));
@@ -72,9 +76,7 @@ if (import.meta.main) {
       const client = AdGuardDnsClient.withApiKey(apiKey, logger);
 
       // Test connection
-      const connected = await withSpinner('Testing connection...', () =>
-        client.testConnection()
-      );
+      const connected = await withSpinner('Testing connection...', () => client.testConnection());
 
       if (!connected) {
         showError('Failed to connect to AdGuard DNS API. Please check your API key.');
@@ -87,7 +89,7 @@ if (import.meta.main) {
       const rulesIntegration = new RulesCompilerIntegration(
         client.userRulesRepository,
         client.dnsServerRepository,
-        logger
+        logger,
       );
 
       const menus = {
@@ -96,7 +98,7 @@ if (import.meta.main) {
         userRules: new UserRulesMenu(
           client.userRulesRepository,
           client.dnsServerRepository,
-          rulesIntegration
+          rulesIntegration,
         ),
         statistics: new StatisticsMenu(client.statisticsRepository),
         queryLog: new QueryLogMenu(client.queryLogRepository),
@@ -163,7 +165,7 @@ if (import.meta.main) {
       const rulesIntegration = new RulesCompilerIntegration(
         client.userRulesRepository,
         client.dnsServerRepository,
-        logger
+        logger,
       );
 
       let result;

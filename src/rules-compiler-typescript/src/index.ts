@@ -40,152 +40,141 @@
 
 // Types
 export type {
-  ConfigurationFormat,
   CliOptions,
+  CompileOptions,
   CompilerResult,
-  VersionInfo,
-  PlatformInfo,
+  ConfigurationFormat,
   ExtendedConfiguration,
   Logger,
-  CompileOptions,
+  PlatformInfo,
+  VersionInfo,
 } from './types.ts';
 
 // Configuration reader
-export {
-  detectFormat,
-  findDefaultConfig,
-  readConfiguration,
-  toJson,
-} from './config-reader.ts';
+export { detectFormat, findDefaultConfig, readConfiguration, toJson } from './config-reader.ts';
 export type { ReadConfigurationOptions } from './config-reader.ts';
 
 // Compiler
 export {
-  writeOutput,
-  countRules,
+  compileFilters,
   computeHash,
   copyToRulesDirectory,
-  compileFilters,
+  countRules,
   runCompiler,
+  writeOutput,
 } from './compiler.ts';
 export type { CompilerOptions, ExtendedCompileOptions } from './compiler.ts';
 
 // CLI
-export { parseArgs, showHelp, showVersion, getVersionInfo, main } from './cli.ts';
+export { getVersionInfo, main, parseArgs, showHelp, showVersion } from './cli.ts';
 
 // Console (Interactive Mode)
 export {
-  // Utilities
-  formatValue,
-  createTable,
-  createKeyValueTable,
-  displayTable,
-  showSuccess,
-  showError,
-  showWarning,
-  showInfo,
-  showHeader,
-  showPanel,
-  showRule,
-  showNoItems,
-  createSpinner,
-  withSpinner,
-  generateBanner,
-  showWelcomeBanner,
-  truncate,
-  formatElapsed,
-  formatBytes,
-  colorStatus,
-  dim,
   bold,
   chalk,
+  colorStatus,
   // Application
   ConsoleApplication,
+  createKeyValueTable,
+  createSpinner,
+  createTable,
+  dim,
+  displayTable,
+  formatBytes,
+  formatElapsed,
+  // Utilities
+  formatValue,
+  generateBanner,
   runInteractive,
+  showError,
+  showHeader,
+  showInfo,
+  showNoItems,
+  showPanel,
+  showRule,
+  showSuccess,
+  showWarning,
+  showWelcomeBanner,
+  truncate,
+  withSpinner,
 } from './console/index.ts';
 export type { ConsoleAppOptions } from './console/index.ts';
 
 // Logger
 export {
+  createDevelopmentLogger,
   createLogger,
   createProductionLogger,
-  createDevelopmentLogger,
-  parseLogLevel,
   logger,
   LogLevel,
+  parseLogLevel,
 } from './logger.ts';
-export type { LoggerConfig, ExtendedLogger } from './logger.ts';
+export type { ExtendedLogger, LoggerConfig } from './logger.ts';
 
 // Errors
 export {
-  CompilerError,
-  ConfigurationError,
-  ConfigNotFoundError,
-  ConfigParseError,
   CompilationError,
   CompilationTimeoutError,
-  FileSystemError,
-  PathTraversalError,
-  ValidationError,
-  ShutdownError,
-  ResourceLimitError,
+  CompilerError,
+  ConfigNotFoundError,
+  ConfigParseError,
+  ConfigurationError,
   ErrorCode,
   ErrorSeverity,
-  wrapError,
+  FileSystemError,
   isCompilerError,
   isRecoverable,
+  PathTraversalError,
+  ResourceLimitError,
+  ShutdownError,
+  ValidationError,
+  wrapError,
 } from './errors.ts';
 export type { ErrorContext } from './errors.ts';
 
 // Validation
 export {
-  validateConfiguration,
   assertValidConfiguration,
-  containsPathTraversal,
-  sanitizePath,
-  validateUrl,
-  validateSourcePath,
   checkFileSize,
   checkSourceCount,
+  containsPathTraversal,
   DEFAULT_RESOURCE_LIMITS,
+  sanitizePath,
+  validateConfiguration,
+  validateSourcePath,
+  validateUrl,
 } from './validation.ts';
-export type { ValidationResult, ResourceLimits } from './validation.ts';
+export type { ResourceLimits, ValidationResult } from './validation.ts';
 
 // Shutdown
 export {
-  ShutdownHandler,
+  createShutdownAwareAbortController,
   getShutdownHandler,
   initializeShutdownHandler,
-  createShutdownAwareAbortController,
+  ShutdownHandler,
   withShutdownCheck,
 } from './shutdown.ts';
 export type { CleanupFn, ShutdownConfig } from './shutdown.ts';
 
 // Timeout utilities
-export {
-  withTimeout,
-  createTimeoutController,
-  withRetry,
-  debounce,
-  throttle,
-} from './timeout.ts';
-export type { TimeoutController, RetryConfig } from './timeout.ts';
+export { createTimeoutController, debounce, throttle, withRetry, withTimeout } from './timeout.ts';
+export type { RetryConfig, TimeoutController } from './timeout.ts';
 
 // Library API (high-level)
 export {
-  RulesCompiler,
-  RulesCompilerBuilder,
-  createRulesCompiler,
+  AVAILABLE_TRANSFORMATIONS,
   ConfigurationBuilder,
   createConfiguration,
-  AVAILABLE_TRANSFORMATIONS,
+  createRulesCompiler,
+  RulesCompiler,
+  RulesCompilerBuilder,
   TRANSFORMATION_DESCRIPTIONS,
 } from './lib/index.ts';
 export type {
-  RulesCompilerServiceOptions,
-  CompileRunOptions,
   CompileProgressEvent,
-  Transformation,
-  SourceType,
+  CompileRunOptions,
+  RulesCompilerServiceOptions,
   SourceConfig,
+  SourceType,
+  Transformation,
 } from './lib/index.ts';

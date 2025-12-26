@@ -3,7 +3,7 @@
  */
 
 import inquirer from 'inquirer';
-import { showHeader, showError } from '../utils.ts';
+import { showError, showHeader } from '../utils.ts';
 
 /** Menu action type */
 export type MenuAction = () => Promise<void>;
@@ -26,7 +26,7 @@ export abstract class BaseMenu {
 
       const items = this.getMenuItems();
       const choices = [
-        ...items.map(item => item.name),
+        ...items.map((item) => item.name),
         '← Back',
       ];
 
@@ -43,7 +43,7 @@ export abstract class BaseMenu {
         return;
       }
 
-      const selectedItem = items.find(item => item.name === choice);
+      const selectedItem = items.find((item) => item.name === choice);
       if (selectedItem) {
         try {
           await selectedItem.action();
@@ -85,13 +85,13 @@ export abstract class BaseMenu {
   protected async selectItem<T>(
     message: string,
     items: T[],
-    formatter: (item: T) => string
+    formatter: (item: T) => string,
   ): Promise<T | undefined> {
     if (items.length === 0) {
       return undefined;
     }
 
-    const choices = items.map(item => ({
+    const choices = items.map((item) => ({
       name: formatter(item),
       value: item,
     }));
@@ -111,7 +111,7 @@ export abstract class BaseMenu {
   /** Get text input */
   protected async getInput(
     message: string,
-    defaultValue?: string
+    defaultValue?: string,
   ): Promise<string> {
     const { value } = await inquirer.prompt([
       {

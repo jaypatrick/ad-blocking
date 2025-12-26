@@ -26,7 +26,7 @@ export function formatValue(value: unknown): string {
 /** Create a standard table */
 export function createTable(headers: string[]): Table.Table {
   return new Table({
-    head: headers.map(h => chalk.bold.white(h)),
+    head: headers.map((h) => chalk.bold.white(h)),
     style: {
       head: [],
       border: [],
@@ -83,7 +83,7 @@ export function showNoItems(type: string): void {
 }
 
 /** Create a spinner */
-export function createSpinner(text: string): ora.Ora {
+export function createSpinner(text: string): import('ora').Ora {
   return ora({
     text,
     spinner: 'dots',
@@ -93,7 +93,7 @@ export function createSpinner(text: string): ora.Ora {
 /** Execute with spinner */
 export async function withSpinner<T>(
   text: string,
-  action: () => Promise<T>
+  action: () => Promise<T>,
 ): Promise<T> {
   const spinner = createSpinner(text);
   spinner.start();

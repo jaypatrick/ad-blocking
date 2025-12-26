@@ -3,19 +3,14 @@
  * Includes validation and sanitization for production safety
  */
 
-import { readFileSync, existsSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { extname, resolve } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { parse as parseToml } from '@iarna/toml';
 import type { IConfiguration } from '@adguard/hostlist-compiler';
 import type { ConfigurationFormat, ExtendedConfiguration, Logger } from './types.ts';
 import { logger as defaultLogger } from './logger.ts';
-import {
-  ConfigNotFoundError,
-  ConfigParseError,
-  ConfigurationError,
-  ErrorCode,
-} from './errors.ts';
+import { ConfigNotFoundError, ConfigParseError, ConfigurationError, ErrorCode } from './errors.ts';
 import {
   assertValidConfiguration,
   checkFileSize,
@@ -44,7 +39,7 @@ export function detectFormat(filePath: string): ConfigurationFormat {
       throw new ConfigurationError(
         `Unknown configuration file extension: ${ext}`,
         ErrorCode.CONFIG_INVALID_FORMAT,
-        { filePath }
+        { filePath },
       );
   }
 }
@@ -78,7 +73,12 @@ function parseYamlConfig(content: string, filePath: string): IConfiguration {
       throw error;
     }
     const message = error instanceof Error ? error.message : 'Unknown error';
-    throw new ConfigParseError(filePath, 'yaml', message, error instanceof Error ? error : undefined);
+    throw new ConfigParseError(
+      filePath,
+      'yaml',
+      message,
+      error instanceof Error ? error : undefined,
+    );
   }
 }
 
@@ -91,7 +91,12 @@ function parseTomlConfig(content: string, filePath: string): IConfiguration {
     return parsed as unknown as IConfiguration;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
-    throw new ConfigParseError(filePath, 'toml', message, error instanceof Error ? error : undefined);
+    throw new ConfigParseError(
+      filePath,
+      'toml',
+      message,
+      error instanceof Error ? error : undefined,
+    );
   }
 }
 
@@ -146,7 +151,7 @@ export function readConfiguration(
   configPath: string,
   format?: ConfigurationFormat,
   logger: Logger = defaultLogger,
-  options: ReadConfigurationOptions = {}
+  options: ReadConfigurationOptions = {},
 ): ExtendedConfiguration {
   logger.debug(`Reading configuration from: ${configPath}`);
 
@@ -160,7 +165,8 @@ export function readConfiguration(
 
   // Check file size
   const stats = statSync(resolvedPath);
-  const maxSize = options.resourceLimits?.maxConfigFileSize ?? DEFAULT_RESOURCE_LIMITS.maxConfigFileSize;
+  const maxSize = options.resourceLimits?.maxConfigFileSize ??
+    DEFAULT_RESOURCE_LIMITS.maxConfigFileSize;
   checkFileSize(stats.size, maxSize, 'configuration file');
 
   const content = readFileSync(resolvedPath, 'utf8');
@@ -185,7 +191,7 @@ export function readConfiguration(
       throw new ConfigurationError(
         `Unsupported format: ${String(exhaustiveCheck)}`,
         ErrorCode.CONFIG_INVALID_FORMAT,
-        { filePath: resolvedPath }
+        { filePath: resolvedPath },
       );
     }
   }
@@ -208,7 +214,9 @@ export function readConfiguration(
 
   const configRecord = config as unknown as Record<string, unknown>;
   const versionValue = configRecord['version'];
-  const version = typeof versionValue === 'string' || typeof versionValue === 'number' ? String(versionValue) : 'unknown';
+  const version = typeof versionValue === 'string' || typeof versionValue === 'number'
+    ? String(versionValue)
+    : 'unknown';
   logger.info(`Loaded configuration: ${config.name} v${version}`);
   return extendedConfig;
 }

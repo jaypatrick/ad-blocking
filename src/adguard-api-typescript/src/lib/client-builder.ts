@@ -29,12 +29,12 @@
 import { AdGuardDnsClient } from '../client.ts';
 import {
   ConfigurationBuilder,
-  Logger,
   consoleLogger,
-  silentLogger,
   DEFAULT_TIMEOUT,
-  MIN_TIMEOUT,
+  Logger,
   MAX_TIMEOUT,
+  MIN_TIMEOUT,
+  silentLogger,
 } from '../helpers/configuration.ts';
 import { RetryOptions } from '../helpers/retry.ts';
 
@@ -90,7 +90,7 @@ export class AdGuardDnsClientBuilder {
       apiKey = Deno.env.get('ADGUARD_AdGuard__ApiKey') ?? Deno.env.get('ADGUARD_API_KEY');
       if (!apiKey) {
         throw new Error(
-          'API key not configured. Set ADGUARD_AdGuard__ApiKey (recommended) or ADGUARD_API_KEY environment variable.'
+          'API key not configured. Set ADGUARD_AdGuard__ApiKey (recommended) or ADGUARD_API_KEY environment variable.',
         );
       }
     }
@@ -191,5 +191,6 @@ export function createClientBuilder(): AdGuardDnsClientBuilder {
 }
 
 // Re-export useful types and constants
-export { Logger, consoleLogger, silentLogger, DEFAULT_TIMEOUT, MIN_TIMEOUT, MAX_TIMEOUT };
+export type { Logger };
+export { consoleLogger, DEFAULT_TIMEOUT, MAX_TIMEOUT, MIN_TIMEOUT, silentLogger };
 export type { RetryOptions };

@@ -60,74 +60,64 @@ export * from './errors/index.ts';
 // Helpers
 export {
   DateTime,
-  toUnixMilliseconds,
-  fromUnixMilliseconds,
   daysAgo,
+  endOfToday,
+  formatRelative,
+  fromUnixMilliseconds,
   hoursAgo,
   minutesAgo,
   startOfToday,
-  endOfToday,
-  formatRelative,
+  toUnixMilliseconds,
 } from './helpers/datetime.ts';
 
 export {
-  RetryPolicy,
-  executeWithRetry,
-  withRetry,
-  isRetryableError,
   createRateLimitRetryPolicy,
+  executeWithRetry,
+  isRetryableError,
+  RetryPolicy,
+  withRetry,
 } from './helpers/retry.ts';
 
 export {
   ConfigurationHelper,
   consoleLogger,
-  silentLogger,
+  createCustom,
   createWithApiKey,
   createWithBearerToken,
-  createCustom,
-  validateAuthentication,
-  maskApiKey,
   DEFAULT_BASE_PATH,
   DEFAULT_TIMEOUT,
+  maskApiKey,
+  silentLogger,
+  validateAuthentication,
 } from './helpers/configuration.ts';
-export type {
-  ApiConfiguration,
-  Logger,
-} from './helpers/configuration.ts';
+export type { ApiConfiguration, Logger } from './helpers/configuration.ts';
 
 // APIs
 export {
   AccountApi,
   AuthApi,
+  DedicatedIpApi,
   DevicesApi,
   DnsServersApi,
-  StatisticsApi,
-  QueryLogApi,
   FilterListsApi,
+  QueryLogApi,
+  StatisticsApi,
   WebServicesApi,
-  DedicatedIpApi,
 } from './api/index.ts';
 
 // Repositories
 export {
   DeviceRepository,
   DnsServerRepository,
-  UserRulesRepository,
-  StatisticsRepository,
   QueryLogRepository,
+  StatisticsRepository,
+  UserRulesRepository,
 } from './repositories/index.ts';
-export type {
-  TimeRange,
-} from './repositories/index.ts';
+export type { TimeRange } from './repositories/index.ts';
 
 // Rules compiler integration
-export {
-  RulesCompilerIntegration,
-} from './rules-compiler-integration.ts';
-export type {
-  RulesSyncResult,
-  RulesSyncOptions,
-} from './rules-compiler-integration.ts';
+export { RulesCompilerIntegration } from './rules-compiler-integration.ts';
+export type { RulesSyncOptions, RulesSyncResult } from './rules-compiler-integration.ts';
 
 // Version info
 export const VERSION = '1.0.0';
@@ -137,13 +127,9 @@ export const API_VERSION = '1.11';
 export {
   AdGuardDnsClientBuilder,
   createClientBuilder,
-  PagedListBuilder,
   createPagedList,
-  paginate,
   createPageResult,
+  PagedListBuilder,
+  paginate,
 } from './lib/index.ts';
-export type {
-  PagedList,
-  PaginationOptions,
-  PageResult,
-} from './lib/index.ts';
+export type { PagedList, PageResult, PaginationOptions } from './lib/index.ts';

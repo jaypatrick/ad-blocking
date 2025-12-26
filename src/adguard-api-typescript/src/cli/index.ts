@@ -12,14 +12,14 @@ import chalk from 'chalk';
 import { AdGuardDnsClient } from '../client.ts';
 import { RulesCompilerIntegration } from '../rules-compiler-integration.ts';
 import { consoleLogger, maskApiKey } from '../helpers/configuration.ts';
-import { showHeader, showSuccess, showError, showInfo, withSpinner } from './utils.ts';
+import { showError, showHeader, showInfo, showSuccess, withSpinner } from './utils.ts';
 import { DevicesMenu } from './menus/devices.ts';
 import { DnsServersMenu } from './menus/dns-servers.ts';
 import { UserRulesMenu } from './menus/user-rules.ts';
 import { StatisticsMenu } from './menus/statistics.ts';
 import { QueryLogMenu } from './menus/query-log.ts';
 import { AccountMenu } from './menus/account.ts';
-import { VERSION, API_VERSION } from '../index.ts';
+import { API_VERSION, VERSION } from '../index.ts';
 
 const program = new Command();
 
@@ -74,7 +74,9 @@ async function getApiKey(options: { apiKey?: string; envVar?: string }): Promise
   return apiKey;
 }
 
-async function runInteractive(options: { apiKey?: string; envVar?: string; verbose?: boolean }): Promise<void> {
+async function runInteractive(
+  options: { apiKey?: string; envVar?: string; verbose?: boolean },
+): Promise<void> {
   console.log();
   console.log(chalk.bold.blue('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
   console.log(chalk.bold.blue('  AdGuard DNS CLI'));
@@ -91,9 +93,7 @@ async function runInteractive(options: { apiKey?: string; envVar?: string; verbo
     const client = AdGuardDnsClient.withApiKey(apiKey, logger);
 
     // Test connection
-    const connected = await withSpinner('Testing connection...', () =>
-      client.testConnection()
-    );
+    const connected = await withSpinner('Testing connection...', () => client.testConnection());
 
     if (!connected) {
       showError('Failed to connect to AdGuard DNS API. Please check your API key.');
@@ -106,7 +106,7 @@ async function runInteractive(options: { apiKey?: string; envVar?: string; verbo
     const rulesIntegration = new RulesCompilerIntegration(
       client.userRulesRepository,
       client.dnsServerRepository,
-      logger
+      logger,
     );
 
     const menus = {
@@ -115,7 +115,7 @@ async function runInteractive(options: { apiKey?: string; envVar?: string; verbo
       userRules: new UserRulesMenu(
         client.userRulesRepository,
         client.dnsServerRepository,
-        rulesIntegration
+        rulesIntegration,
       ),
       statistics: new StatisticsMenu(client.statisticsRepository),
       queryLog: new QueryLogMenu(client.queryLogRepository),
@@ -182,7 +182,7 @@ async function runSync(options: {
     const rulesIntegration = new RulesCompilerIntegration(
       client.userRulesRepository,
       client.dnsServerRepository,
-      logger
+      logger,
     );
 
     let result;

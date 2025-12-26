@@ -5,15 +5,15 @@
 import { BaseApi } from './base.ts';
 import { ApiConfiguration } from '../helpers/configuration.ts';
 import {
-  TimeQueriesStatsList,
   CategoryQueriesStatsList,
-  CompanyQueriesStatsList,
   CompanyDetailedQueriesStatsList,
+  CompanyQueriesStatsList,
   CountryQueriesStatsList,
+  DetailedStatsQueryParams,
   DeviceQueriesStatsList,
   DomainQueriesStatsList,
   StatsQueryParams,
-  DetailedStatsQueryParams,
+  TimeQueriesStatsList,
 } from '../models/index.ts';
 
 /** Statistics API endpoints */
@@ -58,7 +58,7 @@ export class StatisticsApi extends BaseApi {
     this.logger.debug('Getting categories queries stats');
     return this.get<CategoryQueriesStatsList>(
       '/oapi/v1/stats/categories',
-      this.toQueryParams(params)
+      this.toQueryParams(params),
     );
   }
 
@@ -71,7 +71,7 @@ export class StatisticsApi extends BaseApi {
     this.logger.debug('Getting companies stats');
     return this.get<CompanyQueriesStatsList>(
       '/oapi/v1/stats/companies',
-      this.toQueryParams(params)
+      this.toQueryParams(params),
     );
   }
 
@@ -81,7 +81,7 @@ export class StatisticsApi extends BaseApi {
    * @returns Detailed company statistics list
    */
   async getDetailedCompaniesStats(
-    params: DetailedStatsQueryParams
+    params: DetailedStatsQueryParams,
   ): Promise<CompanyDetailedQueriesStatsList> {
     this.logger.debug('Getting detailed companies stats');
     const query = this.toQueryParams(params);
@@ -100,7 +100,7 @@ export class StatisticsApi extends BaseApi {
     this.logger.debug('Getting countries queries stats');
     return this.get<CountryQueriesStatsList>(
       '/oapi/v1/stats/countries',
-      this.toQueryParams(params)
+      this.toQueryParams(params),
     );
   }
 

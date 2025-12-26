@@ -7,11 +7,11 @@ import { QueryLogApi } from '../api/query-log.ts';
 import { Logger } from '../helpers/configuration.ts';
 import { DateTime } from '../helpers/datetime.ts';
 import {
-  QueryLogResponse,
+  FilteringActionSource,
+  FilteringActionStatus,
   QueryLogEntry,
   QueryLogParams,
-  FilteringActionStatus,
-  FilteringActionSource,
+  QueryLogResponse,
 } from '../models/index.ts';
 
 /** Query Log repository for managing DNS query logs */
@@ -92,7 +92,7 @@ export class QueryLogRepository extends BaseRepository {
    */
   async getAllEntries(
     params: Omit<QueryLogParams, 'cursor'> = {},
-    maxPages: number = 10
+    maxPages: number = 10,
   ): Promise<QueryLogEntry[]> {
     const allEntries: QueryLogEntry[] = [];
     let cursor: string | undefined;
@@ -130,27 +130,27 @@ export class QueryLogRepository extends BaseRepository {
   } {
     const total = entries.length;
     const blocked = entries.filter(
-      e => e.filtering_info?.filtering_status === FilteringActionStatus.REQUEST_BLOCKED
+      (e) => e.filtering_info?.filtering_status === FilteringActionStatus.REQUEST_BLOCKED,
     ).length;
     const allowed = total - blocked;
 
     // Count domains
     const domainCounts = new Map<string, number>();
-    entries.forEach(e => {
+    entries.forEach((e) => {
       const count = domainCounts.get(e.domain) || 0;
       domainCounts.set(e.domain, count + 1);
     });
 
     // Count by device
     const deviceCounts = new Map<string, number>();
-    entries.forEach(e => {
+    entries.forEach((e) => {
       const count = deviceCounts.get(e.device_id) || 0;
       deviceCounts.set(e.device_id, count + 1);
     });
 
     // Count by filtering type
     const typeCounts = new Map<FilteringActionSource, number>();
-    entries.forEach(e => {
+    entries.forEach((e) => {
       const type = e.filtering_info?.filtering_type;
       if (type) {
         const count = typeCounts.get(type) || 0;

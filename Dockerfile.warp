@@ -56,9 +56,16 @@ RUN deno cache npm:@adguard/hostlist-compiler@^1.0.39 && \
     deno cache npm:@iarna/toml@^2.2.5 && \
     deno cache npm:chalk@^5.6.2 && \
     deno cache npm:cli-table3@^0.6.5 && \
-    deno cache npm:ora@^8.2.0 && \
+    deno cache npm:ora@^9.0.0 && \
     deno cache npm:figlet@^1.9.4 && \
-    deno cache npm:@inquirer/prompts@^7.10.1
+    deno cache npm:@inquirer/prompts@^8.1.0 && \
+    deno cache npm:commander@^14.0.2 && \
+    deno cache npm:inquirer@^13.1.0 && \
+    deno cache npm:axios@^1.13.2 && \
+    deno cache npm:axios-retry@^4.5.0 && \
+    deno cache npm:@linear/sdk@^68.1.0 && \
+    deno cache npm:dotenv@^17.2.3 && \
+    deno cache npm:marked@^17.0.1
 
 # Create a wrapper script for hostlist-compiler
 RUN echo '#!/bin/sh\nexec deno run --allow-read --allow-write --allow-env --allow-net --allow-run npm:@adguard/hostlist-compiler "$@"' > /usr/local/bin/hostlist-compiler && \
@@ -115,7 +122,7 @@ RUN pwsh -Command "Set-PSRepository -Name 'PSGallery' -InstallationPolicy Truste
 # =============================================================================
 # YAML/TOML tools (yq for shell scripts)
 # =============================================================================
-RUN curl -sL "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64" -o /usr/local/bin/yq && \
+RUN wget -q "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64" -O /usr/local/bin/yq && \
     chmod +x /usr/local/bin/yq && \
     yq --version
 

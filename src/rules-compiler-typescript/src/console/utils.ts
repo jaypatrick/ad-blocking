@@ -108,7 +108,7 @@ export function showNoItems(type: string): void {
 }
 
 /** Create a spinner */
-export function createSpinner(text: string): ora.Ora {
+export function createSpinner(text: string): import('ora').Ora {
   return ora({
     text,
     spinner: 'dots',
@@ -177,7 +177,10 @@ export function formatBytes(bytes: number): string {
 }
 
 /** Color text based on status */
-export function colorStatus(status: 'success' | 'error' | 'warning' | 'info', text: string): string {
+export function colorStatus(
+  status: 'success' | 'error' | 'warning' | 'info',
+  text: string,
+): string {
   switch (status) {
     case 'success':
       return chalk.green(text);

@@ -2,6 +2,7 @@
  * Error classes tests
  */
 
+import { assertEquals, assert } from '@std/assert';
 import {
   ApiError,
   EntityNotFoundError,
@@ -10,131 +11,131 @@ import {
   AuthenticationError,
   ApiNotConfiguredError,
   RepositoryError,
-} from '../../src/errors';
-import { ErrorCodes } from '../../src/models';
+} from '../../src/errors/index.ts';
+import { ErrorCodes } from '../../src/models/index.ts';
 
-describe('Error classes', () => {
-  describe('ApiError', () => {
-    it('should create with message and status code', () => {
+Deno.test('Error classes', async (t) => {
+  await t.step('ApiError', async (t) => {
+    await t.step('should create with message and status code', () => {
       const error = new ApiError('Test error', 400);
-      expect(error.message).toBe('Test error');
-      expect(error.statusCode).toBe(400);
-      expect(error.name).toBe('ApiError');
+      assertEquals(error.message, 'Test error');
+      assertEquals(error.statusCode, 400);
+      assertEquals(error.name, 'ApiError');
     });
 
-    it('should include response', () => {
+    await t.step('should include response', () => {
       const response = {
         error_code: ErrorCodes.BAD_REQUEST,
         message: 'Bad request',
         fields: [],
       };
       const error = new ApiError('Test error', 400, response);
-      expect(error.response).toEqual(response);
-      expect(error.errorCode).toBe(ErrorCodes.BAD_REQUEST);
-      expect(error.fieldErrors).toEqual([]);
+      assertEquals(error.response, response);
+      assertEquals(error.errorCode, ErrorCodes.BAD_REQUEST);
+      assertEquals(error.fieldErrors, []);
     });
 
-    it('should be instanceof Error', () => {
+    await t.step('should be instanceof Error', () => {
       const error = new ApiError('Test', 400);
-      expect(error instanceof Error).toBe(true);
-      expect(error instanceof ApiError).toBe(true);
+      assert(error instanceof Error);
+      assert(error instanceof ApiError);
     });
   });
 
-  describe('EntityNotFoundError', () => {
-    it('should create with entity type', () => {
+  await t.step('EntityNotFoundError', async (t) => {
+    await t.step('should create with entity type', () => {
       const error = new EntityNotFoundError('Device');
-      expect(error.message).toBe('Device not found');
-      expect(error.statusCode).toBe(404);
-      expect(error.entityType).toBe('Device');
-      expect(error.entityId).toBeUndefined();
+      assertEquals(error.message, 'Device not found');
+      assertEquals(error.statusCode, 404);
+      assertEquals(error.entityType, 'Device');
+      assertEquals(error.entityId, undefined);
     });
 
-    it('should create with entity type and ID', () => {
+    await t.step('should create with entity type and ID', () => {
       const error = new EntityNotFoundError('Device', 'abc123');
-      expect(error.message).toBe("Device with ID 'abc123' not found");
-      expect(error.entityId).toBe('abc123');
+      assertEquals(error.message, "Device with ID 'abc123' not found");
+      assertEquals(error.entityId, 'abc123');
     });
 
-    it('should be instanceof ApiError', () => {
+    await t.step('should be instanceof ApiError', () => {
       const error = new EntityNotFoundError('Device');
-      expect(error instanceof ApiError).toBe(true);
-      expect(error instanceof EntityNotFoundError).toBe(true);
+      assert(error instanceof ApiError);
+      assert(error instanceof EntityNotFoundError);
     });
   });
 
-  describe('ValidationError', () => {
-    it('should create with message', () => {
+  await t.step('ValidationError', async (t) => {
+    await t.step('should create with message', () => {
       const error = new ValidationError('Invalid input');
-      expect(error.message).toBe('Invalid input');
-      expect(error.statusCode).toBe(400);
-      expect(error.name).toBe('ValidationError');
+      assertEquals(error.message, 'Invalid input');
+      assertEquals(error.statusCode, 400);
+      assertEquals(error.name, 'ValidationError');
     });
 
-    it('should include response', () => {
+    await t.step('should include response', () => {
       const response = {
         error_code: ErrorCodes.FIELD_REQUIRED,
         message: 'Name is required',
         fields: [{ field: 'name', error_code: ErrorCodes.FIELD_REQUIRED }],
       };
       const error = new ValidationError('Validation failed', response);
-      expect(error.fieldErrors).toHaveLength(1);
+      assertEquals(error.fieldErrors.length, 1);
     });
   });
 
-  describe('RateLimitError', () => {
-    it('should create with message', () => {
+  await t.step('RateLimitError', async (t) => {
+    await t.step('should create with message', () => {
       const error = new RateLimitError('Too many requests');
-      expect(error.message).toBe('Too many requests');
-      expect(error.statusCode).toBe(429);
-      expect(error.retryAfter).toBeUndefined();
+      assertEquals(error.message, 'Too many requests');
+      assertEquals(error.statusCode, 429);
+      assertEquals(error.retryAfter, undefined);
     });
 
-    it('should include retry after', () => {
+    await t.step('should include retry after', () => {
       const error = new RateLimitError('Too many requests', 60);
-      expect(error.retryAfter).toBe(60);
+      assertEquals(error.retryAfter, 60);
     });
   });
 
-  describe('AuthenticationError', () => {
-    it('should create with default message', () => {
+  await t.step('AuthenticationError', async (t) => {
+    await t.step('should create with default message', () => {
       const error = new AuthenticationError();
-      expect(error.message).toBe('Authentication failed');
-      expect(error.statusCode).toBe(401);
+      assertEquals(error.message, 'Authentication failed');
+      assertEquals(error.statusCode, 401);
     });
 
-    it('should create with custom message', () => {
+    await t.step('should create with custom message', () => {
       const error = new AuthenticationError('Invalid API key');
-      expect(error.message).toBe('Invalid API key');
+      assertEquals(error.message, 'Invalid API key');
     });
   });
 
-  describe('ApiNotConfiguredError', () => {
-    it('should create with default message', () => {
+  await t.step('ApiNotConfiguredError', async (t) => {
+    await t.step('should create with default message', () => {
       const error = new ApiNotConfiguredError();
-      expect(error.message).toBe('API client is not configured. Call configure() first.');
-      expect(error.name).toBe('ApiNotConfiguredError');
+      assertEquals(error.message, 'API client is not configured. Call configure() first.');
+      assertEquals(error.name, 'ApiNotConfiguredError');
     });
 
-    it('should create with custom message', () => {
+    await t.step('should create with custom message', () => {
       const error = new ApiNotConfiguredError('Custom message');
-      expect(error.message).toBe('Custom message');
+      assertEquals(error.message, 'Custom message');
     });
   });
 
-  describe('RepositoryError', () => {
-    it('should create with operation', () => {
+  await t.step('RepositoryError', async (t) => {
+    await t.step('should create with operation', () => {
       const error = new RepositoryError('Get device');
-      expect(error.message).toBe('Get device failed');
-      expect(error.operation).toBe('Get device');
-      expect(error.innerCause).toBeUndefined();
+      assertEquals(error.message, 'Get device failed');
+      assertEquals(error.operation, 'Get device');
+      assertEquals(error.innerCause, undefined);
     });
 
-    it('should include cause', () => {
+    await t.step('should include cause', () => {
       const cause = new Error('Network error');
       const error = new RepositoryError('Get device', cause);
-      expect(error.message).toBe('Get device failed: Network error');
-      expect(error.innerCause).toBe(cause);
+      assertEquals(error.message, 'Get device failed: Network error');
+      assertEquals(error.innerCause, cause);
     });
   });
 });

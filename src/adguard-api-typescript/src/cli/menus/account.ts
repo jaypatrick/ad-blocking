@@ -6,13 +6,7 @@ import { BaseMenu, MenuItem } from './base.ts';
 import { AccountApi } from '../../api/account.ts';
 import { FilterListsApi } from '../../api/filter-lists.ts';
 import { WebServicesApi } from '../../api/web-services.ts';
-import {
-  createTable,
-  displayTable,
-  showPanel,
-  withSpinner,
-  truncate,
-} from '../utils.ts';
+import { createTable, displayTable, showPanel, truncate, withSpinner } from '../utils.ts';
 
 export class AccountMenu extends BaseMenu {
   protected get title(): string {
@@ -22,7 +16,7 @@ export class AccountMenu extends BaseMenu {
   constructor(
     private readonly accountApi: AccountApi,
     private readonly filterListsApi: FilterListsApi,
-    private readonly webServicesApi: WebServicesApi
+    private readonly webServicesApi: WebServicesApi,
   ) {
     super();
   }
@@ -36,8 +30,9 @@ export class AccountMenu extends BaseMenu {
   }
 
   private async viewLimits(): Promise<void> {
-    const limits = await withSpinner('Loading account limits...', () =>
-      this.accountApi.getAccountLimits()
+    const limits = await withSpinner(
+      'Loading account limits...',
+      () => this.accountApi.getAccountLimits(),
     );
 
     showPanel('Account Limits', {
@@ -51,13 +46,14 @@ export class AccountMenu extends BaseMenu {
   }
 
   private async viewFilterLists(): Promise<void> {
-    const lists = await withSpinner('Loading filter lists...', () =>
-      this.filterListsApi.listFilterLists()
+    const lists = await withSpinner(
+      'Loading filter lists...',
+      () => this.filterListsApi.listFilterLists(),
     );
 
     const table = createTable(['ID', 'Name', 'Rules', 'Categories']);
-    lists.forEach(list => {
-      const categories = list.categories.map(c => c.category).join(', ');
+    lists.forEach((list) => {
+      const categories = list.categories.map((c) => c.category).join(', ');
       table.push([
         list.filter_id,
         truncate(list.name, 40),
@@ -69,12 +65,13 @@ export class AccountMenu extends BaseMenu {
   }
 
   private async viewWebServices(): Promise<void> {
-    const services = await withSpinner('Loading web services...', () =>
-      this.webServicesApi.listWebServices()
+    const services = await withSpinner(
+      'Loading web services...',
+      () => this.webServicesApi.listWebServices(),
     );
 
     const table = createTable(['ID', 'Name']);
-    services.forEach(service => {
+    services.forEach((service) => {
       table.push([service.id, service.name]);
     });
     displayTable(table);

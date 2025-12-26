@@ -28,13 +28,18 @@ import type { IConfiguration } from '@adguard/hostlist-compiler';
 import type {
   CompilerResult,
   ConfigurationFormat,
-  Logger,
   ExtendedConfiguration,
+  Logger,
   VersionInfo,
 } from '../types.ts';
-import { readConfiguration, findDefaultConfig, toJson } from '../config-reader.ts';
-import { runCompiler, compileFilters, countRules, computeHash } from '../compiler.ts';
-import { validateConfiguration, type ValidationResult, type ResourceLimits, DEFAULT_RESOURCE_LIMITS } from '../validation.ts';
+import { findDefaultConfig, readConfiguration, toJson } from '../config-reader.ts';
+import { compileFilters, computeHash, countRules, runCompiler } from '../compiler.ts';
+import {
+  DEFAULT_RESOURCE_LIMITS,
+  type ResourceLimits,
+  validateConfiguration,
+  type ValidationResult,
+} from '../validation.ts';
 import { createLogger } from '../logger.ts';
 import { getVersionInfo } from '../cli.ts';
 
@@ -154,7 +159,7 @@ export class RulesCompiler {
    * @param config Configuration object
    * @returns Array of compiled rule strings
    */
-  async compileFromConfig(config: IConfiguration): Promise<string[]> {
+  compileFromConfig(config: IConfiguration): Promise<string[]> {
     return compileFilters(config, this.logger, {
       timeoutMs: this.options.timeoutMs,
       maxOutputSize: this.options.maxOutputSize,

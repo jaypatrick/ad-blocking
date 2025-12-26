@@ -16,7 +16,7 @@ import { CompilationTimeoutError } from './errors.ts';
 export async function withTimeout<T>(
   promise: Promise<T>,
   timeoutMs: number,
-  context: Record<string, unknown> = {}
+  context: Record<string, unknown> = {},
 ): Promise<T> {
   let timeoutId: number | undefined;
 
@@ -114,7 +114,7 @@ function sleep(ms: number): Promise<void> {
  */
 export async function withRetry<T>(
   fn: () => Promise<T>,
-  config: Partial<RetryConfig> = {}
+  config: Partial<RetryConfig> = {},
 ): Promise<T> {
   const resolvedConfig: RetryConfig = { ...DEFAULT_RETRY_CONFIG, ...config };
   let lastError: unknown;
@@ -127,9 +127,7 @@ export async function withRetry<T>(
       lastError = error;
 
       // Check if we should retry
-      const isRetryable = resolvedConfig.isRetryable
-        ? resolvedConfig.isRetryable(error)
-        : true;
+      const isRetryable = resolvedConfig.isRetryable ? resolvedConfig.isRetryable(error) : true;
 
       if (!isRetryable || attempt === resolvedConfig.maxAttempts) {
         throw error;
@@ -152,7 +150,7 @@ export async function withRetry<T>(
  */
 export function debounce<T extends (...args: Parameters<T>) => void>(
   fn: T,
-  delayMs: number
+  delayMs: number,
 ): (...args: Parameters<T>) => void {
   let timeoutId: number | undefined;
 
@@ -174,7 +172,7 @@ export function debounce<T extends (...args: Parameters<T>) => void>(
  */
 export function throttle<T extends (...args: Parameters<T>) => void>(
   fn: T,
-  intervalMs: number
+  intervalMs: number,
 ): (...args: Parameters<T>) => void {
   let lastCall = 0;
   let timeoutId: number | undefined;

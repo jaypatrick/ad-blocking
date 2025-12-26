@@ -33,28 +33,18 @@
 // Client builder
 export {
   AdGuardDnsClientBuilder,
-  createClientBuilder,
-  Logger,
   consoleLogger,
-  silentLogger,
+  createClientBuilder,
   DEFAULT_TIMEOUT,
-  MIN_TIMEOUT,
   MAX_TIMEOUT,
+  MIN_TIMEOUT,
+  silentLogger,
 } from './client-builder.ts';
-export type { RetryOptions } from './client-builder.ts';
+export type { Logger, RetryOptions } from './client-builder.ts';
 
 // Pagination support
-export {
-  PagedListBuilder,
-  createPagedList,
-  paginate,
-  createPageResult,
-} from './pagination.ts';
-export type {
-  PagedList,
-  PaginationOptions,
-  PageResult,
-} from './pagination.ts';
+export { createPagedList, createPageResult, PagedListBuilder, paginate } from './pagination.ts';
+export type { PagedList, PageResult, PaginationOptions } from './pagination.ts';
 
 // Re-export main client
 export { AdGuardDnsClient, ApiClientFactory } from '../client.ts';
@@ -65,9 +55,9 @@ export type { ApiConfiguration, AuthType } from '../helpers/configuration.ts';
 export {
   DeviceRepository,
   DnsServerRepository,
-  UserRulesRepository,
-  StatisticsRepository,
   QueryLogRepository,
+  StatisticsRepository,
+  UserRulesRepository,
 } from '../repositories/index.ts';
 
 // Re-export common types

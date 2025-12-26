@@ -15,44 +15,44 @@
  *   LINEAR_PROJECT_NAME - Project name (optional, defaults to document title)
  */
 
-import { Command } from "commander";
-import { config } from "dotenv";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { existsSync } from "node:fs";
+import { Command } from 'commander';
+import { config } from 'dotenv';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { existsSync } from 'node:fs';
 
-import { LinearImporter } from "./linear-client.ts";
+import { LinearImporter } from './linear-client.ts';
 import {
-  parseMarkdownFile,
-  extractRoadmapItems,
   extractComponents,
+  extractRoadmapItems,
   flattenSections,
-} from "./parser.ts";
-import { ImportConfig } from "./types.ts";
+  parseMarkdownFile,
+} from './parser.ts';
+import { ImportConfig } from './types.ts';
 
 // Load environment variables
 const __dirname = dirname(fileURLToPath(import.meta.url));
-config({ path: resolve(__dirname, "../.env") });
+config({ path: resolve(__dirname, '../.env') });
 
-const DEFAULT_DOC_PATH = resolve(__dirname, "../../../docs/LINEAR_DOCUMENTATION.md");
+const DEFAULT_DOC_PATH = resolve(__dirname, '../../../docs/LINEAR_DOCUMENTATION.md');
 
 async function main(): Promise<void> {
   const program = new Command();
 
   program
-    .name("linear-import")
-    .description("Import documentation into Linear project management")
-    .version("1.0.0")
-    .option("-f, --file <path>", "Path to markdown documentation file", DEFAULT_DOC_PATH)
-    .option("-t, --team <id>", "Linear team ID (defaults to first team)")
-    .option("-p, --project <name>", "Linear project name")
-    .option("--dry-run", "Preview import without making changes", false)
-    .option("--no-project", "Skip project creation")
-    .option("--no-issues", "Skip issue creation")
-    .option("--no-docs", "Skip documentation issue creation")
-    .option("--list-teams", "List available teams and exit")
-    .option("--list-projects", "List existing projects and exit")
-    .option("-v, --verbose", "Verbose output")
+    .name('linear-import')
+    .description('Import documentation into Linear project management')
+    .version('1.0.0')
+    .option('-f, --file <path>', 'Path to markdown documentation file', DEFAULT_DOC_PATH)
+    .option('-t, --team <id>', 'Linear team ID (defaults to first team)')
+    .option('-p, --project <name>', 'Linear project name')
+    .option('--dry-run', 'Preview import without making changes', false)
+    .option('--no-project', 'Skip project creation')
+    .option('--no-issues', 'Skip issue creation')
+    .option('--no-docs', 'Skip documentation issue creation')
+    .option('--list-teams', 'List available teams and exit')
+    .option('--list-projects', 'List existing projects and exit')
+    .option('-v, --verbose', 'Verbose output')
     .parse(Deno.args);
 
   const options = program.opts();
@@ -60,17 +60,17 @@ async function main(): Promise<void> {
   // Check for API key
   const apiKey = Deno.env.get('LINEAR_API_KEY');
   if (!apiKey) {
-    console.error("Error: LINEAR_API_KEY environment variable is required");
-    console.error("\nTo get your API key:");
-    console.error("1. Go to Linear Settings > API");
-    console.error("2. Create a new personal API key");
-    console.error("3. Set it in your .env file or environment");
+    console.error('Error: LINEAR_API_KEY environment variable is required');
+    console.error('\nTo get your API key:');
+    console.error('1. Go to Linear Settings > API');
+    console.error('2. Create a new personal API key');
+    console.error('3. Set it in your .env file or environment');
     Deno.exit(1);
   }
 
   const importConfig: ImportConfig = {
-    teamId: options['team'] || Deno.env.get('LINEAR_TEAM_ID') || "",
-    projectName: options['project'] || Deno.env.get('LINEAR_PROJECT_NAME') || "",
+    teamId: options['team'] || Deno.env.get('LINEAR_TEAM_ID') || '',
+    projectName: options['project'] || Deno.env.get('LINEAR_PROJECT_NAME') || '',
     createProject: options['project'] !== false,
     createIssues: options['issues'] !== false,
     createDocuments: options['docs'] !== false,
@@ -83,7 +83,7 @@ async function main(): Promise<void> {
 
     // Handle list commands
     if (options['listTeams']) {
-      console.log("\nAvailable Teams:");
+      console.log('\nAvailable Teams:');
       const teams = await importer.listTeams();
       for (const team of teams) {
         console.log(`  ${team.name} (${team.id})`);
@@ -92,10 +92,10 @@ async function main(): Promise<void> {
     }
 
     if (options['listProjects']) {
-      console.log("\nExisting Projects:");
+      console.log('\nExisting Projects:');
       const projects = await importer.listProjects();
       if (projects.length === 0) {
-        console.log("  No projects found");
+        console.log('  No projects found');
       } else {
         for (const project of projects) {
           console.log(`  ${project.name} (${project.id})`);
@@ -126,31 +126,31 @@ async function main(): Promise<void> {
       console.log(`  Components: ${components.length}`);
     }
 
-    console.log("\nRoadmap Items:");
+    console.log('\nRoadmap Items:');
     for (const item of roadmapItems) {
-      const status = item.completed ? "[x]" : "[ ]";
+      const status = item.completed ? '[x]' : '[ ]';
       console.log(`  ${status} ${item.title}`);
     }
 
-    console.log("\nComponents:");
+    console.log('\nComponents:');
     for (const component of components) {
       console.log(`  - ${component.name} (${component.path})`);
     }
 
     if (importConfig.dryRun) {
-      console.log("\n=== DRY RUN MODE - No changes will be made ===\n");
+      console.log('\n=== DRY RUN MODE - No changes will be made ===\n');
     }
 
     // Perform import
-    console.log("\nStarting import...");
+    console.log('\nStarting import...');
     const result = await importer.importDocumentation(
       document,
       roadmapItems,
-      components
+      components,
     );
 
     // Print results
-    console.log("\n=== Import Results ===");
+    console.log('\n=== Import Results ===');
     if (result.projectId) {
       console.log(`Project: ${result.projectName} (${result.projectId})`);
     }
@@ -164,7 +164,7 @@ async function main(): Promise<void> {
       }
     }
 
-    console.log("\nImport complete!");
+    console.log('\nImport complete!');
   } catch (error) {
     console.error(`\nError: ${error}`);
     Deno.exit(1);
@@ -172,6 +172,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((error) => {
-  console.error("Fatal error:", error);
+  console.error('Fatal error:', error);
   Deno.exit(1);
 });

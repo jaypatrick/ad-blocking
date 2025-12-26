@@ -60,7 +60,7 @@ Deno.test('parseArgs - throws error for invalid format', () => {
   assertThrows(
     () => parseArgs(['-f', 'xml']),
     Error,
-    'Invalid format: xml'
+    'Invalid format: xml',
   );
 });
 

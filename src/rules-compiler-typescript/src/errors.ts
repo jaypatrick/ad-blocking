@@ -79,7 +79,7 @@ export class CompilerError extends Error {
     code: ErrorCode,
     severity: ErrorSeverity = ErrorSeverity.ERROR,
     context: ErrorContext = {},
-    cause?: Error
+    cause?: Error,
   ) {
     super(message);
     this.name = 'CompilerError';
@@ -130,7 +130,7 @@ export class ConfigurationError extends CompilerError {
     message: string,
     code: ErrorCode = ErrorCode.CONFIG_VALIDATION_ERROR,
     context: ErrorContext = {},
-    cause?: Error
+    cause?: Error,
   ) {
     super(message, code, ErrorSeverity.ERROR, context, cause);
     this.name = 'ConfigurationError';
@@ -146,7 +146,7 @@ export class ConfigNotFoundError extends ConfigurationError {
       `Configuration file not found: ${filePath}`,
       ErrorCode.CONFIG_NOT_FOUND,
       { filePath },
-      cause
+      cause,
     );
     this.name = 'ConfigNotFoundError';
   }
@@ -161,7 +161,7 @@ export class ConfigParseError extends ConfigurationError {
       `Failed to parse ${format.toUpperCase()} configuration: ${parseError}`,
       ErrorCode.CONFIG_PARSE_ERROR,
       { filePath, metadata: { format } },
-      cause
+      cause,
     );
     this.name = 'ConfigParseError';
   }
@@ -175,7 +175,7 @@ export class CompilationError extends CompilerError {
     message: string,
     code: ErrorCode = ErrorCode.COMPILATION_FAILED,
     context: ErrorContext = {},
-    cause?: Error
+    cause?: Error,
   ) {
     super(message, code, ErrorSeverity.ERROR, context, cause);
     this.name = 'CompilationError';
@@ -192,7 +192,7 @@ export class CompilationTimeoutError extends CompilationError {
     super(
       `Compilation timed out after ${timeoutMs}ms`,
       ErrorCode.COMPILATION_TIMEOUT,
-      context
+      context,
     );
     this.name = 'CompilationTimeoutError';
     this.timeoutMs = timeoutMs;
@@ -207,7 +207,7 @@ export class FileSystemError extends CompilerError {
     message: string,
     code: ErrorCode = ErrorCode.FILE_READ_ERROR,
     context: ErrorContext = {},
-    cause?: Error
+    cause?: Error,
   ) {
     super(message, code, ErrorSeverity.ERROR, context, cause);
     this.name = 'FileSystemError';
@@ -237,7 +237,7 @@ export class ValidationError extends CompilerError {
     message: string,
     code: ErrorCode = ErrorCode.INVALID_ARGUMENT,
     context: ErrorContext = {},
-    cause?: Error
+    cause?: Error,
   ) {
     super(message, code, ErrorSeverity.ERROR, context, cause);
     this.name = 'ValidationError';
@@ -287,7 +287,10 @@ export class ResourceLimitError extends CompilerError {
 /**
  * Wraps an unknown error into a CompilerError
  */
-export function wrapError(error: unknown, defaultCode: ErrorCode = ErrorCode.COMPILATION_FAILED): CompilerError {
+export function wrapError(
+  error: unknown,
+  defaultCode: ErrorCode = ErrorCode.COMPILATION_FAILED,
+): CompilerError {
   if (error instanceof CompilerError) {
     return error;
   }
@@ -298,14 +301,14 @@ export function wrapError(error: unknown, defaultCode: ErrorCode = ErrorCode.COM
       defaultCode,
       ErrorSeverity.ERROR,
       {},
-      error
+      error,
     );
   }
 
   return new CompilerError(
     String(error),
     defaultCode,
-    ErrorSeverity.ERROR
+    ErrorSeverity.ERROR,
   );
 }
 

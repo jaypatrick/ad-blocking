@@ -235,9 +235,9 @@ export function createShutdownAwareAbortController(handler: ShutdownHandler): Ab
 /**
  * Wraps a promise to reject on shutdown
  */
-export async function withShutdownCheck<T>(
+export function withShutdownCheck<T>(
   promise: Promise<T>,
-  handler: ShutdownHandler
+  handler: ShutdownHandler,
 ): Promise<T> {
   handler.assertNotShuttingDown();
 

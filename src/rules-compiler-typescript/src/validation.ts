@@ -3,14 +3,14 @@
  * Provides runtime validation for production safety
  */
 
-import { resolve, normalize, isAbsolute } from 'node:path';
+import { isAbsolute, normalize, resolve } from 'node:path';
 import type { IConfiguration } from '@adguard/hostlist-compiler';
 import {
   ConfigurationError,
-  ValidationError,
+  ErrorCode,
   PathTraversalError,
   ResourceLimitError,
-  ErrorCode,
+  ValidationError,
 } from './errors.ts';
 
 /**
@@ -119,7 +119,9 @@ function validateTransformations(transformations: unknown[], path: string, error
     if (typeof t !== 'string') {
       errors.push(`${path}[${i}]: must be a string`);
     } else if (!VALID_TRANSFORMATIONS.includes(t)) {
-      errors.push(`${path}[${i}]: invalid transformation '${t}'. Valid: ${VALID_TRANSFORMATIONS.join(', ')}`);
+      errors.push(
+        `${path}[${i}]: invalid transformation '${t}'. Valid: ${VALID_TRANSFORMATIONS.join(', ')}`,
+      );
     }
   }
 }
@@ -239,7 +241,10 @@ export function validateConfiguration(config: unknown): ValidationResult {
 /**
  * Validates and throws if invalid
  */
-export function assertValidConfiguration(config: unknown, filePath?: string): asserts config is IConfiguration {
+export function assertValidConfiguration(
+  config: unknown,
+  filePath?: string,
+): asserts config is IConfiguration {
   const result = validateConfiguration(config);
 
   if (!result.valid) {
@@ -247,7 +252,7 @@ export function assertValidConfiguration(config: unknown, filePath?: string): as
     throw new ConfigurationError(
       errorMessage,
       ErrorCode.CONFIG_VALIDATION_ERROR,
-      { filePath }
+      { filePath },
     );
   }
 }
@@ -291,7 +296,11 @@ export function sanitizePath(inputPath: string, basePath?: string): string {
 
   // Check length limit
   if (inputPath.length > DEFAULT_RESOURCE_LIMITS.maxPathLength) {
-    throw new ResourceLimitError('path length', DEFAULT_RESOURCE_LIMITS.maxPathLength, inputPath.length);
+    throw new ResourceLimitError(
+      'path length',
+      DEFAULT_RESOURCE_LIMITS.maxPathLength,
+      inputPath.length,
+    );
   }
 
   // Remove null bytes
@@ -332,7 +341,9 @@ export function validateUrl(urlString: string): boolean {
 /**
  * Validates source URL or path
  */
-export function validateSourcePath(source: string): { valid: boolean; isUrl: boolean; error?: string } {
+export function validateSourcePath(
+  source: string,
+): { valid: boolean; isUrl: boolean; error?: string } {
   if (!source || typeof source !== 'string') {
     return { valid: false, isUrl: false, error: 'Source must be a non-empty string' };
   }
@@ -359,7 +370,7 @@ export function validateSourcePath(source: string): { valid: boolean; isUrl: boo
 export function checkFileSize(
   sizeBytes: number,
   limitBytes: number,
-  resourceName: string
+  resourceName: string,
 ): void {
   if (sizeBytes > limitBytes) {
     throw new ResourceLimitError(resourceName, limitBytes, sizeBytes);
@@ -371,7 +382,7 @@ export function checkFileSize(
  */
 export function checkSourceCount(
   count: number,
-  limit: number = DEFAULT_RESOURCE_LIMITS.maxSources
+  limit: number = DEFAULT_RESOURCE_LIMITS.maxSources,
 ): void {
   if (count > limit) {
     throw new ResourceLimitError('source count', limit, count);

@@ -3,28 +3,33 @@
  * Provides menu-driven interface matching .NET version functionality
  */
 
-import { select, input, confirm } from '@inquirer/prompts';
+import { confirm, input, select } from '@inquirer/prompts';
 import {
-  showWelcomeBanner,
-  showSuccess,
+  chalk,
+  createKeyValueTable,
+  createTable,
+  dim,
+  displayTable,
+  formatElapsed,
   showError,
   showInfo,
   showRule,
-  createKeyValueTable,
-  createTable,
-  displayTable,
-  withSpinner,
+  showSuccess,
+  showWelcomeBanner,
   truncate,
-  formatElapsed,
-  chalk,
-  dim,
+  withSpinner,
 } from './utils.ts';
-import { readConfiguration, findDefaultConfig, toJson } from '../config-reader.ts';
+import { findDefaultConfig, readConfiguration, toJson } from '../config-reader.ts';
 import { runCompiler } from '../compiler.ts';
 import { validateConfiguration } from '../validation.ts';
 import { createLogger } from '../logger.ts';
 import { getVersionInfo } from '../cli.ts';
-import type { CompilerResult, ConfigurationFormat, Logger, ExtendedConfiguration } from '../types.ts';
+import type {
+  CompilerResult,
+  ConfigurationFormat,
+  ExtendedConfiguration,
+  Logger,
+} from '../types.ts';
 
 /**
  * Available transformations with descriptions
@@ -184,9 +189,10 @@ export class ConsoleApplication {
       return;
     }
 
-    await withSpinner('Reading configuration...', async () => {
+    await withSpinner('Reading configuration...', () => {
       const config = readConfiguration(configPath, this.options.format, this.logger);
       this.displayConfiguration(config);
+      return Promise.resolve();
     });
   }
 
@@ -244,7 +250,8 @@ export class ConsoleApplication {
           String(sourceRecord['name'] ?? dim('[unnamed]')),
           String(sourceRecord['type'] ?? 'adblock'),
           truncate(String(source.source || ''), 40),
-          Array.isArray(sourceRecord['transformations']) && sourceRecord['transformations'].length > 0
+          Array.isArray(sourceRecord['transformations']) &&
+            sourceRecord['transformations'].length > 0
             ? sourceRecord['transformations'].join(', ')
             : dim('None'),
         ]);
@@ -270,17 +277,20 @@ export class ConsoleApplication {
       return;
     }
 
-    await withSpinner('Validating configuration...', async () => {
+    await withSpinner('Validating configuration...', () => {
       const config = readConfiguration(configPath, this.options.format, this.logger);
       const result = validateConfiguration(config);
       this.displayValidationResult(result);
+      return Promise.resolve();
     });
   }
 
   /**
    * Display validation result
    */
-  private displayValidationResult(result: { valid: boolean; errors: string[]; warnings: string[] }): void {
+  private displayValidationResult(
+    result: { valid: boolean; errors: string[]; warnings: string[] },
+  ): void {
     console.log();
 
     if (result.valid && result.warnings.length === 0) {
@@ -390,7 +400,11 @@ export class ConsoleApplication {
     displayTable(table);
 
     console.log();
-    console.log(dim('Note: Transformations are always applied in a fixed order regardless of configuration order.'));
+    console.log(
+      dim(
+        'Note: Transformations are always applied in a fixed order regardless of configuration order.',
+      ),
+    );
   }
 
   /**
@@ -404,7 +418,10 @@ export class ConsoleApplication {
     table.push(['Module', info.moduleVersion]);
     table.push(['Runtime', info.nodeVersion]);
     table.push(['Platform', `${info.platform.os} ${info.platform.arch}`]);
-    table.push(['TypeScript', (Deno as unknown as { version: { typescript: string } }).version.typescript]);
+    table.push([
+      'TypeScript',
+      (Deno as unknown as { version: { typescript: string } }).version.typescript,
+    ]);
     table.push(['V8', (Deno as unknown as { version: { v8: string } }).version.v8]);
 
     displayTable(table);

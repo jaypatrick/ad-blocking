@@ -27,14 +27,14 @@ export class UserRulesRepository extends BaseRepository {
       `Get user rules for DNS server ${dnsServerId}`,
       async () => {
         const servers = await this.api.listDnsServers();
-        const server = servers.find(s => s.id === dnsServerId);
+        const server = servers.find((s) => s.id === dnsServerId);
         if (!server) {
           throw new Error(`DNS server ${dnsServerId} not found`);
         }
         return server;
       },
       'DNSServer',
-      dnsServerId
+      dnsServerId,
     );
 
     return server.settings.user_rules_settings;
@@ -54,7 +54,7 @@ export class UserRulesRepository extends BaseRepository {
           user_rules_settings: settings,
         }),
       'DNSServer',
-      dnsServerId
+      dnsServerId,
     );
   }
 
@@ -101,7 +101,7 @@ export class UserRulesRepository extends BaseRepository {
    */
   async removeRule(dnsServerId: string, rule: string): Promise<void> {
     const current = await this.getRules(dnsServerId);
-    const rules = current.rules.filter(r => r !== rule);
+    const rules = current.rules.filter((r) => r !== rule);
     return this.setRules(dnsServerId, rules);
   }
 
