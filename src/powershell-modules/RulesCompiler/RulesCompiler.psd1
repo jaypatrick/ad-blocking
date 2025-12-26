@@ -20,7 +20,7 @@
     )
     
     # Classes to load
-    ScriptsToProcess = @(
+    NestedModules = @(
         'Classes\CompilerConfiguration.psm1'
     )
     
