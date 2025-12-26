@@ -1,10 +1,14 @@
 # Ad-Blocking Repository
 
 [![.NET](https://github.com/jaypatrick/ad-blocking/actions/workflows/dotnet.yml/badge.svg)](https://github.com/jaypatrick/ad-blocking/actions/workflows/dotnet.yml)
+[![Rust](https://github.com/jaypatrick/ad-blocking/actions/workflows/rust-clippy.yml/badge.svg)](https://github.com/jaypatrick/ad-blocking/actions/workflows/rust-clippy.yml)
+[![Docker](https://github.com/jaypatrick/ad-blocking/actions/workflows/docker-image.yml/badge.svg)](https://github.com/jaypatrick/ad-blocking/actions/workflows/docker-image.yml)
 [![TypeScript](https://github.com/jaypatrick/ad-blocking/actions/workflows/typescript.yml/badge.svg)](https://github.com/jaypatrick/ad-blocking/actions/workflows/typescript.yml)
-[![PowerShell](https://github.com/jaypatrick/ad-blocking/actions/workflows/powershell.yml/badge.svg)](https://github.com/jaypatrick/ad-blocking/actions/workflows/powershell.yml)
-[![Gatsby](https://github.com/jaypatrick/ad-blocking/actions/workflows/gatsby.yml/badge.svg)](https://github.com/jaypatrick/ad-blocking/actions/workflows/gatsby.yml)
-[![Release](https://github.com/jaypatrick/ad-blocking/actions/workflows/release.yml/badge.svg)](https://github.com/jaypatrick/ad-blocking/actions/workflows/release.yml)
+[![Powershell](https://github.com/jaypatrick/ad-blocking/actions/workflows/powershell.yml/badge.svg)](https://github.com/jaypatrick/ad-blocking/actions/workflows/powershell.yml)
+[![CodeQL](https://github.com/jaypatrick/ad-blocking/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/jaypatrick/ad-blocking/actions/workflows/github-code-scanning/codeql)
+[![Dependabot](https://github.com/jaypatrick/ad-blocking/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/jaypatrick/ad-blocking/actions/workflows/dependabot/dependabot-updates)
+[![Copilot](https://github.com/jaypatrick/ad-blocking/actions/workflows/copilot-pull-request-reviewer/copilot-pull-request-reviewer/badge.svg)](https://github.com/jaypatrick/ad-blocking/actions/workflows/copilot-pull-request-reviewer/copilot-pull-request-reviewer)
+[![Binaries](https://github.com/jaypatrick/ad-blocking/actions/workflows/release.yml/badge.svg)](https://github.com/jaypatrick/ad-blocking/actions/workflows/release.yml)
 
 A comprehensive multi-language toolkit for ad-blocking, network protection, and AdGuard DNS management. Features filter rule compilers in **5 languages** (TypeScript, .NET, Python, Rust, PowerShell), plus complete **API SDKs for AdGuard DNS** in both C# and Rust with interactive console interfaces.
 
@@ -1134,3 +1138,4 @@ Please see [SECURITY.md](SECURITY.md) for security policy and vulnerability repo
 ## License
 
 See [LICENSE](LICENSE) for details.
+
