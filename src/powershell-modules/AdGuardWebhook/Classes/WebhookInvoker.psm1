@@ -2,7 +2,7 @@
 
 using module .\WebhookConfiguration.psm1
 using module .\WebhookStatistics.psm1
-using module ..\..\RulesCompiler\Classes\CompilerLogger.psm1
+using module ..\..\Common\Classes\CompilerLogger.psm1
 
 <#
 .SYNOPSIS
