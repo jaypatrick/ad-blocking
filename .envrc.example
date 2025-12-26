@@ -1,0 +1,31 @@
+# =============================================================================
+# Environment Variables for ad-blocking toolkit
+# Copy this file to .env and fill in your values
+# =============================================================================
+# SECURITY: Never commit .env files with real credentials!
+# This file is tracked in git as an example. Your .env file is gitignored.
+# =============================================================================
+
+# Debug mode (set to any value to enable)
+DEBUG=
+
+# =============================================================================
+# AdGuard DNS API Configuration
+# =============================================================================
+# Use ONE of the following formats (ADGUARD_AdGuard__ApiKey is recommended
+# for cross-platform compatibility across .NET, TypeScript, Rust, etc.):
+#
+# Recommended (cross-platform format - works with C#, TypeScript, Rust CLI, and others):
+ADGUARD_AdGuard__ApiKey=
+#
+# Alternative (TypeScript/JavaScript fallback for existing configs; new projects
+# should prefer ADGUARD_AdGuard__ApiKey, but the TypeScript client supports both):
+# ADGUARD_API_KEY=
+#
+# Legacy (Rust CLI only, deprecated):
+# ADGUARD_API_TOKEN=
+
+# =============================================================================
+# Linear Integration (for Linear import scripts in src/linear/)
+# =============================================================================
+LINEAR_API_KEY=
