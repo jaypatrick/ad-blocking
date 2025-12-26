@@ -494,7 +494,7 @@ jobs:
           cd src/rules-compiler-dotnet
           dotnet test RulesCompiler.slnx
           cd ../adguard-api-dotnet
-          dotnet test src/AdGuard.ApiClient.sln
+          dotnet test AdGuard.ApiClient.slnx
 
   test-python:
     runs-on: ubuntu-latest
