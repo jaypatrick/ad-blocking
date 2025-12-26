@@ -164,28 +164,69 @@ Your compiled filter list is now in `my-filter.txt`. You can:
 
 ```bash
 # Linux/macOS
-export AdGuard__ApiKey="your-api-key-here"
+export ADGUARD_AdGuard__ApiKey="your-api-key-here"
 
 # Windows PowerShell
-$env:AdGuard__ApiKey = "your-api-key-here"
+$env:ADGUARD_AdGuard__ApiKey="your-api-key-here"
 
 # Windows CMD
-set AdGuard:ApiKey=your-api-key-here
+set ADGUARD_AdGuard__ApiKey=your-api-key-here
 ```
 
-### 3. Run the Console UI
+### 3. Choose Your API Client
+
+#### TypeScript API Client (Deno)
+
+```bash
+cd src/adguard-api-typescript
+
+# Set API key
+export ADGUARD_API_KEY="your-api-key-here"
+
+# Run interactive CLI
+deno task start
+```
+
+**Quick TypeScript Example:**
+
+```typescript
+import { AdGuardDnsClient } from './src/index.ts';
+
+// Create client
+const client = AdGuardDnsClient.fromEnv('ADGUARD_API_KEY');
+
+// List devices
+const devices = await client.devices.listDevices();
+for (const device of devices) {
+  console.log(`${device.name}: ${device.id}`);
+}
+
+// Get account limits
+const limits = await client.account.getAccountLimits();
+console.log(`Devices: ${limits.devices.used}/${limits.devices.limit}`);
+```
+
+#### .NET Console UI
 
 ```bash
 cd src/adguard-api-dotnet
 dotnet run --project src/AdGuard.ConsoleUI
 ```
 
-The interactive menu lets you:
+#### Rust CLI
+
+```bash
+cd src/adguard-api-rust
+cargo run --bin adguard-api-cli
+```
+
+All API clients provide:
 - View account limits
 - Manage devices
 - View DNS servers
 - Check query logs
 - View statistics
+- Manage user rules
 
 ## Using Docker
 
@@ -207,10 +248,25 @@ See [Docker Guide](docker-guide.md) for more details.
 
 ## Next Steps
 
-- [Configuration Reference](configuration-reference.md) - Learn all configuration options
+### Rules Compilers
+
+- [TypeScript Rules Compiler Guide](guides/typescript-rules-compiler.md) - Complete TypeScript/Deno guide
 - [Compiler Comparison](compiler-comparison.md) - Choose the right compiler for your needs
-- [API Client Usage Guide](guides/api-client-usage.md) - Detailed API client documentation
-- [API Client Examples](guides/api-client-examples.md) - Code examples
+- [Configuration Reference](configuration-reference.md) - Learn all configuration options
+
+### API Clients
+
+- [TypeScript API SDK Guide](guides/typescript-api-sdk.md) - Complete TypeScript API documentation
+- [API Client Usage Guide](guides/api-client-usage.md) - .NET API client documentation
+- [API Client Examples](guides/api-client-examples.md) - Code examples for all SDKs
+
+### Additional Resources
+
+- [Testing Guide](guides/testing-guide.md) - Test all components
+- [Deployment Guide](guides/deployment-guide.md) - Docker, Kubernetes, CI/CD
+- [Troubleshooting Guide](guides/troubleshooting-guide.md) - Common issues and solutions
+- [Migration Guide](guides/migration-guide.md) - Migrate between implementations
+- [Docker Guide](docker-guide.md) - Docker development environment
 
 ## Common Issues
 
