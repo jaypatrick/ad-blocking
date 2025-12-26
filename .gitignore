@@ -483,7 +483,7 @@ $RECYCLE.BIN/
 *.env
 # Direnv variables (Unix/Linux only)
 .envrc
-..envrc.*
+.envrc.*
 !.envrc.example
 *.envrc
 
