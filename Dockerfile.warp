@@ -10,7 +10,6 @@ ARG DENO_VERSION=2.6.3
 ARG PYTHON_VERSION=3.13
 ARG RUST_VERSION=1.85
 ARG PWSH_VERSION=7.5.4
-ARG YQ_VERSION=v4.44.7
 
 # Environment variables
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -122,7 +121,7 @@ RUN pwsh -Command "Set-PSRepository -Name 'PSGallery' -InstallationPolicy Truste
 # =============================================================================
 # YAML/TOML tools (yq for shell scripts)
 # =============================================================================
-RUN wget -q "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64" -O /usr/local/bin/yq && \
+RUN wget -q "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64" -O /usr/local/bin/yq && \
     chmod +x /usr/local/bin/yq && \
     yq --version
 
