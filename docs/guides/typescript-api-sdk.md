@@ -522,7 +522,7 @@ console.log(`- Errors: ${result.errors.length}`);
 
 // Compile and sync in one step
 const compileResult = await integration.compileAndSync('dns-server-id', {
-  configFile: 'Config/compiler-config.yaml',
+  configFile: 'compiler-config.yaml',
   clearExisting: true
 });
 ```
