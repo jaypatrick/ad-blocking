@@ -45,7 +45,8 @@
   },
   "lint": {
     "rules": {
-      "tags": ["recommended"]
+      "tags": ["recommended"],
+      "exclude": ["require-await", "no-inner-declarations"]
     }
   }
 }

@@ -47,9 +47,10 @@ export abstract class BaseApi {
           throw new AuthenticationError(message);
         case 404:
           throw new EntityNotFoundError(entityType ?? 'Resource', entityId);
-        case 429:
+        case 429: {
           const retryAfter = error.response?.headers?.['retry-after'];
           throw new RateLimitError(message, retryAfter ? parseInt(retryAfter, 10) : undefined);
+        }
         default:
           throw new ApiError(message, status, data);
       }
