@@ -36,7 +36,7 @@ Deno.test('detectFormat - throws error for unknown extension .xml', () => {
   assertThrows(
     () => detectFormat('config.xml'),
     Error,
-    'Unknown configuration file extension: .xml'
+    'Unknown configuration file extension: .xml',
   );
 });
 
@@ -44,6 +44,6 @@ Deno.test('detectFormat - throws error for unknown extension .txt', () => {
   assertThrows(
     () => detectFormat('config.txt'),
     Error,
-    'Unknown configuration file extension: .txt'
+    'Unknown configuration file extension: .txt',
   );
 });

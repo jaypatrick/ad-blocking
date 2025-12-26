@@ -2,19 +2,14 @@
  * Markdown documentation parser for Linear import
  */
 
-import { readFileSync } from "fs";
-import {
-  DocumentSection,
-  ParsedDocument,
-  RoadmapItem,
-  ComponentInfo,
-} from "./types.js";
+import { readFileSync } from 'fs';
+import { ComponentInfo, DocumentSection, ParsedDocument, RoadmapItem } from './types.ts';
 
 /**
  * Parse a markdown file into structured sections
  */
 export function parseMarkdownFile(filePath: string): ParsedDocument {
-  const rawContent = readFileSync(filePath, "utf-8");
+  const rawContent = readFileSync(filePath, 'utf-8');
   return parseMarkdown(rawContent);
 }
 
@@ -22,9 +17,9 @@ export function parseMarkdownFile(filePath: string): ParsedDocument {
  * Parse markdown content into structured sections
  */
 export function parseMarkdown(content: string): ParsedDocument {
-  const lines = content.split("\n");
+  const lines = content.split('\n');
   const sections: DocumentSection[] = [];
-  let title = "";
+  let title = '';
 
   let currentSection: DocumentSection | null = null;
   const sectionStack: DocumentSection[] = [];
@@ -36,7 +31,7 @@ export function parseMarkdown(content: string): ParsedDocument {
     if (headingMatch) {
       // Save accumulated content to current section
       if (currentSection) {
-        currentSection.content = contentBuffer.join("\n").trim();
+        currentSection.content = contentBuffer.join('\n').trim();
       }
       contentBuffer = [];
 
@@ -58,7 +53,7 @@ export function parseMarkdown(content: string): ParsedDocument {
       const newSection: DocumentSection = {
         title: sectionTitle,
         level,
-        content: "",
+        content: '',
         subsections: [],
       };
 
@@ -90,7 +85,7 @@ export function parseMarkdown(content: string): ParsedDocument {
 
   // Save final content
   if (currentSection) {
-    currentSection.content = contentBuffer.join("\n").trim();
+    currentSection.content = contentBuffer.join('\n').trim();
   }
 
   return {
@@ -109,8 +104,8 @@ export function extractRoadmapItems(document: ParsedDocument): RoadmapItem[] {
   function findRoadmapSection(sections: DocumentSection[]): DocumentSection | null {
     for (const section of sections) {
       if (
-        section.title.toLowerCase().includes("roadmap") ||
-        section.title.toLowerCase().includes("future work")
+        section.title.toLowerCase().includes('roadmap') ||
+        section.title.toLowerCase().includes('future work')
       ) {
         return section;
       }
@@ -125,7 +120,7 @@ export function extractRoadmapItems(document: ParsedDocument): RoadmapItem[] {
 
   // Parse checkbox items from roadmap section
   const content = roadmapSection.content +
-    roadmapSection.subsections.map(s => s.content).join("\n");
+    roadmapSection.subsections.map((s: DocumentSection) => s.content).join('\n');
 
   const checkboxRegex = /^-\s*\[([ x])\]\s*(.+)$/gm;
   let match;
@@ -136,8 +131,8 @@ export function extractRoadmapItems(document: ParsedDocument): RoadmapItem[] {
     if (checkbox !== undefined && itemTitle !== undefined) {
       roadmapItems.push({
         title: itemTitle.trim(),
-        description: "",
-        completed: checkbox === "x",
+        description: '',
+        completed: checkbox === 'x',
       });
     }
   }
@@ -153,7 +148,7 @@ export function extractComponents(document: ParsedDocument): ComponentInfo[] {
 
   function findComponentsSection(sections: DocumentSection[]): DocumentSection | null {
     for (const section of sections) {
-      if (section.title.toLowerCase() === "components") {
+      if (section.title.toLowerCase() === 'components') {
         return section;
       }
       const found = findComponentsSection(section.subsections);
@@ -172,8 +167,8 @@ export function extractComponents(document: ParsedDocument): ComponentInfo[] {
 
     const component: ComponentInfo = {
       name: nameMatch?.[1]?.trim() ?? subsection.title,
-      path: pathMatch?.[1] ?? "",
-      purpose: "",
+      path: pathMatch?.[1] ?? '',
+      purpose: '',
       techStack: [],
       keyFiles: [],
     };
@@ -186,28 +181,26 @@ export function extractComponents(document: ParsedDocument): ComponentInfo[] {
 
     // Extract tech stack from content
     const techStackSection = subsection.content.match(
-      /\*\*Technology Stack:\*\*\n([\s\S]*?)(?=\n\*\*|\n---|\n###|$)/
+      /\*\*Technology Stack:\*\*\n([\s\S]*?)(?=\n\*\*|\n---|\n###|$)/,
     );
     if (techStackSection?.[1]) {
       const techItems = techStackSection[1].match(/^-\s+(.+)/gm);
       if (techItems) {
-        component.techStack = techItems.map((item) =>
-          item.replace(/^-\s+/, "").trim()
-        );
+        component.techStack = techItems.map((item: string) => item.replace(/^-\s+/, '').trim());
       }
     }
 
     // Extract key files from tables
     const tableMatch = subsection.content.match(
-      /\| File \| Description \|\n\|[-\s|]+\|\n([\s\S]*?)(?=\n\n|\n---|\n###|$)/
+      /\| File \| Description \|\n\|[-\s|]+\|\n([\s\S]*?)(?=\n\n|\n---|\n###|$)/,
     );
     if (tableMatch?.[1]) {
-      const rows = tableMatch[1].split("\n").filter((row) => row.trim());
+      const rows = tableMatch[1].split('\n').filter((row: string) => row.trim());
       for (const row of rows) {
-        const cells = row.split("|").filter((cell) => cell.trim());
+        const cells = row.split('|').filter((cell: string) => cell.trim());
         if (cells.length >= 2 && cells[0] && cells[1]) {
           component.keyFiles.push({
-            file: cells[0].replace(/`/g, "").trim(),
+            file: cells[0].replace(/`/g, '').trim(),
             description: cells[1].trim(),
           });
         }
@@ -225,16 +218,16 @@ export function extractComponents(document: ParsedDocument): ComponentInfo[] {
  */
 export function getSectionByPath(
   document: ParsedDocument,
-  path: string
+  path: string,
 ): DocumentSection | null {
-  const parts = path.split("/");
+  const parts = path.split('/');
   let sections = document.sections;
 
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
     if (!part) continue;
 
-    const found = sections.find((s) =>
+    const found = sections.find((s: DocumentSection) =>
       s.title.toLowerCase().includes(part.toLowerCase())
     );
     if (!found) return null;

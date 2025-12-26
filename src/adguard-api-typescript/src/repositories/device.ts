@@ -6,11 +6,11 @@ import { BaseRepository } from './base.ts';
 import { DevicesApi } from '../api/devices.ts';
 import { Logger } from '../helpers/configuration.ts';
 import {
+  DedicatedIps,
   Device,
   DeviceCreate,
-  DeviceUpdate,
   DeviceSettingsUpdate,
-  DedicatedIps,
+  DeviceUpdate,
   LinkDedicatedIPv4,
 } from '../models/index.ts';
 
@@ -42,7 +42,7 @@ export class DeviceRepository extends BaseRepository {
       `Get device ${id}`,
       () => this.api.getDevice(id),
       'Device',
-      id
+      id,
     );
   }
 
@@ -66,7 +66,7 @@ export class DeviceRepository extends BaseRepository {
       `Update device ${id}`,
       () => this.api.updateDevice(id, data),
       'Device',
-      id
+      id,
     );
   }
 
@@ -80,7 +80,7 @@ export class DeviceRepository extends BaseRepository {
       `Delete device ${id}`,
       () => this.api.removeDevice(id),
       'Device',
-      id
+      id,
     );
   }
 
@@ -95,7 +95,7 @@ export class DeviceRepository extends BaseRepository {
       `Update device settings ${id}`,
       () => this.api.updateDeviceSettings(id, settings),
       'Device',
-      id
+      id,
     );
   }
 
@@ -105,8 +105,9 @@ export class DeviceRepository extends BaseRepository {
    * @returns Dedicated IPs
    */
   async getDedicatedAddresses(id: string): Promise<DedicatedIps> {
-    return this.execute(`Get dedicated addresses for ${id}`, () =>
-      this.api.listDedicatedAddresses(id)
+    return this.execute(
+      `Get dedicated addresses for ${id}`,
+      () => this.api.listDedicatedAddresses(id),
     );
   }
 
@@ -120,7 +121,7 @@ export class DeviceRepository extends BaseRepository {
       `Link IPv4 ${data.ip} to device ${id}`,
       () => this.api.linkDedicatedIPv4(id, data),
       'Device',
-      id
+      id,
     );
   }
 
@@ -134,7 +135,7 @@ export class DeviceRepository extends BaseRepository {
       `Unlink IPv4 ${ip} from device ${id}`,
       () => this.api.unlinkDedicatedIPv4(id, ip),
       'Device',
-      id
+      id,
     );
   }
 
@@ -147,7 +148,7 @@ export class DeviceRepository extends BaseRepository {
       `Reset DoH password for device ${id}`,
       () => this.api.resetDOHPassword(id),
       'Device',
-      id
+      id,
     );
   }
 }

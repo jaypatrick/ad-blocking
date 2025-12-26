@@ -4,10 +4,7 @@
 
 import { BaseApi } from './base.ts';
 import { ApiConfiguration } from '../helpers/configuration.ts';
-import {
-  AccessTokenCredentials,
-  AccessTokenResponse,
-} from '../models/index.ts';
+import { AccessTokenCredentials, AccessTokenResponse } from '../models/index.ts';
 
 /** Authentication API endpoints */
 export class AuthApi extends BaseApi {
@@ -31,6 +28,8 @@ export class AuthApi extends BaseApi {
    */
   async revokeToken(refreshToken: string): Promise<void> {
     this.logger.debug('Revoking refresh token');
-    await this.post<void>(`/oapi/v1/revoke_token?refresh_token=${encodeURIComponent(refreshToken)}`);
+    await this.post<void>(
+      `/oapi/v1/revoke_token?refresh_token=${encodeURIComponent(refreshToken)}`,
+    );
   }
 }

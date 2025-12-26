@@ -25,10 +25,10 @@
     "axios": "npm:axios@^1.13.2",
     "axios-retry": "npm:axios-retry@^4.5.0",
     "chalk": "npm:chalk@^5.6.2",
-    "commander": "npm:commander@^13.1.0",
-    "inquirer": "npm:inquirer@^9.3.8",
-    "@inquirer/prompts": "npm:@inquirer/prompts@^7.10.1",
-    "ora": "npm:ora@^8.2.0",
+    "commander": "npm:commander@^14.0.2",
+    "inquirer": "npm:inquirer@^13.1.0",
+    "@inquirer/prompts": "npm:@inquirer/prompts@^8.1.0",
+    "ora": "npm:ora@^9.0.0",
     "cli-table3": "npm:cli-table3@^0.6.5"
   },
   "compilerOptions": {

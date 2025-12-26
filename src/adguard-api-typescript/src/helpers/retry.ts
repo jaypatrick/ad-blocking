@@ -50,7 +50,7 @@ export function isRetryableError(error: Error): boolean {
 /** Calculate delay for a retry attempt */
 export function calculateDelay(
   attempt: number,
-  options: Required<Omit<RetryOptions, 'shouldRetry' | 'onRetry'>>
+  options: Required<Omit<RetryOptions, 'shouldRetry' | 'onRetry'>>,
 ): number {
   let delay: number;
 
@@ -72,13 +72,13 @@ export function calculateDelay(
 
 /** Sleep for a given number of milliseconds */
 function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /** Execute an async function with retry logic */
 export async function executeWithRetry<T>(
   operation: () => Promise<T>,
-  options: RetryOptions = {}
+  options: RetryOptions = {},
 ): Promise<T> {
   const opts = {
     ...DEFAULT_RETRY_OPTIONS,
@@ -119,7 +119,7 @@ export async function executeWithRetry<T>(
 /** Create a retry-enabled wrapper for an async function */
 export function withRetry<TArgs extends unknown[], TResult>(
   fn: (...args: TArgs) => Promise<TResult>,
-  options: RetryOptions = {}
+  options: RetryOptions = {},
 ): (...args: TArgs) => Promise<TResult> {
   return (...args: TArgs) => executeWithRetry(() => fn(...args), options);
 }
@@ -127,7 +127,7 @@ export function withRetry<TArgs extends unknown[], TResult>(
 /** Create a rate limit specific retry policy */
 export function createRateLimitRetryPolicy(
   maxRetries: number = 3,
-  baseDelayMs: number = 5000
+  baseDelayMs: number = 5000,
 ): RetryOptions {
   return {
     maxRetries,

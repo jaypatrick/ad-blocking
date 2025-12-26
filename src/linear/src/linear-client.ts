@@ -2,14 +2,14 @@
  * Linear API client wrapper for documentation import
  */
 
-import { LinearClient } from "@linear/sdk";
+import { LinearClient } from '@linear/sdk';
 import {
+  ComponentInfo,
   ImportConfig,
   LinearImportResult,
   ParsedDocument,
   RoadmapItem,
-  ComponentInfo,
-} from "./types.js";
+} from './types.ts';
 
 export class LinearImporter {
   private client: LinearClient;
@@ -35,11 +35,11 @@ export class LinearImporter {
       } else {
         const teams = await this.client.teams();
         if (teams.nodes.length === 0) {
-          throw new Error("No teams found in Linear workspace");
+          throw new Error('No teams found in Linear workspace');
         }
         const firstTeam = teams.nodes[0];
         if (!firstTeam) {
-          throw new Error("No teams found in Linear workspace");
+          throw new Error('No teams found in Linear workspace');
         }
         this.teamId = firstTeam.id;
         console.log(`Using team: ${firstTeam.name}`);
@@ -55,7 +55,7 @@ export class LinearImporter {
   async importDocumentation(
     document: ParsedDocument,
     roadmapItems: RoadmapItem[],
-    components: ComponentInfo[]
+    components: ComponentInfo[],
   ): Promise<LinearImportResult> {
     const result: LinearImportResult = {
       issuesCreated: 0,
@@ -64,7 +64,7 @@ export class LinearImporter {
     };
 
     if (!this.teamId) {
-      throw new Error("Linear client not initialized. Call initialize() first.");
+      throw new Error('Linear client not initialized. Call initialize() first.');
     }
 
     try {
@@ -110,7 +110,7 @@ export class LinearImporter {
             }
           } catch (error) {
             result.errors.push(
-              `Failed to create component doc "${component.name}": ${error}`
+              `Failed to create component doc "${component.name}": ${error}`,
             );
           }
         }
@@ -155,7 +155,7 @@ export class LinearImporter {
     if (projects.nodes.length > 0) {
       const existingProject = projects.nodes[0];
       if (!existingProject) {
-        throw new Error("Project found but could not be accessed");
+        throw new Error('Project found but could not be accessed');
       }
       console.log(`Found existing project: ${projectName}`);
       return existingProject.id;
@@ -164,27 +164,27 @@ export class LinearImporter {
     // Create new project
     if (this.config.dryRun) {
       console.log(`[DRY RUN] Would create project: ${projectName}`);
-      return "dry-run-project-id";
+      return 'dry-run-project-id';
     }
 
     const teams = await this.client.teams();
     if (teams.nodes.length === 0) {
-      throw new Error("No teams found in Linear workspace");
+      throw new Error('No teams found in Linear workspace');
     }
     const team = teams.nodes.find((t) => t.id === this.teamId) || teams.nodes[0];
     if (!team) {
-      throw new Error("No team available for project creation");
+      throw new Error('No team available for project creation');
     }
 
     const projectPayload = await this.client.createProject({
       name: projectName,
-      description: "Ad-blocking system documentation and tracking",
+      description: 'Ad-blocking system documentation and tracking',
       teamIds: [team.id],
     });
 
     const project = await projectPayload.project;
     if (!project) {
-      throw new Error("Failed to create project");
+      throw new Error('Failed to create project');
     }
 
     console.log(`Created project: ${projectName}`);
@@ -196,7 +196,7 @@ export class LinearImporter {
    */
   private async createIssue(
     item: RoadmapItem,
-    projectId?: string
+    projectId?: string,
   ): Promise<void> {
     const issueInput: {
       title: string;
@@ -221,7 +221,7 @@ export class LinearImporter {
    */
   private async createComponentIssue(
     component: ComponentInfo,
-    projectId?: string
+    projectId?: string,
   ): Promise<void> {
     const description = this.formatComponentDescription(component);
 
@@ -248,13 +248,13 @@ export class LinearImporter {
    */
   private async createMainDocumentationIssue(
     document: ParsedDocument,
-    projectId?: string
+    projectId?: string,
   ): Promise<void> {
     // Truncate content if too long for Linear
     const maxLength = 10000;
     let content = document.rawContent;
     if (content.length > maxLength) {
-      content = content.substring(0, maxLength) + "\n\n... (truncated)";
+      content = content.substring(0, maxLength) + '\n\n... (truncated)';
     }
 
     const issueInput: {
@@ -291,13 +291,13 @@ export class LinearImporter {
       for (const tech of component.techStack) {
         description += `- ${tech}\n`;
       }
-      description += "\n";
+      description += '\n';
     }
 
     if (component.keyFiles.length > 0) {
       description += `### Key Files\n`;
-      description += "| File | Description |\n";
-      description += "|------|-------------|\n";
+      description += '| File | Description |\n';
+      description += '|------|-------------|\n';
       for (const file of component.keyFiles) {
         description += `| \`${file.file}\` | ${file.description} |\n`;
       }

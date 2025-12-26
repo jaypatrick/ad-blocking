@@ -5,11 +5,11 @@
 import { BaseApi } from './base.ts';
 import { ApiConfiguration } from '../helpers/configuration.ts';
 import {
+  DedicatedIps,
   Device,
   DeviceCreate,
-  DeviceUpdate,
   DeviceSettingsUpdate,
-  DedicatedIps,
+  DeviceUpdate,
   LinkDedicatedIPv4,
 } from '../models/index.ts';
 
@@ -141,7 +141,7 @@ export class DevicesApi extends BaseApi {
   async getDoHMobileConfig(
     deviceId: string,
     excludeWifiNetworks?: string[],
-    excludeDomains?: string[]
+    excludeDomains?: string[],
   ): Promise<string> {
     this.logger.debug(`Getting DoH mobile config for device: ${deviceId}`);
     const params: Record<string, unknown> = {};
@@ -164,7 +164,7 @@ export class DevicesApi extends BaseApi {
   async getDoTMobileConfig(
     deviceId: string,
     excludeWifiNetworks?: string[],
-    excludeDomains?: string[]
+    excludeDomains?: string[],
   ): Promise<string> {
     this.logger.debug(`Getting DoT mobile config for device: ${deviceId}`);
     const params: Record<string, unknown> = {};

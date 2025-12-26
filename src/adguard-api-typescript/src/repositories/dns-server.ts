@@ -8,8 +8,8 @@ import { Logger } from '../helpers/configuration.ts';
 import {
   DNSServer,
   DNSServerCreate,
-  DNSServerUpdate,
   DNSServerSettingsUpdate,
+  DNSServerUpdate,
 } from '../models/index.ts';
 
 /** DNS Server repository for managing DNS servers/profiles */
@@ -40,7 +40,7 @@ export class DnsServerRepository extends BaseRepository {
       `Get DNS server ${id}`,
       () => this.api.getDnsServer(id),
       'DNSServer',
-      id
+      id,
     );
   }
 
@@ -64,7 +64,7 @@ export class DnsServerRepository extends BaseRepository {
       `Update DNS server ${id}`,
       () => this.api.updateDnsServer(id, data),
       'DNSServer',
-      id
+      id,
     );
   }
 
@@ -78,7 +78,7 @@ export class DnsServerRepository extends BaseRepository {
       `Delete DNS server ${id}`,
       () => this.api.removeDnsServer(id),
       'DNSServer',
-      id
+      id,
     );
   }
 
@@ -93,7 +93,7 @@ export class DnsServerRepository extends BaseRepository {
       `Update DNS server settings ${id}`,
       () => this.api.updateDnsServerSettings(id, settings),
       'DNSServer',
-      id
+      id,
     );
   }
 
@@ -103,6 +103,6 @@ export class DnsServerRepository extends BaseRepository {
    */
   async getDefault(): Promise<DNSServer | undefined> {
     const servers = await this.getAll();
-    return servers.find(s => s.default);
+    return servers.find((s) => s.default);
   }
 }

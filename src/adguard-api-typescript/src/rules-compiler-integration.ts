@@ -49,7 +49,7 @@ export class RulesCompilerIntegration {
   constructor(
     userRulesRepo: UserRulesRepository,
     dnsServerRepo: DnsServerRepository,
-    logger?: Logger
+    logger?: Logger,
   ) {
     this.userRulesRepo = userRulesRepo;
     this.dnsServerRepo = dnsServerRepo;
@@ -64,19 +64,17 @@ export class RulesCompilerIntegration {
    */
   async readRulesFromFile(
     filePath: string,
-    filterComments: boolean = true
+    filterComments: boolean = true,
   ): Promise<string[]> {
     this.logger.debug(`Reading rules from: ${filePath}`);
 
-    const absolutePath = path.isAbsolute(filePath)
-      ? filePath
-      : path.resolve(Deno.cwd(), filePath);
+    const absolutePath = path.isAbsolute(filePath) ? filePath : path.resolve(Deno.cwd(), filePath);
 
     const content = await fs.readFile(absolutePath, 'utf-8');
     let lines = content.split('\n');
 
     if (filterComments) {
-      lines = lines.filter(line => {
+      lines = lines.filter((line) => {
         const trimmed = line.trim();
         // Keep non-empty lines that aren't comments
         // AdGuard rules starting with ! are comments, but lines starting with || are rules
@@ -98,7 +96,7 @@ export class RulesCompilerIntegration {
     let lines = content.split('\n');
 
     if (filterComments) {
-      lines = lines.filter(line => {
+      lines = lines.filter((line) => {
         const trimmed = line.trim();
         return trimmed.length > 0 && !trimmed.startsWith('!') && !trimmed.startsWith('#');
       });
@@ -115,7 +113,7 @@ export class RulesCompilerIntegration {
    */
   async syncRules(
     dnsServerId: string,
-    options: RulesSyncOptions
+    options: RulesSyncOptions,
   ): Promise<RulesSyncResult> {
     try {
       this.logger.info(`Syncing rules to DNS server: ${dnsServerId}`);
@@ -125,11 +123,11 @@ export class RulesCompilerIntegration {
       if (options.rulesPath) {
         rules = await this.readRulesFromFile(
           options.rulesPath,
-          options.filterComments !== false
+          options.filterComments !== false,
         );
       } else if (options.rules) {
         rules = options.filterComments !== false
-          ? options.rules.filter(r => r.trim().length > 0 && !r.trim().startsWith('!'))
+          ? options.rules.filter((r) => r.trim().length > 0 && !r.trim().startsWith('!'))
           : options.rules;
       } else {
         throw new Error('Either rulesPath or rules must be provided');
@@ -206,7 +204,7 @@ export class RulesCompilerIntegration {
   async syncCompiledRules(
     dnsServerId: string,
     rulesDirectory: string = 'rules',
-    rulesFile: string = 'adguard_user_filter.txt'
+    rulesFile: string = 'adguard_user_filter.txt',
   ): Promise<RulesSyncResult> {
     const rulesPath = path.join(rulesDirectory, rulesFile);
     return this.syncRules(dnsServerId, {
@@ -224,7 +222,7 @@ export class RulesCompilerIntegration {
    */
   async getRulesDiff(
     dnsServerId: string,
-    newRules: string[]
+    newRules: string[],
   ): Promise<{
     added: string[];
     removed: string[];
@@ -234,9 +232,9 @@ export class RulesCompilerIntegration {
     const currentSet = new Set(current.rules);
     const newSet = new Set(newRules);
 
-    const added = newRules.filter(r => !currentSet.has(r));
-    const removed = current.rules.filter(r => !newSet.has(r));
-    const unchanged = newRules.filter(r => currentSet.has(r));
+    const added = newRules.filter((r) => !currentSet.has(r));
+    const removed = current.rules.filter((r) => !newSet.has(r));
+    const unchanged = newRules.filter((r) => currentSet.has(r));
 
     return { added, removed, unchanged };
   }

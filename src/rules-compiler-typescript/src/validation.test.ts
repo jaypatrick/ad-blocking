@@ -5,14 +5,14 @@
 
 import { assertEquals, assertThrows } from 'https://deno.land/std@0.220.0/assert/mod.ts';
 import {
-  validateConfiguration,
   assertValidConfiguration,
-  containsPathTraversal,
-  validateUrl,
-  validateSourcePath,
   checkFileSize,
   checkSourceCount,
+  containsPathTraversal,
   DEFAULT_RESOURCE_LIMITS,
+  validateConfiguration,
+  validateSourcePath,
+  validateUrl,
 } from './validation.ts';
 import { ConfigurationError, ResourceLimitError } from './errors.ts';
 
@@ -64,7 +64,7 @@ Deno.test('validateConfiguration - requires name field', () => {
   const result = validateConfiguration(config);
 
   assertEquals(result.valid, false);
-  assertEquals(result.errors.some(e => e.includes('name')), true);
+  assertEquals(result.errors.some((e) => e.includes('name')), true);
 });
 
 Deno.test('validateConfiguration - rejects empty name', () => {
@@ -72,7 +72,7 @@ Deno.test('validateConfiguration - rejects empty name', () => {
   const result = validateConfiguration(config);
 
   assertEquals(result.valid, false);
-  assertEquals(result.errors.some(e => e.includes('name')), true);
+  assertEquals(result.errors.some((e) => e.includes('name')), true);
 });
 
 Deno.test('validateConfiguration - requires sources field', () => {
@@ -80,7 +80,7 @@ Deno.test('validateConfiguration - requires sources field', () => {
   const result = validateConfiguration(config);
 
   assertEquals(result.valid, false);
-  assertEquals(result.errors.some(e => e.includes('sources')), true);
+  assertEquals(result.errors.some((e) => e.includes('sources')), true);
 });
 
 Deno.test('validateConfiguration - rejects empty sources array', () => {
@@ -88,7 +88,7 @@ Deno.test('validateConfiguration - rejects empty sources array', () => {
   const result = validateConfiguration(config);
 
   assertEquals(result.valid, false);
-  assertEquals(result.errors.some(e => e.includes('sources')), true);
+  assertEquals(result.errors.some((e) => e.includes('sources')), true);
 });
 
 Deno.test('validateConfiguration - validates source objects', () => {
@@ -99,7 +99,7 @@ Deno.test('validateConfiguration - validates source objects', () => {
   const result = validateConfiguration(config);
 
   assertEquals(result.valid, false);
-  assertEquals(result.errors.some(e => e.includes('sources[0].source')), true);
+  assertEquals(result.errors.some((e) => e.includes('sources[0].source')), true);
 });
 
 Deno.test('validateConfiguration - validates source type values', () => {
@@ -110,7 +110,7 @@ Deno.test('validateConfiguration - validates source type values', () => {
   const result = validateConfiguration(config);
 
   assertEquals(result.valid, false);
-  assertEquals(result.errors.some(e => e.includes('type')), true);
+  assertEquals(result.errors.some((e) => e.includes('type')), true);
 });
 
 Deno.test('validateConfiguration - validates transformation names', () => {
@@ -122,7 +122,7 @@ Deno.test('validateConfiguration - validates transformation names', () => {
   const result = validateConfiguration(config);
 
   assertEquals(result.valid, false);
-  assertEquals(result.errors.some(e => e.includes('InvalidTransformation')), true);
+  assertEquals(result.errors.some((e) => e.includes('InvalidTransformation')), true);
 });
 
 Deno.test('validateConfiguration - accepts valid transformations', () => {
@@ -144,7 +144,7 @@ Deno.test('validateConfiguration - warns about invalid homepage URL', () => {
   };
   const result = validateConfiguration(config);
 
-  assertEquals(result.warnings.some(w => w.includes('homepage')), true);
+  assertEquals(result.warnings.some((w) => w.includes('homepage')), true);
 });
 
 // assertValidConfiguration tests
@@ -163,7 +163,7 @@ Deno.test('assertValidConfiguration - throws ConfigurationError for invalid conf
 
   assertThrows(
     () => assertValidConfiguration(config),
-    ConfigurationError
+    ConfigurationError,
   );
 });
 
@@ -243,7 +243,7 @@ Deno.test('checkFileSize - does not throw when under limit', () => {
 Deno.test('checkFileSize - throws ResourceLimitError when over limit', () => {
   assertThrows(
     () => checkFileSize(3000, 2000, 'test'),
-    ResourceLimitError
+    ResourceLimitError,
   );
 });
 
@@ -256,7 +256,7 @@ Deno.test('checkSourceCount - does not throw when under limit', () => {
 Deno.test('checkSourceCount - throws ResourceLimitError when over limit', () => {
   assertThrows(
     () => checkSourceCount(200, 100),
-    ResourceLimitError
+    ResourceLimitError,
   );
 });
 
@@ -266,7 +266,7 @@ Deno.test('checkSourceCount - uses default limit', () => {
 
   assertThrows(
     () => checkSourceCount(DEFAULT_RESOURCE_LIMITS.maxSources + 1),
-    ResourceLimitError
+    ResourceLimitError,
   );
 });
 

@@ -19,10 +19,10 @@
     "node:fs": "node:fs",
     "node:path": "node:path",
     "node:url": "node:url",
-    "@linear/sdk": "npm:@linear/sdk@^37.0.0",
-    "dotenv": "npm:dotenv@^16.5.0",
-    "marked": "npm:marked@^15.0.0",
-    "commander": "npm:commander@^13.1.0"
+    "@linear/sdk": "npm:@linear/sdk@^68.1.0",
+    "dotenv": "npm:dotenv@^17.2.3",
+    "marked": "npm:marked@^17.0.1",
+    "commander": "npm:commander@^14.0.2"
   },
   "compilerOptions": {
     "lib": ["deno.ns", "deno.unstable", "dom"],

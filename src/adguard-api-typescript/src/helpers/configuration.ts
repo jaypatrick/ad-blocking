@@ -4,7 +4,7 @@
  */
 
 import axios, { AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
-import { RetryOptions, executeWithRetry } from './retry.ts';
+import { executeWithRetry, RetryOptions } from './retry.ts';
 
 /** API base path */
 export const DEFAULT_BASE_PATH = 'https://api.adguard-dns.io';
@@ -101,16 +101,16 @@ export function createAxiosInstance(config: ApiConfiguration): AxiosInstance {
 
   // Add response logging interceptor
   instance.interceptors.response.use(
-    response => {
+    (response) => {
       logger.debug(`Response: ${response.status} ${response.statusText}`);
       return response;
     },
-    error => {
+    (error) => {
       if (axios.isAxiosError(error)) {
         logger.error(`Request failed: ${error.response?.status} ${error.message}`);
       }
       return Promise.reject(error);
-    }
+    },
   );
 
   return instance;
@@ -200,7 +200,7 @@ export class ConfigurationBuilder {
 export function createWithApiKey(
   apiKey: string,
   basePath: string = DEFAULT_BASE_PATH,
-  logger?: Logger
+  logger?: Logger,
 ): ApiConfiguration {
   if (!apiKey || apiKey.trim().length === 0) {
     throw new Error('API key cannot be empty');
@@ -219,7 +219,7 @@ export function createWithApiKey(
 export function createWithBearerToken(
   accessToken: string,
   basePath: string = DEFAULT_BASE_PATH,
-  logger?: Logger
+  logger?: Logger,
 ): ApiConfiguration {
   if (!accessToken || accessToken.trim().length === 0) {
     throw new Error('Access token cannot be empty');
@@ -239,7 +239,7 @@ export function createCustom(
   basePath?: string,
   timeout?: number,
   userAgent?: string,
-  logger?: Logger
+  logger?: Logger,
 ): ApiConfiguration {
   const config: ApiConfiguration = { ...DEFAULT_CONFIG };
 
@@ -283,7 +283,7 @@ export function maskApiKey(apiKey: string): string {
 
 /** Create a request wrapper with retry logic */
 export function createRetryableClient(
-  config: ApiConfiguration
+  config: ApiConfiguration,
 ): <T>(request: () => Promise<T>) => Promise<T> {
   const retryOptions = config.retryOptions ?? {};
 
@@ -292,7 +292,7 @@ export function createRetryableClient(
       ...retryOptions,
       onRetry: (error, attempt, delay) => {
         config.logger?.warn(
-          `Request failed, retrying (attempt ${attempt}): ${error.message}. Waiting ${delay}ms...`
+          `Request failed, retrying (attempt ${attempt}): ${error.message}. Waiting ${delay}ms...`,
         );
         retryOptions.onRetry?.(error, attempt, delay);
       },

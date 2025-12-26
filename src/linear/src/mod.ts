@@ -9,7 +9,14 @@
 
 // Re-export modules for library usage
 export * from './types.ts';
-export { parseMarkdownFile, parseMarkdown, extractRoadmapItems, extractComponents, getSectionByPath, flattenSections } from './parser.ts';
+export {
+  extractComponents,
+  extractRoadmapItems,
+  flattenSections,
+  getSectionByPath,
+  parseMarkdown,
+  parseMarkdownFile,
+} from './parser.ts';
 export { LinearImporter } from './linear-client.ts';
 
 // Deno CLI entry point
@@ -152,7 +159,7 @@ if (import.meta.main) {
       const result = await importer.importDocumentation(
         document,
         roadmapItems,
-        components
+        components,
       );
 
       // Print results

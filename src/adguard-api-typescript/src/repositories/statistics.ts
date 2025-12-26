@@ -7,14 +7,14 @@ import { StatisticsApi } from '../api/statistics.ts';
 import { Logger } from '../helpers/configuration.ts';
 import { DateTime } from '../helpers/datetime.ts';
 import {
-  TimeQueriesStatsList,
   CategoryQueriesStatsList,
-  CompanyQueriesStatsList,
   CompanyDetailedQueriesStatsList,
+  CompanyQueriesStatsList,
   CountryQueriesStatsList,
   DeviceQueriesStatsList,
   DomainQueriesStatsList,
   StatsQueryParams,
+  TimeQueriesStatsList,
 } from '../models/index.ts';
 
 /** Time range presets */
@@ -39,7 +39,7 @@ export class StatisticsRepository extends BaseRepository {
   getTimeRangeParams(
     range: TimeRange,
     customFrom?: number,
-    customTo?: number
+    customTo?: number,
   ): Pick<StatsQueryParams, 'time_from_millis' | 'time_to_millis'> {
     switch (range) {
       case 'today':
@@ -90,7 +90,7 @@ export class StatisticsRepository extends BaseRepository {
   async getTimeStatsByRange(
     range: TimeRange,
     devices?: string[],
-    countries?: string[]
+    countries?: string[],
   ): Promise<TimeQueriesStatsList> {
     const params = {
       ...this.getTimeRangeParams(range),
@@ -105,8 +105,9 @@ export class StatisticsRepository extends BaseRepository {
    * @param params - Query parameters
    */
   async getCategoryStats(params: StatsQueryParams): Promise<CategoryQueriesStatsList> {
-    return this.execute('Get category statistics', () =>
-      this.api.getCategoriesQueriesStats(params)
+    return this.execute(
+      'Get category statistics',
+      () => this.api.getCategoriesQueriesStats(params),
     );
   }
 
@@ -123,10 +124,11 @@ export class StatisticsRepository extends BaseRepository {
    * @param params - Query parameters with pagination
    */
   async getDetailedCompanyStats(
-    params: StatsQueryParams & { cursor?: string }
+    params: StatsQueryParams & { cursor?: string },
   ): Promise<CompanyDetailedQueriesStatsList> {
-    return this.execute('Get detailed company statistics', () =>
-      this.api.getDetailedCompaniesStats(params)
+    return this.execute(
+      'Get detailed company statistics',
+      () => this.api.getDetailedCompaniesStats(params),
     );
   }
 
@@ -135,9 +137,7 @@ export class StatisticsRepository extends BaseRepository {
    * @param params - Query parameters
    */
   async getCountryStats(params: StatsQueryParams): Promise<CountryQueriesStatsList> {
-    return this.execute('Get country statistics', () =>
-      this.api.getCountriesQueriesStats(params)
-    );
+    return this.execute('Get country statistics', () => this.api.getCountriesQueriesStats(params));
   }
 
   /**

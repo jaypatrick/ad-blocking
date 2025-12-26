@@ -3,11 +3,7 @@
  */
 
 import { Logger, silentLogger } from '../helpers/configuration.ts';
-import {
-  ApiError,
-  EntityNotFoundError,
-  RepositoryError,
-} from '../errors/index.ts';
+import { ApiError, EntityNotFoundError, RepositoryError } from '../errors/index.ts';
 
 /** Repository operation callback */
 export type RepositoryOperation<T> = () => Promise<T>;
@@ -33,7 +29,7 @@ export abstract class BaseRepository {
   protected async execute<T>(
     operation: string,
     action: RepositoryOperation<T>,
-    onError?: ErrorCallback
+    onError?: ErrorCallback,
   ): Promise<T> {
     try {
       this.logger.debug(`Executing: ${operation}`);
@@ -71,7 +67,7 @@ export abstract class BaseRepository {
     action: RepositoryOperation<T>,
     entityType: string,
     entityId?: string,
-    onError?: ErrorCallback
+    onError?: ErrorCallback,
   ): Promise<T> {
     try {
       this.logger.debug(`Executing: ${operation}`);

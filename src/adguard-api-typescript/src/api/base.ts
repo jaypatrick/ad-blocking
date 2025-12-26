@@ -2,7 +2,7 @@
  * Base API client class
  */
 
-import { AxiosInstance, AxiosError } from 'axios';
+import { AxiosError, AxiosInstance } from 'axios';
 import {
   ApiConfiguration,
   createAxiosInstance,
@@ -12,10 +12,10 @@ import {
 } from '../helpers/configuration.ts';
 import {
   ApiError,
-  ValidationError,
+  AuthenticationError,
   EntityNotFoundError,
   RateLimitError,
-  AuthenticationError,
+  ValidationError,
 } from '../errors/index.ts';
 import { ErrorResponse } from '../models/index.ts';
 
@@ -65,9 +65,7 @@ export abstract class BaseApi {
   /** Execute a GET request */
   protected async get<T>(path: string, params?: Record<string, unknown>): Promise<T> {
     try {
-      const response = await this.executeWithRetry(() =>
-        this.client.get<T>(path, { params })
-      );
+      const response = await this.executeWithRetry(() => this.client.get<T>(path, { params }));
       return response.data;
     } catch (error) {
       this.handleError(error);
@@ -77,9 +75,7 @@ export abstract class BaseApi {
   /** Execute a POST request */
   protected async post<T>(path: string, data?: unknown): Promise<T> {
     try {
-      const response = await this.executeWithRetry(() =>
-        this.client.post<T>(path, data)
-      );
+      const response = await this.executeWithRetry(() => this.client.post<T>(path, data));
       return response.data;
     } catch (error) {
       this.handleError(error);
@@ -89,9 +85,7 @@ export abstract class BaseApi {
   /** Execute a PUT request */
   protected async put<T>(path: string, data?: unknown): Promise<T> {
     try {
-      const response = await this.executeWithRetry(() =>
-        this.client.put<T>(path, data)
-      );
+      const response = await this.executeWithRetry(() => this.client.put<T>(path, data));
       return response.data;
     } catch (error) {
       this.handleError(error);
@@ -101,9 +95,7 @@ export abstract class BaseApi {
   /** Execute a DELETE request */
   protected async delete<T = void>(path: string): Promise<T> {
     try {
-      const response = await this.executeWithRetry(() =>
-        this.client.delete<T>(path)
-      );
+      const response = await this.executeWithRetry(() => this.client.delete<T>(path));
       return response.data;
     } catch (error) {
       this.handleError(error);
@@ -113,9 +105,7 @@ export abstract class BaseApi {
   /** Execute a PATCH request */
   protected async patch<T>(path: string, data?: unknown): Promise<T> {
     try {
-      const response = await this.executeWithRetry(() =>
-        this.client.patch<T>(path, data)
-      );
+      const response = await this.executeWithRetry(() => this.client.patch<T>(path, data));
       return response.data;
     } catch (error) {
       this.handleError(error);

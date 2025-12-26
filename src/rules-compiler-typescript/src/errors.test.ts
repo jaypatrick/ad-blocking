@@ -3,21 +3,25 @@
  * Deno-native testing implementation
  */
 
-import { assertEquals, assertInstanceOf, assertStringIncludes } from 'https://deno.land/std@0.220.0/assert/mod.ts';
 import {
+  assertEquals,
+  assertInstanceOf,
+  assertStringIncludes,
+} from 'https://deno.land/std@0.220.0/assert/mod.ts';
+import {
+  CompilationError,
+  CompilationTimeoutError,
   CompilerError,
   ConfigNotFoundError,
   ConfigParseError,
-  CompilationError,
-  CompilationTimeoutError,
-  PathTraversalError,
-  ShutdownError,
-  ResourceLimitError,
   ErrorCode,
   ErrorSeverity,
-  wrapError,
   isCompilerError,
   isRecoverable,
+  PathTraversalError,
+  ResourceLimitError,
+  ShutdownError,
+  wrapError,
 } from './errors.ts';
 
 // CompilerError tests
@@ -26,7 +30,7 @@ Deno.test('CompilerError - creates error with all properties', () => {
     'Test error',
     ErrorCode.COMPILATION_FAILED,
     ErrorSeverity.ERROR,
-    { filePath: '/test/path' }
+    { filePath: '/test/path' },
   );
 
   assertEquals(error.message, 'Test error');
@@ -57,7 +61,7 @@ Deno.test('CompilerError - creates log string', () => {
     'Test error',
     ErrorCode.COMPILATION_FAILED,
     ErrorSeverity.ERROR,
-    { configName: 'test-config' }
+    { configName: 'test-config' },
   );
 
   const logStr = error.toLogString();
@@ -73,7 +77,7 @@ Deno.test('CompilerError - preserves cause error', () => {
     ErrorCode.COMPILATION_FAILED,
     ErrorSeverity.ERROR,
     {},
-    cause
+    cause,
   );
 
   assertEquals(error.cause, cause);

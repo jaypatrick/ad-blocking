@@ -219,7 +219,9 @@ function showConfig(configPath: string, format?: ConfigurationFormat): void {
 
   const configRecord = config as unknown as Record<string, unknown>;
   const versionValue = configRecord['version'];
-  const version = typeof versionValue === 'string' || typeof versionValue === 'number' ? String(versionValue) : 'N/A';
+  const version = typeof versionValue === 'string' || typeof versionValue === 'number'
+    ? String(versionValue)
+    : 'N/A';
   console.log(`  Version: ${version}`);
 
   const licenseValue = configRecord['license'];
@@ -309,7 +311,7 @@ function shouldUseCLIMode(options: ExtendedCliOptions): boolean {
 async function runValidationMode(
   configPath: string,
   format: ConfigurationFormat | undefined,
-  logger: ReturnType<typeof createLogger>
+  logger: ReturnType<typeof createLogger>,
 ): Promise<number> {
   try {
     const config = readConfiguration(configPath, format, logger);
@@ -333,7 +335,9 @@ async function runValidationMode(
       return 1;
     }
   } catch (error) {
-    console.error(`Error validating configuration: ${error instanceof Error ? error.message : String(error)}`);
+    console.error(
+      `Error validating configuration: ${error instanceof Error ? error.message : String(error)}`,
+    );
     return 1;
   }
 }
@@ -373,9 +377,7 @@ export async function main(args: string[] = Deno.args): Promise<number> {
 
     // CLI mode
     // Create logger (JSON format for production, human-readable for development)
-    const logger = options.jsonLogs
-      ? createProductionLogger()
-      : createLogger(options.debug);
+    const logger = options.jsonLogs ? createProductionLogger() : createLogger(options.debug);
 
     // Initialize graceful shutdown handler
     shutdownHandler = initializeShutdownHandler({ logger });

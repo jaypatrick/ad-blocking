@@ -4,19 +4,22 @@
  */
 
 import compile, { type IConfiguration } from '@adguard/hostlist-compiler';
-import { writeFileSync, readFileSync, existsSync, copyFileSync, mkdirSync, statSync } from 'node:fs';
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
-import type { CompilerResult, CompileOptions, Logger } from './types.ts';
+import type { CompileOptions, CompilerResult, Logger } from './types.ts';
 import { readConfiguration } from './config-reader.ts';
 import { logger as defaultLogger } from './logger.ts';
-import {
-  CompilationError,
-  ErrorCode,
-  isCompilerError,
-} from './errors.ts';
+import { CompilationError, ErrorCode, isCompilerError } from './errors.ts';
 import { withTimeout } from './timeout.ts';
-import { DEFAULT_RESOURCE_LIMITS, checkFileSize } from './validation.ts';
+import { checkFileSize, DEFAULT_RESOURCE_LIMITS } from './validation.ts';
 
 /**
  * Writes compiled rules to an output file
@@ -27,7 +30,7 @@ import { DEFAULT_RESOURCE_LIMITS, checkFileSize } from './validation.ts';
 export function writeOutput(
   outputPath: string,
   rules: string[],
-  logger: Logger = defaultLogger
+  logger: Logger = defaultLogger,
 ): void {
   logger.debug(`Writing ${rules.length} rules to: ${outputPath}`);
 
@@ -85,7 +88,7 @@ export function computeHash(filePath: string): string {
 export function copyToRulesDirectory(
   sourcePath: string,
   destPath: string,
-  logger: Logger = defaultLogger
+  logger: Logger = defaultLogger,
 ): void {
   logger.debug(`Copying ${sourcePath} to ${destPath}`);
 
@@ -126,7 +129,7 @@ const DEFAULT_COMPILER_OPTIONS: CompilerOptions = {
 export async function compileFilters(
   config: IConfiguration,
   logger: Logger = defaultLogger,
-  options: CompilerOptions = {}
+  options: CompilerOptions = {},
 ): Promise<string[]> {
   const resolvedOptions = { ...DEFAULT_COMPILER_OPTIONS, ...options };
   logger.info('Starting filter compilation...');
@@ -136,7 +139,7 @@ export async function compileFilters(
     const result = await withTimeout(
       compile(config),
       resolvedOptions.timeoutMs ?? DEFAULT_RESOURCE_LIMITS.compilationTimeoutMs,
-      { configName: config.name }
+      { configName: config.name },
     );
 
     logger.info(`Compilation complete. Generated ${result.length} rules.`);
@@ -154,7 +157,7 @@ export async function compileFilters(
       `Filter compilation failed: ${message}`,
       ErrorCode.COMPILATION_FAILED,
       { configName: config.name },
-      error instanceof Error ? error : undefined
+      error instanceof Error ? error : undefined,
     );
   }
 }
@@ -237,8 +240,8 @@ export async function runCompiler(options: ExtendedCompileOptions): Promise<Comp
 
     // Copy to rules directory if requested
     if (options.copyToRules) {
-      const rulesDir =
-        options.rulesDirectory ?? join(dirname(options.configPath), '..', '..', 'rules');
+      const rulesDir = options.rulesDirectory ??
+        join(dirname(options.configPath), '..', '..', 'rules');
       const destPath = join(rulesDir, 'adguard_user_filter.txt');
       copyToRulesDirectory(result.outputPath, resolve(destPath), logger);
       result.copiedToRules = true;

@@ -4,7 +4,7 @@
 
 import { BaseApi } from './base.ts';
 import { ApiConfiguration } from '../helpers/configuration.ts';
-import { QueryLogResponse, QueryLogParams } from '../models/index.ts';
+import { QueryLogParams, QueryLogResponse } from '../models/index.ts';
 
 /** Query Log API endpoints */
 export class QueryLogApi extends BaseApi {

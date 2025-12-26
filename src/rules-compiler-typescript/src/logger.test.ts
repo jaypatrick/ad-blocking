@@ -4,13 +4,13 @@
  */
 
 import { assertEquals, assertStringIncludes } from 'https://deno.land/std@0.220.0/assert/mod.ts';
-import { stub, restore } from 'https://deno.land/std@0.220.0/testing/mock.ts';
+import { stub } from 'https://deno.land/std@0.220.0/testing/mock.ts';
 import {
+  createDevelopmentLogger,
   createLogger,
   createProductionLogger,
-  createDevelopmentLogger,
-  parseLogLevel,
   LogLevel,
+  parseLogLevel,
 } from './logger.ts';
 
 // Helper to capture console output

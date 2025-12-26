@@ -36,47 +36,36 @@
  */
 
 // Main compiler service and builder
-export {
-  RulesCompiler,
-  RulesCompilerBuilder,
-  createRulesCompiler,
-} from './rules-compiler.ts';
+export { createRulesCompiler, RulesCompiler, RulesCompilerBuilder } from './rules-compiler.ts';
 
 export type {
-  RulesCompilerServiceOptions,
-  CompileRunOptions,
   CompileProgressEvent,
+  CompileRunOptions,
+  RulesCompilerServiceOptions,
 } from './rules-compiler.ts';
 
 // Configuration builder
 export {
+  AVAILABLE_TRANSFORMATIONS,
   ConfigurationBuilder,
   createConfiguration,
-  AVAILABLE_TRANSFORMATIONS,
   TRANSFORMATION_DESCRIPTIONS,
 } from './configuration-builder.ts';
 
-export type {
-  Transformation,
-  SourceType,
-  SourceConfig,
-} from './configuration-builder.ts';
+export type { SourceConfig, SourceType, Transformation } from './configuration-builder.ts';
 
 // Re-export core types for convenience
 export type {
   CompilerResult,
   ConfigurationFormat,
-  Logger,
   ExtendedConfiguration,
-  VersionInfo,
+  Logger,
   PlatformInfo,
+  VersionInfo,
 } from '../types.ts';
 
 // Re-export validation types
-export type {
-  ValidationResult,
-  ResourceLimits,
-} from '../validation.ts';
+export type { ResourceLimits, ValidationResult } from '../validation.ts';
 
 // Re-export commonly needed utilities
-export { validateConfiguration, DEFAULT_RESOURCE_LIMITS } from '../validation.ts';
+export { DEFAULT_RESOURCE_LIMITS, validateConfiguration } from '../validation.ts';

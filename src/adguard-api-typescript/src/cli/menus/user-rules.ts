@@ -9,10 +9,10 @@ import { RulesCompilerIntegration } from '../../rules-compiler-integration.ts';
 import {
   createTable,
   displayTable,
+  showInfo,
+  showNoItems,
   showPanel,
   showSuccess,
-  showNoItems,
-  showInfo,
   withSpinner,
 } from '../utils.ts';
 
@@ -24,7 +24,7 @@ export class UserRulesMenu extends BaseMenu {
   constructor(
     private readonly userRulesRepo: UserRulesRepository,
     private readonly dnsServerRepo: DnsServerRepository,
-    private readonly rulesIntegration: RulesCompilerIntegration
+    private readonly rulesIntegration: RulesCompilerIntegration,
   ) {
     super();
   }
@@ -42,14 +42,12 @@ export class UserRulesMenu extends BaseMenu {
   }
 
   private async selectDnsServer(): Promise<{ id: string; name: string } | undefined> {
-    const servers = await withSpinner('Loading DNS servers...', () =>
-      this.dnsServerRepo.getAll()
-    );
+    const servers = await withSpinner('Loading DNS servers...', () => this.dnsServerRepo.getAll());
 
     return this.selectItem(
       'Select a DNS server:',
       servers,
-      s => `${s.name} (${s.id})`
+      (s) => `${s.name} (${s.id})`,
     );
   }
 
@@ -57,8 +55,9 @@ export class UserRulesMenu extends BaseMenu {
     const server = await this.selectDnsServer();
     if (!server) return;
 
-    const rules = await withSpinner('Loading user rules...', () =>
-      this.userRulesRepo.getRules(server.id)
+    const rules = await withSpinner(
+      'Loading user rules...',
+      () => this.userRulesRepo.getRules(server.id),
     );
 
     showPanel(`User Rules for: ${server.name}`, {
@@ -85,9 +84,7 @@ export class UserRulesMenu extends BaseMenu {
     const rule = await this.getInput('Enter rule (e.g., ||example.com^):');
     if (!rule.trim()) return;
 
-    await withSpinner('Adding rule...', () =>
-      this.userRulesRepo.addRule(server.id, rule.trim())
-    );
+    await withSpinner('Adding rule...', () => this.userRulesRepo.addRule(server.id, rule.trim()));
 
     showSuccess(`Rule added to ${server.name}`);
   }
@@ -96,8 +93,9 @@ export class UserRulesMenu extends BaseMenu {
     const server = await this.selectDnsServer();
     if (!server) return;
 
-    const rules = await withSpinner('Loading rules...', () =>
-      this.userRulesRepo.getRules(server.id)
+    const rules = await withSpinner(
+      'Loading rules...',
+      () => this.userRulesRepo.getRules(server.id),
     );
 
     if (rules.rules.length === 0) {
@@ -108,14 +106,12 @@ export class UserRulesMenu extends BaseMenu {
     const rule = await this.selectItem(
       'Select a rule to remove:',
       rules.rules,
-      r => r
+      (r) => r,
     );
 
     if (!rule) return;
 
-    await withSpinner('Removing rule...', () =>
-      this.userRulesRepo.removeRule(server.id, rule)
-    );
+    await withSpinner('Removing rule...', () => this.userRulesRepo.removeRule(server.id, rule));
 
     showSuccess(`Rule removed from ${server.name}`);
   }
@@ -125,14 +121,12 @@ export class UserRulesMenu extends BaseMenu {
     if (!server) return;
 
     const confirmed = await this.confirm(
-      `Are you sure you want to clear all rules for "${server.name}"?`
+      `Are you sure you want to clear all rules for "${server.name}"?`,
     );
 
     if (!confirmed) return;
 
-    await withSpinner('Clearing rules...', () =>
-      this.userRulesRepo.clearRules(server.id)
-    );
+    await withSpinner('Clearing rules...', () => this.userRulesRepo.clearRules(server.id));
 
     showSuccess(`All rules cleared for ${server.name}`);
   }
@@ -141,8 +135,9 @@ export class UserRulesMenu extends BaseMenu {
     const server = await this.selectDnsServer();
     if (!server) return;
 
-    const rules = await withSpinner('Loading rules...', () =>
-      this.userRulesRepo.getRules(server.id)
+    const rules = await withSpinner(
+      'Loading rules...',
+      () => this.userRulesRepo.getRules(server.id),
     );
 
     const newState = !rules.enabled;
@@ -152,7 +147,7 @@ export class UserRulesMenu extends BaseMenu {
       () =>
         newState
           ? this.userRulesRepo.enableRules(server.id)
-          : this.userRulesRepo.disableRules(server.id)
+          : this.userRulesRepo.disableRules(server.id),
     );
 
     showSuccess(`User rules ${newState ? 'enabled' : 'disabled'} for ${server.name}`);
@@ -165,11 +160,13 @@ export class UserRulesMenu extends BaseMenu {
     const filePath = await this.getInput('Enter path to rules file:');
     if (!filePath.trim()) return;
 
-    const result = await withSpinner('Syncing rules from file...', () =>
-      this.rulesIntegration.syncRules(server.id, {
-        rulesPath: filePath.trim(),
-        enable: true,
-      })
+    const result = await withSpinner(
+      'Syncing rules from file...',
+      () =>
+        this.rulesIntegration.syncRules(server.id, {
+          rulesPath: filePath.trim(),
+          enable: true,
+        }),
     );
 
     if (result.success) {
@@ -185,8 +182,9 @@ export class UserRulesMenu extends BaseMenu {
 
     showInfo('Syncing from rules/adguard_user_filter.txt...');
 
-    const result = await withSpinner('Syncing compiled rules...', () =>
-      this.rulesIntegration.syncCompiledRules(server.id)
+    const result = await withSpinner(
+      'Syncing compiled rules...',
+      () => this.rulesIntegration.syncCompiledRules(server.id),
     );
 
     if (result.success) {

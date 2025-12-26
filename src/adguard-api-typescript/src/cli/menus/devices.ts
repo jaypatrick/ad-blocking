@@ -9,9 +9,9 @@ import { DeviceType } from '../../models/index.ts';
 import {
   createTable,
   displayTable,
+  showNoItems,
   showPanel,
   showSuccess,
-  showNoItems,
   withSpinner,
 } from '../utils.ts';
 
@@ -22,7 +22,7 @@ export class DevicesMenu extends BaseMenu {
 
   constructor(
     private readonly deviceRepo: DeviceRepository,
-    private readonly dnsServerRepo: DnsServerRepository
+    private readonly dnsServerRepo: DnsServerRepository,
   ) {
     super();
   }
@@ -38,9 +38,7 @@ export class DevicesMenu extends BaseMenu {
   }
 
   private async listDevices(): Promise<void> {
-    const devices = await withSpinner('Loading devices...', () =>
-      this.deviceRepo.getAll()
-    );
+    const devices = await withSpinner('Loading devices...', () => this.deviceRepo.getAll());
 
     if (devices.length === 0) {
       showNoItems('devices');
@@ -61,14 +59,12 @@ export class DevicesMenu extends BaseMenu {
   }
 
   private async viewDevice(): Promise<void> {
-    const devices = await withSpinner('Loading devices...', () =>
-      this.deviceRepo.getAll()
-    );
+    const devices = await withSpinner('Loading devices...', () => this.deviceRepo.getAll());
 
     const device = await this.selectItem(
       'Select a device:',
       devices,
-      d => `${d.name} (${d.id})`
+      (d) => `${d.name} (${d.id})`,
     );
 
     if (!device) return;
@@ -88,8 +84,9 @@ export class DevicesMenu extends BaseMenu {
 
   private async createDevice(): Promise<void> {
     // Get DNS servers for selection
-    const dnsServers = await withSpinner('Loading DNS servers...', () =>
-      this.dnsServerRepo.getAll()
+    const dnsServers = await withSpinner(
+      'Loading DNS servers...',
+      () => this.dnsServerRepo.getAll(),
     );
 
     if (dnsServers.length === 0) {
@@ -104,7 +101,7 @@ export class DevicesMenu extends BaseMenu {
     const deviceType = await this.selectItem(
       'Select device type:',
       deviceTypes,
-      (t: DeviceType) => t
+      (t: DeviceType) => t,
     );
 
     if (!deviceType) return;
@@ -112,7 +109,7 @@ export class DevicesMenu extends BaseMenu {
     const dnsServer = await this.selectItem(
       'Select DNS server:',
       dnsServers,
-      s => `${s.name} (${s.id})`
+      (s) => `${s.name} (${s.id})`,
     );
 
     if (!dnsServer) return;
@@ -122,47 +119,40 @@ export class DevicesMenu extends BaseMenu {
         name: name.trim(),
         device_type: deviceType,
         dns_server_id: dnsServer.id,
-      })
-    );
+      }));
 
     showSuccess(`Device created: ${device.name} (${device.id})`);
   }
 
   private async deleteDevice(): Promise<void> {
-    const devices = await withSpinner('Loading devices...', () =>
-      this.deviceRepo.getAll()
-    );
+    const devices = await withSpinner('Loading devices...', () => this.deviceRepo.getAll());
 
     const device = await this.selectItem(
       'Select a device to delete:',
       devices,
-      d => `${d.name} (${d.id})`
+      (d) => `${d.name} (${d.id})`,
     );
 
     if (!device) return;
 
     const confirmed = await this.confirm(
-      `Are you sure you want to delete "${device.name}"?`
+      `Are you sure you want to delete "${device.name}"?`,
     );
 
     if (!confirmed) return;
 
-    await withSpinner('Deleting device...', () =>
-      this.deviceRepo.delete(device.id)
-    );
+    await withSpinner('Deleting device...', () => this.deviceRepo.delete(device.id));
 
     showSuccess(`Device deleted: ${device.name}`);
   }
 
   private async toggleProtection(): Promise<void> {
-    const devices = await withSpinner('Loading devices...', () =>
-      this.deviceRepo.getAll()
-    );
+    const devices = await withSpinner('Loading devices...', () => this.deviceRepo.getAll());
 
     const device = await this.selectItem(
       'Select a device:',
       devices,
-      d => `${d.name} - Protection: ${d.settings.protection_enabled ? 'ON' : 'OFF'}`
+      (d) => `${d.name} - Protection: ${d.settings.protection_enabled ? 'ON' : 'OFF'}`,
     );
 
     if (!device) return;
@@ -174,11 +164,11 @@ export class DevicesMenu extends BaseMenu {
       () =>
         this.deviceRepo.updateSettings(device.id, {
           protection_enabled: newState,
-        })
+        }),
     );
 
     showSuccess(
-      `Protection ${newState ? 'enabled' : 'disabled'} for ${device.name}`
+      `Protection ${newState ? 'enabled' : 'disabled'} for ${device.name}`,
     );
   }
 }

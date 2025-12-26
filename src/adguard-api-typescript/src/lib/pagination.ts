@@ -200,9 +200,8 @@ export class PagedListBuilder<T> implements PagedList<T> {
   }
 
   map<U>(mapper: (item: T) => U): PagedList<U> {
-    const self = this;
     return new PagedListBuilder<U>(async () => {
-      const items = await self.toArray();
+      const items = await this.toArray();
       return items.map(mapper);
     });
   }
@@ -231,7 +230,7 @@ export function paginate<T>(items: T[], options: PaginationOptions): T[] {
 export function createPageResult<T>(
   items: T[],
   options: PaginationOptions,
-  totalCount?: number
+  totalCount?: number,
 ): PageResult<T> {
   const { limit = items.length, offset = 0 } = options;
   const paginatedItems = paginate(items, options);

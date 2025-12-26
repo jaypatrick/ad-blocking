@@ -4,11 +4,11 @@
 
 import {
   DnsProtoResponseType,
+  DnsQueryType,
   FilteringActionSource,
   FilteringActionStatus,
-  DnsQueryType,
-  SecureDnsProtoType,
   RegularDnsProtoType,
+  SecureDnsProtoType,
 } from './enums.ts';
 
 /** Filtering info in query log */

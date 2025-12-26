@@ -8,9 +8,9 @@ import { DnsServerRepository } from '../../repositories/dns-server.ts';
 import {
   createTable,
   displayTable,
+  showNoItems,
   showPanel,
   showSuccess,
-  showNoItems,
   withSpinner,
 } from '../utils.ts';
 
@@ -34,9 +34,7 @@ export class DnsServersMenu extends BaseMenu {
   }
 
   private async listServers(): Promise<void> {
-    const servers = await withSpinner('Loading DNS servers...', () =>
-      this.dnsServerRepo.getAll()
-    );
+    const servers = await withSpinner('Loading DNS servers...', () => this.dnsServerRepo.getAll());
 
     if (servers.length === 0) {
       showNoItems('DNS servers');
@@ -57,14 +55,12 @@ export class DnsServersMenu extends BaseMenu {
   }
 
   private async viewServer(): Promise<void> {
-    const servers = await withSpinner('Loading DNS servers...', () =>
-      this.dnsServerRepo.getAll()
-    );
+    const servers = await withSpinner('Loading DNS servers...', () => this.dnsServerRepo.getAll());
 
     const server = await this.selectItem(
       'Select a DNS server:',
       servers,
-      s => `${s.name} (${s.id})`
+      (s) => `${s.name} (${s.id})`,
     );
 
     if (!server) return;
@@ -93,20 +89,19 @@ export class DnsServersMenu extends BaseMenu {
     const name = await this.getInput('DNS server name:');
     if (!name.trim()) return;
 
-    const server = await withSpinner('Creating DNS server...', () =>
-      this.dnsServerRepo.create({ name: name.trim() })
+    const server = await withSpinner(
+      'Creating DNS server...',
+      () => this.dnsServerRepo.create({ name: name.trim() }),
     );
 
     showSuccess(`DNS server created: ${server.name} (${server.id})`);
   }
 
   private async deleteServer(): Promise<void> {
-    const servers = await withSpinner('Loading DNS servers...', () =>
-      this.dnsServerRepo.getAll()
-    );
+    const servers = await withSpinner('Loading DNS servers...', () => this.dnsServerRepo.getAll());
 
     // Filter out default server
-    const deletableServers = servers.filter(s => !s.default);
+    const deletableServers = servers.filter((s) => !s.default);
 
     if (deletableServers.length === 0) {
       showNoItems('deletable DNS servers (cannot delete default)');
@@ -116,33 +111,29 @@ export class DnsServersMenu extends BaseMenu {
     const server = await this.selectItem(
       'Select a DNS server to delete:',
       deletableServers,
-      s => `${s.name} (${s.id})`
+      (s) => `${s.name} (${s.id})`,
     );
 
     if (!server) return;
 
     const confirmed = await this.confirm(
-      `Are you sure you want to delete "${server.name}"?`
+      `Are you sure you want to delete "${server.name}"?`,
     );
 
     if (!confirmed) return;
 
-    await withSpinner('Deleting DNS server...', () =>
-      this.dnsServerRepo.delete(server.id)
-    );
+    await withSpinner('Deleting DNS server...', () => this.dnsServerRepo.delete(server.id));
 
     showSuccess(`DNS server deleted: ${server.name}`);
   }
 
   private async toggleProtection(): Promise<void> {
-    const servers = await withSpinner('Loading DNS servers...', () =>
-      this.dnsServerRepo.getAll()
-    );
+    const servers = await withSpinner('Loading DNS servers...', () => this.dnsServerRepo.getAll());
 
     const server = await this.selectItem(
       'Select a DNS server:',
       servers,
-      s => `${s.name} - Protection: ${s.settings.protection_enabled ? 'ON' : 'OFF'}`
+      (s) => `${s.name} - Protection: ${s.settings.protection_enabled ? 'ON' : 'OFF'}`,
     );
 
     if (!server) return;
@@ -154,11 +145,11 @@ export class DnsServersMenu extends BaseMenu {
       () =>
         this.dnsServerRepo.updateSettings(server.id, {
           protection_enabled: newState,
-        })
+        }),
     );
 
     showSuccess(
-      `Protection ${newState ? 'enabled' : 'disabled'} for ${server.name}`
+      `Protection ${newState ? 'enabled' : 'disabled'} for ${server.name}`,
     );
   }
 }

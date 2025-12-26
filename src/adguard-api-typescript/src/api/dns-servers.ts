@@ -7,8 +7,8 @@ import { ApiConfiguration } from '../helpers/configuration.ts';
 import {
   DNSServer,
   DNSServerCreate,
-  DNSServerUpdate,
   DNSServerSettingsUpdate,
+  DNSServerUpdate,
 } from '../models/index.ts';
 
 /** DNS Servers API endpoints */
@@ -84,7 +84,7 @@ export class DnsServersApi extends BaseApi {
    */
   async updateDnsServerSettings(
     dnsServerId: string,
-    settings: DNSServerSettingsUpdate
+    settings: DNSServerSettingsUpdate,
   ): Promise<void> {
     this.logger.debug(`Updating DNS server settings: ${dnsServerId}`);
     try {
