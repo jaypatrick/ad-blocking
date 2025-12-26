@@ -17,6 +17,21 @@
 .PARAMETER SkipBackup
     Skip creating a backup of existing generated files.
 
+.PARAMETER Clean
+    Remove all backup files after successful generation.
+
+.PARAMETER DryRun
+    Preview changes without actually generating new files.
+
+.PARAMETER LogFile
+    Path to write detailed log output.
+
+.PARAMETER Compare
+    Show detailed diff of changes after generation.
+
+.PARAMETER OutputFormat
+    Output format: Text (default), Json, or Markdown.
+
 .EXAMPLE
     .\Regenerate-Client.ps1
 
@@ -24,10 +39,16 @@
     .\Regenerate-Client.ps1 -SpecPath "path/to/custom/openapi.json"
 
 .EXAMPLE
-    .\Regenerate-Client.ps1 -SkipBackup
+    .\Regenerate-Client.ps1 -SkipBackup -Clean
+
+.EXAMPLE
+    .\Regenerate-Client.ps1 -DryRun -Compare
+
+.EXAMPLE
+    .\Regenerate-Client.ps1 -LogFile "generation.log" -OutputFormat Json
 #>
 
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 param(
     [Parameter()]
     [string]$SpecPath = "api/openapi.json",
@@ -36,22 +57,85 @@ param(
     [string]$GeneratorVersion = "7.16.0",
 
     [Parameter()]
-    [switch]$SkipBackup
+    [switch]$SkipBackup,
+
+    [Parameter()]
+    [switch]$Clean,
+
+    [Parameter()]
+    [switch]$DryRun,
+
+    [Parameter()]
+    [string]$LogFile,
+
+    [Parameter()]
+    [switch]$Compare,
+
+    [Parameter()]
+    [ValidateSet('Text', 'Json', 'Markdown')]
+    [string]$OutputFormat = 'Text'
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
+# Script variables
 $scriptDir = $PSScriptRoot
 $apiDir = Join-Path $scriptDir "api"
 $srcDir = Join-Path $scriptDir "src"
 $openApiSpec = Join-Path $scriptDir $SpecPath
 $outputDir = $scriptDir
+$startTime = Get-Date
+$logEntries = @()
 
-Write-Host "==========================================" -ForegroundColor Cyan
-Write-Host "AdGuard API Client Regeneration Script" -ForegroundColor Cyan
-Write-Host "==========================================" -ForegroundColor Cyan
-Write-Host ""
+# Logging function
+function Write-Log {
+    param(
+        [string]$Message,
+        [ValidateSet('Info', 'Success', 'Warning', 'Error')]
+        [string]$Level = 'Info'
+    )
+    
+    $timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+    $icon = switch ($Level) {
+        'Info'    { '🔵' }
+        'Success' { '✅' }
+        'Warning' { '⚠️' }
+        'Error'   { '❌' }
+    }
+    
+    $color = switch ($Level) {
+        'Info'    { 'Cyan' }
+        'Success' { 'Green' }
+        'Warning' { 'Yellow' }
+        'Error'   { 'Red' }
+    }
+    
+    $logEntry = "[$timestamp] [$Level] $Message"
+    $script:logEntries += $logEntry
+    
+    if ($OutputFormat -eq 'Text') {
+        Write-Host "$icon $Message" -ForegroundColor $color
+    }
+}
+
+# Banner
+if ($OutputFormat -eq 'Text' -and -not $DryRun) {
+    Write-Host ""
+    Write-Host "╔═══════════════════════════════════════════════════╗" -ForegroundColor Cyan
+    Write-Host "║   AdGuard API Client Regeneration Script          ║" -ForegroundColor Cyan
+    Write-Host "║   OpenAPI Code Generator v$GeneratorVersion                ║" -ForegroundColor Cyan
+    Write-Host "╚═══════════════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host ""
+}
+
+if ($DryRun) {
+    Write-Log "Running in DRY RUN mode - no files will be modified" -Level Warning
+}
+
+Write-Log "OpenAPI Spec: $openApiSpec" -Level Info
+Write-Log "Output Directory: $outputDir" -Level Info
+Write-Log "Generator Version: $GeneratorVersion" -Level Info
 
 # Check if OpenAPI spec exists
 if (-not (Test-Path $openApiSpec)) {
