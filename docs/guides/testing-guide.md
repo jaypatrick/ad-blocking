@@ -13,7 +13,7 @@ This project uses different testing frameworks for each language implementation:
 | .NET (Rules Compiler) | xUnit | `src/rules-compiler-dotnet/src/RulesCompiler.Tests/` | `dotnet test` |
 | .NET (API Client) | xUnit | `src/adguard-api-dotnet/src/AdGuard.ApiClient.Test/` | `dotnet test` |
 | Python | pytest | `src/rules-compiler-python/tests/` | `pytest` |
-| Rust (Rules Compiler) | cargo test | `src/rules-compiler-rust/tests/` | `cargo test` |
+| Rust (Rules Compiler) | cargo test | `src/rules-compiler-rust/src/` | `cargo test` |
 | Rust (API Client) | cargo test | `src/adguard-api-rust/tests/` | `cargo test` |
 | PowerShell | Pester | `src/adguard-api-powershell/Tests/` | `Invoke-Pester` |
 
