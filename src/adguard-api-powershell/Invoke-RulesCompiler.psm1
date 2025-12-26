@@ -52,15 +52,15 @@ function Get-PlatformInfo {
     param()
 
     $platform = $PSVersionTable.Platform
-    $isWindows = $IsWindows -or ($null -eq $platform) -or ($platform -eq 'Win32NT')
-    $isLinux = $IsLinux -or ($platform -eq 'Unix' -and $PSVersionTable.OS -match 'Linux')
-    $isMacOS = $IsMacOS -or ($platform -eq 'Unix' -and $PSVersionTable.OS -match 'Darwin')
+    $onWindows = $IsWindows -or ($null -eq $platform) -or ($platform -eq 'Win32NT')
+    $onLinux = $IsLinux -or ($platform -eq 'Unix' -and $PSVersionTable.OS -match 'Linux')
+    $onMacOS = $IsMacOS -or ($platform -eq 'Unix' -and $PSVersionTable.OS -match 'Darwin')
 
     return [PSCustomObject]@{
-        Platform    = if ($isWindows) { 'Windows' } elseif ($isMacOS) { 'macOS' } elseif ($isLinux) { 'Linux' } else { 'Unknown' }
-        IsWindows   = $isWindows
-        IsLinux     = $isLinux
-        IsMacOS     = $isMacOS
+        Platform    = if ($onWindows) { 'Windows' } elseif ($onMacOS) { 'macOS' } elseif ($onLinux) { 'Linux' } else { 'Unknown' }
+        IsWindows   = $onWindows
+        IsLinux     = $onLinux
+        IsMacOS     = $onMacOS
         PathSeparator = [System.IO.Path]::DirectorySeparatorChar
         OS          = $PSVersionTable.OS
     }
@@ -225,7 +225,7 @@ function ConvertFrom-Yaml {
                     $inArray = $false
                 }
 
-                if ($value -eq '' -or $value -eq $null) {
+                if ($value -eq '' -or $null -eq $value) {
                     # This might be the start of a nested structure
                     $currentArrayName = $key
                 }
@@ -1035,6 +1035,34 @@ function Invoke-RulesCompiler {
     BEGIN {
         $startTime = Get-Date
         $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+
+        # Load from environment variables if not specified
+        if (-not $ConfigPath -and $env:ADGUARD_COMPILER_CONFIG) {
+            $ConfigPath = $env:ADGUARD_COMPILER_CONFIG
+            Write-CompilerLog -Level DEBUG -Message "Using config path from ADGUARD_COMPILER_CONFIG: $ConfigPath"
+        }
+
+        if (-not $OutputPath -and $env:ADGUARD_COMPILER_OUTPUT) {
+            $OutputPath = $env:ADGUARD_COMPILER_OUTPUT
+            Write-CompilerLog -Level DEBUG -Message "Using output path from ADGUARD_COMPILER_OUTPUT: $OutputPath"
+        }
+
+        if (-not $RulesPath -and $env:ADGUARD_COMPILER_RULES_DIR) {
+            $RulesPath = $env:ADGUARD_COMPILER_RULES_DIR
+            Write-CompilerLog -Level DEBUG -Message "Using rules path from ADGUARD_COMPILER_RULES_DIR: $RulesPath"
+        }
+
+        # Check for verbose/debug mode from environment
+        if ($env:ADGUARD_COMPILER_VERBOSE -eq 'true' -or $env:ADGUARD_COMPILER_VERBOSE -eq '1') {
+            $VerbosePreference = 'Continue'
+            Write-CompilerLog -Level DEBUG -Message "Verbose mode enabled via ADGUARD_COMPILER_VERBOSE"
+        }
+
+        # Copy to rules if environment variable is set
+        if ((-not $CopyToRules.IsPresent) -and ($env:ADGUARD_COMPILER_COPY_TO_RULES -eq 'true' -or $env:ADGUARD_COMPILER_COPY_TO_RULES -eq '1')) {
+            $CopyToRules = $true
+            Write-CompilerLog -Level DEBUG -Message "Copy to rules enabled via ADGUARD_COMPILER_COPY_TO_RULES"
+        }
     }
 
     PROCESS {
