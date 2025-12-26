@@ -50,6 +50,7 @@ jobs:
             -p:PublishTrimmed=true \
             -p:IncludeNativeLibrariesForSelfExtract=true \
             --output ./artifacts/adguard-console-ui
+        shell: bash
 
       # Build RulesCompiler Console
       - name: Publish RulesCompiler.Console
@@ -62,6 +63,7 @@ jobs:
             -p:PublishTrimmed=true \
             -p:IncludeNativeLibrariesForSelfExtract=true \
             --output ./artifacts/rules-compiler-dotnet
+        shell: bash
 
       # Package binaries
       - name: Package binaries (Windows)
