@@ -1,42 +1,122 @@
-Import-Module $PSScriptRoot\Invoke-Webhook.psm1
+#!/usr/bin/env pwsh
+<#
+.SYNOPSIS
+    Test harness for the AdGuard Webhook module.
 
-# Get webhook URL from environment variable
-$webhookUrl = $env:ADGUARD_WEBHOOK_URL
-if ([string]::IsNullOrEmpty($webhookUrl)) {
-    Write-Error "ADGUARD_WEBHOOK_URL environment variable is not set"
+.DESCRIPTION
+    Interactive script to test and demonstrate the Webhook module functionality.
+    Provides options to invoke webhooks with different configurations.
+
+.NOTES
+    Author:  Jayson Knight
+    Website: https://jaysonknight.com
+    GitHub:  jaypatrick
+
+.EXAMPLE
+    .\Webhook-Harness.ps1
+
+.EXAMPLE
+    .\Webhook-Harness.ps1 -Continuous
+#>
+
+[CmdletBinding()]
+param(
+    [Parameter()]
+    [uri]$WebhookUrl,
+    
+    [Parameter()]
+    [switch]$Continuous,
+    
+    [Parameter()]
+    [switch]$ShowStatistics,
+    
+    [Parameter()]
+    [string]$ConfigFile
+)
+
+# Import the module
+$modulePath = Join-Path $PSScriptRoot 'Invoke-WebHook.psm1'
+if (Test-Path $modulePath) {
+    Import-Module $modulePath -Force
+    Write-Host "AdGuard Webhook module loaded successfully." -ForegroundColor Green
+}
+else {
+    Write-Error "Module not found at: $modulePath"
     exit 1
 }
-[uri]$ShortenedUri = $webhookUrl
-[int]$Wait = 500
-[int]$Count = 10
-[int]$Interval = 5
-[bool]$Continuous = $true
 
-$commandLine = $args[0]
-if ($commandLine) {
-    $Continuous = $true
+# Get webhook URL from parameter or environment variable
+if (-not $WebhookUrl) {
+    $webhookUrl = $env:ADGUARD_WEBHOOK_URL
+    if ([string]::IsNullOrEmpty($webhookUrl)) {
+        Write-Host ""
+        Write-Host "No webhook URL provided." -ForegroundColor Yellow
+        Write-Host "Set ADGUARD_WEBHOOK_URL environment variable or use -WebhookUrl parameter." -ForegroundColor Yellow
+        Write-Host ""
+        exit 1
+    }
+    $WebhookUrl = [uri]$webhookUrl
 }
 
+# Default values
+$Wait = 500
+$Count = 10
+$Interval = 5
+
 function Get-YesNoResponse {
-    # Create prompt body
     $title = "Post to Webhook Continuously?"
     $message = "Are you sure you want to perform this action continuously?"
     
-    # Create answers
-    $yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Invoke Webhook Continously."
+    $yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Invoke Webhook Continuously."
     $no = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Invoke Webhook Once."
-    $suspend = New-Object System.Management.Automation.Host.ChoiceDescription "&Suspend", "Pause the current pipeline and return to the command prompt."
+    $suspend = New-Object System.Management.Automation.Host.ChoiceDescription "&Suspend", "Pause and return to command prompt."
     
-    # Create ChoiceDescription with answers
     $options = [System.Management.Automation.Host.ChoiceDescription[]]($yes, $no, $suspend)
     $response = $host.UI.PromptForChoice($title, $message, $options, 0)
-    return $response
+    
+    return $response -eq 0
 }
+
 try {
-    $YesNoResponse = if ($Continuous) { $true } else { Get-YesNoResponse }
-    $ResponseMessage = Invoke-Webhook -WebhookUrl $ShortenedUri -WaitTime $Wait -RetryCount $Count -RetryInterval $Interval -Continuous $YesNoResponse
-    Write-Host "The response message was: $ResponseMessage" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "AdGuard Webhook Test Harness" -ForegroundColor Cyan
+    Write-Host "============================" -ForegroundColor Cyan
+    Write-Host ""
+    
+    # Prompt for continuous mode if not specified
+    if (-not $PSBoundParameters.ContainsKey('Continuous')) {
+        $Continuous = Get-YesNoResponse
+    }
+    
+    # Prepare parameters
+    $params = @{
+        WebhookUrl      = $WebhookUrl
+        WaitTime        = $Wait
+        RetryCount      = $Count
+        RetryInterval   = $Interval
+        ShowStatistics  = $true
+    }
+    
+    if ($Continuous) {
+        $params['Continuous'] = $true
+    }
+    
+    if ($ConfigFile) {
+        $params['ConfigFile'] = $ConfigFile
+    }
+    
+    # Invoke the webhook
+    Write-Host "Starting webhook invocation..." -ForegroundColor Green
+    Write-Host ""
+    
+    $result = Invoke-AdGuardWebhook @params
+    
+    Write-Host ""
+    Write-Host "Test harness completed successfully." -ForegroundColor Green
 }
 catch {
+    Write-Host ""
+    Write-Host "Error occurred: $($_.Exception.Message)" -ForegroundColor Red
     Write-Error $_
+    exit 1
 }
