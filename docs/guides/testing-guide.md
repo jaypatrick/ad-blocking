@@ -11,7 +11,7 @@ This project uses different testing frameworks for each language implementation:
 | TypeScript (Rules Compiler) | Deno Test | `src/rules-compiler-typescript/tests/` | `deno task test` |
 | TypeScript (API Client) | Deno Test | `src/adguard-api-typescript/tests/` | `deno task test` |
 | .NET (Rules Compiler) | xUnit | `src/rules-compiler-dotnet/src/RulesCompiler.Tests/` | `dotnet test` |
-| .NET (API Client) | xUnit | `src/adguard-api-dotnet/src/AdGuard.ApiClient.Tests/` | `dotnet test` |
+| .NET (API Client) | xUnit | `src/adguard-api-dotnet/src/AdGuard.ApiClient.Test/` | `dotnet test` |
 | Python | pytest | `src/rules-compiler-python/tests/` | `pytest` |
 | Rust (Rules Compiler) | cargo test | `src/rules-compiler-rust/tests/` | `cargo test` |
 | Rust (API Client) | cargo test | `src/adguard-api-rust/tests/` | `cargo test` |
