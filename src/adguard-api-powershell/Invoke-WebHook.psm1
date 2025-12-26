@@ -314,37 +314,6 @@ function Invoke-AdGuardWebhook {
         $script:QuietMode = $Quiet
         $script:ShowBanner = $ShowBanner
         
-        # Load from environment variables if not specified via parameters
-        if (-not $PSBoundParameters.ContainsKey('WebhookUrl') -and $env:ADGUARD_WEBHOOK_URL) {
-            $WebhookUrl = $env:ADGUARD_WEBHOOK_URL
-            Write-WebhookLog "Using webhook URL from ADGUARD_WEBHOOK_URL" -Level Debug
-        }
-
-        if (-not $PSBoundParameters.ContainsKey('ConfigFile') -and $env:ADGUARD_WEBHOOK_CONFIG) {
-            $ConfigFile = $env:ADGUARD_WEBHOOK_CONFIG
-            Write-WebhookLog "Using config file from ADGUARD_WEBHOOK_CONFIG: $ConfigFile" -Level Debug
-        }
-
-        if (-not $PSBoundParameters.ContainsKey('WaitTime') -and $env:ADGUARD_WEBHOOK_WAIT_TIME) {
-            $WaitTime = [int]$env:ADGUARD_WEBHOOK_WAIT_TIME
-            Write-WebhookLog "Using wait time from ADGUARD_WEBHOOK_WAIT_TIME: ${WaitTime}ms" -Level Debug
-        }
-
-        if (-not $PSBoundParameters.ContainsKey('RetryCount') -and $env:ADGUARD_WEBHOOK_RETRY_COUNT) {
-            $RetryCount = [int]$env:ADGUARD_WEBHOOK_RETRY_COUNT
-            Write-WebhookLog "Using retry count from ADGUARD_WEBHOOK_RETRY_COUNT: $RetryCount" -Level Debug
-        }
-
-        if (-not $PSBoundParameters.ContainsKey('RetryInterval') -and $env:ADGUARD_WEBHOOK_RETRY_INTERVAL) {
-            $RetryInterval = [int]$env:ADGUARD_WEBHOOK_RETRY_INTERVAL
-            Write-WebhookLog "Using retry interval from ADGUARD_WEBHOOK_RETRY_INTERVAL: ${RetryInterval}s" -Level Debug
-        }
-
-        if (-not $PSBoundParameters.ContainsKey('Format') -and $env:ADGUARD_WEBHOOK_FORMAT) {
-            $Format = $env:ADGUARD_WEBHOOK_FORMAT
-            Write-WebhookLog "Using output format from ADGUARD_WEBHOOK_FORMAT: $Format" -Level Debug
-        }
-        
         # Load configuration from file if specified
         if ($ConfigFile) {
             try {
