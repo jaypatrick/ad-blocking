@@ -518,9 +518,13 @@ src\rules-compiler-shell\compile-rules.cmd -c config.json -r
 
 See [Shell Scripts README](src/rules-compiler-shell/README.md) for detailed documentation.
 
-### PowerShell Module
+### PowerShell Modules
 
 **Location**: `src/adguard-api-powershell/`
+
+#### RulesCompiler Module
+
+PowerShell API for compiling AdGuard filter rules.
 
 ```powershell
 # Import module
@@ -536,20 +540,80 @@ Invoke-RulesCompiler -CopyToRules            # Compile and copy
 
 # Run Pester tests
 Invoke-Pester -Path ./src/adguard-api-powershell/Tests/
-
-# Lint with PSScriptAnalyzer
-Invoke-ScriptAnalyzer -Path src/adguard-api-powershell -Recurse
 ```
 
 **Exported Functions**:
 
 | Function | Description |
 |----------|-------------|
-| `Read-CompilerConfiguration` | Parse config file |
+| `Read-CompilerConfiguration` | Parse config file (JSON, YAML, TOML) |
 | `Invoke-FilterCompiler` | Run hostlist-compiler |
 | `Write-CompiledOutput` | Write output file |
 | `Invoke-RulesCompiler` | Full compilation pipeline |
 | `Get-CompilerVersion` | Get version info |
+
+#### Webhook Module (v1.0.0 - NEW!)
+
+Modernized PowerShell module for invoking AdGuard DNS webhooks with rich features.
+
+```powershell
+# Import module
+Import-Module ./src/adguard-api-powershell/Invoke-WebHook.psm1
+
+# Basic invocation
+Invoke-AdGuardWebhook -WebhookUrl "https://api.adguard-dns.io/webhook/xxx"
+
+# Continuous mode with statistics
+Invoke-AdGuardWebhook -WebhookUrl $url -Continuous -ShowStatistics
+
+# Load from configuration file
+Invoke-AdGuardWebhook -ConfigFile webhook-config.json -ShowStatistics
+
+# Save configuration
+Invoke-AdGuardWebhook -WebhookUrl $url -SaveConfig config.json
+
+# Quiet mode with JSON output
+Invoke-AdGuardWebhook -WebhookUrl $url -Quiet -Format Json
+```
+
+**New Features (v1.0.0)**:
+- ✅ Rich console output with colored icons and emojis
+- 📊 Progress bars for continuous operations
+- 📊 Statistics tracking (success/failure rates, elapsed time)
+- 💾 Configuration file support (JSON/YAML)
+- 💾 Multiple output formats (Table, List, JSON)
+- ⚙️ Quiet mode for scripting
+- 🎯 Parameter validation with ranges
+- 🔙 Backward compatible alias (`Invoke-Webhook`)
+
+**Configuration File Example**:
+```json
+{
+  "WebhookUrl": "https://api.adguard-dns.io/webhook/xxx",
+  "WaitTime": 500,
+  "RetryCount": 10,
+  "RetryInterval": 5,
+  "Continuous": false
+}
+```
+
+#### Utility Scripts (Enhanced)
+
+All utility scripts have been enhanced with modern features:
+
+**Regenerate-Client.ps1** - New options:
+- `-DryRun`: Preview changes without modification
+- `-Compare`: Show detailed diffs
+- `-Clean`: Remove backup files
+- `-LogFile`: Persistent logging
+- `-OutputFormat`: Text, Json, or Markdown
+
+**Update-ApiClient.ps1** - New options:
+- `-Force`: Skip confirmations
+- `-CI`: Non-interactive mode
+- Step progress indicators with colored icons
+
+See [PowerShell Modules README](src/adguard-api-powershell/README.md) for complete documentation
 
 ## AdGuard API Clients
 
