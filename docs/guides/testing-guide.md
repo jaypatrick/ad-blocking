@@ -133,7 +133,7 @@ dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 cd src/adguard-api-dotnet
 
 # Run all tests
-dotnet test src/AdGuard.ApiClient.sln
+dotnet test AdGuard.ApiClient.slnx
 
 # Run specific test class
 dotnet test --filter "FullyQualifiedName~DevicesApiTests"
