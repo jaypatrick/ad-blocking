@@ -211,7 +211,7 @@ deno task lint
 deno task fmt
 
 # Check formatting
-deno task fmt:check
+deno fmt --check src/
 ```
 
 ## Available Tasks
