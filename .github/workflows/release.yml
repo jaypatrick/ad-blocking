@@ -19,17 +19,21 @@ jobs:
     name: Build .NET Executables
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
             runtime: linux-x64
             artifact: linux
+            ext: ''
           - os: windows-latest
             runtime: win-x64
             artifact: windows
+            ext: '.exe'
           - os: macos-latest
             runtime: osx-x64
             artifact: macos
+            ext: ''
 
     steps:
       - uses: actions/checkout@v4
@@ -37,85 +41,72 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: '10.0.x'
 
-      # Build AdGuard Console UI
       - name: Publish AdGuard.ConsoleUI
+        shell: bash
         run: |
           dotnet publish src/adguard-api-dotnet/src/AdGuard.ConsoleUI/AdGuard.ConsoleUI.csproj \
             --configuration Release \
             --runtime ${{ matrix.runtime }} \
             --self-contained true \
             -p:PublishSingleFile=true \
-            -p:PublishTrimmed=true \
             -p:IncludeNativeLibrariesForSelfExtract=true \
             --output ./artifacts/adguard-console-ui
-        shell: bash
 
-      # Build RulesCompiler Console
       - name: Publish RulesCompiler.Console
+        shell: bash
         run: |
           dotnet publish src/rules-compiler-dotnet/src/RulesCompiler.Console/RulesCompiler.Console.csproj \
             --configuration Release \
             --runtime ${{ matrix.runtime }} \
             --self-contained true \
             -p:PublishSingleFile=true \
-            -p:PublishTrimmed=true \
             -p:IncludeNativeLibrariesForSelfExtract=true \
             --output ./artifacts/rules-compiler-dotnet
-        shell: bash
 
-      # Package binaries
       - name: Package binaries (Windows)
-        if: matrix.os == 'windows-latest'
+        if: runner.os == 'Windows'
+        shell: pwsh
         run: |
           Compress-Archive -Path ./artifacts/adguard-console-ui/* -DestinationPath AdGuard.ConsoleUI-${{ matrix.artifact }}.zip
           Compress-Archive -Path ./artifacts/rules-compiler-dotnet/* -DestinationPath RulesCompiler.Console-${{ matrix.artifact }}.zip
-        shell: pwsh
 
       - name: Package binaries (Unix)
-        if: matrix.os != 'windows-latest'
+        if: runner.os != 'Windows'
+        shell: bash
         run: |
           cd ./artifacts/adguard-console-ui && tar -czf ../../AdGuard.ConsoleUI-${{ matrix.artifact }}.tar.gz * && cd ../..
           cd ./artifacts/rules-compiler-dotnet && tar -czf ../../RulesCompiler.Console-${{ matrix.artifact }}.tar.gz * && cd ../..
 
-      # Upload artifacts
-      - name: Upload AdGuard.ConsoleUI artifact
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: adguard-console-ui-${{ matrix.artifact }}
+          name: dotnet-${{ matrix.artifact }}
           path: |
-            AdGuard.ConsoleUI-${{ matrix.artifact }}.zip
-            AdGuard.ConsoleUI-${{ matrix.artifact }}.tar.gz
-          if-no-files-found: ignore
-
-      - name: Upload RulesCompiler.Console artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: rules-compiler-dotnet-${{ matrix.artifact }}
-          path: |
-            RulesCompiler.Console-${{ matrix.artifact }}.zip
-            RulesCompiler.Console-${{ matrix.artifact }}.tar.gz
-          if-no-files-found: ignore
+            *.zip
+            *.tar.gz
+          if-no-files-found: error
 
   build-rust:
     name: Build Rust Executable
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             artifact: linux
-            ext: ""
+            ext: ''
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             artifact: windows
-            ext: ".exe"
+            ext: '.exe'
           - os: macos-latest
             target: x86_64-apple-darwin
             artifact: macos
-            ext: ""
+            ext: ''
 
     steps:
       - uses: actions/checkout@v4
@@ -127,59 +118,34 @@ jobs:
           target: ${{ matrix.target }}
 
       - name: Build Rust compiler
+        shell: bash
         working-directory: ./src/rules-compiler-rust
         run: cargo build --release --target ${{ matrix.target }}
 
       - name: Package binary (Windows)
-        if: matrix.os == 'windows-latest'
+        if: runner.os == 'Windows'
+        shell: pwsh
         run: |
           Compress-Archive -Path ./src/rules-compiler-rust/target/${{ matrix.target }}/release/rules-compiler${{ matrix.ext }} -DestinationPath rules-compiler-rust-${{ matrix.artifact }}.zip
-        shell: pwsh
 
       - name: Package binary (Unix)
-        if: matrix.os != 'windows-latest'
+        if: runner.os != 'Windows'
+        shell: bash
         run: |
           tar -czf rules-compiler-rust-${{ matrix.artifact }}.tar.gz -C ./src/rules-compiler-rust/target/${{ matrix.target }}/release rules-compiler${{ matrix.ext }}
 
-      - name: Upload artifact
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: rules-compiler-rust-${{ matrix.artifact }}
+          name: rust-${{ matrix.artifact }}
           path: |
-            rules-compiler-rust-${{ matrix.artifact }}.zip
-            rules-compiler-rust-${{ matrix.artifact }}.tar.gz
-          if-no-files-found: ignore
-
-  build-python:
-    name: Build Python Wheel
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install build dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install build wheel
-
-      - name: Build wheel
-        working-directory: ./src/rules-compiler-python
-        run: python -m build
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: rules-compiler-python
-          path: ./src/rules-compiler-python/dist/*
+            *.zip
+            *.tar.gz
+          if-no-files-found: error
 
   create-release:
     name: Create Release
-    needs: [build-dotnet, build-rust, build-python]
+    needs: [build-dotnet, build-rust]
     runs-on: ubuntu-latest
 
     steps:
@@ -187,13 +153,12 @@ jobs:
 
       - name: Validate and set release version
         id: version
+        shell: bash
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             VERSION="${{ github.event.inputs.version }}"
             
             # Semver 2.0.0 compliant version pattern
-            # Format: vMAJOR.MINOR.PATCH[-PRERELEASE] where PRERELEASE is dot-separated identifiers
-            # Examples: v1.0.0, v1.0.0-beta, v1.0.0-rc1, v1.0.0-alpha.1
             SEMVER_PATTERN='^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*)?$'
             
             if ! echo "$VERSION" | grep -qE "$SEMVER_PATTERN"; then
@@ -210,8 +175,8 @@ jobs:
               echo "Creating tag $VERSION"
               git config user.name "github-actions[bot]"
               git config user.email "github-actions[bot]@users.noreply.github.com"
-              git tag -a "$VERSION" -m "Release $VERSION" || { echo "Error: Failed to create tag"; exit 1; }
-              git push origin "$VERSION" || { echo "Error: Failed to push tag"; exit 1; }
+              git tag -a "$VERSION" -m "Release $VERSION"
+              git push origin "$VERSION"
               echo "Tag $VERSION created and pushed successfully"
             fi
           else
@@ -223,17 +188,19 @@ jobs:
         with:
           path: ./release-artifacts
 
-      - name: Display structure of downloaded files
-        run: ls -R ./release-artifacts
+      - name: Prepare release assets
+        shell: bash
+        run: |
+          mkdir -p ./release-assets
+          find ./release-artifacts -type f \( -name '*.zip' -o -name '*.tar.gz' \) -exec cp {} ./release-assets/ \;
+          echo "Release assets:"
+          ls -lh ./release-assets
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.version }}
-          files: |
-            ./release-artifacts/**/*.zip
-            ./release-artifacts/**/*.tar.gz
-            ./release-artifacts/**/*.whl
+          files: ./release-assets/*
           body: |
             ## Release ${{ steps.version.outputs.version }}
 
@@ -241,39 +208,32 @@ jobs:
             - **AdGuard.ConsoleUI** - Console UI for AdGuard DNS API (Windows, Linux, macOS)
             - **RulesCompiler.Console** - .NET rules compiler (Windows, Linux, macOS)
             - **rules-compiler** (Rust) - Rust rules compiler (Windows, Linux, macOS)
-            - **rules-compiler** (Python) - Python wheel package
 
             ### Installation
 
             #### AdGuard Console UI
-            Download the appropriate archive for your platform and extract it:
+            Download and extract:
             - Windows: `AdGuard.ConsoleUI-windows.zip`
             - Linux: `AdGuard.ConsoleUI-linux.tar.gz`
             - macOS: `AdGuard.ConsoleUI-macos.tar.gz`
 
             #### Rules Compiler (.NET)
-            Download the appropriate archive for your platform and extract it:
+            Download and extract:
             - Windows: `RulesCompiler.Console-windows.zip`
             - Linux: `RulesCompiler.Console-linux.tar.gz`
             - macOS: `RulesCompiler.Console-macos.tar.gz`
 
             #### Rules Compiler (Rust)
-            Download the appropriate archive for your platform and extract it:
+            Download and extract:
             - Windows: `rules-compiler-rust-windows.zip`
             - Linux: `rules-compiler-rust-linux.tar.gz`
             - macOS: `rules-compiler-rust-macos.tar.gz`
 
-            #### Rules Compiler (Python)
-            Install the Python wheel:
-            ```bash
-            pip install rules_compiler-X.Y.Z-py3-none-any.whl
-            ```
-
             ### Usage
 
             After extraction, run the executables:
-            - Windows: `.\AdGuard.ConsoleUI.exe` or `.\RulesCompiler.Console.exe`
-            - Linux/macOS: `./AdGuard.ConsoleUI` or `./RulesCompiler.Console` or `./rules-compiler`
+            - Windows: `.\AdGuard.ConsoleUI.exe`, `.\RulesCompiler.Console.exe`, or `.\rules-compiler.exe`
+            - Linux/macOS: `./AdGuard.ConsoleUI`, `./RulesCompiler.Console`, or `./rules-compiler`
 
             For detailed documentation, see the [README](https://github.com/jaypatrick/ad-blocking/blob/main/README.md).
           draft: false
