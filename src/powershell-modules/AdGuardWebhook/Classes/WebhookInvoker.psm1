@@ -255,8 +255,8 @@ class WebhookInvoker {
 
     # Static factory from environment
     static [WebhookInvoker] CreateFromEnvironment() {
-        $config = [WebhookConfiguration]::FromEnvironment()
-        return [WebhookInvoker]::new($config)
+        $envConfig = [WebhookConfiguration]::FromEnvironment()
+        return [WebhookInvoker]::new($envConfig)
     }
 
     # String representation
