@@ -212,7 +212,7 @@ mod tests {
 
     #[test]
     fn test_validate_url_http_rejected() {
-        let result = validate_url("http://example.com/list.txt", None).unwrap();
+        let result = validate_url("http://insecure.example.com/list.txt", None).unwrap();
         assert!(!result.is_valid);
         assert!(result.messages[0].contains("HTTPS"));
     }

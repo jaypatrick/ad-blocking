@@ -121,7 +121,7 @@ mod tests {
         let config = ValidationConfig::default();
         let validator = Validator::new(config);
         
-        let result = validator.validate_remote_url("http://example.com/list.txt", None).unwrap();
+        let result = validator.validate_remote_url("http://insecure.example.com/list.txt", None).unwrap();
         assert!(!result.is_valid);
     }
 }

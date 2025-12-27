@@ -132,7 +132,7 @@ test('detects file tampering via hash', async () => {
 ```typescript
 // Test that HTTP URLs are rejected
 test('rejects insecure HTTP URLs', async () => {
-  const httpUrl = 'http://example.com/list.txt';
+  const httpUrl = 'http://insecure.example.com/list.txt';
   await expect(compile(configWithUrl(httpUrl))).rejects.toThrow(/HTTPS/i);
 });
 ```

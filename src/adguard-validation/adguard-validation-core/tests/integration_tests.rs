@@ -315,7 +315,7 @@ fn test_compilation_with_archiving() {
 fn test_url_validation_rejects_http() {
     use adguard_validation::validate_url;
     
-    let result = validate_url("http://example.com/list.txt", None).unwrap();
+    let result = validate_url("http://insecure.example.com/list.txt", None).unwrap();
     
     assert!(!result.is_valid);
     assert!(result.messages.iter().any(|m| m.contains("HTTPS")));
