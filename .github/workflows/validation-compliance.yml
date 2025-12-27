@@ -72,8 +72,8 @@ jobs:
       
       - name: Run compliance check
         run: |
-          chmod +x scripts/check-validation-compliance.sh
-          ./scripts/check-validation-compliance.sh
+          chmod +x tools/check-validation-compliance.sh
+          ./tools/check-validation-compliance.sh
       
       - name: Generate compliance report
         if: always()
@@ -85,7 +85,7 @@ jobs:
           echo "" >> compliance-report.md
           echo "## Status" >> compliance-report.md
           echo "" >> compliance-report.md
-          ./scripts/check-validation-compliance.sh >> compliance-report.md 2>&1 || true
+          ./tools/check-validation-compliance.sh >> compliance-report.md 2>&1 || true
       
       - name: Upload compliance report
         if: always()

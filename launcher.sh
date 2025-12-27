@@ -333,8 +333,8 @@ validation_menu() {
                 pause
                 ;;
             5)
-                chmod +x scripts/check-validation-compliance.sh
-                ./scripts/check-validation-compliance.sh
+                chmod +x tools/check-validation-compliance.sh
+                ./tools/check-validation-compliance.sh
                 pause
                 ;;
             6)
