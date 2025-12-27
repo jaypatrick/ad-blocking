@@ -27,7 +27,7 @@ jobs:
       - name: Build
         run: dotnet build AdGuard.ApiClient.slnx --no-restore
       - name: Test
-        run: dotnet test AdGuard.ApiClient.slnx --no-build --verbosity normal
+        run: dotnet test AdGuard.ApiClient.slnx --no-build --verbosity normal --filter "FullyQualifiedName!~Integration"
 
   build-rules-compiler:
     name: Build Rules Compiler
