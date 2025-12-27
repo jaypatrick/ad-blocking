@@ -98,7 +98,8 @@ ad-blocking/
 │   │   ├── devskim.yml                # DevSkim security analysis
 │   │   └── claude*.yml                # Claude AI integration
 │   └── ISSUE_TEMPLATE/                # Issue templates
-├── api/                               # OpenAPI specifications
+├── api/                               # OpenAPI specifications (centralized)
+│   ├── README.md                      # API spec documentation
 │   ├── openapi.json                   # AdGuard DNS API v1.11 (primary)
 │   └── openapi.yaml                   # AdGuard DNS API v1.11 (optional)
 ├── docs/                              # Documentation
@@ -107,7 +108,13 @@ ad-blocking/
 │   ├── getting-started.md             # Quick start guide
 │   ├── compiler-comparison.md         # Compiler comparison matrix
 │   ├── configuration-reference.md     # Configuration schema reference
-│   └── docker-guide.md                # Docker development guide
+│   ├── docker-guide.md                # Docker development guide
+│   ├── AGENTS.md                      # AI agent documentation
+│   ├── PHASE2_IMPLEMENTATION.md       # Modernization roadmap
+│   ├── RUST_WORKSPACE.md              # Rust workspace documentation
+│   ├── RUST_MODERNIZATION_SUMMARY.md  # Rust migration summary
+│   ├── TEST_UPDATES_SUMMARY.md        # Testing updates
+│   └── WARP.md                        # Warp terminal integration
 ├── data/                              # Filter rules and data
 │   ├── input/                         # Source filter lists (local & remote refs)
 │   │   ├── README.md                  # Input directory documentation
@@ -121,15 +128,13 @@ ad-blocking/
 │   │   └── .gitignore                 # Ignore archive contents
 │   └── Config/                        # Compiler configurations (optional)
 ├── src/                               # Source code
-│   ├── rules-compiler-typescript/     # TypeScript/Node.js compiler
+│   ├── rules-compiler-typescript/     # TypeScript/Deno compiler
 │   ├── rules-compiler-dotnet/         # C#/.NET 10 compiler
 │   ├── rules-compiler-python/         # Python 3.9+ compiler
 │   ├── rules-compiler-rust/           # Rust compiler (single binary)
-│   ├── rules-compiler-shell/          # Shell scripts
-│   │   ├── compile-rules.sh           # Bash (Linux/macOS)
-│   │   ├── compile-rules.zsh          # Zsh (macOS/Linux)
-│   │   ├── compile-rules.ps1          # PowerShell Core (all platforms)
-│   │   └── compile-rules.cmd          # Windows batch wrapper
+│   ├── shell-scripts/                 # Shell script wrappers
+│   │   ├── bash/                      # Bash scripts
+│   │   └── zsh/                       # Zsh scripts
 │   ├── adguard-api-dotnet/            # C# API SDK + Console UI
 │   │   ├── src/AdGuard.ApiClient/     # C# SDK library
 │   │   ├── src/AdGuard.ConsoleUI/     # Spectre.Console interface
@@ -141,15 +146,32 @@ ad-blocking/
 │   │   ├── src/api/                   # API client implementations
 │   │   ├── src/cli/                   # Interactive CLI application
 │   │   └── tests/                     # Deno test suite
-│   ├── adguard-api-powershell/        # PowerShell modules
-│   │   ├── Invoke-RulesCompiler.psm1  # Rules compiler module
-│   │   ├── RulesCompiler.psd1         # Module manifest
-│   │   └── Tests/                     # Pester test suite
+│   ├── adguard-api-powershell/        # PowerShell API client (legacy)
+│   ├── powershell-modules/            # PowerShell modules (modern)
+│   │   ├── Common/                    # Shared utilities
+│   │   ├── RulesCompiler/             # Rules compiler module
+│   │   └── AdGuardWebhook/            # Webhook module
+│   ├── adguard-validation/            # Rust validation library
+│   │   ├── adguard-validation-core/   # Core validation logic
+│   │   └── adguard-validation-cli/    # CLI tool
 │   └── linear/                        # Linear integration scripts
+├── tools/                             # Utility and build scripts
+│   ├── README.md                      # Tools documentation
+│   ├── test-build-scripts.sh          # Bash build script tests
+│   ├── test-build-scripts.ps1         # PowerShell build script tests
+│   ├── test-modules.ps1               # PowerShell module tests
+│   ├── check-validation-compliance.sh # Validation compliance check
+│   └── Migrate-To-NewStructure.ps1    # Structure migration script
 ├── Dockerfile.warp                    # Docker dev environment
 ├── CLAUDE.md                          # AI assistant instructions
+├── CONTRIBUTING.md                    # Contribution guidelines
 ├── SECURITY.md                        # Security policy
-└── LICENSE                            # GPL-3.0 license
+├── README.md                          # This file
+├── LICENSE                            # GPL-3.0 license
+├── build.sh                           # Multi-language build script (Bash)
+├── build.ps1                          # Multi-language build script (PowerShell)
+├── launcher.sh                        # Interactive launcher (Bash)
+└── launcher.ps1                       # Interactive launcher (PowerShell)
 ```
 
 ## Quick Start
@@ -287,10 +309,10 @@ Comprehensive test suites are available to validate build script functionality:
 
 ```bash
 # Run Bash script tests (25+ unit and integration tests)
-./test-build-scripts.sh
+./tools/test-build-scripts.sh
 
 # Run PowerShell script tests
-pwsh -File test-build-scripts.ps1
+pwsh -File tools/test-build-scripts.ps1
 ```
 
 The test suites include:

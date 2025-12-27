@@ -6,16 +6,16 @@ on:
     paths:
       - 'build.sh'
       - 'build.ps1'
-      - 'test-build-scripts.sh'
-      - 'test-build-scripts.ps1'
+      - 'tools/test-build-scripts.sh'
+      - 'tools/test-build-scripts.ps1'
       - '.github/workflows/build-scripts-tests.yml'
   pull_request:
     branches: [ "main" ]
     paths:
       - 'build.sh'
       - 'build.ps1'
-      - 'test-build-scripts.sh'
-      - 'test-build-scripts.ps1'
+      - 'tools/test-build-scripts.sh'
+      - 'tools/test-build-scripts.ps1'
       - '.github/workflows/build-scripts-tests.yml'
   workflow_dispatch:
 
@@ -38,10 +38,10 @@ jobs:
         toolchain: stable
     
     - name: Make test script executable
-      run: chmod +x test-build-scripts.sh
+      run: chmod +x tools/test-build-scripts.sh
     
     - name: Run Bash build script tests
-      run: ./test-build-scripts.sh
+      run: ./tools/test-build-scripts.sh
     
     - name: Upload test results
       if: always()
@@ -70,7 +70,7 @@ jobs:
         toolchain: stable
     
     - name: Run PowerShell build script tests
-      run: pwsh -File test-build-scripts.ps1
+      run: pwsh -File tools/test-build-scripts.ps1
   
   test-windows:
     name: Test Build Script (Windows)
@@ -90,7 +90,7 @@ jobs:
         toolchain: stable
     
     - name: Run PowerShell build script tests
-      run: .\test-build-scripts.ps1
+      run: .\tools\test-build-scripts.ps1
       shell: pwsh
     
     - name: Test actual build (Rust + .NET)
