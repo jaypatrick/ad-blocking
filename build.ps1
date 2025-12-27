@@ -97,13 +97,11 @@ $BuildFailed = $false
 function Build-RustProjects {
     Write-Host "Building Rust projects..." -ForegroundColor Blue
     
-    $cargoFlags = if ($BuildProfile -eq "release") { "--release" } else { "" }
-    
     # Build the entire workspace
     Write-Host "→ Building Rust workspace..."
     try {
-        if ($cargoFlags) {
-            cargo build $cargoFlags.Split() --workspace
+        if ($BuildProfile -eq "release") {
+            cargo build --release --workspace
         } else {
             cargo build --workspace
         }
@@ -127,13 +125,16 @@ function Build-DotNetProjects {
     Write-Host "→ Building AdGuard API Client (.NET)..."
     try {
         Push-Location src/adguard-api-dotnet
-        dotnet restore AdGuard.ApiClient.slnx
-        dotnet build AdGuard.ApiClient.slnx --no-restore --configuration $configuration
-        Pop-Location
-        Write-Host "✓ AdGuard API Client built successfully" -ForegroundColor Green
+        try {
+            dotnet restore AdGuard.ApiClient.slnx
+            dotnet build AdGuard.ApiClient.slnx --no-restore --configuration $configuration
+            Write-Host "✓ AdGuard API Client built successfully" -ForegroundColor Green
+        }
+        finally {
+            Pop-Location
+        }
     }
     catch {
-        Pop-Location
         Write-Host "✗ AdGuard API Client build failed" -ForegroundColor Red
         $script:BuildFailed = $true
     }
@@ -142,13 +143,16 @@ function Build-DotNetProjects {
     Write-Host "→ Building Rules Compiler (.NET)..."
     try {
         Push-Location src/rules-compiler-dotnet
-        dotnet restore RulesCompiler.slnx
-        dotnet build RulesCompiler.slnx --no-restore --configuration $configuration
-        Pop-Location
-        Write-Host "✓ Rules Compiler (.NET) built successfully" -ForegroundColor Green
+        try {
+            dotnet restore RulesCompiler.slnx
+            dotnet build RulesCompiler.slnx --no-restore --configuration $configuration
+            Write-Host "✓ Rules Compiler (.NET) built successfully" -ForegroundColor Green
+        }
+        finally {
+            Pop-Location
+        }
     }
     catch {
-        Pop-Location
         Write-Host "✗ Rules Compiler (.NET) build failed" -ForegroundColor Red
         $script:BuildFailed = $true
     }
@@ -171,13 +175,16 @@ function Build-TypeScriptProjects {
     Write-Host "→ Building Rules Compiler (TypeScript)..."
     try {
         Push-Location src/rules-compiler-typescript
-        deno task generate:types
-        deno task check
-        Pop-Location
-        Write-Host "✓ Rules Compiler (TypeScript) built successfully" -ForegroundColor Green
+        try {
+            deno task generate:types
+            deno task check
+            Write-Host "✓ Rules Compiler (TypeScript) built successfully" -ForegroundColor Green
+        }
+        finally {
+            Pop-Location
+        }
     }
     catch {
-        Pop-Location
         Write-Host "✗ Rules Compiler (TypeScript) build failed" -ForegroundColor Red
         $script:BuildFailed = $true
     }
@@ -186,13 +193,16 @@ function Build-TypeScriptProjects {
     Write-Host "→ Building AdGuard API Client (TypeScript)..."
     try {
         Push-Location src/adguard-api-typescript
-        deno task generate:types
-        deno task check
-        Pop-Location
-        Write-Host "✓ AdGuard API Client (TypeScript) built successfully" -ForegroundColor Green
+        try {
+            deno task generate:types
+            deno task check
+            Write-Host "✓ AdGuard API Client (TypeScript) built successfully" -ForegroundColor Green
+        }
+        finally {
+            Pop-Location
+        }
     }
     catch {
-        Pop-Location
         Write-Host "✗ AdGuard API Client (TypeScript) build failed" -ForegroundColor Red
         $script:BuildFailed = $true
     }
@@ -201,13 +211,16 @@ function Build-TypeScriptProjects {
     Write-Host "→ Building Linear Import Tool (TypeScript)..."
     try {
         Push-Location src/linear
-        deno task generate:types
-        deno task check
-        Pop-Location
-        Write-Host "✓ Linear Import Tool built successfully" -ForegroundColor Green
+        try {
+            deno task generate:types
+            deno task check
+            Write-Host "✓ Linear Import Tool built successfully" -ForegroundColor Green
+        }
+        finally {
+            Pop-Location
+        }
     }
     catch {
-        Pop-Location
         Write-Host "✗ Linear Import Tool build failed" -ForegroundColor Red
         $script:BuildFailed = $true
     }
@@ -232,13 +245,16 @@ function Build-PythonProjects {
     Write-Host "→ Building Rules Compiler (Python)..."
     try {
         Push-Location src/rules-compiler-python
-        & $pythonCmd -m pip install --quiet -e ".[dev]"
-        & $pythonCmd -m mypy rules_compiler/
-        Pop-Location
-        Write-Host "✓ Rules Compiler (Python) built successfully" -ForegroundColor Green
+        try {
+            & $pythonCmd -m pip install --quiet -e ".[dev]"
+            & $pythonCmd -m mypy rules_compiler/
+            Write-Host "✓ Rules Compiler (Python) built successfully" -ForegroundColor Green
+        }
+        finally {
+            Pop-Location
+        }
     }
     catch {
-        Pop-Location
         Write-Host "✗ Rules Compiler (Python) build failed" -ForegroundColor Red
         $script:BuildFailed = $true
     }

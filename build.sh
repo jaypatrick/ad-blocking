@@ -46,7 +46,7 @@ EXAMPLES:
     $0 --all --release  # Build all projects in release mode
 
 EOF
-    exit 0
+    exit "${1:-0}"
 }
 
 # Parse command line arguments
@@ -81,11 +81,11 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         -h|--help)
-            usage
+            usage 0
             ;;
         *)
             echo -e "${RED}Unknown option: $1${NC}"
-            usage
+            usage 1
             ;;
     esac
 done
@@ -123,7 +123,13 @@ build_rust() {
     
     # Build the entire workspace
     echo "→ Building Rust workspace..."
-    if cargo build $cargo_flags --workspace; then
+    if [[ "$BUILD_PROFILE" == "release" ]]; then
+        cargo build --release --workspace
+    else
+        cargo build --workspace
+    fi
+    
+    if [[ $? -eq 0 ]]; then
         echo -e "${GREEN}✓ Rust workspace built successfully${NC}"
     else
         echo -e "${RED}✗ Rust workspace build failed${NC}"
