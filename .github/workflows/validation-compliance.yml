@@ -29,27 +29,23 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            src/adguard-validation/target
-          key: ${{ runner.os }}-cargo-validation-${{ hashFiles('src/adguard-validation/Cargo.lock') }}
+            target
+          key: ${{ runner.os }}-cargo-validation-${{ hashFiles('Cargo.lock') }}
       
       - name: Build validation library
         run: |
-          cd src/adguard-validation
-          cargo build --release --verbose
+          cargo build --release -p adguard-validation-core --verbose
       
       - name: Run validation library tests
         run: |
-          cd src/adguard-validation
-          cargo test --all --verbose
+          cargo test -p adguard-validation-core -p adguard-validation-cli --verbose
       
       - name: Check clippy
         run: |
-          cd src/adguard-validation
-          cargo clippy --all-targets --all-features -- -D warnings
+          cargo clippy -p adguard-validation-core -p adguard-validation-cli --all-targets --all-features -- -D warnings
       
       - name: Build CLI tool
         run: |
-          cd src/adguard-validation
           cargo build --release -p adguard-validation-cli
       
       - name: Upload validation library artifacts
@@ -57,8 +53,8 @@ jobs:
         with:
           name: validation-library
           path: |
-            src/adguard-validation/target/release/libadguard_validation.*
-            src/adguard-validation/target/release/adguard-validate
+            target/release/libadguard_validation.*
+            target/release/adguard-validate
           retention-days: 7
 
   compliance-check:
