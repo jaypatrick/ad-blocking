@@ -586,7 +586,7 @@ deno task test:coverage             # With coverage
 **Features**:
 - Deno 2.0+ runtime with secure-by-default permissions
 - Built-in TypeScript support, no build step required
-- Optional Rust CLI frontend (`frontend-rust/`)
+- Interactive console mode with menu-driven interface
 - Deno native testing and linting
 
 ### .NET Compiler

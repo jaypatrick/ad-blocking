@@ -7,16 +7,15 @@ This document summarizes the modernization of Rust projects in the ad-blocking r
 ## What Changed
 
 ### Before
-- **4 separate Rust projects** with independent configurations:
+- **3 separate Rust projects** with independent configurations:
   - `src/adguard-validation/` (workspace with 2 crates)
   - `src/adguard-api-rust/` (workspace with 2 crates)
   - `src/rules-compiler-rust/` (single crate)
-  - `src/rules-compiler-typescript/frontend-rust/` (single crate)
 
 - **Inconsistent versions**:
   - Rust 1.75 (adguard-validation)
   - Edition 2024 (adguard-api-rust, rules-compiler-rust)
-  - Edition 2021 (adguard-validation, frontend-rust)
+  - Edition 2021 (adguard-validation)
 
 - **Duplicate dependencies**: Each project declared its own dependency versions
 - **No shared configuration**: Each project had its own build settings
