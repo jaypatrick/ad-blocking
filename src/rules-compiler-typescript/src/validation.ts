@@ -63,21 +63,42 @@ function validateSource(source: unknown, index: number): string[] {
 
   const sourceObj = source as Record<string, unknown>;
 
-  // source field is required
-  if (!sourceObj['source']) {
-    errors.push(`${prefix}.source: is required`);
-  } else if (typeof sourceObj['source'] !== 'string') {
-    errors.push(`${prefix}.source: must be a string`);
-  } else if (sourceObj['source'].trim() === '') {
-    errors.push(`${prefix}.source: cannot be empty`);
+  // Either 'source' or 'content' field is required
+  const hasSource = sourceObj['source'] && typeof sourceObj['source'] === 'string';
+  const hasContent = sourceObj['content'] && Array.isArray(sourceObj['content']);
+
+  if (!hasSource && !hasContent) {
+    errors.push(`${prefix}: must have either 'source' (URL/path) or 'content' (inline rules) field`);
+  }
+
+  // Validate source field if present
+  if (sourceObj['source'] !== undefined) {
+    if (typeof sourceObj['source'] !== 'string') {
+      errors.push(`${prefix}.source: must be a string`);
+    } else if (sourceObj['source'].trim() === '') {
+      errors.push(`${prefix}.source: cannot be empty`);
+    }
+  }
+
+  // Validate content field if present
+  if (sourceObj['content'] !== undefined) {
+    if (!Array.isArray(sourceObj['content'])) {
+      errors.push(`${prefix}.content: must be an array`);
+    } else {
+      for (let i = 0; i < sourceObj['content'].length; i++) {
+        if (typeof sourceObj['content'][i] !== 'string') {
+          errors.push(`${prefix}.content[${i}]: must be a string`);
+        }
+      }
+    }
   }
 
   // type validation if present
   if (sourceObj['type'] !== undefined) {
     if (typeof sourceObj['type'] !== 'string') {
       errors.push(`${prefix}.type: must be a string`);
-    } else if (!['adblock', 'hosts'].includes(sourceObj['type'])) {
-      errors.push(`${prefix}.type: must be 'adblock' or 'hosts'`);
+    } else if (!['adblock', 'hosts', 'inline'].includes(sourceObj['type'])) {
+      errors.push(`${prefix}.type: must be 'adblock', 'hosts', or 'inline'`);
     }
   }
 

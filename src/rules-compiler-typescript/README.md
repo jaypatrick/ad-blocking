@@ -67,6 +67,52 @@ deno task start -- --version
 | `-i, --interactive` | Run in interactive menu mode |
 | `--compile` | Run in CLI mode (compile and exit) |
 | `--validate` | Validate configuration only |
+| `--enable-chunking` | Enable chunked parallel compilation for large rule lists |
+| `--chunk-size N` | Number of sources per chunk (when using source-based chunking) |
+| `--max-parallel N` | Maximum number of chunks to compile in parallel (default: CPU count) |
+
+### Chunked Parallel Compilation
+
+For large rule lists (e.g., 10+ million entries), the single-threaded `@adguard/hostlist-compiler` can be slow. The chunking feature splits compilation into parallel chunks:
+
+**Command-line usage:**
+```bash
+# Enable chunking with default settings (CPU count parallel workers)
+deno task start -- --enable-chunking
+
+# Custom parallel workers and chunk settings
+deno task start -- --enable-chunking --max-parallel 8
+
+# Fine-tune chunk size (sources per chunk)
+deno task start -- --enable-chunking --chunk-size 50000 --max-parallel 4
+```
+
+**Configuration file:**
+```json
+{
+  "name": "My Filter List",
+  "chunking": {
+    "enabled": true,
+    "strategy": "source",
+    "maxParallel": 4
+  },
+  "sources": [
+    { "source": "https://example.com/list1.txt" },
+    { "source": "https://example.com/list2.txt" }
+  ]
+}
+```
+
+**How it works:**
+1. Splits sources into N chunks (based on `maxParallel`)
+2. Compiles each chunk in parallel using Promise.all batching
+3. Merges and deduplicates results
+4. Preserves SHA-384 hash consistency
+
+**When to use:**
+- Large number of sources (10+)
+- Very large individual sources (1M+ rules)
+- Multi-core systems with available CPU resources
 
 ### Generate Type Definitions
 

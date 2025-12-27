@@ -4,14 +4,26 @@ Rules Compiler - Python API for AdGuard filter rule compilation.
 This package provides a Python interface for compiling AdGuard filter rules
 using the @adguard/hostlist-compiler CLI tool.
 
-Example:
+Supports both synchronous and asynchronous APIs for flexible integration.
+
+Synchronous Example:
     >>> from rules_compiler import RulesCompiler
     >>> compiler = RulesCompiler()
     >>> result = compiler.compile("compiler-config.yaml", copy_to_rules=True)
     >>> print(f"Compiled {result.rule_count} rules in {result.elapsed_formatted()}")
 
+Asynchronous Example:
+    >>> import asyncio
+    >>> from rules_compiler import RulesCompiler
+    >>> async def main():
+    ...     compiler = RulesCompiler()
+    ...     result = await compiler.compile_async("compiler-config.yaml")
+    ...     print(f"Compiled {result.rule_count} rules")
+    >>> asyncio.run(main())
+
 Features:
     - Multi-format configuration support (JSON, YAML, TOML)
+    - Synchronous and asynchronous APIs
     - Configuration validation
     - Custom error types for better error handling
     - Transformation presets (recommended, minimal, hosts)
@@ -39,11 +51,14 @@ from rules_compiler.compiler import (
     PlatformInfo,
     RulesCompiler,
     compile_rules,
+    compile_rules_async,
     validate_configuration,
     get_version_info,
     get_platform_info,
     count_rules,
+    count_rules_async,
     compute_hash,
+    compute_hash_async,
     hash_short,
     format_elapsed,
     find_command,
@@ -84,13 +99,16 @@ __all__ = [
     "VersionInfo",
     "PlatformInfo",
     "RulesCompiler",
-    # Compiler functions
+    # Compiler functions (sync and async)
     "compile_rules",
+    "compile_rules_async",
     "validate_configuration",
     "get_version_info",
     "get_platform_info",
     "count_rules",
+    "count_rules_async",
     "compute_hash",
+    "compute_hash_async",
     "hash_short",
     "format_elapsed",
     "find_command",
