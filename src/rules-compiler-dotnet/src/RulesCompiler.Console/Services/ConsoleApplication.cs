@@ -11,6 +11,9 @@ namespace RulesCompiler.Console.Services;
 ///   <item><description>--copy, --CopyToRules: Copy output to rules directory</description></item>
 ///   <item><description>--verbose: Enable verbose output from hostlist-compiler</description></item>
 ///   <item><description>--validate: Validate configuration only (no compilation)</description></item>
+///   <item><description>--validate-config: Enable configuration validation before compilation (default: true)</description></item>
+///   <item><description>--no-validate-config: Disable configuration validation before compilation</description></item>
+///   <item><description>--fail-on-warnings: Fail compilation if configuration has validation warnings</description></item>
 ///   <item><description>--version, -v: Show version information</description></item>
 /// </list>
 /// </remarks>
@@ -51,6 +54,10 @@ public class ConsoleApplication
         var showVersion = _configuration.GetValue<bool>("version") || _configuration.GetValue<bool>("v");
         var verbose = _configuration.GetValue<bool>("verbose");
         var validateOnly = _configuration.GetValue<bool>("validate");
+        
+        // Parse validation options
+        var validateConfig = ParseValidateConfigOption();
+        var failOnWarnings = _configuration.GetValue<bool>("fail-on-warnings");
 
         if (showVersion)
         {
@@ -66,7 +73,7 @@ public class ConsoleApplication
         if (compileOnly || !string.IsNullOrEmpty(configPath))
         {
             // Command-line mode
-            return await RunCompilationAsync(configPath, outputPath, copyToRules, verbose);
+            return await RunCompilationAsync(configPath, outputPath, copyToRules, verbose, validateConfig, failOnWarnings);
         }
 
         // Interactive mode
@@ -196,7 +203,30 @@ public class ConsoleApplication
             });
     }
 
-    private async Task<int> RunCompilationAsync(string? configPath, string? outputPath, bool copyToRules, bool verbose)
+    /// <summary>
+    /// Parses the validate-config option from configuration.
+    /// Defaults to true, but can be disabled with --no-validate-config.
+    /// </summary>
+    /// <returns>True if validation should be performed, false otherwise.</returns>
+    private bool ParseValidateConfigOption()
+    {
+        // Check for explicit --no-validate-config flag
+        if (_configuration.GetValue<bool>("no-validate-config"))
+        {
+            return false;
+        }
+
+        // Check for explicit --validate-config flag
+        if (_configuration.GetValue<bool>("validate-config"))
+        {
+            return true;
+        }
+
+        // Default to true (validation enabled by default)
+        return true;
+    }
+
+    private async Task<int> RunCompilationAsync(string? configPath, string? outputPath, bool copyToRules, bool verbose, bool validateConfig, bool failOnWarnings)
     {
         try
         {
@@ -211,7 +241,8 @@ public class ConsoleApplication
                         OutputPath = outputPath,
                         CopyToRules = copyToRules,
                         Verbose = verbose,
-                        ValidateConfig = true
+                        ValidateConfig = validateConfig,
+                        FailOnWarnings = failOnWarnings
                     };
 
                     result = await _compilerService.RunAsync(options);

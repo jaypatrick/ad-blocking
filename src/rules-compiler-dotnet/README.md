@@ -64,6 +64,12 @@ dotnet run --project src/RulesCompiler.Console -- -c config.yaml --verbose
 # Validate configuration only
 dotnet run --project src/RulesCompiler.Console -- -c config.yaml --validate
 
+# Disable validation before compilation
+dotnet run --project src/RulesCompiler.Console -- -c config.yaml --no-validate-config
+
+# Fail compilation on validation warnings
+dotnet run --project src/RulesCompiler.Console -- -c config.yaml --fail-on-warnings
+
 # Show version information
 dotnet run --project src/RulesCompiler.Console -- --version
 ```
@@ -77,6 +83,9 @@ dotnet run --project src/RulesCompiler.Console -- --version
 | `--copy` | | Copy output to rules directory |
 | `--verbose` | | Enable verbose output from hostlist-compiler |
 | `--validate` | | Validate configuration only (no compilation) |
+| `--validate-config` | | Enable configuration validation before compilation (default: true) |
+| `--no-validate-config` | | Disable configuration validation before compilation |
+| `--fail-on-warnings` | | Fail compilation if configuration has validation warnings |
 | `--version` | `-v` | Show version information |
 
 ## Configuration
