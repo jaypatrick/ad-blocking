@@ -75,7 +75,7 @@ export class AdGuardDnsClientBuilder {
 
   /**
    * Configure from environment variable
-   * @param envVar Environment variable name (default: ADGUARD_API_KEY or ADGUARD_AdGuard__ApiKey)
+   * @param envVar Environment variable name (default: ADGUARD_API_KEY)
    */
   fromEnv(envVar?: string): this {
     let apiKey: string | undefined;
@@ -86,11 +86,13 @@ export class AdGuardDnsClientBuilder {
         throw new Error(`Environment variable ${envVar} is not set`);
       }
     } else {
-      // Try .NET-compatible format first, then fallback to legacy format
-      apiKey = Deno.env.get('ADGUARD_AdGuard__ApiKey') ?? Deno.env.get('ADGUARD_API_KEY');
+      // Try standardized format first, then fallback to legacy formats
+      apiKey = Deno.env.get('ADGUARD_API_KEY') ?? 
+               Deno.env.get('ADGUARD_AdGuard__ApiKey') ?? 
+               Deno.env.get('ADGUARD_API_TOKEN');
       if (!apiKey) {
         throw new Error(
-          'API key not configured. Set ADGUARD_AdGuard__ApiKey (recommended) or ADGUARD_API_KEY environment variable.',
+          'API key not configured. Set ADGUARD_API_KEY environment variable.',
         );
       }
     }

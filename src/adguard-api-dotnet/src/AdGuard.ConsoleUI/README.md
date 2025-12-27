@@ -67,23 +67,38 @@ Set the API key using environment variables with the `ADGUARD_` prefix. Environm
 
 **Linux/macOS:**
 ```bash
+# Recommended - standard cross-language format
+export ADGUARD_API_KEY="your-api-key-here"
+dotnet run
+
+# Alternative - .NET hierarchical format
 export ADGUARD_AdGuard__ApiKey="your-api-key-here"
 dotnet run
 ```
 
 **Windows (PowerShell):**
 ```powershell
+# Recommended - standard cross-language format
+$env:ADGUARD_API_KEY="your-api-key-here"
+dotnet run
+
+# Alternative - .NET hierarchical format
 $env:ADGUARD_AdGuard__ApiKey="your-api-key-here"
 dotnet run
 ```
 
 **Windows (Command Prompt):**
 ```cmd
+REM Recommended - standard cross-language format
+set ADGUARD_API_KEY=your-api-key-here
+dotnet run
+
+REM Alternative - .NET hierarchical format
 set ADGUARD_AdGuard__ApiKey=your-api-key-here
 dotnet run
 ```
 
-**Note:** The double underscore (`__`) in `AdGuard__ApiKey` is the .NET configuration convention for representing a colon (`:`) in environment variable names. The `ADGUARD_` prefix is stripped by the configuration system, so `ADGUARD_AdGuard__ApiKey` maps to `AdGuard:ApiKey`.
+**Note:** Both formats are supported. The simple `ADGUARD_API_KEY` format is recommended as it works identically across all languages (TypeScript, Rust, C#, PowerShell, Python). The double underscore (`__`) format is .NET's hierarchical configuration convention where `ADGUARD_AdGuard__ApiKey` maps to `AdGuard:ApiKey`.
 
 **Configuration Precedence:**
 1. Environment variables (highest priority)

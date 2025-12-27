@@ -1018,13 +1018,17 @@ api_token = "your-api-token-here"
 
 Or use environment variables (both .NET-compatible and legacy formats supported by Rust CLI):
 ```bash
-# .NET-compatible format (recommended - works with both C# and Rust)
-export ADGUARD_AdGuard__BaseUrl="https://api.adguard-dns.io"
-export ADGUARD_AdGuard__ApiKey="your-token-here"
+# Recommended cross-platform format
+export ADGUARD_API_BASE_URL="https://api.adguard-dns.io"
+export ADGUARD_API_KEY="your-api-key-here"
 
-# Legacy format (Rust CLI backward compatibility)
-export ADGUARD_API_URL="https://api.adguard-dns.io"
-export ADGUARD_API_TOKEN="your-token-here"
+# Alternative: .NET hierarchical format
+export ADGUARD_AdGuard__BaseUrl="https://api.adguard-dns.io"
+export ADGUARD_AdGuard__ApiKey="your-api-key-here"
+
+# Deprecated (backward compatibility only)
+# export ADGUARD_API_URL="https://api.adguard-dns.io"
+# export ADGUARD_API_TOKEN="your-token-here"
 ```
 
 **Menu Options** (both applications):
@@ -1044,16 +1048,18 @@ export ADGUARD_API_TOKEN="your-token-here"
 
 **Environment Variables**:
 
-Both applications now support the same environment variable names for cross-compatibility:
+Both applications support standardized environment variable names for cross-compatibility:
 
 | Variable | Description |
 |----------|-------------|
-| `ADGUARD_AdGuard__ApiKey` | API credential (recommended - works with both C# and Rust) |
-| `ADGUARD_AdGuard__BaseUrl` | API base URL (optional, works with both C# and Rust) |
-| `ADGUARD_API_TOKEN` | Legacy API credential (Rust backward compatibility) |
-| `ADGUARD_API_URL` | Legacy API base URL (Rust backward compatibility) |
+| `ADGUARD_API_KEY` | API credential (recommended cross-platform format) |
+| `ADGUARD_API_BASE_URL` | API base URL (optional, cross-platform format) |
+| `ADGUARD_AdGuard__ApiKey` | API credential (.NET hierarchical format) |
+| `ADGUARD_AdGuard__BaseUrl` | API base URL (.NET hierarchical format) |
 
-**Note**: The Rust CLI now prioritizes .NET-compatible format (`ADGUARD_AdGuard__ApiKey`) over legacy format (`ADGUARD_API_TOKEN`) for maximum cross-compatibility.
+**Deprecated (backward compatibility)**:
+- `ADGUARD_API_TOKEN` - Use `ADGUARD_API_KEY` instead
+- `ADGUARD_API_URL` - Use `ADGUARD_API_BASE_URL` instead
 
 **C# Console UI Configuration Example**:
 ```bash
@@ -1353,16 +1359,20 @@ Download the latest release from the [Releases page](https://github.com/jaypatri
 
 ### API Clients
 
-Both C# and Rust implementations now support the same environment variable names:
+Both C# and Rust implementations support standardized environment variable names:
 
 | Variable | Description |
 |----------|-------------|
-| `ADGUARD_AdGuard__ApiKey` | AdGuard DNS API credential (recommended - works with both C# and Rust) |
-| `ADGUARD_AdGuard__BaseUrl` | API base URL (optional, works with both C# and Rust) |
-| `ADGUARD_API_TOKEN` | Legacy API credential (Rust backward compatibility only) |
-| `ADGUARD_API_URL` | Legacy API base URL (Rust backward compatibility only) |
+| `ADGUARD_API_KEY` | AdGuard DNS API credential (recommended cross-platform format) |
+| `ADGUARD_API_BASE_URL` | API base URL (optional, cross-platform format) |
+| `ADGUARD_AdGuard__ApiKey` | AdGuard DNS API credential (.NET hierarchical format) |
+| `ADGUARD_AdGuard__BaseUrl` | API base URL (.NET hierarchical format) |
 
-**Cross-Compatibility**: You can now use the same environment variables across both C# Console UI and Rust CLI implementations. The Rust CLI prioritizes the .NET-compatible format (`ADGUARD_AdGuard__ApiKey`) over legacy format (`ADGUARD_API_TOKEN`).
+**Deprecated (backward compatibility only)**:
+- `ADGUARD_API_TOKEN` - Use `ADGUARD_API_KEY` instead
+- `ADGUARD_API_URL` - Use `ADGUARD_API_BASE_URL` instead
+
+**Cross-Compatibility**: All API clients (C#, TypeScript, Rust) support both `ADGUARD_API_KEY` (recommended) and the .NET hierarchical format `ADGUARD_AdGuard__ApiKey`.
 
 **Note for .NET format**: The `ADGUARD_` prefix is required, and double underscore (`__`) represents colon (`:`) in configuration keys. Example: `ADGUARD_AdGuard__ApiKey` maps to `AdGuard:ApiKey` in configuration.
 
@@ -1374,11 +1384,12 @@ Both C# and Rust implementations now support the same environment variable names
 | `RULESCOMPILER_config` | .NET compiler | Default config file path |
 | `RULESCOMPILER_Logging__LogLevel__Default` | .NET compiler | Log level (Debug, Information, Warning, Error) |
 
-### Other
+### Linear Integration
 
 | Variable | Description |
 |----------|-------------|
-| `LINEAR_API_KEY` | Linear integration scripts |
+| `ADGUARD_LINEAR_API_KEY` | Linear integration scripts (recommended) |
+| `LINEAR_API_KEY` | Legacy format (deprecated, use ADGUARD_LINEAR_API_KEY) |
 
 ## Contributing
 

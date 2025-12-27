@@ -35,8 +35,8 @@ If you discover a security vulnerability in this project, please report it respo
 When using this project:
 
 1. **Never commit sensitive data**: Always use environment variables for secrets
-   - Set `ADGUARD_WEBHOOK_URL` environment variable
-   - Set `SECRET_KEY` environment variable
+   - Set `ADGUARD_WEBHOOK_URL` environment variable for webhook endpoints
+   - Set `ADGUARD_API_KEY` environment variable for API authentication
    - See `.env.example` files for configuration templates
 
 2. **Keep dependencies updated**: Regularly update dependencies to patch known vulnerabilities

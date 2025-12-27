@@ -336,8 +336,8 @@ pwsh -Command "Invoke-ScriptAnalyzer -Path . -Recurse"
 **Environment variables**:
 - `ADGUARD_WEBHOOK_URL` - Webhook endpoint for notifications
 - `ADGUARD_API_KEY` - AdGuard DNS API authentication
-- `LINEAR_API_KEY` - Linear integration (src/linear/)
-- `SECRET_KEY` - Encryption keys
+- `ADGUARD_LINEAR_API_KEY` - Linear integration (src/linear/)
+- `DEBUG` - Enable debug mode (common cross-platform variable)
 
 **Configuration priority** (ConsoleUI):
 1. `appsettings.json` (checked into repo, no secrets)
@@ -552,9 +552,9 @@ npm install
 npm run build
 
 # Configure .env (never commit this!)
-LINEAR_API_KEY=lin_api_your_key_here
-LINEAR_TEAM_ID=optional_team_id
-LINEAR_PROJECT_NAME=Ad-Blocking Documentation
+ADGUARD_LINEAR_API_KEY=lin_api_your_key_here
+ADGUARD_LINEAR_TEAM_ID=optional_team_id
+ADGUARD_LINEAR_PROJECT_NAME=Ad-Blocking Documentation
 ```
 
 ### Usage

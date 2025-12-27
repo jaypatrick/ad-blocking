@@ -433,12 +433,12 @@ RemoveComments, Compress, RemoveModifiers, Validate, ValidateAllowIp, Deduplicat
 
 | Variable | Description |
 |----------|-------------|
-| `AdGuard:ApiKey` | API credential for console UI (can also prompt interactively) |
-| `ADGUARD_API_KEY` | API credential for TypeScript client |
-| `ADGUARD_AdGuard__ApiKey` | .NET-compatible API credential format |
-| `LINEAR_API_KEY` | For Linear import scripts (`src/linear/`) |
-| `LINEAR_TEAM_ID` | Optional Linear team ID |
-| `LINEAR_PROJECT_NAME` | Optional Linear project name |
+| `ADGUARD_API_KEY` | Universal API credential (works with all languages - recommended) |
+| `AdGuard:ApiKey` | .NET appsettings.json format |
+| `ADGUARD_AdGuard__ApiKey` | .NET environment variable hierarchical format (legacy) |
+| `ADGUARD_LINEAR_API_KEY` | Linear API key for Linear import scripts (`src/linear/`) |
+| `ADGUARD_LINEAR_TEAM_ID` | Optional Linear team ID |
+| `ADGUARD_LINEAR_PROJECT_NAME` | Optional Linear project name |
 | `DEBUG` | Set to any value to enable debug logging |
 | `LOG_LEVEL` | Log level (DEBUG, INFO, WARN, ERROR, SILENT) |
 | `LOG_FORMAT` | Set to `json` for structured logging |

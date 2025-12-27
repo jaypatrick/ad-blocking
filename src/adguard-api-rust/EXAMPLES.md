@@ -7,10 +7,13 @@ This file contains quick reference examples for using the Rust API implementatio
 ### Setup
 
 ```bash
-# Export your API token (recommended - .NET-compatible format)
+# Export your API key (recommended - works across all languages)
+export ADGUARD_API_KEY="your-api-key-here"
+
+# Or using .NET-compatible format (backward compatible)
 export ADGUARD_AdGuard__ApiKey="your-token-here"
 
-# Or using legacy format (backward compatible)
+# Or using legacy Rust format (backward compatible)
 export ADGUARD_API_TOKEN="your-token-here"
 
 # Or pass it with each command
@@ -57,9 +60,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Create configuration
     let mut config = Configuration::new();
     config.base_path = "https://api.adguard-dns.io".to_string();
-    // Try .NET-compatible format first, fallback to legacy format
+    // Try standard format first, then fall back to legacy formats
     config.bearer_access_token = Some(
-        std::env::var("ADGUARD_AdGuard__ApiKey")
+        std::env::var("ADGUARD_API_KEY")
+            .or_else(|_| std::env::var("ADGUARD_API_KEY")
+            .or_else(|_| std::env::var("ADGUARD_AdGuard__ApiKey")))
             .or_else(|_| std::env::var("ADGUARD_API_TOKEN"))?
     );
     
@@ -80,7 +85,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     config.base_path = "https://api.adguard-dns.io".to_string();
     // Try .NET-compatible format first, fallback to legacy format
     config.bearer_access_token = Some(
-        std::env::var("ADGUARD_AdGuard__ApiKey")
+        std::env::var("ADGUARD_API_KEY")
+            .or_else(|_| std::env::var("ADGUARD_AdGuard__ApiKey"))
             .or_else(|_| std::env::var("ADGUARD_API_TOKEN"))?
     );
     
@@ -105,7 +111,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     config.base_path = "https://api.adguard-dns.io".to_string();
     // Try .NET-compatible format first, fallback to legacy format
     config.bearer_access_token = Some(
-        std::env::var("ADGUARD_AdGuard__ApiKey")
+        std::env::var("ADGUARD_API_KEY")
+            .or_else(|_| std::env::var("ADGUARD_AdGuard__ApiKey"))
             .or_else(|_| std::env::var("ADGUARD_API_TOKEN"))?
     );
     
@@ -130,7 +137,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     config.base_path = "https://api.adguard-dns.io".to_string();
     // Try .NET-compatible format first, fallback to legacy format
     config.bearer_access_token = Some(
-        std::env::var("ADGUARD_AdGuard__ApiKey")
+        std::env::var("ADGUARD_API_KEY")
+            .or_else(|_| std::env::var("ADGUARD_AdGuard__ApiKey"))
             .or_else(|_| std::env::var("ADGUARD_API_TOKEN"))?
     );
     
@@ -159,7 +167,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     config.base_path = "https://api.adguard-dns.io".to_string();
     // Try .NET-compatible format first, fallback to legacy format
     config.bearer_access_token = Some(
-        std::env::var("ADGUARD_AdGuard__ApiKey")
+        std::env::var("ADGUARD_API_KEY")
+            .or_else(|_| std::env::var("ADGUARD_AdGuard__ApiKey"))
             .or_else(|_| std::env::var("ADGUARD_API_TOKEN"))?
     );
     
@@ -184,7 +193,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     config.base_path = "https://api.adguard-dns.io".to_string();
     // Try .NET-compatible format first, fallback to legacy format
     config.bearer_access_token = Some(
-        std::env::var("ADGUARD_AdGuard__ApiKey")
+        std::env::var("ADGUARD_API_KEY")
+            .or_else(|_| std::env::var("ADGUARD_AdGuard__ApiKey"))
             .or_else(|_| std::env::var("ADGUARD_API_TOKEN"))?
     );
     
@@ -221,7 +231,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     config.base_path = "https://api.adguard-dns.io".to_string();
     // Try .NET-compatible format first, fallback to legacy format
     config.bearer_access_token = Some(
-        std::env::var("ADGUARD_AdGuard__ApiKey")
+        std::env::var("ADGUARD_API_KEY")
+            .or_else(|_| std::env::var("ADGUARD_AdGuard__ApiKey"))
             .or_else(|_| std::env::var("ADGUARD_API_TOKEN"))?
     );
     
