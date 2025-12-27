@@ -55,6 +55,10 @@ enum Commands {
         /// Validate configuration before compiling
         #[arg(long)]
         validate: bool,
+
+        /// Fail compilation on validation warnings
+        #[arg(long)]
+        fail_on_warnings: bool,
     },
     /// Show configuration details without compiling
     Config,
@@ -167,11 +171,13 @@ fn run_compile(
     format: Option<ConfigFormat>,
     debug: bool,
     validate: bool,
+    fail_on_warnings: bool,
 ) -> ExitCode {
     let options = CompileOptions::new()
         .with_copy_to_rules(copy_to_rules)
         .with_debug(debug)
-        .with_validation(validate);
+        .with_validation(validate)
+        .with_fail_on_warnings(fail_on_warnings);
 
     let options = if let Some(path) = output {
         options.with_output(path)
@@ -314,7 +320,17 @@ fn run_interactive_menu(initial_config: Option<PathBuf>) -> ExitCode {
                         .interact()
                         .unwrap_or(true);
 
-                    run_compile(path, None, copy_to_rules, None, false, validate);
+                    let fail_on_warnings = if validate {
+                        Confirm::with_theme(&theme)
+                            .with_prompt("Fail compilation on validation warnings?")
+                            .default(false)
+                            .interact()
+                            .unwrap_or(false)
+                    } else {
+                        false
+                    };
+
+                    run_compile(path, None, copy_to_rules, None, false, validate, fail_on_warnings);
                 } else {
                     eprintln!("  No configuration file selected.");
                     eprintln!("  Use 'Change Configuration File' to select one.");
@@ -396,7 +412,7 @@ fn main() -> ExitCode {
             };
             show_config(&config_path, format)
         }
-        Some(Commands::Compile { validate }) => {
+        Some(Commands::Compile { validate, fail_on_warnings }) => {
             let config_path = match cli.config.or_else(find_default_config) {
                 Some(path) => path,
                 None => {
@@ -421,6 +437,7 @@ fn main() -> ExitCode {
                 format,
                 cli.debug,
                 validate,
+                fail_on_warnings,
             )
         }
         None => {
@@ -447,6 +464,7 @@ fn main() -> ExitCode {
                 cli.copy_to_rules,
                 format,
                 cli.debug,
+                false,
                 false,
             )
         }

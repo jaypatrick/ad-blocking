@@ -210,6 +210,8 @@ pub struct CompileOptions {
     pub debug: bool,
     /// Validate configuration before compiling.
     pub validate: bool,
+    /// Fail compilation on validation warnings.
+    pub fail_on_warnings: bool,
 }
 
 impl CompileOptions {
@@ -258,6 +260,13 @@ impl CompileOptions {
     #[must_use]
     pub const fn with_validation(mut self, validate: bool) -> Self {
         self.validate = validate;
+        self
+    }
+
+    /// Set fail on warnings.
+    #[must_use]
+    pub const fn with_fail_on_warnings(mut self, fail_on_warnings: bool) -> Self {
+        self.fail_on_warnings = fail_on_warnings;
         self
     }
 }

@@ -59,6 +59,12 @@ rules-compiler -c config.yaml -d
 
 # Show help
 rules-compiler --help
+
+# Validate configuration before compiling
+rules-compiler compile -c config.yaml --validate
+
+# Fail on validation warnings
+rules-compiler compile -c config.yaml --validate --fail-on-warnings
 ```
 
 ### CLI Options
@@ -71,8 +77,15 @@ rules-compiler --help
 | `--format FORMAT` | `-f` | Force format (json, yaml, toml) |
 | `--version-info` | `-V` | Show version information |
 | `--debug` | `-d` | Enable debug output |
-| `--show-config` | | Show configuration only |
+| `--interactive` | `-i` | Run in interactive mode |
 | `--help` | `-h` | Show help message |
+
+### Compile Subcommand Options
+
+| Option | Description |
+|--------|-------------|
+| `--validate` | Validate configuration before compiling |
+| `--fail-on-warnings` | Fail compilation if configuration has validation warnings |
 
 ## Library Usage
 
