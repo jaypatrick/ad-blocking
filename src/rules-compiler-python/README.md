@@ -41,6 +41,12 @@ rules-compiler -c config.yaml -d
 
 # Show help
 rules-compiler -h
+
+# Disable validation before compilation
+rules-compiler -c config.yaml --no-validate-config
+
+# Fail on validation warnings
+rules-compiler -c config.yaml --fail-on-warnings
 ```
 
 ### CLI Options
@@ -53,6 +59,10 @@ rules-compiler -h
 | `--format FORMAT` | `-f` | Force format (json, yaml, toml) |
 | `--version` | `-v` | Show version information |
 | `--debug` | `-d` | Enable debug output |
+| `--validate` | | Validate configuration only (no compilation) |
+| `--validate-config` | | Enable configuration validation before compilation (default: true) |
+| `--no-validate-config` | | Disable configuration validation before compilation |
+| `--fail-on-warnings` | | Fail compilation if configuration has validation warnings |
 | `--help` | `-h` | Show help message |
 
 ## Python API

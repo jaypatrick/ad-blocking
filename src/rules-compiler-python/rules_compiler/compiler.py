@@ -306,6 +306,7 @@ class RulesCompiler:
         rules_directory: str | Path | None = None,
         format: ConfigurationFormat | None = None,
         validate: bool = True,
+        fail_on_warnings: bool = False,
     ) -> CompilerResult:
         """
         Compile filter rules.
@@ -317,6 +318,7 @@ class RulesCompiler:
             rules_directory: Custom rules directory path.
             format: Force configuration format.
             validate: Validate configuration before compiling.
+            fail_on_warnings: Fail compilation if configuration has validation warnings.
 
         Returns:
             Compilation result.
@@ -329,6 +331,7 @@ class RulesCompiler:
             format=format,
             debug=self.debug,
             validate=validate,
+            fail_on_warnings=fail_on_warnings,
         )
 
     def read_config(
@@ -379,6 +382,7 @@ def compile_rules(
     format: ConfigurationFormat | None = None,
     debug: bool = False,
     validate: bool = True,
+    fail_on_warnings: bool = False,
 ) -> CompilerResult:
     """
     Compile filter rules using hostlist-compiler.
@@ -391,6 +395,7 @@ def compile_rules(
         format: Force configuration format.
         debug: Enable debug logging.
         validate: Validate configuration before compiling.
+        fail_on_warnings: Fail compilation if configuration has validation warnings.
 
     Returns:
         Compilation result.
@@ -410,9 +415,15 @@ def compile_rules(
             validation_result = config.validate()
             if not validation_result.is_valid:
                 raise ValidationError(validation_result.errors, validation_result.warnings)
-            if validation_result.warnings and debug:
+            if validation_result.warnings:
                 for warning in validation_result.warnings:
                     logger.warning(f"Config warning: {warning}")
+                if fail_on_warnings:
+                    raise ValidationError(
+                        errors=[],
+                        warnings=validation_result.warnings,
+                        message="Configuration has warnings (fail_on_warnings is enabled)",
+                    )
 
         # Determine output path
         if output_path:

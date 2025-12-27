@@ -111,6 +111,24 @@ Examples:
     )
 
     parser.add_argument(
+        "--validate-config",
+        action="store_true",
+        help="Enable configuration validation before compilation (default: true)",
+    )
+
+    parser.add_argument(
+        "--no-validate-config",
+        action="store_true",
+        help="Disable configuration validation before compilation",
+    )
+
+    parser.add_argument(
+        "--fail-on-warnings",
+        action="store_true",
+        help="Fail compilation if configuration has validation warnings",
+    )
+
+    parser.add_argument(
         "--check-files",
         action="store_true",
         help="Check if local source files exist (use with --validate)",
@@ -380,6 +398,10 @@ def main(args: list[str] | None = None) -> int:
     }
     config_format = format_map.get(opts.format) if opts.format else None
 
+    # Determine validation settings
+    validate_config = not opts.no_validate_config  # Default is True
+    fail_on_warnings = opts.fail_on_warnings
+
     # Create compiler and run
     compiler = RulesCompiler(debug=opts.debug)
 
@@ -392,6 +414,8 @@ def main(args: list[str] | None = None) -> int:
             copy_to_rules=opts.copy_to_rules,
             rules_directory=opts.rules_dir,
             format=config_format,
+            validate=validate_config,
+            fail_on_warnings=fail_on_warnings,
         )
 
         if result.success:
