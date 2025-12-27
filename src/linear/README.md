@@ -173,6 +173,30 @@ Check that your API key has permissions to create projects. You may need to use 
 
 Linear has API rate limits. If you encounter rate limiting issues, wait a few minutes and try again.
 
+## Type Definitions
+
+This project uses Deno, which works with TypeScript natively. For compatibility with other tools or for publishing, type definition files (`.d.ts`) can be generated using:
+
+```bash
+deno task generate:types
+```
+
+The generated files are placed in the `dist/` directory and re-export all types from the source files.
+
+**Note**: The `.d.ts` files are automatically generated and should not be edited manually. They are excluded from version control.
+
+### Available Tasks
+
+- `deno task import` - Import issues from markdown
+- `deno task import:docs` - Import from LINEAR_DOCUMENTATION.md
+- `deno task import:dry-run` - Dry run import
+- `deno task cli` - Run the CLI
+- `deno task test` - Run tests
+- `deno task check` - Type check the code
+- `deno task lint` - Lint the code
+- `deno task fmt` - Format the code
+- `deno task generate:types` - Generate `.d.ts` type definition files
+
 ## License
 
 GPL-3.0 - See [LICENSE](../../LICENSE) for details.
