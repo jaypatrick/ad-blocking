@@ -11,7 +11,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::Instant;
 
-use crate::config::{CompilerConfig, ConfigFormat, read_config, to_json};
+use crate::config::{read_config, to_json, CompilerConfig, ConfigFormat};
 use crate::error::{CompilerError, Result};
 
 /// Platform-specific information.
@@ -76,7 +76,8 @@ impl VersionInfo {
 
         // Check Node.js
         if let Some(node_path) = find_command("node") {
-            info.node_version = get_command_version(node_path.to_str().unwrap_or("node"), &["--version"]);
+            info.node_version =
+                get_command_version(node_path.to_str().unwrap_or("node"), &["--version"]);
         }
 
         // Check hostlist-compiler
@@ -171,7 +172,9 @@ impl CompilerResult {
     /// Get the rules destination path as a string.
     #[must_use]
     pub fn rules_destination_str(&self) -> Option<String> {
-        self.rules_destination.as_ref().map(|p| p.display().to_string())
+        self.rules_destination
+            .as_ref()
+            .map(|p| p.display().to_string())
     }
 
     /// Get elapsed time as a formatted string.
@@ -447,7 +450,10 @@ fn get_rules_directory(config_path: &Path, custom: Option<&Path>) -> PathBuf {
 /// # Errors
 ///
 /// Returns an error if compilation fails.
-pub fn compile_rules<P: AsRef<Path>>(config_path: P, options: &CompileOptions) -> Result<CompilerResult> {
+pub fn compile_rules<P: AsRef<Path>>(
+    config_path: P,
+    options: &CompileOptions,
+) -> Result<CompilerResult> {
     let start = Instant::now();
     let mut result = CompilerResult {
         start_time: Utc::now(),
@@ -455,7 +461,10 @@ pub fn compile_rules<P: AsRef<Path>>(config_path: P, options: &CompileOptions) -
     };
 
     let config_path = config_path.as_ref().canonicalize().map_err(|e| {
-        CompilerError::file_system(format!("resolving config path {}", config_path.as_ref().display()), e)
+        CompilerError::file_system(
+            format!("resolving config path {}", config_path.as_ref().display()),
+            e,
+        )
     })?;
 
     // Read configuration
@@ -477,7 +486,8 @@ pub fn compile_rules<P: AsRef<Path>>(config_path: P, options: &CompileOptions) -
 
     // Convert to JSON if needed (hostlist-compiler only accepts JSON)
     let (compile_config_path, temp_config_path) = if config.format() != Some(ConfigFormat::Json) {
-        let temp_path = std::env::temp_dir().join(format!("compiler-config-{}.json", uuid::Uuid::new_v4()));
+        let temp_path =
+            std::env::temp_dir().join(format!("compiler-config-{}.json", uuid::Uuid::new_v4()));
         let json = to_json(&config)?;
         fs::write(&temp_path, &json).map_err(|e| {
             CompilerError::file_system(format!("writing temp config to {}", temp_path.display()), e)
@@ -496,7 +506,10 @@ pub fn compile_rules<P: AsRef<Path>>(config_path: P, options: &CompileOptions) -
     // Ensure output directory exists
     if let Some(output_dir) = output_path.parent() {
         fs::create_dir_all(output_dir).map_err(|e| {
-            CompilerError::file_system(format!("creating output directory {}", output_dir.display()), e)
+            CompilerError::file_system(
+                format!("creating output directory {}", output_dir.display()),
+                e,
+            )
         })?;
     }
 
@@ -554,13 +567,20 @@ pub fn compile_rules<P: AsRef<Path>>(config_path: P, options: &CompileOptions) -
     if options.copy_to_rules {
         let rules_dir = get_rules_directory(&config_path, options.rules_directory.as_deref());
         fs::create_dir_all(&rules_dir).map_err(|e| {
-            CompilerError::file_system(format!("creating rules directory {}", rules_dir.display()), e)
+            CompilerError::file_system(
+                format!("creating rules directory {}", rules_dir.display()),
+                e,
+            )
         })?;
 
         let dest_path = rules_dir.join("adguard_user_filter.txt");
         fs::copy(&output_path, &dest_path).map_err(|e| {
             CompilerError::copy_failed(
-                format!("copying {} to {}", output_path.display(), dest_path.display()),
+                format!(
+                    "copying {} to {}",
+                    output_path.display(),
+                    dest_path.display()
+                ),
                 e,
             )
         })?;

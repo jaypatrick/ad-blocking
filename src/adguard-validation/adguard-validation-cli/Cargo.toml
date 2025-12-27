@@ -13,7 +13,7 @@ name = "adguard-validate"
 path = "src/main.rs"
 
 [dependencies]
-adguard-validation-core.workspace = true
-clap.workspace = true
-serde_json.workspace = true
-anyhow.workspace = true
+adguard-validation-core = { path = "../adguard-validation-core" }
+clap = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }

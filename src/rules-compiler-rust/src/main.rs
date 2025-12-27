@@ -8,7 +8,7 @@ use std::path::PathBuf;
 use std::process::ExitCode;
 
 use rules_compiler::{
-    CompileOptions, ConfigFormat, RulesCompiler, VersionInfo, read_config, VERSION,
+    read_config, CompileOptions, ConfigFormat, RulesCompiler, VersionInfo, VERSION,
 };
 
 /// AdGuard Filter Rules Compiler - Rust CLI
@@ -16,9 +16,11 @@ use rules_compiler::{
 #[command(name = "rules-compiler")]
 #[command(version = VERSION)]
 #[command(about = "Compile AdGuard filter rules using hostlist-compiler")]
-#[command(long_about = "A high-performance Rust CLI for compiling AdGuard filter rules.\n\n\
+#[command(
+    long_about = "A high-performance Rust CLI for compiling AdGuard filter rules.\n\n\
     Supports JSON, YAML, and TOML configuration formats.\n\
-    Can run in direct mode with arguments or interactive menu mode.")]
+    Can run in direct mode with arguments or interactive menu mode."
+)]
 struct Cli {
     #[command(subcommand)]
     command: Option<Commands>,
@@ -207,7 +209,10 @@ fn run_compile(
                 println!("  ✓ Compilation successful!");
                 println!();
                 println!("  Results:");
-                println!("    Filter:     {} v{}", result.config_name, result.config_version);
+                println!(
+                    "    Filter:     {} v{}",
+                    result.config_name, result.config_version
+                );
                 println!("    Rules:      {}", result.rule_count);
                 println!("    Output:     {}", result.output_path_str());
                 println!("    Hash:       {}...", result.hash_short());
@@ -330,7 +335,15 @@ fn run_interactive_menu(initial_config: Option<PathBuf>) -> ExitCode {
                         false
                     };
 
-                    run_compile(path, None, copy_to_rules, None, false, validate, fail_on_warnings);
+                    run_compile(
+                        path,
+                        None,
+                        copy_to_rules,
+                        None,
+                        false,
+                        validate,
+                        fail_on_warnings,
+                    );
                 } else {
                     eprintln!("  No configuration file selected.");
                     eprintln!("  Use 'Change Configuration File' to select one.");
@@ -412,7 +425,10 @@ fn main() -> ExitCode {
             };
             show_config(&config_path, format)
         }
-        Some(Commands::Compile { validate, fail_on_warnings }) => {
+        Some(Commands::Compile {
+            validate,
+            fail_on_warnings,
+        }) => {
             let config_path = match cli.config.or_else(find_default_config) {
                 Some(path) => path,
                 None => {

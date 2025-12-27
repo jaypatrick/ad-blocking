@@ -60,7 +60,11 @@ pub enum ValidationError {
 
 impl ValidationError {
     /// Create a hash mismatch error.
-    pub fn hash_mismatch(file: impl Into<String>, expected: impl Into<String>, actual: impl Into<String>) -> Self {
+    pub fn hash_mismatch(
+        file: impl Into<String>,
+        expected: impl Into<String>,
+        actual: impl Into<String>,
+    ) -> Self {
         Self::HashMismatch {
             file: file.into(),
             expected: expected.into(),

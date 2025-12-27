@@ -44,14 +44,14 @@ pub fn create_archive<P: AsRef<Path>>(
     rule_count: usize,
 ) -> Result<PathBuf> {
     let archive_root = archive_root.as_ref();
-    
+
     // Create timestamped archive directory
     let timestamp = Utc::now().format("%Y-%m-%d_%H-%M-%S").to_string();
     let archive_dir = archive_root.join(&timestamp);
     fs::create_dir_all(&archive_dir)?;
 
     let mut files = Vec::new();
-    
+
     // Copy all files from input directory
     for entry in walkdir::WalkDir::new(input_dir.as_ref())
         .follow_links(false)
@@ -60,21 +60,22 @@ pub fn create_archive<P: AsRef<Path>>(
     {
         if entry.file_type().is_file() {
             let path = entry.path();
-            let relative_path = path.strip_prefix(input_dir.as_ref())
+            let relative_path = path
+                .strip_prefix(input_dir.as_ref())
                 .unwrap_or(path)
                 .display()
                 .to_string();
-            
+
             let hash = compute_file_hash(path)?;
             let size = fs::metadata(path)?.len();
-            
+
             // Copy file to archive
             let dest = archive_dir.join(&relative_path);
             if let Some(parent) = dest.parent() {
                 fs::create_dir_all(parent)?;
             }
             fs::copy(path, dest)?;
-            
+
             files.push(ArchivedFile {
                 path: relative_path,
                 hash,
@@ -153,7 +154,7 @@ mod tests {
 
         let json = serde_json::to_string(&manifest).unwrap();
         let deserialized: ArchiveManifest = serde_json::from_str(&json).unwrap();
-        
+
         assert_eq!(deserialized.rule_count, 100);
         assert_eq!(deserialized.files.len(), 1);
     }
@@ -162,17 +163,13 @@ mod tests {
     fn test_create_archive() {
         let input_dir = TempDir::new().unwrap();
         let archive_root = TempDir::new().unwrap();
-        
+
         // Create test file
         let test_file = input_dir.path().join("test.txt");
         fs::write(&test_file, "test content").unwrap();
 
-        let archive_dir = create_archive(
-            input_dir.path(),
-            archive_root.path(),
-            "output_hash",
-            42,
-        ).unwrap();
+        let archive_dir =
+            create_archive(input_dir.path(), archive_root.path(), "output_hash", 42).unwrap();
 
         assert!(archive_dir.exists());
         assert!(archive_dir.join("manifest.json").exists());

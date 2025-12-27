@@ -144,7 +144,7 @@ pub fn compute_hash(data: &[u8]) -> String {
 pub fn verify_file_hash<P: AsRef<Path>>(path: P, expected: &str) -> Result<()> {
     let path = path.as_ref();
     let actual = compute_file_hash(path)?;
-    
+
     if actual != expected {
         return Err(ValidationError::hash_mismatch(
             path.display().to_string(),
@@ -152,7 +152,7 @@ pub fn verify_file_hash<P: AsRef<Path>>(path: P, expected: &str) -> Result<()> {
             actual,
         ));
     }
-    
+
     Ok(())
 }
 
@@ -189,7 +189,7 @@ pub fn verify_and_update<P: AsRef<Path>>(
                 database.insert(path_str, new_entry);
                 return Ok(false);
             }
-            
+
             // Hash matches - update verified timestamp
             if let Some(entry) = database.entries.get_mut(&path_str) {
                 entry.mark_verified();
@@ -255,7 +255,7 @@ mod tests {
 
         let entry = HashEntry::new("abc123".to_string(), 100);
         db.insert("test.txt".to_string(), entry);
-        
+
         assert_eq!(db.len(), 1);
         assert!(db.get("test.txt").is_some());
         assert_eq!(db.get("test.txt").unwrap().hash, "abc123");
@@ -265,10 +265,10 @@ mod tests {
     fn test_hash_entry_verified() {
         let mut entry = HashEntry::new("hash".to_string(), 100);
         let original_verified = entry.last_verified;
-        
+
         std::thread::sleep(std::time::Duration::from_millis(10));
         entry.mark_verified();
-        
+
         assert!(entry.last_verified > original_verified);
     }
 }

@@ -40,7 +40,7 @@ pub struct SyntaxValidationResult {
 pub fn validate_syntax<P: AsRef<Path>>(path: P) -> Result<SyntaxValidationResult> {
     let path = path.as_ref();
     let content = fs::read_to_string(path)?;
-    
+
     let mut result = SyntaxValidationResult {
         is_valid: true,
         format: detect_format(&content),
@@ -51,7 +51,7 @@ pub fn validate_syntax<P: AsRef<Path>>(path: P) -> Result<SyntaxValidationResult
 
     for (line_num, line) in content.lines().enumerate() {
         let line = line.trim();
-        
+
         // Skip empty lines and comments
         if line.is_empty() || line.starts_with('!') || line.starts_with('#') {
             continue;
@@ -61,7 +61,9 @@ pub fn validate_syntax<P: AsRef<Path>>(path: P) -> Result<SyntaxValidationResult
             result.valid_rules += 1;
         } else {
             result.invalid_rules += 1;
-            result.messages.push(format!("Line {}: Invalid syntax: {}", line_num + 1, line));
+            result
+                .messages
+                .push(format!("Line {}: Invalid syntax: {}", line_num + 1, line));
         }
     }
 
@@ -89,12 +91,19 @@ fn detect_format(content: &str) -> FilterFormat {
         }
 
         // AdBlock patterns
-        if line.starts_with("||") || line.starts_with("@@") || line.contains("##") || line.contains('$') {
+        if line.starts_with("||")
+            || line.starts_with("@@")
+            || line.contains("##")
+            || line.contains('$')
+        {
             adblock_score += 2;
         }
 
         // Hosts file patterns
-        if Regex::new(r"^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\s+").unwrap().is_match(line) {
+        if Regex::new(r"^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\s+")
+            .unwrap()
+            .is_match(line)
+        {
             hosts_score += 2;
         }
     }
@@ -120,20 +129,21 @@ fn is_valid_rule(line: &str, format: FilterFormat) -> bool {
 /// Validate AdBlock rule.
 fn is_valid_adblock_rule(line: &str) -> bool {
     // Basic AdBlock rule validation
-    !line.is_empty() && (
-        line.starts_with("||") ||
-        line.starts_with("@@") ||
-        line.contains("##") ||
-        line.contains("$") ||
-        line.starts_with('/') ||
-        Regex::new(r"^[a-zA-Z0-9\-\.]+\^?$").unwrap().is_match(line)
-    )
+    !line.is_empty()
+        && (line.starts_with("||")
+            || line.starts_with("@@")
+            || line.contains("##")
+            || line.contains("$")
+            || line.starts_with('/')
+            || Regex::new(r"^[a-zA-Z0-9\-\.]+\^?$").unwrap().is_match(line))
 }
 
 /// Validate hosts file rule.
 fn is_valid_hosts_rule(line: &str) -> bool {
     // Hosts file format: IP_ADDRESS DOMAIN
-    Regex::new(r"^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+|::1?)\s+[a-zA-Z0-9\-\.]+").unwrap().is_match(line)
+    Regex::new(r"^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+|::1?)\s+[a-zA-Z0-9\-\.]+")
+        .unwrap()
+        .is_match(line)
 }
 
 #[cfg(test)]

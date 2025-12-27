@@ -66,9 +66,8 @@ pub fn validate_url(url_str: &str, expected_hash: Option<&str>) -> Result<UrlVal
     let mut result = UrlValidationResult::valid();
 
     // Parse URL
-    let url = Url::parse(url_str).map_err(|e| {
-        ValidationError::url_validation(url_str, format!("Invalid URL: {e}"))
-    })?;
+    let url = Url::parse(url_str)
+        .map_err(|e| ValidationError::url_validation(url_str, format!("Invalid URL: {e}")))?;
 
     // 1. HTTPS enforcement
     if url.scheme() != "https" {
@@ -102,7 +101,11 @@ pub fn validate_url(url_str: &str, expected_hash: Option<&str>) -> Result<UrlVal
     // Check status
     if !response.status().is_success() {
         result.is_valid = false;
-        result.add_message(format!("HTTP {} {}", response.status().as_u16(), response.status().canonical_reason().unwrap_or("Unknown")));
+        result.add_message(format!(
+            "HTTP {} {}",
+            response.status().as_u16(),
+            response.status().canonical_reason().unwrap_or("Unknown")
+        ));
         return Ok(result);
     }
 
@@ -110,7 +113,9 @@ pub fn validate_url(url_str: &str, expected_hash: Option<&str>) -> Result<UrlVal
     if let Some(content_type) = response.headers().get("content-type") {
         let content_type = content_type.to_str().unwrap_or("");
         if !content_type.contains("text/plain") && !content_type.contains("text/") {
-            result.add_message(format!("Unexpected Content-Type: {content_type} (expected text/plain)"));
+            result.add_message(format!(
+                "Unexpected Content-Type: {content_type} (expected text/plain)"
+            ));
         }
     }
 
@@ -124,7 +129,10 @@ pub fn validate_url(url_str: &str, expected_hash: Option<&str>) -> Result<UrlVal
     // 5. Size check (max 50MB)
     if content.len() > 50 * 1024 * 1024 {
         result.is_valid = false;
-        result.add_message(format!("File too large: {} bytes (max 50MB)", content.len()));
+        result.add_message(format!(
+            "File too large: {} bytes (max 50MB)",
+            content.len()
+        ));
         return Ok(result);
     }
 
@@ -155,13 +163,13 @@ pub fn validate_url(url_str: &str, expected_hash: Option<&str>) -> Result<UrlVal
 fn is_valid_filter_content(content: &str) -> bool {
     // Look for common filter list patterns
     let patterns = [
-        r"^!",                    // Comment
-        r"^#",                    // Comment or cosmetic rule
-        r"^\|\|",                 // Domain blocking rule
-        r"^@@",                   // Exception rule
-        r"^[0-9]+\.[0-9]+",      // IP address (hosts format)
-        r"##",                    // Cosmetic rule
-        r"\$",                    // Rule options
+        r"^!",              // Comment
+        r"^#",              // Comment or cosmetic rule
+        r"^\|\|",           // Domain blocking rule
+        r"^@@",             // Exception rule
+        r"^[0-9]+\.[0-9]+", // IP address (hosts format)
+        r"##",              // Cosmetic rule
+        r"\$",              // Rule options
     ];
 
     let mut found_patterns = 0;
@@ -196,7 +204,7 @@ mod tests {
         let mut result = UrlValidationResult::invalid("test error");
         assert!(!result.is_valid);
         assert_eq!(result.messages.len(), 1);
-        
+
         result.add_message("another error");
         assert_eq!(result.messages.len(), 2);
     }

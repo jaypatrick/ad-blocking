@@ -62,27 +62,14 @@ pub mod error;
 
 // Re-export main types from config module
 pub use config::{
-    CompilerConfig,
-    ConfigFormat,
-    FilterSource,
-    SourceType,
+    read_config, to_json, to_toml, to_yaml, CompilerConfig, ConfigFormat, FilterSource, SourceType,
     Transformation,
-    read_config,
-    to_json,
-    to_yaml,
-    to_toml,
 };
 
 // Re-export main types from compiler module
 pub use compiler::{
-    CompileOptions,
-    CompilerResult,
-    PlatformInfo,
-    RulesCompiler,
-    VersionInfo,
-    compile_rules,
-    compute_hash,
-    count_rules,
+    compile_rules, compute_hash, count_rules, CompileOptions, CompilerResult, PlatformInfo,
+    RulesCompiler, VersionInfo,
 };
 
 // Re-export error types

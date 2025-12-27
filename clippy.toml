@@ -1,0 +1,15 @@
+# Clippy configuration
+# These settings apply to all workspace members
+
+# Cognitive complexity threshold
+cognitive-complexity-threshold = 30
+
+# Documentation
+missing-docs-in-crate-items = true
+
+# Error handling
+allow-expect-in-tests = true
+allow-unwrap-in-tests = true
+
+# Performance
+too-many-arguments-threshold = 8

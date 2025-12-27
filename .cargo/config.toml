@@ -1,0 +1,29 @@
+[build]
+# Uncomment to limit build jobs (0 means auto-detect, but not allowed in some contexts)
+# jobs = 4
+
+[term]
+# Use colors in cargo output
+color = "auto"
+verbose = false
+
+[net]
+# Use git CLI for git operations (more reliable in CI)
+git-fetch-with-cli = true
+
+[target.'cfg(all())']
+# Use LLD linker on Linux for faster builds (if available)
+# rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+
+# Increase debug info for better profiling while keeping builds fast
+[profile.dev]
+debug = 1
+
+[profile.release]
+# Generate debug symbols but strip them from the final binary
+debug = false
+
+# Additional optimization settings for release builds
+[profile.release.build-override]
+opt-level = 0
+debug = false
