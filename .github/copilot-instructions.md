@@ -16,12 +16,33 @@ Multi-language toolkit for ad-blocking and AdGuard DNS management with **identic
 
 ## Architecture Principles
 
+### Centralized Validation Layer
+**NEW**: Rust-based validation library (`src/adguard-validation/`) provides unified security across all compilers:
+- **At-rest hash verification**: SHA-384 for local files (`data/input/.hashes.json` database)
+- **In-flight hash verification**: SHA-384 for downloads (prevents MITM)
+- **URL security**: HTTPS enforcement, domain validation, content verification
+- **Syntax validation**: Adblock and hosts format linting
+- **File conflict handling**: Rename, overwrite, or error strategies
+- **Archiving**: Timestamped with manifest tracking
+
+**Integration Options**:
+- **Rust compiler**: Direct native library usage (zero overhead)
+- **.NET compiler**: P/Invoke to native library or WASM via Wasmtime
+- **Python compiler**: PyO3 bindings for native Rust integration
+- **TypeScript compiler**: WebAssembly module (no Node.js runtime required)
+
+**Build outputs**:
+- `libadguard_validation.so/.dll/.dylib` (native libraries)
+- `adguard_validation.wasm` (WebAssembly module)
+- `adguard-validate` (CLI tool)
+
 ### Compiler Equivalence
 All four compilers (TypeScript, .NET, Python, Rust) wrap `@adguard/hostlist-compiler` and **must**:
 - Support JSON, YAML, TOML config formats (except PowerShell: JSON only)
 - Count rules identically (exclude empty lines and `!`/`#` comments)
 - Compute SHA-384 hash of output (96 hex chars)
 - Return same result structure: `{ success, ruleCount, hash, elapsedMs, outputPath }`
+- **Use centralized validation library** for all security checks
 
 ### ConsoleUI DI Pattern
 `src/adguard-api-dotnet/src/AdGuard.ConsoleUI/` uses service-oriented architecture:
