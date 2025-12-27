@@ -4,6 +4,15 @@
   "description": "Custom filter rules for AdGuard DNS",
   "license": "MIT",
   "homepage": "https://github.com/jaypatrick/ad-blocking",
+  "output": {
+    "path": "data/output/adguard_user_filter.txt",
+    "conflictStrategy": "rename"
+  },
+  "archiving": {
+    "enabled": true,
+    "mode": "automatic",
+    "retentionDays": 90
+  },
   "sources": [
     {
       "name": "User Rules",

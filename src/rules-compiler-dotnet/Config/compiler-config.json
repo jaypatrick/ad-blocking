@@ -5,6 +5,15 @@
   "homepage": "https://github.com/jaypatrick/ad-blocking",
   "license": "MIT",
   "version": "1.0.0",
+  "output": {
+    "path": "data/output/adguard_user_filter.txt",
+    "conflictStrategy": "rename"
+  },
+  "archiving": {
+    "enabled": true,
+    "mode": "automatic",
+    "retentionDays": 90
+  },
   "sources": [
     {
       "name": "Local User Rules",

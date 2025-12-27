@@ -351,6 +351,25 @@ export ADGUARD_ARCHIVE_RETENTION_DAYS=90
 npm run compile -- --no-archive              # Disable
 npm run compile -- --archive-interactive     # Prompt
 npm run compile -- --archive-retention 365   # Custom retention
+
+# Or configure in JSON/YAML/TOML config files
+```
+
+**Config file example (JSON):**
+```json
+{
+  "name": "My Filter",
+  "output": {
+    "path": "data/output/my-filter.txt",
+    "conflictStrategy": "rename"
+  },
+  "archiving": {
+    "enabled": true,
+    "mode": "automatic",
+    "retentionDays": 90
+  },
+  "sources": [...]
+}
 ```
 
 **Use cases:**

@@ -21,12 +21,65 @@ All rules compilers in this repository use the same configuration schema based o
 | `homepage` | string | No | - | Homepage URL for the filter list |
 | `license` | string | No | - | License identifier (e.g., "GPL-3.0") |
 | `version` | string | No | - | Version number of the filter list |
+| `output` | object | No | See below | Output file configuration |
+| `archiving` | object | No | See below | Archiving configuration |
 | `sources` | array | **Yes** | - | List of filter sources to compile |
 | `transformations` | array | No | `[]` | Global transformations to apply |
 | `inclusions` | array | No | `[]` | Global inclusion patterns |
 | `inclusions_sources` | array | No | `[]` | Files containing inclusion patterns |
 | `exclusions` | array | No | `[]` | Global exclusion patterns |
 | `exclusions_sources` | array | No | `[]` | Files containing exclusion patterns |
+
+### Output Configuration
+
+Configure output file path and conflict handling:
+
+| Property | Type | Required | Default | Description |
+|----------|------|----------|---------|-------------|
+| `path` | string | No | `data/output/adguard_user_filter.txt` | Full path to output file |
+| `fileName` | string | No | - | Output filename (alternative to path) |
+| `conflictStrategy` | string | No | `rename` | How to handle existing files: `rename`, `overwrite`, or `error` |
+
+**Example:**
+```json
+{
+  "output": {
+    "path": "data/output/my-custom-filter.txt",
+    "conflictStrategy": "rename"
+  }
+}
+```
+
+When `conflictStrategy` is `rename` and the output file already exists:
+- First conflict: `my-custom-filter.txt` → `my-custom-filter-1.txt`
+- Second conflict: `my-custom-filter-1.txt` → `my-custom-filter-2.txt`
+- And so on...
+
+### Archiving Configuration
+
+Configure automatic archiving of processed input files:
+
+| Property | Type | Required | Default | Description |
+|----------|------|----------|---------|-------------|
+| `enabled` | boolean | No | `true` | Enable or disable archiving |
+| `mode` | string | No | `automatic` | Archiving mode: `automatic`, `interactive`, or `disabled` |
+| `retentionDays` | number | No | `90` | Days to keep archived files before cleanup |
+
+**Example:**
+```json
+{
+  "archiving": {
+    "enabled": true,
+    "mode": "automatic",
+    "retentionDays": 90
+  }
+}
+```
+
+**Modes:**
+- `automatic`: Archive after every successful compilation
+- `interactive`: Prompt user before archiving
+- `disabled`: Same as `enabled: false`, no archiving occurs
 
 ### Source Properties
 
@@ -311,6 +364,15 @@ data/archive/
   "version": "1.0.0",
   "homepage": "https://example.com/filters",
   "license": "GPL-3.0",
+  "output": {
+    "path": "data/output/my-filter.txt",
+    "conflictStrategy": "rename"
+  },
+  "archiving": {
+    "enabled": true,
+    "mode": "automatic",
+    "retentionDays": 90
+  },
   "sources": [
     {
       "name": "Local Rules",
@@ -351,6 +413,15 @@ version: "1.0.0"
 homepage: https://example.com/filters
 license: GPL-3.0
 
+output:
+  path: data/output/my-filter.txt
+  conflictStrategy: rename
+
+archiving:
+  enabled: true
+  mode: automatic
+  retentionDays: 90
+
 sources:
   - name: Local Rules
     source: data/local.txt
@@ -388,6 +459,15 @@ description = "Custom ad-blocking filter"
 version = "1.0.0"
 homepage = "https://example.com/filters"
 license = "GPL-3.0"
+
+[output]
+path = "data/output/my-filter.txt"
+conflictStrategy = "rename"
+
+[archiving]
+enabled = true
+mode = "automatic"
+retentionDays = 90
 
 transformations = ["Deduplicate", "RemoveEmptyLines", "InsertFinalNewLine"]
 exclusions = ["*.google.com", "/analytics/"]

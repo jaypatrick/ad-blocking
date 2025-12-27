@@ -16,6 +16,17 @@ license: "MIT"
 # Optional: Version number
 version: "1.0.0"
 
+# Output configuration
+output:
+  path: "data/output/adguard_user_filter.txt"
+  conflictStrategy: "rename"  # rename, overwrite, or error
+
+# Archiving configuration
+archiving:
+  enabled: true
+  mode: "automatic"  # automatic, interactive, or disabled
+  retentionDays: 90
+
 # Required: List of filter sources to compile
 # Each source can be a URL or local file path
 sources:
