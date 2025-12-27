@@ -140,6 +140,12 @@ Examples:
         help="List all available transformations and exit",
     )
 
+    parser.add_argument(
+        "-i", "--interactive",
+        action="store_true",
+        help="Run in interactive menu mode",
+    )
+
     return parser
 
 
@@ -361,6 +367,23 @@ def main(args: list[str] | None = None) -> int:
     if opts.transformations:
         show_transformations()
         return 0
+
+    # Handle interactive mode
+    if opts.interactive:
+        from rules_compiler.interactive import run_interactive_menu
+        
+        # Try to determine initial config
+        initial_config = None
+        if opts.config_path:
+            initial_config = Path(opts.config_path).resolve()
+        elif opts.config:
+            initial_config = Path(opts.config).resolve()
+        else:
+            found_path = find_default_config()
+            if found_path:
+                initial_config = found_path
+        
+        return run_interactive_menu(initial_config)
 
     # Determine config path (positional or flag)
     if opts.config_path:
