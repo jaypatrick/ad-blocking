@@ -6,26 +6,35 @@
 # This file is tracked in git as an example. Your .env file is gitignored.
 # =============================================================================
 
-# Debug mode (set to any value to enable)
+# =============================================================================
+# Debug Configuration
+# =============================================================================
+# Enable debug mode (set to 1, true, or any non-empty value to enable)
 DEBUG=
 
 # =============================================================================
 # AdGuard DNS API Configuration
 # =============================================================================
-# Use ONE of the following formats (ADGUARD_AdGuard__ApiKey is recommended
-# for cross-platform compatibility across .NET, TypeScript, Rust, etc.):
-#
-# Recommended (cross-platform format - works with C#, TypeScript, Rust CLI, and others):
-ADGUARD_AdGuard__ApiKey=
-#
-# Alternative (TypeScript/JavaScript fallback for existing configs; new projects
-# should prefer ADGUARD_AdGuard__ApiKey, but the TypeScript client supports both):
-# ADGUARD_API_KEY=
-#
-# Legacy (Rust CLI only, deprecated):
-# ADGUARD_API_TOKEN=
+# API Key for AdGuard DNS (required for API access)
+ADGUARD_API_KEY=
+
+# API Base URL (optional, defaults to https://api.adguard-dns.io)
+ADGUARD_API_BASE_URL=
+
+# =============================================================================
+# AdGuard Webhook Configuration
+# =============================================================================
+# Webhook endpoint URL for notifications and updates
+ADGUARD_WEBHOOK_URL=
 
 # =============================================================================
 # Linear Integration (for Linear import scripts in src/linear/)
 # =============================================================================
-LINEAR_API_KEY=
+# Linear API key for project management integration
+ADGUARD_LINEAR_API_KEY=
+
+# Linear team ID (optional, defaults to first team)
+ADGUARD_LINEAR_TEAM_ID=
+
+# Linear project name (optional)
+ADGUARD_LINEAR_PROJECT_NAME=

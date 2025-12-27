@@ -37,9 +37,9 @@ cd src/linear
 
 3. Edit `.env` with your configuration:
    ```env
-   LINEAR_API_KEY=lin_api_your_key_here
-   LINEAR_TEAM_ID=optional_team_id
-   LINEAR_PROJECT_NAME=Ad-Blocking Documentation
+   ADGUARD_LINEAR_API_KEY=lin_api_your_key_here
+   ADGUARD_LINEAR_TEAM_ID=optional_team_id
+   ADGUARD_LINEAR_PROJECT_NAME=Ad-Blocking Documentation
    ```
 
 ## Usage
@@ -153,13 +153,15 @@ deno run --allow-read --allow-write --allow-env --allow-net src/mod.ts --help
 
 ## Troubleshooting
 
-### "LINEAR_API_KEY environment variable is required"
+### "ADGUARD_LINEAR_API_KEY environment variable is required"
 
 Ensure you've created a `.env` file with your API key:
 ```bash
 cp .env.example .env
 # Edit .env and add your API key
 ```
+
+Note: The legacy `LINEAR_API_KEY` is also supported for backward compatibility.
 
 ### "No teams found in Linear workspace"
 

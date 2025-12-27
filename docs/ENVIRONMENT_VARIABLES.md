@@ -10,6 +10,39 @@ All AdGuard scripts and modules support environment variables for configuration.
 - User-specific defaults
 - Cross-platform consistency
 
+## Naming Convention Standards
+
+This project follows modern environment variable naming conventions based on the [12-Factor App](https://12factor.net/) methodology:
+
+### Standard Format
+**One format that works across all languages (TypeScript, Rust, C#, Python, PowerShell):**
+
+- `ADGUARD_API_KEY` - API authentication key
+- `ADGUARD_API_BASE_URL` - API base URL (optional)
+- `ADGUARD_WEBHOOK_URL` - Webhook endpoint
+- `ADGUARD_LINEAR_API_KEY` - Linear API key
+- `ADGUARD_LINEAR_TEAM_ID` - Linear team ID
+- `ADGUARD_LINEAR_PROJECT_NAME` - Linear project name
+- `DEBUG` - Debug mode (common standard, no prefix needed)
+
+### Why This Format?
+- **Universal**: Works identically in TypeScript, Rust, C#, PowerShell, and Python
+- **Clear**: SCREAMING_SNAKE_CASE with descriptive names
+- **Namespaced**: `ADGUARD_` prefix prevents conflicts
+- **Simple**: No language-specific variations
+
+### Backward Compatibility
+Legacy formats are supported but deprecated:
+- `ADGUARD_AdGuard__ApiKey` → Use `ADGUARD_API_KEY` (C#/.NET hierarchical format)
+- `ADGUARD_AdGuard__BaseUrl` → Use `ADGUARD_API_BASE_URL`
+- `ADGUARD_API_TOKEN` → Use `ADGUARD_API_KEY`
+- `ADGUARD_API_URL` → Use `ADGUARD_API_BASE_URL`
+- `LINEAR_API_KEY` → Use `ADGUARD_LINEAR_API_KEY`
+- `LINEAR_TEAM_ID` → Use `ADGUARD_LINEAR_TEAM_ID`
+- `LINEAR_PROJECT_NAME` → Use `ADGUARD_LINEAR_PROJECT_NAME`
+
+All code supports both new and legacy formats for smooth migration.
+
 ## Rules Compiler
 
 ### ADGUARD_COMPILER_CONFIG
@@ -124,22 +157,72 @@ export ADGUARD_WEBHOOK_FORMAT="Json"
 
 ## API Client (C#/.NET)
 
+### ADGUARD_API_KEY
+**Description**: AdGuard DNS API key (recommended cross-platform format)  
+**Type**: String  
+**Default**: None  
+**Example**:
+```bash
+export ADGUARD_API_KEY="your-api-key-here"
+```
+**Note**: All API clients (TypeScript, Rust, .NET) support this format for consistency.
+
 ### ADGUARD_AdGuard__ApiKey
-**Description**: AdGuard DNS API key (.NET configuration format)  
+**Description**: AdGuard DNS API key (.NET hierarchical configuration format)  
 **Type**: String  
 **Default**: None  
 **Example**:
 ```bash
 export ADGUARD_AdGuard__ApiKey="your-api-key-here"
 ```
+**Note**: This format uses double underscores to represent hierarchical configuration keys (e.g., `AdGuard:ApiKey` in appsettings.json).
+
+### ADGUARD_API_BASE_URL
+**Description**: API base URL (cross-platform format)  
+**Type**: String (URL)  
+**Default**: `https://api.adguard-dns.io`  
+**Example**:
+```bash
+export ADGUARD_API_BASE_URL="https://api.adguard-dns.io"
+```
 
 ### ADGUARD_AdGuard__BaseUrl
-**Description**: API base URL (.NET configuration format)  
+**Description**: API base URL (.NET hierarchical configuration format)  
 **Type**: String (URL)  
 **Default**: `https://api.adguard-dns.io`  
 **Example**:
 ```bash
 export ADGUARD_AdGuard__BaseUrl="https://api.adguard-dns.io"
+```
+
+## Linear Integration
+
+### ADGUARD_LINEAR_API_KEY
+**Description**: Linear API key for project management integration  
+**Type**: String  
+**Default**: None (required for Linear scripts)  
+**Example**:
+```bash
+export ADGUARD_LINEAR_API_KEY="lin_api_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+```
+**Note**: The Linear scripts in `src/linear/` support both `ADGUARD_LINEAR_API_KEY` (recommended) and `LINEAR_API_KEY` (legacy) for backward compatibility.
+
+### ADGUARD_LINEAR_TEAM_ID
+**Description**: Specific Linear team ID to use  
+**Type**: String  
+**Default**: First team found  
+**Example**:
+```bash
+export ADGUARD_LINEAR_TEAM_ID="team_xxxxxxxxxxxxxxxx"
+```
+
+### ADGUARD_LINEAR_PROJECT_NAME
+**Description**: Project name for imported documentation  
+**Type**: String  
+**Default**: None  
+**Example**:
+```bash
+export ADGUARD_LINEAR_PROJECT_NAME="Ad-Blocking Documentation"
 ```
 
 ## Cross-Platform Usage

@@ -82,9 +82,10 @@ export class ApiClientFactory {
   /**
    * Configure from environment variable
    *
-   * Supports multiple environment variable naming conventions:
-   * - .NET-compatible format: ADGUARD_AdGuard__ApiKey (recommended, tried first)
-   * - Legacy/alternative format: ADGUARD_API_KEY (fallback)
+   * Supports multiple environment variable naming conventions for backward compatibility:
+   * - Standard format: ADGUARD_API_KEY (recommended, tried first)
+   * - Legacy .NET format: ADGUARD_AdGuard__ApiKey (backward compatibility)
+   * - Legacy token format: ADGUARD_API_TOKEN (backward compatibility)
    *
    * @param envVar - Custom environment variable name (overrides default lookup)
    * @param logger - Optional logger
@@ -99,11 +100,13 @@ export class ApiClientFactory {
         throw new Error(`Environment variable ${envVar} is not set`);
       }
     } else {
-      // Try .NET-compatible format first, then fallback to legacy format
-      apiKey = Deno.env.get('ADGUARD_AdGuard__ApiKey') ?? Deno.env.get('ADGUARD_API_KEY');
+      // Try standardized format first, then fallback to legacy formats
+      apiKey = Deno.env.get('ADGUARD_API_KEY') ?? 
+               Deno.env.get('ADGUARD_AdGuard__ApiKey') ?? 
+               Deno.env.get('ADGUARD_API_TOKEN');
       if (!apiKey) {
         throw new Error(
-          'API key not configured. Set ADGUARD_AdGuard__ApiKey (recommended) or ADGUARD_API_KEY environment variable.',
+          'API key not configured. Set ADGUARD_API_KEY environment variable.',
         );
       }
     }
@@ -259,9 +262,10 @@ export class AdGuardDnsClient {
   /**
    * Create client from environment variable
    *
-   * Supports multiple environment variable naming conventions:
-   * - .NET-compatible format: ADGUARD_AdGuard__ApiKey (recommended, tried first)
-   * - Legacy/alternative format: ADGUARD_API_KEY (fallback)
+   * Supports multiple environment variable naming conventions for backward compatibility:
+   * - Standard format: ADGUARD_API_KEY (recommended, tried first)
+   * - Legacy .NET format: ADGUARD_AdGuard__ApiKey (backward compatibility)
+   * - Legacy token format: ADGUARD_API_TOKEN (backward compatibility)
    *
    * @param envVar - Custom environment variable name (overrides default lookup)
    * @param logger - Optional logger
@@ -276,11 +280,13 @@ export class AdGuardDnsClient {
         throw new Error(`Environment variable ${envVar} is not set`);
       }
     } else {
-      // Try .NET-compatible format first, then fallback to legacy format
-      apiKey = Deno.env.get('ADGUARD_AdGuard__ApiKey') ?? Deno.env.get('ADGUARD_API_KEY');
+      // Try standardized format first, then fallback to legacy formats
+      apiKey = Deno.env.get('ADGUARD_API_KEY') ?? 
+               Deno.env.get('ADGUARD_AdGuard__ApiKey') ?? 
+               Deno.env.get('ADGUARD_API_TOKEN');
       if (!apiKey) {
         throw new Error(
-          'API key not configured. Set ADGUARD_AdGuard__ApiKey (recommended) or ADGUARD_API_KEY environment variable.',
+          'API key not configured. Set ADGUARD_API_KEY environment variable.',
         );
       }
     }

@@ -10,9 +10,12 @@
  *   deno task import:dry-run       # Preview what would be imported
  *
  * Environment Variables:
- *   LINEAR_API_KEY     - Your Linear API key (required)
- *   LINEAR_TEAM_ID     - Team ID to use (optional, defaults to first team)
- *   LINEAR_PROJECT_NAME - Project name (optional, defaults to document title)
+ *   ADGUARD_LINEAR_API_KEY  - Your Linear API key (required, recommended)
+ *   LINEAR_API_KEY          - Legacy format (backward compatibility)
+ *   ADGUARD_LINEAR_TEAM_ID  - Team ID to use (optional, defaults to first team)
+ *   LINEAR_TEAM_ID          - Legacy format (backward compatibility)
+ *   ADGUARD_LINEAR_PROJECT_NAME - Project name (optional, defaults to document title)
+ *   LINEAR_PROJECT_NAME     - Legacy format (backward compatibility)
  */
 
 import { Command } from 'commander';
@@ -57,10 +60,11 @@ async function main(): Promise<void> {
 
   const options = program.opts();
 
-  // Check for API key
-  const apiKey = Deno.env.get('LINEAR_API_KEY');
+  // Check for API key (try new format first, then fall back to legacy)
+  const apiKey = Deno.env.get('ADGUARD_LINEAR_API_KEY') || Deno.env.get('LINEAR_API_KEY');
   if (!apiKey) {
-    console.error('Error: LINEAR_API_KEY environment variable is required');
+    console.error('Error: ADGUARD_LINEAR_API_KEY environment variable is required');
+    console.error('(Legacy LINEAR_API_KEY is also supported for backward compatibility)');
     console.error('\nTo get your API key:');
     console.error('1. Go to Linear Settings > API');
     console.error('2. Create a new personal API key');
@@ -69,8 +73,8 @@ async function main(): Promise<void> {
   }
 
   const importConfig: ImportConfig = {
-    teamId: options['team'] || Deno.env.get('LINEAR_TEAM_ID') || '',
-    projectName: options['project'] || Deno.env.get('LINEAR_PROJECT_NAME') || '',
+    teamId: options['team'] || Deno.env.get('ADGUARD_LINEAR_TEAM_ID') || Deno.env.get('LINEAR_TEAM_ID') || '',
+    projectName: options['project'] || Deno.env.get('ADGUARD_LINEAR_PROJECT_NAME') || Deno.env.get('LINEAR_PROJECT_NAME') || '',
     createProject: options['project'] !== false,
     createIssues: options['issues'] !== false,
     createDocuments: options['docs'] !== false,

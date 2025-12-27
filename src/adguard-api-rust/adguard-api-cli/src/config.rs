@@ -26,22 +26,27 @@ impl Default for AppConfig {
 impl AppConfig {
     /// Load configuration from file, environment variables, and CLI args
     /// 
-    /// Supports multiple environment variable naming conventions for compatibility:
-    /// - Legacy format: ADGUARD_API_URL, ADGUARD_API_TOKEN
-    /// - .NET-compatible format: ADGUARD_AdGuard__BaseUrl, ADGUARD_AdGuard__ApiKey
+    /// Supports multiple environment variable naming conventions for backward compatibility:
+    /// - Standard format: ADGUARD_API_KEY, ADGUARD_API_BASE_URL (recommended, tried first)
+    /// - Legacy .NET format: ADGUARD_AdGuard__ApiKey, ADGUARD_AdGuard__BaseUrl (backward compatibility)
+    /// - Legacy Rust format: ADGUARD_API_TOKEN, ADGUARD_API_URL (backward compatibility)
     pub fn load() -> Result<Self> {
         let mut config = Self::load_from_file().unwrap_or_default();
 
         // Override with environment variables
-        // Try .NET-compatible format first (ADGUARD_AdGuard__BaseUrl), then legacy format
-        if let Ok(url) = std::env::var("ADGUARD_AdGuard__BaseUrl") {
+        // Try standardized format first, then .NET format, then legacy format
+        if let Ok(url) = std::env::var("ADGUARD_API_BASE_URL") {
+            config.api_url = url;
+        } else if let Ok(url) = std::env::var("ADGUARD_AdGuard__BaseUrl") {
             config.api_url = url;
         } else if let Ok(url) = std::env::var("ADGUARD_API_URL") {
             config.api_url = url;
         }
         
-        // Try .NET-compatible format first (ADGUARD_AdGuard__ApiKey), then legacy format
-        if let Ok(token) = std::env::var("ADGUARD_AdGuard__ApiKey") {
+        // Try standardized format first, then .NET format, then legacy format
+        if let Ok(token) = std::env::var("ADGUARD_API_KEY") {
+            config.api_token = Some(token);
+        } else if let Ok(token) = std::env::var("ADGUARD_AdGuard__ApiKey") {
             config.api_token = Some(token);
         } else if let Ok(token) = std::env::var("ADGUARD_API_TOKEN") {
             config.api_token = Some(token);
@@ -101,7 +106,7 @@ impl AppConfig {
     pub fn get_token(&self) -> Result<&str> {
         self.api_token
             .as_deref()
-            .context("API token not configured. Set ADGUARD_AdGuard__ApiKey (or ADGUARD_API_TOKEN) environment variable or run settings menu.")
+            .context("API token not configured. Set ADGUARD_API_KEY environment variable or run settings menu.")
     }
 }
 
