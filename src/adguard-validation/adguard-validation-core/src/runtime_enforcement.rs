@@ -178,9 +178,16 @@ pub fn compile_with_validation(
     
     // STEP 6: Create archive if enabled
     if options.create_archive && options.validation_config.archiving.enabled {
+        // Ensure input directory exists for archiving
+        let input_dir = if !input.local_files.is_empty() {
+            input.local_files[0].parent().unwrap_or_else(|| std::path::Path::new("."))
+        } else {
+            std::path::Path::new("data/input")
+        };
+        
         let archive_path = crate::archive::create_archive(
-            "data/input",
-            &options.validation_config.archiving.archive_path,
+            input_dir,
+            std::path::Path::new(&options.validation_config.archiving.archive_path),
             &output_hash,
             rule_count,
         )?;
@@ -237,7 +244,7 @@ pub fn verify_compilation_was_validated(result: &EnforcedCompilationResult) -> R
 /// 
 /// In actual implementation, this would call @adguard/hostlist-compiler
 fn compile_internal(
-    _input: &CompilationInput,
+    input: &CompilationInput,
     options: &CompilationOptions,
 ) -> Result<PathBuf> {
     // Placeholder: actual implementation would:
@@ -245,6 +252,22 @@ fn compile_internal(
     // 2. Call hostlist-compiler
     // 3. Handle file conflicts using options.validation_config.output.conflict_strategy
     // 4. Return final output path
+    
+    // For now, create a dummy output file for testing
+    if let Some(parent) = options.output_path.parent() {
+        if !parent.exists() {
+            std::fs::create_dir_all(parent)?;
+        }
+    }
+    
+    // Create output file with placeholder content
+    let mut content = String::from("! Compiled filter list\n");
+    for file in &input.local_files {
+        if let Ok(file_content) = std::fs::read_to_string(file) {
+            content.push_str(&file_content);
+        }
+    }
+    std::fs::write(&options.output_path, content)?;
     
     Ok(options.output_path.clone())
 }
