@@ -224,8 +224,8 @@ export async function runCompiler(options: ExtendedCompileOptions): Promise<Comp
           logger.error(`  ${error}`);
         }
         throw new CompilationError(
-          ErrorCode.VALIDATION_ERROR,
           `Configuration validation failed: ${validationResult.errors.join('; ')}`,
+          ErrorCode.CONFIG_VALIDATION_ERROR,
         );
       }
 
@@ -236,8 +236,8 @@ export async function runCompiler(options: ExtendedCompileOptions): Promise<Comp
 
         if (options.failOnWarnings) {
           throw new CompilationError(
-            ErrorCode.VALIDATION_ERROR,
             `Configuration has warnings (failOnWarnings is enabled): ${validationResult.warnings.join('; ')}`,
+            ErrorCode.CONFIG_VALIDATION_ERROR,
           );
         }
       }
