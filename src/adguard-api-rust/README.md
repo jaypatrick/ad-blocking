@@ -242,12 +242,30 @@ adguard-api-cli
 Or set both URL and token:
 
 ```bash
+**Using standard format (recommended)**:
+
+```bash
+export ADGUARD_API_KEY="your-api-key-here"
+adguard-api-cli
+```
+
+Or with custom base URL:
+
+```bash
+export ADGUARD_API_BASE_URL="https://api.adguard-dns.io"
+export ADGUARD_API_KEY="your-api-key-here"
+adguard-api-cli
+```
+
+**Using legacy .NET format (backward compatible)**:
+
+```bash
 export ADGUARD_AdGuard__BaseUrl="https://api.adguard-dns.io"
 export ADGUARD_AdGuard__ApiKey="your-token-here"
 adguard-api-cli
 ```
 
-**Using legacy format (backward compatible)**:
+**Using legacy Rust format (backward compatible)**:
 
 ```bash
 export ADGUARD_API_TOKEN="your-token-here"

@@ -54,7 +54,7 @@ High-level architecture and structure
   - src/adguard-api-typescript/: TypeScript/Deno SDK with full API coverage, repository pattern, and interactive CLI using inquirer/ora.
   - src/adguard-api-rust/: Rust SDK with Tokio async runtime and dialoguer-based CLI.
 - Scripts (src/)
-  - src/linear: Deno-based tool to import the repo's documentation into Linear. Reads .env for LINEAR_API_KEY, etc.
+  - src/linear: Deno-based tool to import the repo's documentation into Linear. Reads .env for ADGUARD_LINEAR_API_KEY, etc.
   - src/adguard-api-powershell: PowerShell module scaffolding and tests; CI runs PSScriptAnalyzer against the folder.
 
 Notes pulled from existing docs
