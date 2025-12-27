@@ -488,8 +488,10 @@ $RECYCLE.BIN/
 *.envrc
 
 
-# TypeScript build output
+# TypeScript build output (generated .d.ts files)
 src/rules-compiler-typescript/dist/
+src/adguard-api-typescript/dist/
+src/linear/dist/
 
 # Rust build output
 **/target/

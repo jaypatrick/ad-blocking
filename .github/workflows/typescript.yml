@@ -26,6 +26,22 @@ jobs:
     - name: Verify Deno installation
       run: deno --version
 
+    - name: Generate type definitions
+      run: deno task generate:types
+
+    - name: Verify type definitions generated
+      run: |
+        if [ ! -d "dist" ]; then
+          echo "Error: dist directory not created"
+          exit 1
+        fi
+        file_count=$(find dist -name "*.d.ts" | wc -l)
+        echo "Generated $file_count .d.ts files"
+        if [ "$file_count" -eq 0 ]; then
+          echo "Error: No .d.ts files generated"
+          exit 1
+        fi
+
     - name: Type check
       run: deno task check
 
@@ -56,6 +72,22 @@ jobs:
     - name: Verify Deno installation
       run: deno --version
 
+    - name: Generate type definitions
+      run: deno task generate:types
+
+    - name: Verify type definitions generated
+      run: |
+        if [ ! -d "dist" ]; then
+          echo "Error: dist directory not created"
+          exit 1
+        fi
+        file_count=$(find dist -name "*.d.ts" | wc -l)
+        echo "Generated $file_count .d.ts files"
+        if [ "$file_count" -eq 0 ]; then
+          echo "Error: No .d.ts files generated"
+          exit 1
+        fi
+
     - name: Type check
       run: deno task check
 
@@ -85,6 +117,22 @@ jobs:
 
     - name: Verify Deno installation
       run: deno --version
+
+    - name: Generate type definitions
+      run: deno task generate:types
+
+    - name: Verify type definitions generated
+      run: |
+        if [ ! -d "dist" ]; then
+          echo "Error: dist directory not created"
+          exit 1
+        fi
+        file_count=$(find dist -name "*.d.ts" | wc -l)
+        echo "Generated $file_count .d.ts files"
+        if [ "$file_count" -eq 0 ]; then
+          echo "Error: No .d.ts files generated"
+          exit 1
+        fi
 
     - name: Type check
       run: deno task check
