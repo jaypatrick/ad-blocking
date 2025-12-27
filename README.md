@@ -154,6 +154,30 @@ ad-blocking/
 
 ## Quick Start
 
+### 🚀 Interactive Launcher (Easiest Way)
+
+The repository includes feature-rich interactive launchers that provide an intuitive menu system for all tools and tasks:
+
+**Bash Launcher (Linux/macOS):**
+```bash
+./launcher.sh
+```
+
+**PowerShell Launcher (Windows/Cross-platform):**
+```powershell
+.\launcher.ps1
+```
+
+**Features:**
+- 🔨 **Build Tools** - Build projects with debug/release profiles
+- ⚙️ **Compile Filter Rules** - Run compilers in any language
+- 🌐 **AdGuard API Clients** - Launch interactive API tools
+- 🔍 **Validation & Testing** - Run tests and compliance checks
+- 📦 **Project Management** - Clean builds, update dependencies
+- ℹ️ **System Information** - Check installed tools and project status
+
+The launcher provides guided navigation with numbered menus, colored output, and automatic tool detection. Perfect for newcomers and experienced users alike!
+
 ### Prerequisites
 
 | Requirement | Version | Required For |
