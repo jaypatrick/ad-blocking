@@ -156,6 +156,81 @@ Pattern file format (one pattern per line, comments with `!`):
 /tracking\d+\./
 ```
 
+## Data Directory Configuration
+
+The `data/` directory structure supports input/output separation for organized filter management.
+
+### Input Directory (`data/input/`)
+
+**Purpose**: Store source filter files and remote list references before compilation.
+
+**Supported Input Types**:
+
+1. **Local filter files**: `.txt` or `.hosts` files with filter rules
+   - Adblock format: `||example.com^`, `@@||allowed.com^`
+   - Hosts format: `0.0.0.0 blocked.com`, `127.0.0.1 ads.example.com`
+   - Automatic format detection
+
+2. **Internet sources file**: `internet-sources.txt` with one URL per line
+   ```
+   # Example internet-sources.txt
+   https://easylist.to/easylist/easylist.txt
+   https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+   ```
+
+**Features**:
+- **SHA-384 hash verification**: Detects file tampering
+- **Syntax validation**: Validates rules before compilation
+- **Multi-format support**: Both adblock and hosts formats accepted
+- **Remote fetching**: Downloads and caches internet sources
+
+**Example structure**:
+```
+data/input/
+├── README.md                    # Documentation
+├── custom-rules.txt             # Local adblock rules
+├── company-blocklist.txt        # Organization-specific rules
+├── internet-sources.txt         # URLs to remote lists
+└── .gitignore                   # Ignore cache/temp files
+```
+
+### Output Directory (`data/output/`)
+
+**Purpose**: Store final compiled filter list.
+
+**Main file**: `adguard_user_filter.txt`
+- Always in **adblock syntax** (not hosts format)
+- Merged from all input sources
+- Deduplicated and validated
+- SHA-384 hash computed for verification
+
+**Guarantees**:
+- ✅ Output format is always adblock
+- ✅ Rules are validated and deduplicated
+- ✅ Comments and metadata preserved
+- ✅ Hash computed for integrity verification
+
+### Compilation Workflow
+
+```
+data/input/          →  Compiler  →  data/output/
+├── custom.txt           (Validate,      └── adguard_user_filter.txt
+├── blocklist.txt         Hash,              (adblock format)
+└── internet-sources.txt  Merge)
+```
+
+**Processing steps**:
+1. Scan `data/input/` for all `.txt` and `.hosts` files
+2. Parse `internet-sources.txt` for remote URLs
+3. Validate syntax of each source
+4. Compute SHA-384 hashes for tampering detection
+5. Fetch internet sources with hash verification
+6. Merge all sources using `@adguard/hostlist-compiler`
+7. Apply transformations (deduplicate, validate, etc.)
+8. Convert hosts format to adblock if needed
+9. Write to `data/output/adguard_user_filter.txt`
+10. Compute final output hash
+
 ## Example Configurations
 
 ### JSON

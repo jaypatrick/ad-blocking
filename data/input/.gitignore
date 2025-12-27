@@ -1,0 +1,15 @@
+# Ignore large downloaded files
+*.downloaded
+*.cache
+
+# Ignore hash database
+.hashes.json
+
+# Ignore backup files
+*.bak
+*.backup
+*~
+
+# Ignore sensitive files (if any)
+*.secret
+*.private

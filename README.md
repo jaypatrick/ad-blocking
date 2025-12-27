@@ -104,8 +104,13 @@ ad-blocking/
 │   ├── configuration-reference.md     # Configuration schema reference
 │   └── docker-guide.md                # Docker development guide
 ├── data/                              # Filter rules and data
+│   ├── input/                         # Source filter lists (local & remote refs)
+│   │   ├── README.md                  # Input directory documentation
+│   │   ├── example-custom-rules.txt   # Example local rules
+│   │   ├── internet-sources.txt.example # Example remote sources config
+│   │   └── .gitignore                 # Ignore large/sensitive files
 │   ├── output/                        # Compiled filter output
-│   │   └── adguard_user_filter.txt    # Main tracked filter list
+│   │   └── adguard_user_filter.txt    # Main tracked filter list (adblock format)
 │   └── Config/                        # Compiler configurations (optional)
 ├── src/                               # Source code
 │   ├── rules-compiler-typescript/     # TypeScript/Node.js compiler
@@ -252,6 +257,100 @@ For Warp terminal users, a pre-built environment is available:
 # Create Warp integrations
 warp integration create slack --environment Egji4sZU4TNIOwNasFU73A
 warp integration create linear --environment Egji4sZU4TNIOwNasFU73A
+```
+
+## Data Directory Structure
+
+The `data/` directory organizes all filter-related files with a clear separation between inputs and outputs:
+
+### Input Directory (`data/input/`)
+
+Source location for filter rules to be compiled:
+
+- **Local rule files**: Place custom filter lists in adblock or hosts format
+  - Examples: `custom-rules.txt`, `company-blocklist.txt`
+  - Supports `.txt`, `.hosts` extensions
+  - Automatic format detection (adblock vs hosts)
+
+- **Internet source references**: File containing URLs to remote filter lists
+  - Create `internet-sources.txt` with one URL per line
+  - Example sources: EasyList, StevenBlack hosts, AdGuard filters
+  - Lines starting with `#` are comments
+
+**Features:**
+- ✅ **Hash verification**: SHA-384 integrity checking for tampering detection
+- ✅ **Syntax validation**: Automatic linting before compilation
+- ✅ **Multi-format support**: Both adblock and hosts file formats
+- ✅ **Remote list fetching**: Download and verify internet sources
+- ✅ **Error reporting**: Clear messages with line numbers for invalid rules
+
+**Example structure:**
+```
+data/input/
+├── README.md                    # Documentation
+├── custom-rules.txt             # Your custom adblock rules
+├── internet-sources.txt         # URLs to remote lists
+└── .gitignore                   # Ignore large/sensitive files
+```
+
+See [`data/input/README.md`](data/input/README.md) for detailed usage instructions.
+
+### Output Directory (`data/output/`)
+
+Contains the final compiled filter list:
+
+- **`adguard_user_filter.txt`**: Main filter list in **adblock format**
+  - Merged from all input sources
+  - Deduplicated and validated
+  - Ready for use with AdGuard DNS or other blockers
+  - Tracked in version control
+
+**Compilation guarantees:**
+- ✅ Output is always in adblock syntax (not hosts format)
+- ✅ Comments and metadata preserved from sources
+- ✅ SHA-384 hash computed for verification
+- ✅ Rule count validation
+
+### Compilation Workflow
+
+```
+┌─────────────────────────────────────────────────────┐
+│ 1. Discover all files in data/input/               │
+│    - Scan for .txt, .hosts files                   │
+│    - Parse internet-sources.txt                    │
+└─────────────────────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────┐
+│ 2. Validate & Hash Check                           │
+│    - Syntax validation for each file               │
+│    - Compute SHA-384 hashes                        │
+│    - Detect tampering/modifications                │
+└─────────────────────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────┐
+│ 3. Fetch Internet Sources (if configured)          │
+│    - Download remote lists                         │
+│    - Verify with hashes                            │
+│    - Cache for performance                         │
+└─────────────────────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────┐
+│ 4. Compile with @adguard/hostlist-compiler         │
+│    - Merge all sources                             │
+│    - Apply transformations (dedupe, validate, etc) │
+│    - Convert hosts format to adblock if needed     │
+└─────────────────────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────┐
+│ 5. Output to data/output/adguard_user_filter.txt   │
+│    - Write final adblock-format list               │
+│    - Compute output hash                           │
+│    - Log statistics (rule count, hash)             │
+└─────────────────────────────────────────────────────┘
 ```
 
 ## Rules Compilers

@@ -1,0 +1,13 @@
+# Example internet sources file
+# Add one URL per line pointing to remote filter lists
+# Lines starting with # are comments
+
+# Popular filter lists
+https://easylist.to/easylist/easylist.txt
+https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+
+# AdGuard filter lists
+# https://filters.adtidy.org/extension/chromium/filters/2.txt
+
+# Custom or organizational lists
+# https://your-organization.com/custom-blocklist.txt

@@ -5,7 +5,9 @@
 Multi-language toolkit for ad-blocking and AdGuard DNS management with **identical output** across all compilers. Key principle: **Four languages, one schema, same SHA-384 hash**.
 
 **Components**:
-- **Filter Rules**: AdGuard filter lists (`data/output/adguard_user_filter.txt`)
+- **Filter Rules**: AdGuard filter lists with input/output separation
+  - **Input**: `data/input/` - Local rules and internet source references with hash verification
+  - **Output**: `data/output/adguard_user_filter.txt` - Final compiled list in adblock format
 - **API Client**: C# SDK for AdGuard DNS API v1.11 with Polly resilience
 - **Rules Compilers**: TypeScript, C#, Python, Rust - all produce identical output
 - **ConsoleUI**: Spectre.Console menu-driven interface with DI architecture
@@ -37,6 +39,7 @@ ad-blocking/
 ├── .github/              # GitHub configuration and workflows
 ├── docs/                 # Documentation (API docs, guides)
 ├── data/                  # Filter rules and compilation data
+│   ├── input/             # Source filter lists (local & remote refs)
 │   └── output/            # Compiled filter output
 ├── src/
 │   ├── adguard-api-dotnet/         # C# AdGuard DNS API client
@@ -54,15 +57,29 @@ ad-blocking/
 ## Critical Workflows
 
 ### Compiling Filter Rules (Core Workflow)
-**Goal**: Generate `data/output/adguard_user_filter.txt` with verified output
+**Goal**: Generate `data/output/adguard_user_filter.txt` with verified output in adblock format
 
+**Input Processing**:
+1. Scan `data/input/` for local filter files (`.txt`, `.hosts`)
+2. Parse `internet-sources.txt` for remote list URLs
+3. Validate syntax of all sources (adblock/hosts format)
+4. Compute SHA-384 hashes for integrity verification
+5. Detect tampering via hash comparison
+
+**Compilation**:
 ```bash
 # TypeScript (primary method)
 cd src/rules-compiler-typescript && npm run compile
 
-# Validates against compiler-config.json, writes output, computes SHA-384
+# Validates inputs, fetches remote sources, writes output, computes SHA-384
 # CI: .github/workflows/typescript.yml runs this with type-checking
 ```
+
+**Output Guarantees**:
+- ✅ Always in adblock syntax (not hosts format)
+- ✅ SHA-384 hash computed and verified
+- ✅ Rule count validation (excludes comments/empty lines)
+- ✅ Deduplication and validation applied
 
 **Why four compilers?** Provides language flexibility while ensuring identical output. Use `docs/compiler-comparison.md` to choose based on runtime requirements.
 
@@ -303,7 +320,12 @@ pwsh -Command "Invoke-ScriptAnalyzer -Path . -Recurse"
 - API client uses **Polly** for rate limiting and retry strategies
 
 ### Filter Rules Security
-- Validate sources before adding to `sources[]` in config
+- **Input validation**: All files in `data/input/` undergo syntax validation and linting
+- **Hash verification**: SHA-384 hashes computed for all input files to detect tampering
+- **Format enforcement**: Output is always adblock syntax, regardless of input formats
+- **Source tracking**: Maintains provenance of rules from local and internet sources
+- **Syntax validation**: Rules validated before compilation; errors reported with line numbers
+- **Remote source verification**: Internet lists verified via hashes after download
 - Test rule changes locally before committing to `data/output/adguard_user_filter.txt`
 - Rules deployed to AdGuard DNS affect real traffic filtering
 - Be cautious when adding rules from untrusted sources
