@@ -35,42 +35,33 @@
 //! # }
 //! ```
 
-pub mod hash;
-pub mod url_security;
-pub mod syntax;
 pub mod archive;
-pub mod file_conflict;
 pub mod config;
 pub mod error;
-pub mod validator;
+pub mod file_conflict;
+pub mod hash;
 pub mod runtime_enforcement;
+pub mod syntax;
+pub mod url_security;
+pub mod validator;
 
 // Re-export main types
 pub use config::{
-    ValidationConfig,
-    VerificationMode,
-    ArchivingConfig,
-    ArchivingMode,
-    OutputConfig,
-    ConflictStrategy,
-    HashVerificationConfig,
+    ArchivingConfig, ArchivingMode, ConflictStrategy, HashVerificationConfig, OutputConfig,
+    ValidationConfig, VerificationMode,
 };
 
-pub use error::{ValidationError, Result};
-pub use validator::Validator;
-pub use hash::{HashDatabase, HashEntry, compute_file_hash, verify_file_hash};
-pub use url_security::{validate_url, UrlValidationResult};
-pub use syntax::{validate_syntax, SyntaxValidationResult, FilterFormat};
 pub use archive::{create_archive, ArchiveManifest};
+pub use error::{Result, ValidationError};
 pub use file_conflict::{resolve_conflict, FileConflictResolver};
+pub use hash::{compute_file_hash, verify_file_hash, HashDatabase, HashEntry};
 pub use runtime_enforcement::{
-    compile_with_validation,
-    verify_compilation_was_validated,
-    EnforcedCompilationResult,
-    ValidationMetadata,
-    CompilationInput,
-    CompilationOptions,
+    compile_with_validation, verify_compilation_was_validated, CompilationInput,
+    CompilationOptions, EnforcedCompilationResult, ValidationMetadata,
 };
+pub use syntax::{validate_syntax, FilterFormat, SyntaxValidationResult};
+pub use url_security::{validate_url, UrlValidationResult};
+pub use validator::Validator;
 
 /// Library version.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

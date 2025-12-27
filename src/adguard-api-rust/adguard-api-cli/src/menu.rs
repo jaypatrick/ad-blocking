@@ -10,12 +10,23 @@ impl MenuHelper {
     pub fn display_banner() -> Result<()> {
         let term = Term::stdout();
         term.clear_screen()?;
-        
-        println!("{}", style("╔══════════════════════════════════════════╗").green());
-        println!("{}", style("║       AdGuard DNS - Console CLI         ║").green().bold());
-        println!("{}", style("╚══════════════════════════════════════════╝").green());
+
+        println!(
+            "{}",
+            style("╔══════════════════════════════════════════╗").green()
+        );
+        println!(
+            "{}",
+            style("║       AdGuard DNS - Console CLI         ║")
+                .green()
+                .bold()
+        );
+        println!(
+            "{}",
+            style("╚══════════════════════════════════════════╝").green()
+        );
         println!();
-        
+
         Ok(())
     }
 
@@ -103,19 +114,14 @@ impl MenuHelper {
     pub fn press_any_key() -> Result<()> {
         println!();
         println!("{}", style("Press Enter to continue...").dim());
-        let _ = Input::<String>::new()
-            .allow_empty(true)
-            .interact_text()?;
+        let _ = Input::<String>::new().allow_empty(true).interact_text()?;
         Ok(())
     }
 
     /// Display a table header
     pub fn table_header(columns: &[&str]) {
         println!();
-        println!(
-            "{}",
-            style(columns.join(" │ ")).bold().underlined()
-        );
+        println!("{}", style(columns.join(" │ ")).bold().underlined());
     }
 
     /// Display a table row

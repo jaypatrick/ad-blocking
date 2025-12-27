@@ -1,0 +1,34 @@
+# Rust formatting configuration
+edition = "2021"
+
+# Style
+max_width = 100
+hard_tabs = false
+tab_spaces = 4
+
+# Formatting
+newline_style = "Unix"
+use_small_heuristics = "Default"
+
+# Function calls
+use_field_init_shorthand = true
+use_try_shorthand = true
+
+# Reorder
+reorder_imports = true
+reorder_modules = true
+
+# The following features require nightly Rust and are commented out
+# Uncomment if using nightly toolchain
+
+# normalize_comments = true
+# wrap_comments = true
+# comment_width = 100
+# format_code_in_doc_comments = true
+# format_strings = true
+# imports_granularity = "Crate"
+# group_imports = "StdExternalCrate"
+# overflow_delimited_expr = true
+# match_arm_blocks = true
+# control_brace_style = "AlwaysSameLine"
+# trailing_comma = "Vertical"

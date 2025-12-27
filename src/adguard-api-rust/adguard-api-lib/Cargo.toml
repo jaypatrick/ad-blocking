@@ -8,12 +8,12 @@ repository.workspace = true
 description = "Rust API client library for AdGuard DNS API"
 
 [dependencies]
-serde.workspace = true
-serde_json.workspace = true
-url.workspace = true
+serde = { workspace = true }
+serde_json = { workspace = true }
+url = { workspace = true }
 reqwest = { workspace = true, features = ["json", "multipart"] }
-tokio.workspace = true
-serde_repr = "0.1"
+tokio = { workspace = true }
+serde_repr = { workspace = true }
 
 [features]
 default = ["rustls-tls"]

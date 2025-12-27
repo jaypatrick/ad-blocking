@@ -202,6 +202,9 @@ mod tests {
         let config = ValidationConfig::default();
         let json = serde_json::to_string(&config).unwrap();
         let deserialized: ValidationConfig = serde_json::from_str(&json).unwrap();
-        assert_eq!(config.hash_verification.mode, deserialized.hash_verification.mode);
+        assert_eq!(
+            config.hash_verification.mode,
+            deserialized.hash_verification.mode
+        );
     }
 }

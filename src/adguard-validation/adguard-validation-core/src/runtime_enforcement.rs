@@ -52,7 +52,7 @@ impl ValidationMetadata {
     #[must_use]
     pub fn signature(&self) -> String {
         use sha2::{Digest, Sha384};
-        
+
         let data = format!(
             "{}:{}:{}:{}:{}",
             self.validation_timestamp,
@@ -61,7 +61,7 @@ impl ValidationMetadata {
             self.validation_library_version,
             self.strict_mode
         );
-        
+
         let mut hasher = Sha384::new();
         hasher.update(data.as_bytes());
         hex::encode(hasher.finalize())
@@ -118,10 +118,10 @@ pub fn compile_with_validation(
     options: CompilationOptions,
 ) -> Result<EnforcedCompilationResult> {
     let start = std::time::Instant::now();
-    
+
     // Create validator
     let mut validator = Validator::new(options.validation_config.clone());
-    
+
     let mut metadata = ValidationMetadata {
         validation_timestamp: chrono::Utc::now().to_rfc3339(),
         local_files_validated: 0,
@@ -134,57 +134,62 @@ pub fn compile_with_validation(
         ),
         archive_created: None,
     };
-    
+
     // STEP 1: Validate all local files (MANDATORY)
     for file in &input.local_files {
         let syntax_result = validator.validate_local_file(file)?;
-        
+
         if !syntax_result.is_valid {
             return Err(ValidationError::syntax_validation(
                 file.display().to_string(),
-                format!("Syntax validation failed: {} errors", syntax_result.invalid_rules),
+                format!(
+                    "Syntax validation failed: {} errors",
+                    syntax_result.invalid_rules
+                ),
             ));
         }
-        
+
         metadata.local_files_validated += 1;
     }
-    
+
     // STEP 2: Validate all remote URLs (MANDATORY)
     for url in &input.remote_urls {
         let expected_hash = input.expected_hashes.get(url).map(|s| s.as_str());
         let url_result = validator.validate_remote_url(url, expected_hash)?;
-        
+
         if !url_result.is_valid {
             return Err(ValidationError::url_validation(
                 url,
                 format!("URL validation failed: {:?}", url_result.messages),
             ));
         }
-        
+
         metadata.remote_urls_validated += 1;
     }
-    
+
     metadata.hash_database_entries = validator.hash_database().len();
-    
+
     // STEP 3: Call actual compilation (this would call @adguard/hostlist-compiler)
     // For now, this is a placeholder - actual implementation would integrate here
     let output_path = compile_internal(&input, &options)?;
-    
+
     // STEP 4: Compute output hash
     let output_hash = crate::hash::compute_file_hash(&output_path)?;
-    
+
     // STEP 5: Count rules
     let rule_count = count_rules(&output_path)?;
-    
+
     // STEP 6: Create archive if enabled
     if options.create_archive && options.validation_config.archiving.enabled {
         // Ensure input directory exists for archiving
         let input_dir = if !input.local_files.is_empty() {
-            input.local_files[0].parent().unwrap_or_else(|| std::path::Path::new("."))
+            input.local_files[0]
+                .parent()
+                .unwrap_or_else(|| std::path::Path::new("."))
         } else {
             std::path::Path::new("data/input")
         };
-        
+
         let archive_path = crate::archive::create_archive(
             input_dir,
             std::path::Path::new(&options.validation_config.archiving.archive_path),
@@ -193,9 +198,9 @@ pub fn compile_with_validation(
         )?;
         metadata.archive_created = Some(archive_path);
     }
-    
+
     let elapsed_ms = start.elapsed().as_millis() as u64;
-    
+
     Ok(EnforcedCompilationResult {
         success: true,
         rule_count,
@@ -215,51 +220,53 @@ pub fn compile_with_validation(
 /// Returns an error if validation metadata is missing or invalid.
 pub fn verify_compilation_was_validated(result: &EnforcedCompilationResult) -> Result<()> {
     // Check that validation was actually performed
-    if result.validation_metadata.local_files_validated == 0 
-        && result.validation_metadata.remote_urls_validated == 0 {
+    if result.validation_metadata.local_files_validated == 0
+        && result.validation_metadata.remote_urls_validated == 0
+    {
         return Err(ValidationError::Other(
-            "Compilation result has no evidence of validation".to_string()
+            "Compilation result has no evidence of validation".to_string(),
         ));
     }
-    
+
     // Check that validation library version is present
-    if result.validation_metadata.validation_library_version.is_empty() {
+    if result
+        .validation_metadata
+        .validation_library_version
+        .is_empty()
+    {
         return Err(ValidationError::Other(
-            "Validation library version missing".to_string()
+            "Validation library version missing".to_string(),
         ));
     }
-    
+
     // Verify signature
     let expected_signature = result.validation_metadata.signature();
     if expected_signature.len() != 96 {
         return Err(ValidationError::Other(
-            "Invalid validation metadata signature".to_string()
+            "Invalid validation metadata signature".to_string(),
         ));
     }
-    
+
     Ok(())
 }
 
 /// Internal compilation function (placeholder).
-/// 
+///
 /// In actual implementation, this would call @adguard/hostlist-compiler
-fn compile_internal(
-    input: &CompilationInput,
-    options: &CompilationOptions,
-) -> Result<PathBuf> {
+fn compile_internal(input: &CompilationInput, options: &CompilationOptions) -> Result<PathBuf> {
     // Placeholder: actual implementation would:
     // 1. Convert input to hostlist-compiler format
     // 2. Call hostlist-compiler
     // 3. Handle file conflicts using options.validation_config.output.conflict_strategy
     // 4. Return final output path
-    
+
     // For now, create a dummy output file for testing
     if let Some(parent) = options.output_path.parent() {
         if !parent.exists() {
             std::fs::create_dir_all(parent)?;
         }
     }
-    
+
     // Create output file with placeholder content
     let mut content = String::from("! Compiled filter list\n");
     for file in &input.local_files {
@@ -268,14 +275,14 @@ fn compile_internal(
         }
     }
     std::fs::write(&options.output_path, content)?;
-    
+
     Ok(options.output_path.clone())
 }
 
 /// Count rules in output file (excluding comments and empty lines).
 fn count_rules<P: AsRef<Path>>(path: P) -> Result<usize> {
     let content = std::fs::read_to_string(path)?;
-    
+
     let count = content
         .lines()
         .filter(|line| {
@@ -283,7 +290,7 @@ fn count_rules<P: AsRef<Path>>(path: P) -> Result<usize> {
             !trimmed.is_empty() && !trimmed.starts_with('!') && !trimmed.starts_with('#')
         })
         .count();
-    
+
     Ok(count)
 }
 
@@ -302,7 +309,7 @@ mod tests {
             strict_mode: true,
             archive_created: None,
         };
-        
+
         let signature = metadata.signature();
         assert_eq!(signature.len(), 96); // SHA-384 produces 96 hex chars
     }
@@ -325,7 +332,7 @@ mod tests {
                 archive_created: None,
             },
         };
-        
+
         assert!(verify_compilation_was_validated(&result).is_ok());
     }
 
@@ -347,7 +354,7 @@ mod tests {
                 archive_created: None,
             },
         };
-        
+
         assert!(verify_compilation_was_validated(&result).is_err());
     }
 }
