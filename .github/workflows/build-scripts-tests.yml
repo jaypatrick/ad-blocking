@@ -1,0 +1,139 @@
+name: Build Scripts Tests
+
+on:
+  push:
+    branches: [ "main", "copilot/**" ]
+    paths:
+      - 'build.sh'
+      - 'build.ps1'
+      - 'test-build-scripts.sh'
+      - 'test-build-scripts.ps1'
+      - '.github/workflows/build-scripts-tests.yml'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'build.sh'
+      - 'build.ps1'
+      - 'test-build-scripts.sh'
+      - 'test-build-scripts.ps1'
+      - '.github/workflows/build-scripts-tests.yml'
+  workflow_dispatch:
+
+jobs:
+  test-bash-script:
+    name: Test Build Script (Bash)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+    
+    - name: Setup Rust
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        toolchain: stable
+    
+    - name: Make test script executable
+      run: chmod +x test-build-scripts.sh
+    
+    - name: Run Bash build script tests
+      run: ./test-build-scripts.sh
+    
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: bash-test-results
+        path: /tmp/test_output_*.log
+        retention-days: 7
+        if-no-files-found: ignore
+  
+  test-powershell-script:
+    name: Test Build Script (PowerShell)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+    
+    - name: Setup Rust
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        toolchain: stable
+    
+    - name: Run PowerShell build script tests
+      run: pwsh -File test-build-scripts.ps1
+  
+  test-windows:
+    name: Test Build Script (Windows)
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+    
+    - name: Setup Rust
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        toolchain: stable
+    
+    - name: Run PowerShell build script tests
+      run: .\test-build-scripts.ps1
+      shell: pwsh
+    
+    - name: Test actual build (Rust + .NET)
+      run: .\build.ps1 -Rust -DotNet
+      shell: pwsh
+  
+  integration-test:
+    name: Full Integration Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+    
+    - name: Setup Rust
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        toolchain: stable
+    
+    - name: Cache Cargo dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+    
+    - name: Test Rust debug build
+      run: ./build.sh --rust --debug
+    
+    - name: Test Rust release build
+      run: ./build.sh --rust --release
+    
+    - name: Test .NET debug build
+      run: ./build.sh --dotnet --debug
+    
+    - name: Test .NET release build
+      run: ./build.sh --dotnet --release
+    
+    - name: Test combined build
+      run: ./build.sh --rust --dotnet --release

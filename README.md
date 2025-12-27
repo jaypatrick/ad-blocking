@@ -257,6 +257,26 @@ The build scripts automatically:
 - Report build status with colored output
 - Exit with appropriate status codes for CI integration
 
+**Testing the Build Scripts**:
+
+Comprehensive test suites are available to validate build script functionality:
+
+```bash
+# Run Bash script tests (25+ unit and integration tests)
+./test-build-scripts.sh
+
+# Run PowerShell script tests
+pwsh -File test-build-scripts.ps1
+```
+
+The test suites include:
+- **Unit tests**: Help output, argument parsing, error handling
+- **Integration tests**: Rust, .NET, TypeScript, Python builds
+- **Combined tests**: Multiple language ecosystems together
+- **Profile tests**: Debug and release build configurations
+
+Tests run automatically in CI via the **Build Scripts Tests** workflow.
+
 ### Compile Filter Rules (Any Language)
 
 ```bash
