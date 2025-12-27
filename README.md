@@ -1473,6 +1473,7 @@ Download the latest release from the [Releases page](https://github.com/jaypatri
 - [Security Policy](SECURITY.md) - Vulnerability reporting
 - [Release Guide](docs/release-guide.md) - Release process and binary publishing
 - [Centralized Package Management](docs/centralized-package-management.md) - NuGet package management
+- [Shared Deno Configuration](docs/DENO_CONFIG.md) - Deno configuration pattern and guidelines
 
 ### Test Your Ad Blocking
 
