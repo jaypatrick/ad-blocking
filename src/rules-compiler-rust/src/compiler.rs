@@ -365,6 +365,32 @@ pub fn count_rules<P: AsRef<Path>>(path: P) -> usize {
         .count()
 }
 
+/// Asynchronously count non-empty, non-comment lines in a file.
+///
+/// This async version provides better performance for I/O-bound operations.
+/// Lines starting with `!` or `#` are considered comments.
+///
+/// # Errors
+///
+/// Returns an error if the file can't be read.
+pub async fn count_rules_async<P: AsRef<Path>>(path: P) -> Result<usize> {
+    use tokio::io::{AsyncBufReadExt, BufReader};
+
+    let file = tokio::fs::File::open(path.as_ref()).await?;
+    let reader = BufReader::new(file);
+    let mut lines = reader.lines();
+    let mut count = 0;
+
+    while let Some(line) = lines.next_line().await? {
+        let trimmed = line.trim();
+        if !trimmed.is_empty() && !trimmed.starts_with('!') && !trimmed.starts_with('#') {
+            count += 1;
+        }
+    }
+
+    Ok(count)
+}
+
 /// Compute SHA-384 hash of a file.
 ///
 /// # Errors
@@ -377,6 +403,31 @@ pub fn compute_hash<P: AsRef<Path>>(path: P) -> Result<String> {
 
     loop {
         let bytes_read = file.read(&mut buffer)?;
+        if bytes_read == 0 {
+            break;
+        }
+        hasher.update(&buffer[..bytes_read]);
+    }
+
+    Ok(hex::encode(hasher.finalize()))
+}
+
+/// Asynchronously compute SHA-384 hash of a file.
+///
+/// This async version provides better performance for I/O-bound operations.
+///
+/// # Errors
+///
+/// Returns an error if the file can't be read.
+pub async fn compute_hash_async<P: AsRef<Path>>(path: P) -> Result<String> {
+    use tokio::io::AsyncReadExt;
+
+    let mut file = tokio::fs::File::open(path.as_ref()).await?;
+    let mut hasher = Sha384::new();
+    let mut buffer = [0u8; 8192];
+
+    loop {
+        let bytes_read = file.read(&mut buffer).await?;
         if bytes_read == 0 {
             break;
         }
@@ -584,6 +635,178 @@ pub fn compile_rules<P: AsRef<Path>>(
                 e,
             )
         })?;
+
+        result.copied_to_rules = true;
+        result.rules_destination = Some(dest_path);
+    }
+
+    result.end_time = Utc::now();
+    result.elapsed_ms = start.elapsed().as_millis() as u64;
+
+    Ok(result)
+}
+
+/// Asynchronously compile filter rules using hostlist-compiler.
+///
+/// This async version provides better performance for I/O-bound operations
+/// and allows compilation to be integrated into async applications.
+///
+/// # Arguments
+///
+/// * `config_path` - Path to the configuration file.
+/// * `options` - Compilation options.
+///
+/// # Errors
+///
+/// Returns an error if compilation fails.
+pub async fn compile_rules_async<P: AsRef<Path>>(
+    config_path: P,
+    options: &CompileOptions,
+) -> Result<CompilerResult> {
+    let start = Instant::now();
+    let mut result = CompilerResult {
+        start_time: Utc::now(),
+        ..Default::default()
+    };
+
+    let config_path = tokio::fs::canonicalize(config_path.as_ref())
+        .await
+        .map_err(|e| {
+            CompilerError::file_system(
+                format!("resolving config path {}", config_path.as_ref().display()),
+                e,
+            )
+        })?;
+
+    // Read configuration
+    let config = read_config(&config_path, options.format)?;
+    result.config_name = config.name.clone();
+    result.config_version = config.version.clone();
+
+    // Validate if requested
+    if options.validate {
+        config.validate()?;
+    }
+
+    // Determine output path
+    let output_path = options
+        .output_path
+        .clone()
+        .unwrap_or_else(|| generate_output_path(&config_path));
+    result.output_path = output_path.clone();
+
+    // Convert to JSON if needed (hostlist-compiler only accepts JSON)
+    let (compile_config_path, temp_config_path) = if config.format() != Some(ConfigFormat::Json) {
+        let temp_path =
+            std::env::temp_dir().join(format!("compiler-config-{}.json", uuid::Uuid::new_v4()));
+        let json = to_json(&config)?;
+        tokio::fs::write(&temp_path, &json)
+            .await
+            .map_err(|e| {
+                CompilerError::file_system(
+                    format!("writing temp config to {}", temp_path.display()),
+                    e,
+                )
+            })?;
+
+        if options.debug {
+            eprintln!("[DEBUG] Created temp JSON config: {}", temp_path.display());
+            eprintln!("[DEBUG] Config content:\n{json}");
+        }
+
+        (temp_path.clone(), Some(temp_path))
+    } else {
+        (config_path.clone(), None)
+    };
+
+    // Ensure output directory exists
+    if let Some(output_dir) = output_path.parent() {
+        tokio::fs::create_dir_all(output_dir)
+            .await
+            .map_err(|e| {
+                CompilerError::file_system(
+                    format!("creating output directory {}", output_dir.display()),
+                    e,
+                )
+            })?;
+    }
+
+    // Get compiler command
+    let (cmd, args) = get_compiler_command(
+        compile_config_path.to_str().unwrap_or(""),
+        output_path.to_str().unwrap_or(""),
+    )?;
+
+    if options.debug {
+        eprintln!("[DEBUG] Running: {cmd} {}", args.join(" "));
+    }
+
+    // Run compilation asynchronously
+    let output = tokio::process::Command::new(&cmd)
+        .args(&args)
+        .current_dir(config_path.parent().unwrap_or(Path::new(".")))
+        .output()
+        .await
+        .map_err(|e| CompilerError::process_execution(format!("{cmd} {}", args.join(" ")), e))?;
+
+    result.stdout = String::from_utf8_lossy(&output.stdout).to_string();
+    result.stderr = String::from_utf8_lossy(&output.stderr).to_string();
+
+    // Clean up temp file
+    if let Some(temp_path) = temp_config_path {
+        let _ = tokio::fs::remove_file(temp_path).await;
+    }
+
+    // Check for compilation failure
+    if !output.status.success() {
+        result.error_message = Some(format!(
+            "compiler exited with code {:?}: {}",
+            output.status.code(),
+            result.stderr.trim()
+        ));
+        result.end_time = Utc::now();
+        result.elapsed_ms = start.elapsed().as_millis() as u64;
+        return Ok(result);
+    }
+
+    // Verify output was created
+    if !tokio::fs::try_exists(&output_path).await.unwrap_or(false) {
+        result.error_message = Some("output file was not created".to_string());
+        result.end_time = Utc::now();
+        result.elapsed_ms = start.elapsed().as_millis() as u64;
+        return Ok(result);
+    }
+
+    // Calculate statistics asynchronously
+    result.rule_count = count_rules_async(&output_path).await?;
+    result.output_hash = compute_hash_async(&output_path).await?;
+    result.success = true;
+
+    // Copy to rules directory if requested
+    if options.copy_to_rules {
+        let rules_dir = get_rules_directory(&config_path, options.rules_directory.as_deref());
+        tokio::fs::create_dir_all(&rules_dir)
+            .await
+            .map_err(|e| {
+                CompilerError::file_system(
+                    format!("creating rules directory {}", rules_dir.display()),
+                    e,
+                )
+            })?;
+
+        let dest_path = rules_dir.join("adguard_user_filter.txt");
+        tokio::fs::copy(&output_path, &dest_path)
+            .await
+            .map_err(|e| {
+                CompilerError::copy_failed(
+                    format!(
+                        "copying {} to {}",
+                        output_path.display(),
+                        dest_path.display()
+                    ),
+                    e,
+                )
+            })?;
 
         result.copied_to_rules = true;
         result.rules_destination = Some(dest_path);
