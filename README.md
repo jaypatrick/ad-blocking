@@ -111,6 +111,9 @@ ad-blocking/
 │   │   └── .gitignore                 # Ignore large/sensitive files
 │   ├── output/                        # Compiled filter output
 │   │   └── adguard_user_filter.txt    # Main tracked filter list (adblock format)
+│   ├── archive/                       # Archived processed input files
+│   │   ├── README.md                  # Archive directory documentation
+│   │   └── .gitignore                 # Ignore archive contents
 │   └── Config/                        # Compiler configurations (optional)
 ├── src/                               # Source code
 │   ├── rules-compiler-typescript/     # TypeScript/Node.js compiler
@@ -311,6 +314,53 @@ Contains the final compiled filter list:
 - ✅ SHA-384 hash computed for verification
 - ✅ Rule count validation
 
+### Archive Directory (`data/archive/`)
+
+Stores processed input files after successful compilation for audit and rollback purposes:
+
+- **Automatic archiving**: Configurable via environment variables or CLI flags
+- **Timestamp-based organization**: Each compilation creates a dated subdirectory
+- **Manifest tracking**: JSON metadata with hashes, file info, and compilation stats
+- **Retention policy**: Automatic cleanup of archives older than 90 days (configurable)
+
+**Archiving modes:**
+- 🤖 **Automatic** (default): Archive after every successful compilation
+- 🤔 **Interactive**: Prompt user whether to archive
+- 🚫 **Disabled**: No archiving
+
+**Example structure:**
+```
+data/archive/
+├── 2024-12-27_14-30-45/
+│   ├── manifest.json              # Compilation metadata
+│   ├── custom-rules.txt           # Input file snapshot
+│   └── internet-sources.txt
+└── 2024-12-26_09-15-22/
+    ├── manifest.json
+    └── custom-rules.txt
+```
+
+**Configuration:**
+```bash
+# Environment variables
+export ADGUARD_ARCHIVE_ENABLED=true
+export ADGUARD_ARCHIVE_MODE=automatic  # or interactive, disabled
+export ADGUARD_ARCHIVE_RETENTION_DAYS=90
+
+# CLI flags (all compilers)
+npm run compile -- --no-archive              # Disable
+npm run compile -- --archive-interactive     # Prompt
+npm run compile -- --archive-retention 365   # Custom retention
+```
+
+**Use cases:**
+- Track historical changes to filter rules
+- Rollback to previous working configuration
+- Audit what was compiled and when
+- Meet compliance requirements for data retention
+
+See [`data/archive/README.md`](data/archive/README.md) for detailed usage and restoration procedures.
+
 ### Compilation Workflow
 
 ```
@@ -350,6 +400,15 @@ Contains the final compiled filter list:
 │    - Write final adblock-format list               │
 │    - Compute output hash                           │
 │    - Log statistics (rule count, hash)             │
+└─────────────────────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────┐
+│ 6. Archive Input Files (optional)                  │
+│    - Create timestamped archive directory          │
+│    - Copy all input files to archive               │
+│    - Generate manifest.json with metadata          │
+│    - Cleanup old archives per retention policy     │
 └─────────────────────────────────────────────────────┘
 ```
 

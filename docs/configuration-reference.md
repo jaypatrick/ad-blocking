@@ -230,6 +230,75 @@ data/input/          →  Compiler  →  data/output/
 8. Convert hosts format to adblock if needed
 9. Write to `data/output/adguard_user_filter.txt`
 10. Compute final output hash
+11. Archive input files to `data/archive/` (if enabled)
+
+### Archive Directory (`data/archive/`)
+
+**Purpose**: Preserve processed input files after successful compilation.
+
+**Configuration**:
+```json
+{
+  "archiving": {
+    "enabled": true,
+    "mode": "automatic",
+    "retentionDays": 90
+  }
+}
+```
+
+**Environment Variables**:
+| Variable | Values | Default |
+|----------|--------|---------|
+| `ADGUARD_ARCHIVE_ENABLED` | `true`/`false` | `true` |
+| `ADGUARD_ARCHIVE_MODE` | `automatic`/`interactive`/`disabled` | `automatic` |
+| `ADGUARD_ARCHIVE_RETENTION_DAYS` | number | `90` |
+
+**CLI Flags**:
+```bash
+--no-archive                  # Disable archiving
+--archive-interactive         # Prompt before archiving
+--archive-retention <days>    # Custom retention period
+```
+
+**Archive structure**:
+```
+data/archive/
+├── 2024-12-27_14-30-45/
+│   ├── manifest.json         # Compilation metadata
+│   ├── custom-rules.txt      # Input file snapshot
+│   └── internet-sources.txt
+└── 2024-12-26_09-15-22/
+    ├── manifest.json
+    └── custom-rules.txt
+```
+
+**Manifest file** (`manifest.json`):
+```json
+{
+  "timestamp": "2024-12-27T14:30:45.123Z",
+  "compiler": "typescript",
+  "compilerVersion": "1.0.0",
+  "inputFiles": [
+    {
+      "name": "custom-rules.txt",
+      "hash": "abc123...",
+      "size": 1234,
+      "format": "adblock"
+    }
+  ],
+  "outputFile": "data/output/adguard_user_filter.txt",
+  "outputHash": "xyz789...",
+  "ruleCount": 150,
+  "success": true,
+  "compilationTimeMs": 1234
+}
+```
+
+**Retention policy**:
+- Archives older than `retentionDays` are automatically deleted
+- Cleanup occurs before creating new archives
+- Manual cleanup: `find data/archive/ -type d -mtime +90 -exec rm -rf {} \;`
 
 ## Example Configurations
 

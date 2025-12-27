@@ -40,7 +40,8 @@ ad-blocking/
 ├── docs/                 # Documentation (API docs, guides)
 ├── data/                  # Filter rules and compilation data
 │   ├── input/             # Source filter lists (local & remote refs)
-│   └── output/            # Compiled filter output
+│   ├── output/            # Compiled filter output
+│   └── archive/           # Archived input files (timestamped)
 ├── src/
 │   ├── adguard-api-dotnet/         # C# AdGuard DNS API client
 │   ├── rules-compiler-typescript/  # TypeScript rules compiler

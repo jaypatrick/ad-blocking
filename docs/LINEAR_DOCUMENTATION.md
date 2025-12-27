@@ -81,6 +81,27 @@ Source location for filter rules before compilation:
 **Allowlisted:**
 - Development tools (Microsoft, Postman, DataDog)
 
+#### Archive Storage (`data/archive/`)
+
+Automated archiving of processed input files for audit and rollback:
+
+- **Automatic/Interactive/Disabled modes**: User-configurable archiving behavior
+- **Timestamped snapshots**: Each compilation creates dated archive directory
+- **Manifest tracking**: JSON metadata with hashes and compilation stats
+- **Retention policy**: Automatic cleanup after 90 days (configurable)
+
+**Use cases:**
+- Historical tracking of filter rule changes
+- Rollback to previous working configuration
+- Compliance and audit requirements
+- Verification of what was compiled and when
+
+**Configuration:**
+```bash
+export ADGUARD_ARCHIVE_MODE=automatic     # or interactive, disabled
+export ADGUARD_ARCHIVE_RETENTION_DAYS=90
+```
+
 ---
 
 ### 2. Filter Compiler (`/src/filter-compiler/`)
@@ -217,6 +238,9 @@ ad-blocking/
 │   │   └── internet-sources.txt.example  # Example remote sources
 │   ├── output/
 │   │   └── adguard_user_filter.txt  # Main filter list (adblock format)
+│   ├── archive/                 # Archived processed files
+│   │   ├── README.md            # Archive documentation
+│   │   └── .gitignore           # Ignore archive contents
 │   ├── Api/                 # Rules compilation API
 │   └── Config/              # Configuration utilities
 ├── src/
