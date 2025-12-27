@@ -33,10 +33,18 @@ function dirname(path: string): string {
   return parts.join('/');
 }
 
+/**
+ * Calculate relative path from 'from' directory to 'to' file
+ * Note: This is simplified for the specific use case where:
+ * - from = src directory
+ * - to = file within src directory
+ * Result will always be a forward path (no ../)
+ */
 function relative(from: string, to: string): string {
   const fromParts = from.split('/');
   const toParts = to.split('/');
   
+  // Remove common prefix
   while (fromParts.length && toParts.length && fromParts[0] === toParts[0]) {
     fromParts.shift();
     toParts.shift();
