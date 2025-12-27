@@ -162,8 +162,10 @@ ad-blocking/
 | [hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler) | Latest | All compilers |
 | [.NET SDK](https://dotnet.microsoft.com/download/dotnet/10.0) | 10.0+ | .NET compiler, API client |
 | [Python](https://www.python.org/) | 3.9+ | Python compiler |
-| [Rust](https://rustup.rs/) | 1.70+ | Rust compiler |
+| [Rust](https://rustup.rs/) | 1.83+ | Rust workspace (all Rust projects) |
 | [PowerShell](https://github.com/PowerShell/PowerShell) | 7+ | PowerShell scripts |
+
+> **Note**: All Rust projects are now part of a unified workspace. See [RUST_WORKSPACE.md](RUST_WORKSPACE.md) for details.
 
 ### Install Deno
 
@@ -193,9 +195,11 @@ cd ../adguard-api-dotnet && dotnet restore src/AdGuard.ApiClient.sln
 # Python compiler
 cd ../rules-compiler-python && pip install -e ".[dev]"
 
-# Rust compiler
-cd ../rules-compiler-rust && cargo build --release
+# Rust workspace (builds all Rust projects)
+cd .. && cargo build --release
 ```
+
+> **Rust Workspace**: All Rust projects (adguard-validation, adguard-api-rust, rules-compiler-rust) are now unified in a single workspace at the repository root. Run `cargo build` from the root to build all Rust projects together. See [RUST_WORKSPACE.md](RUST_WORKSPACE.md) for more details.
 
 ### Compile Filter Rules (Any Language)
 
@@ -211,6 +215,9 @@ cd src/rules-compiler-python && rules-compiler
 
 # Rust
 cd src/rules-compiler-rust && cargo run --release
+
+# Or from repository root (using workspace)
+cargo run --release -p rules-compiler
 
 # PowerShell
 Import-Module ./src/adguard-api-powershell/Invoke-RulesCompiler.psm1
@@ -574,29 +581,31 @@ result = compiler.compile("config.yaml", output_path="output.txt")
 
 ### Rust Compiler
 
-**Location**: `src/rules-compiler-rust/`
+**Location**: `src/rules-compiler-rust/` (part of root workspace)
+
+> **Rust Workspace**: This compiler is part of a unified Rust workspace. All Rust projects can be built together from the repository root. See [RUST_WORKSPACE.md](RUST_WORKSPACE.md) for details.
 
 ```bash
-cd src/rules-compiler-rust
+# From repository root (recommended)
+cargo build --release -p rules-compiler
+cargo run --release -p rules-compiler -- -c config.yaml
 
-# Build
-cargo build                         # Debug build
-cargo build --release               # Release build (optimized)
+# Or from project directory
+cd src/rules-compiler-rust
+cargo build --release
+cargo run --release -- -c config.yaml
 
 # CLI usage
-cargo run -- -c config.yaml         # Specific config
-cargo run -- -c config.json -r      # Compile and copy
-cargo run -- -o output.txt          # Custom output
-cargo run -- -V                     # Version info
-cargo run -- -d                     # Debug output
-cargo run -- --help                 # Show help
-
-# Release binary
-./target/release/rules-compiler -c config.yaml
+./target/release/rules-compiler -c config.yaml   # Specific config
+./target/release/rules-compiler -c config.json -r # Compile and copy
+./target/release/rules-compiler -o output.txt     # Custom output
+./target/release/rules-compiler -V                # Version info
+./target/release/rules-compiler -d                # Debug output
+./target/release/rules-compiler --help            # Show help
 
 # Tests
-cargo test                          # Run tests
-cargo test -- --nocapture           # With output
+cargo test -p rules-compiler                      # Run tests
+cargo test -p rules-compiler -- --nocapture       # With output
 ```
 
 **Features**:
@@ -604,6 +613,7 @@ cargo test -- --nocapture           # With output
 - LTO optimization for small binary size
 - Zero runtime dependencies (except Node.js for hostlist-compiler)
 - Cross-platform support
+- Part of unified workspace with shared dependencies
 
 **Rust API**:
 
@@ -860,15 +870,19 @@ Console.WriteLine($"Devices: {limits.DevicesCount}/{limits.DevicesLimit}");
 
 ### Rust SDK
 
-**Location**: `src/adguard-api-rust/`
+**Location**: `src/adguard-api-rust/` (part of root workspace)
+
+> **Rust Workspace**: This SDK is part of a unified Rust workspace. All Rust projects can be built together from the repository root. See [RUST_WORKSPACE.md](RUST_WORKSPACE.md) for details.
 
 ```bash
+# From repository root (recommended)
+cargo build --release -p adguard-api-lib
+cargo build --release -p adguard-api-cli
+cargo run --release -p adguard-api-cli
+
+# Or from project directory
 cd src/adguard-api-rust
-
-# Build
 cargo build --release
-
-# Run tests
 cargo test
 ```
 
@@ -878,6 +892,7 @@ cargo test
 - Single statically-linked binary distribution
 - Configurable TLS: rustls (default) or native-tls
 - Memory-safe with zero-cost abstractions
+- Part of unified workspace with shared dependencies
 
 **Usage Example**:
 
@@ -1247,19 +1262,28 @@ pytest --cov=rules_compiler         # Coverage
 
 ### Rust (cargo test)
 
+> **Rust Workspace**: All Rust projects are now unified in a single workspace. Tests can be run from the repository root or individual project directories.
+
 ```bash
-# Rules Compiler
+# From repository root (recommended) - runs all Rust tests
+cargo test --workspace              # All tests in workspace
+cargo test --workspace -- --nocapture  # With output
+
+# Test specific packages
+cargo test -p rules-compiler        # Rules compiler only
+cargo test -p adguard-api-lib       # API library only
+cargo test -p adguard-api-cli       # API CLI only
+cargo test -p adguard-validation-core  # Validation core only
+
+# From individual project directories
 cd src/rules-compiler-rust
 cargo test                          # All tests
 cargo test -- --nocapture           # With output
 cargo test test_count_rules         # Specific test
 cargo test config::                 # Module tests
 
-# API Client
 cd ../adguard-api-rust
 cargo test                          # All workspace tests
-cargo test --package adguard-api-lib    # Library tests only
-cargo test --package adguard-api-cli    # CLI tests only
 ```
 
 ### PowerShell (Pester)
