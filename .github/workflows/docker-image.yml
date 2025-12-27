@@ -14,5 +14,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Ensure full history is available
     - name: Build the Docker image
       run: docker build . --file Dockerfile.warp --tag ad-blocking:$(date +%s)
