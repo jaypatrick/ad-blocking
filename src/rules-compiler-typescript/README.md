@@ -28,6 +28,46 @@ deno task interactive
 deno task compile
 ```
 
+### Command-Line Options
+
+```bash
+# Show help
+deno task start -- --help
+
+# Compile with specific config
+deno task start -- -c config.yaml
+
+# Compile with validation disabled
+deno task start -- -c config.yaml --no-validate-config
+
+# Fail on validation warnings
+deno task start -- -c config.yaml --fail-on-warnings
+
+# Validate configuration only
+deno task start -- --validate -c config.yaml
+
+# Show version information
+deno task start -- --version
+```
+
+| Option | Description |
+|--------|-------------|
+| `-c, --config PATH` | Path to configuration file |
+| `-o, --output PATH` | Path to output file |
+| `-r, --copy-to-rules` | Copy output to rules directory |
+| `--rules-dir PATH` | Custom rules directory path |
+| `-f, --format FORMAT` | Force configuration format (json, yaml, toml) |
+| `-v, --version` | Show version information |
+| `-h, --help` | Show help message |
+| `-d, --debug` | Enable debug output |
+| `--show-config` | Show parsed configuration (don't compile) |
+| `--validate-config` | Enable configuration validation before compilation (default: true) |
+| `--no-validate-config` | Disable configuration validation before compilation |
+| `--fail-on-warnings` | Fail compilation if configuration has validation warnings |
+| `-i, --interactive` | Run in interactive menu mode |
+| `--compile` | Run in CLI mode (compile and exit) |
+| `--validate` | Validate configuration only |
+
 ### Generate Type Definitions
 
 To generate TypeScript declaration files (`.d.ts`):
