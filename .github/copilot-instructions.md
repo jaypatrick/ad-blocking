@@ -63,9 +63,15 @@ ad-blocking/
 **Input Processing**:
 1. Scan `data/input/` for local filter files (`.txt`, `.hosts`)
 2. Parse `internet-sources.txt` for remote list URLs
-3. Validate syntax of all sources (adblock/hosts format)
-4. Compute SHA-384 hashes for integrity verification
-5. Detect tampering via hash comparison
+3. **Validate URLs for security**:
+   - Enforce HTTPS only (reject HTTP)
+   - Validate domain via DNS
+   - Verify Content-Type is text/plain
+   - Scan first 1KB for valid filter syntax
+   - Optional: verify SHA-384 hash (URL format: `https://...#sha384=hash`)
+4. Validate syntax of all sources (adblock/hosts format)
+5. Compute SHA-384 hashes for integrity verification
+6. Detect tampering via hash comparison
 
 **Compilation**:
 ```bash
@@ -81,6 +87,7 @@ cd src/rules-compiler-typescript && npm run compile
 - ✅ SHA-384 hash computed and verified
 - ✅ Rule count validation (excludes comments/empty lines)
 - ✅ Deduplication and validation applied
+- ✅ URL security verified (HTTPS, domain validation, content checks)
 
 **Why four compilers?** Provides language flexibility while ensuring identical output. Use `docs/compiler-comparison.md` to choose based on runtime requirements.
 
@@ -327,10 +334,18 @@ pwsh -Command "Invoke-ScriptAnalyzer -Path . -Recurse"
 - **Source tracking**: Maintains provenance of rules from local and internet sources
 - **Syntax validation**: Rules validated before compilation; errors reported with line numbers
 - **Remote source verification**: Internet lists verified via hashes after download
+- **URL security validation**: Comprehensive security checks for internet sources
+  - HTTPS enforcement (HTTP rejected)
+  - Domain validation via DNS
+  - Content-Type verification (text/plain required)
+  - Content scanning for valid filter syntax
+  - Optional SHA-384 hash verification (add `#sha384=hash` to URL)
+  - File size limits to prevent abuse
 - Test rule changes locally before committing to `data/output/adguard_user_filter.txt`
 - Rules deployed to AdGuard DNS affect real traffic filtering
 - Be cautious when adding rules from untrusted sources
 - Validate and test new filter rules before deployment
+- Only use trusted, well-known sources for internet lists
 
 ## Rules Compilation Standards
 

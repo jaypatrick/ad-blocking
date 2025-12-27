@@ -226,9 +226,12 @@ The `data/` directory structure supports input/output separation for organized f
 
 2. **Internet sources file**: `internet-sources.txt` with one URL per line
    ```
-   # Example internet-sources.txt
+   # Example internet-sources.txt (HTTPS only!)
    https://easylist.to/easylist/easylist.txt
    https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+   
+   # With hash verification for security
+   https://easylist.to/easylist/easylist.txt#sha384=abc123...
    ```
 
 **Features**:
@@ -236,6 +239,25 @@ The `data/` directory structure supports input/output separation for organized f
 - **Syntax validation**: Validates rules before compilation
 - **Multi-format support**: Both adblock and hosts formats accepted
 - **Remote fetching**: Downloads and caches internet sources
+- **URL security validation**: Enforces HTTPS, validates domains, verifies content
+
+**Internet Source Security**:
+
+All URLs in `internet-sources.txt` undergo comprehensive security validation:
+
+1. **Protocol enforcement**: Only HTTPS URLs allowed (HTTP rejected)
+2. **Domain validation**: DNS verification and malicious domain checks
+3. **Content-Type verification**: Ensures text/plain format (rejects binaries)
+4. **Content validation**: Scans downloaded content for valid filter rule syntax
+5. **Hash verification**: Optional SHA-384 hash check (add `#sha384=hash` to URL)
+6. **Size limits**: Rejects unexpectedly large files
+
+**Security best practices**:
+- ⚠️ Only add URLs from trusted, well-known filter list providers
+- ⚠️ Verify domain legitimacy before adding to internet-sources.txt
+- ⚠️ Use hash verification for critical production sources
+- ⚠️ Review downloaded lists before deploying to production
+- ⚠️ Monitor for unexpected changes in list size or content
 
 **Example structure**:
 ```

@@ -279,6 +279,7 @@ Source location for filter rules to be compiled:
   - Create `internet-sources.txt` with one URL per line
   - Example sources: EasyList, StevenBlack hosts, AdGuard filters
   - Lines starting with `#` are comments
+  - **Security**: Only HTTPS URLs allowed, content validated before use
 
 **Features:**
 - ✅ **Hash verification**: SHA-384 integrity checking for tampering detection
@@ -286,6 +287,7 @@ Source location for filter rules to be compiled:
 - ✅ **Multi-format support**: Both adblock and hosts file formats
 - ✅ **Remote list fetching**: Download and verify internet sources
 - ✅ **Error reporting**: Clear messages with line numbers for invalid rules
+- ✅ **URL security**: HTTPS enforcement, domain validation, content verification
 
 **Example structure:**
 ```

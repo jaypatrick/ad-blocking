@@ -83,6 +83,52 @@ data/input/
 - **Syntax validation**: Prevents injection of malformed rules
 - **Format enforcement**: Final output is always in adblock syntax
 - **Source tracking**: Maintains provenance of each rule
+- **URL validation**: Internet sources undergo security checks before download
+
+### Internet Source URL Security
+
+When using `internet-sources.txt`, all URLs are validated for security:
+
+**1. Protocol Verification**
+- ✅ **HTTPS required**: Only `https://` URLs are allowed (enforced)
+- ❌ **HTTP blocked**: Insecure `http://` URLs are rejected
+- ❌ **Other protocols blocked**: `ftp://`, `file://`, etc. are rejected
+
+**2. Domain Validation**
+- Verify domain is resolvable via DNS
+- Check against known malicious domain lists
+- Ensure domain is not an IP address (prefer named domains)
+- Validate domain follows proper DNS naming conventions
+
+**3. Content-Type Verification**
+- Verify HTTP response has `Content-Type: text/plain` or similar text format
+- Reject binary content, executables, or unexpected MIME types
+- Check `Content-Length` header for reasonable file sizes
+
+**4. Content Validation**
+- Download and scan first 1KB to verify it contains filter rules
+- Check for valid rule syntax (adblock or hosts format)
+- Reject files that don't match expected patterns
+- Scan for suspicious patterns (scripts, embedded content, etc.)
+
+**5. Hash Verification**
+- Optionally specify expected SHA-384 hash for each URL
+- Fail if downloaded content doesn't match expected hash
+- Store hash database for known-good sources
+
+**Example with hash verification:**
+```
+# internet-sources.txt with hashes
+https://easylist.to/easylist/easylist.txt#sha384=abc123...
+https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts#sha384=def456...
+```
+
+**Security warnings:**
+- ⚠️ Untrusted sources may contain malicious or overly aggressive rules
+- ⚠️ Always verify the legitimacy of the source domain
+- ⚠️ Review downloaded lists before deploying to production
+- ⚠️ Use hash verification for critical sources
+- ⚠️ Monitor for unexpected changes in list content or size
 
 ## Usage
 
