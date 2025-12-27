@@ -31,6 +31,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history needed for CodeQL analysis
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
@@ -56,6 +58,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history needed for security scanning
 
       - name: Run DevSkim scanner
         uses: microsoft/DevSkim-Action@v1
@@ -75,6 +79,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history needed for security scanning
 
       - name: Run PSScriptAnalyzer
         uses: microsoft/psscriptanalyzer-action@6b2948b1944407914a58661c49941824d149734f
