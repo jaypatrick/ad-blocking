@@ -102,6 +102,20 @@ export interface VersionInfo {
 }
 
 /**
+ * Hash verification configuration
+ */
+export interface HashVerificationConfig {
+  /** Verification mode: strict, warning, or disabled */
+  mode?: 'strict' | 'warning' | 'disabled';
+  /** Require hashes for all remote sources */
+  requireHashesForRemote?: boolean;
+  /** Fail compilation on hash mismatch */
+  failOnMismatch?: boolean;
+  /** Path to hash database file */
+  hashDatabasePath?: string;
+}
+
+/**
  * Archiving configuration
  */
 export interface ArchivingConfig {
@@ -133,6 +147,8 @@ export interface ExtendedConfiguration extends IConfiguration {
   _sourceFormat?: ConfigurationFormat;
   /** Original file path */
   _sourcePath?: string;
+  /** Hash verification configuration */
+  hashVerification?: HashVerificationConfig;
   /** Archiving configuration */
   archiving?: ArchivingConfig;
   /** Output configuration */

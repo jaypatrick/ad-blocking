@@ -9,6 +9,12 @@
     "path": "data/output/adguard_user_filter.txt",
     "conflictStrategy": "rename"
   },
+  "hashVerification": {
+    "mode": "warning",
+    "requireHashesForRemote": false,
+    "failOnMismatch": false,
+    "hashDatabasePath": "data/input/.hashes.json"
+  },
   "archiving": {
     "enabled": true,
     "mode": "automatic",

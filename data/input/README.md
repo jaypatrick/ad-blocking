@@ -42,11 +42,108 @@ Lines starting with `#` are treated as comments.
 
 ## Hash Verification
 
-All input files are verified using SHA-384 hashes to detect tampering:
+All input files are verified using SHA-384 hashes to ensure data integrity both at rest and in transit:
 
-- Hashes are computed before compilation
-- Changes to input files are tracked
-- Compilation fails if hash verification detects unexpected modifications
+### At-Rest Hash Verification (Local Files)
+
+**Purpose**: Detect unauthorized modifications to local filter files
+
+**Process**:
+1. On first compilation, compute SHA-384 hash for each local file
+2. Store hashes in `.hashes.json` database (gitignored)
+3. On subsequent compilations, verify files haven't changed unexpectedly
+4. Alert user if hash mismatch detected (potential tampering)
+
+**Hash Database** (`.hashes.json`):
+```json
+{
+  "custom-rules.txt": {
+    "hash": "abc123def456...",
+    "size": 1234,
+    "lastModified": "2024-12-27T10:30:00Z",
+    "lastVerified": "2024-12-27T14:45:00Z"
+  }
+}
+```
+
+### In-Flight Hash Verification (Internet Sources)
+
+**Purpose**: Prevent man-in-the-middle attacks and ensure download integrity
+
+**Process**:
+1. User specifies expected hash in URL: `https://example.com/list.txt#sha384=hash`
+2. Download file over HTTPS (encrypted channel)
+3. Compute SHA-384 hash of downloaded content
+4. Compare with expected hash from URL
+5. Reject if mismatch (compilation fails with security error)
+
+**Hash Format Options**:
+```
+# Option 1: Inline hash in URL (recommended)
+https://easylist.to/easylist/easylist.txt#sha384=abc123...
+
+# Option 2: Separate hash file
+https://easylist.to/easylist/easylist.txt
+https://easylist.to/easylist/easylist.txt.sha384
+
+# Option 3: Hash database (internet-sources-hashes.json)
+{
+  "https://easylist.to/easylist/easylist.txt": "abc123..."
+}
+```
+
+### Automatic Hash Updates
+
+**Behavior**:
+- **First download**: Store hash automatically for future verification
+- **Subsequent downloads**: Verify against stored hash
+- **Hash mismatch**: 
+  - Warn user of potential tampering or list update
+  - Require explicit confirmation to update hash
+  - Log old and new hashes for audit trail
+
+### Hash Verification Modes
+
+Configure via environment variable or config file:
+
+**1. Strict Mode** (production recommended):
+```json
+{
+  "hashVerification": {
+    "mode": "strict",
+    "requireHashesForRemote": true,
+    "failOnMismatch": true
+  }
+}
+```
+- All remote sources must have hashes
+- Any mismatch fails compilation
+- Manual hash update required
+
+**2. Warning Mode** (default):
+```json
+{
+  "hashVerification": {
+    "mode": "warning",
+    "requireHashesForRemote": false,
+    "failOnMismatch": false
+  }
+}
+```
+- Hash mismatches generate warnings
+- Compilation continues
+- New hashes stored automatically
+
+**3. Disabled Mode** (not recommended):
+```json
+{
+  "hashVerification": {
+    "mode": "disabled"
+  }
+}
+```
+- No hash verification
+- Security risk - only for testing
 
 ## Syntax Validation
 

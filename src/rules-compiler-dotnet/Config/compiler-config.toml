@@ -21,6 +21,13 @@ version = "1.0.0"
 path = "data/output/adguard_user_filter.txt"
 conflictStrategy = "rename"  # rename, overwrite, or error
 
+# Hash verification configuration
+[hashVerification]
+mode = "warning"  # strict, warning, or disabled
+requireHashesForRemote = false
+failOnMismatch = false
+hashDatabasePath = "data/input/.hashes.json"
+
 # Archiving configuration
 [archiving]
 enabled = true

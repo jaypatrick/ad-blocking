@@ -22,6 +22,7 @@ All rules compilers in this repository use the same configuration schema based o
 | `license` | string | No | - | License identifier (e.g., "GPL-3.0") |
 | `version` | string | No | - | Version number of the filter list |
 | `output` | object | No | See below | Output file configuration |
+| `hashVerification` | object | No | See below | Hash verification configuration |
 | `archiving` | object | No | See below | Archiving configuration |
 | `sources` | array | **Yes** | - | List of filter sources to compile |
 | `transformations` | array | No | `[]` | Global transformations to apply |
@@ -54,6 +55,81 @@ When `conflictStrategy` is `rename` and the output file already exists:
 - First conflict: `my-custom-filter.txt` → `my-custom-filter-1.txt`
 - Second conflict: `my-custom-filter-1.txt` → `my-custom-filter-2.txt`
 - And so on...
+
+### Hash Verification Configuration
+
+Configure integrity verification for both local files (at-rest) and remote downloads (in-flight):
+
+| Property | Type | Required | Default | Description |
+|----------|------|----------|---------|-------------|
+| `mode` | string | No | `warning` | Verification mode: `strict`, `warning`, or `disabled` |
+| `requireHashesForRemote` | boolean | No | `false` | Require hashes for all remote sources |
+| `failOnMismatch` | boolean | No | `false` | Fail compilation on hash mismatch |
+| `hashDatabasePath` | string | No | `data/input/.hashes.json` | Path to hash database file |
+
+**Example:**
+```json
+{
+  "hashVerification": {
+    "mode": "strict",
+    "requireHashesForRemote": true,
+    "failOnMismatch": true,
+    "hashDatabasePath": "data/input/.hashes.json"
+  }
+}
+```
+
+**Verification Modes:**
+
+**1. Strict Mode** (recommended for production):
+- All remote sources must include hash verification
+- Any hash mismatch fails compilation immediately
+- Manual hash update required for changed files
+- Provides maximum security
+
+**2. Warning Mode** (default):
+- Hash mismatches generate warnings but don't fail compilation
+- New hashes stored automatically for future verification
+- Good for development and testing
+- Balances security with convenience
+
+**3. Disabled Mode** (not recommended):
+- No hash verification performed
+- Security risk - only use for testing
+- Files can be modified without detection
+
+**Hash Verification Process:**
+
+**At-Rest (Local Files)**:
+1. On first compilation, compute SHA-384 hash for each local file
+2. Store in `.hashes.json` database (gitignored)
+3. On subsequent compilations, verify files haven't changed
+4. Alert if mismatch detected (potential tampering)
+
+**In-Flight (Internet Sources)**:
+1. User specifies expected hash in URL or separate config
+2. Download file over HTTPS (encrypted)
+3. Compute SHA-384 hash of downloaded content
+4. Compare with expected hash
+5. Reject if mismatch (prevents MITM attacks)
+
+**Hash Database Format** (`.hashes.json`):
+```json
+{
+  "custom-rules.txt": {
+    "hash": "abc123def456...",
+    "size": 1234,
+    "lastModified": "2024-12-27T10:30:00Z",
+    "lastVerified": "2024-12-27T14:45:00Z"
+  },
+  "https://easylist.to/easylist/easylist.txt": {
+    "hash": "def456abc789...",
+    "size": 567890,
+    "lastModified": "2024-12-27T08:00:00Z",
+    "lastVerified": "2024-12-27T14:45:00Z"
+  }
+}
+```
 
 ### Archiving Configuration
 
@@ -389,6 +465,11 @@ data/archive/
   "output": {
     "path": "data/output/my-filter.txt",
     "conflictStrategy": "rename"
+  },
+  "hashVerification": {
+    "mode": "strict",
+    "requireHashesForRemote": true,
+    "failOnMismatch": true
   },
   "archiving": {
     "enabled": true,

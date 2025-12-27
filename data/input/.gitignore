@@ -2,8 +2,9 @@
 *.downloaded
 *.cache
 
-# Ignore hash database
+# Ignore hash database (auto-generated)
 .hashes.json
+internet-sources-hashes.json
 
 # Ignore backup files
 *.bak
