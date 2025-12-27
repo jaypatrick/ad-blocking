@@ -47,6 +47,12 @@ export interface CliOptions {
   validateConfig?: boolean;
   /** Fail compilation on validation warnings */
   failOnWarnings?: boolean;
+  /** Enable chunked parallel compilation */
+  enableChunking?: boolean;
+  /** Number of rules per chunk */
+  chunkSize?: number;
+  /** Maximum number of chunks to process in parallel */
+  maxParallel?: number;
 }
 
 /**
@@ -144,6 +150,20 @@ export interface OutputConfig {
 }
 
 /**
+ * Chunking configuration for parallel compilation of large rule lists
+ */
+export interface ChunkingConfig {
+  /** Enable chunking for large rule lists */
+  enabled?: boolean;
+  /** Number of rules per chunk (default: 100000) */
+  chunkSize?: number;
+  /** Maximum number of chunks to process in parallel (default: CPU count) */
+  maxParallel?: number;
+  /** Strategy for determining chunk boundaries: 'line-count' or 'source' */
+  strategy?: 'line-count' | 'source';
+}
+
+/**
  * Extended configuration with source format tracking
  */
 export interface ExtendedConfiguration extends IConfiguration {
@@ -157,6 +177,8 @@ export interface ExtendedConfiguration extends IConfiguration {
   archiving?: ArchivingConfig;
   /** Output configuration */
   output?: OutputConfig;
+  /** Chunking configuration for parallel compilation */
+  chunking?: ChunkingConfig;
 }
 
 /**
@@ -191,4 +213,10 @@ export interface CompileOptions {
   failOnWarnings?: boolean;
   /** Compilation timeout in milliseconds */
   timeoutMs?: number;
+  /** Enable chunking for large rule lists */
+  enableChunking?: boolean;
+  /** Number of rules per chunk */
+  chunkSize?: number;
+  /** Maximum number of chunks to process in parallel */
+  maxParallel?: number;
 }
