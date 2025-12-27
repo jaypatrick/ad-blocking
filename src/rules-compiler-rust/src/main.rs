@@ -285,10 +285,14 @@ fn find_default_config() -> Option<PathBuf> {
 /// looking for compiler-config.{json,yaml,toml} files.
 fn find_config_in_ancestors() -> Option<PathBuf> {
     let current = std::env::current_dir().ok()?;
-    let config_names = ["compiler-config.json", "compiler-config.yaml", "compiler-config.toml"];
+    let config_names = [
+        "compiler-config.json",
+        "compiler-config.yaml",
+        "compiler-config.toml",
+    ];
 
     let mut dir = current.as_path();
-    
+
     // Walk up the directory tree
     loop {
         for config_name in &config_names {
@@ -313,13 +317,13 @@ fn print_config_not_found_error() {
     eprintln!("  - compiler-config.toml");
     eprintln!("  - src/rules-compiler-typescript/compiler-config.json");
     eprintln!();
-    
+
     if let Ok(current_dir) = std::env::current_dir() {
         eprintln!("Search started from: {}", current_dir.display());
         eprintln!("Also checked all parent directories up to filesystem root.");
         eprintln!();
     }
-    
+
     eprintln!("Solutions:");
     eprintln!("  1. Use -c/--config to specify a configuration file");
     eprintln!("  2. Create a compiler-config.json in the current or parent directory");
