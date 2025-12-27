@@ -212,6 +212,37 @@ export async function runCompiler(options: ExtendedCompileOptions): Promise<Comp
     const versionValue = configRecord['version'];
     result.configVersion = typeof versionValue === 'string' ? versionValue : 'unknown';
 
+    // Validate configuration if requested (default: true)
+    const shouldValidate = options.validateConfig ?? true;
+    if (shouldValidate) {
+      const { validateConfiguration } = await import('./validation.ts');
+      const validationResult = validateConfiguration(config);
+
+      if (!validationResult.valid) {
+        logger.error('Configuration validation failed:');
+        for (const error of validationResult.errors) {
+          logger.error(`  ${error}`);
+        }
+        throw new CompilationError(
+          `Configuration validation failed: ${validationResult.errors.join('; ')}`,
+          ErrorCode.CONFIG_VALIDATION_ERROR,
+        );
+      }
+
+      if (validationResult.warnings.length > 0) {
+        for (const warning of validationResult.warnings) {
+          logger.warn(`Configuration warning: ${warning}`);
+        }
+
+        if (options.failOnWarnings) {
+          throw new CompilationError(
+            `Configuration has warnings (failOnWarnings is enabled): ${validationResult.warnings.join('; ')}`,
+            ErrorCode.CONFIG_VALIDATION_ERROR,
+          );
+        }
+      }
+    }
+
     // Determine output path
     const outputFilename = generateOutputFilename();
     const defaultOutputPath = join(dirname(options.configPath), 'output', outputFilename);

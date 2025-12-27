@@ -43,6 +43,10 @@ export interface CliOptions {
   archiveInteractive?: boolean;
   /** Archive retention in days */
   archiveRetention?: number;
+  /** Validate configuration before compiling (default: true) */
+  validateConfig?: boolean;
+  /** Fail compilation on validation warnings */
+  failOnWarnings?: boolean;
 }
 
 /**
@@ -181,4 +185,10 @@ export interface CompileOptions {
   format?: ConfigurationFormat;
   /** Logger instance */
   logger?: Logger;
+  /** Validate configuration before compiling (default: true) */
+  validateConfig?: boolean;
+  /** Fail compilation on validation warnings */
+  failOnWarnings?: boolean;
+  /** Compilation timeout in milliseconds */
+  timeoutMs?: number;
 }

@@ -95,6 +95,15 @@ export function parseArgs(args: string[]): CliOptions {
       case '--validate':
         options.validate = true;
         break;
+      case '--validate-config':
+        options.validateConfig = true;
+        break;
+      case '--no-validate-config':
+        options.validateConfig = false;
+        break;
+      case '--fail-on-warnings':
+        options.failOnWarnings = true;
+        break;
       default:
         // Allow positional config path
         if (arg && !arg.startsWith('-') && !options.configPath) {
@@ -130,6 +139,9 @@ Options:
   -h, --help            Show this help message
   -d, --debug           Enable debug output
   --show-config         Show parsed configuration (don't compile)
+  --validate-config     Enable configuration validation before compilation (default: true)
+  --no-validate-config  Disable configuration validation before compilation
+  --fail-on-warnings    Fail compilation if configuration has validation warnings
 
 Production Options:
   --json-logs           Use JSON format for log output (structured logging)
@@ -428,6 +440,8 @@ export async function main(args: string[] = Deno.args): Promise<number> {
       format: options.format,
       logger,
       timeoutMs: options.timeout,
+      validateConfig: options.validateConfig,
+      failOnWarnings: options.failOnWarnings,
     });
 
     if (result.success) {
