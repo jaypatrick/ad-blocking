@@ -146,7 +146,7 @@ Invoke-RulesCompiler
 # Get configuration, compile, and write output
 Read-CompilerConfiguration -ConfigPath "config.yaml" |
     Invoke-FilterCompiler |
-    Write-CompiledOutput -DestinationPath "../rules/filter.txt"
+    Write-CompiledOutput -DestinationPath "../data/output/filter.txt"
 ```
 
 #### Check Version Information

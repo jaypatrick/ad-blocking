@@ -114,7 +114,7 @@ export ADGUARD_COMPILER_COPY_TO_RULES=true
 ### Example 3: Use Environment Variables
 ```bash
 export ADGUARD_COMPILER_CONFIG="production-config.yaml"
-export ADGUARD_COMPILER_OUTPUT="/var/www/rules/filter.txt"
+export ADGUARD_COMPILER_OUTPUT="/var/www/data/output/filter.txt"
 export ADGUARD_COMPILER_COPY_TO_RULES=true
 
 ./compile-rules.sh

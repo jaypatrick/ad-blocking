@@ -277,7 +277,7 @@ deno task compile:toml              # TOML config
 
 # CLI options
 deno task compile -- -c config.yaml # Specific config
-deno task compile -- -r             # Copy to rules/
+deno task compile -- -r             # Copy to data/
 deno task compile -- -d             # Debug output
 deno task compile -- --help         # Show help
 deno task compile -- --version      # Show version
@@ -894,7 +894,7 @@ deno task start
 deno task start -- --api-key your-key
 
 # Sync rules from file
-deno task start -- sync --file rules/adguard_user_filter.txt
+deno task start -- sync --file data/output/adguard_user_filter.txt
 ```
 
 **Features**:
@@ -972,7 +972,7 @@ version: "1.0.0"
 
 sources:
   - name: Local Rules
-    source: rules/local.txt
+    source: data/local.txt
     type: adblock
 
   - name: EasyList
