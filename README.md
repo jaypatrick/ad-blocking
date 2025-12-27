@@ -201,6 +201,62 @@ cd .. && cargo build --release
 
 > **Rust Workspace**: All Rust projects (adguard-validation, adguard-api-rust, rules-compiler-rust) are now unified in a single workspace at the repository root. Run `cargo build` from the root to build all Rust projects together. See [RUST_WORKSPACE.md](RUST_WORKSPACE.md) for more details.
 
+### Build All Projects
+
+Root-level build scripts are available to build all projects or specific language ecosystems:
+
+```bash
+# Build all projects (debug mode - default)
+./build.sh
+
+# Build all projects in release mode
+./build.sh --release
+
+# Build specific language ecosystems
+./build.sh --rust              # Build all Rust projects
+./build.sh --dotnet            # Build all .NET projects
+./build.sh --typescript        # Build all TypeScript/Deno projects
+./build.sh --python            # Build Python projects
+
+# Combine options
+./build.sh --rust --dotnet --release   # Build Rust and .NET in release mode
+```
+
+**PowerShell (Windows/Cross-platform)**:
+
+```powershell
+# Build all projects (debug mode - default)
+.\build.ps1
+
+# Build all projects in release mode
+.\build.ps1 -Profile release
+
+# Build specific language ecosystems
+.\build.ps1 -Rust              # Build all Rust projects
+.\build.ps1 -DotNet            # Build all .NET projects
+.\build.ps1 -TypeScript        # Build all TypeScript/Deno projects
+.\build.ps1 -Python            # Build Python projects
+
+# Combine options
+.\build.ps1 -Rust -DotNet -Profile release
+```
+
+**Available Options**:
+- `--all` / `-All`: Build all projects (default if no specific project selected)
+- `--rust` / `-Rust`: Build Rust workspace (validation library, API clients, compilers)
+- `--dotnet` / `-DotNet`: Build .NET solutions (API client, rules compiler)
+- `--typescript` / `-TypeScript`: Build TypeScript/Deno projects (requires Deno)
+- `--python` / `-Python`: Build Python projects (requires Python 3.9+)
+- `--debug`: Use debug profile (default)
+- `--release` / `-Profile release`: Use release/optimized profile
+
+The build scripts automatically:
+- Check for required tools (Rust, .NET, Deno, Python)
+- Restore dependencies
+- Build projects with appropriate configuration
+- Report build status with colored output
+- Exit with appropriate status codes for CI integration
+
 ### Compile Filter Rules (Any Language)
 
 ```bash
