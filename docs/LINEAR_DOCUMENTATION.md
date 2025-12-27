@@ -44,11 +44,33 @@ A comprehensive, multi-component ad-blocking solution designed for network-level
 
 ## Components
 
-### 1. Filter Rules (`/rules/`)
+### 1. Filter Rules (`/data/`)
 
-**Purpose:** Core blocking lists and configuration for ad, tracker, and malware domains.
+**Purpose:** Organize and compile blocking lists for ad, tracker, and malware domains.
 
-**Main File:** `adguard_user_filter.txt` (466 lines)
+#### Input Sources (`data/input/`)
+
+Source location for filter rules before compilation:
+
+- **Local filter files**: Custom rules in adblock or hosts format
+  - Place `.txt` or `.hosts` files in this directory
+  - Automatic format detection and syntax validation
+  - Examples: `custom-rules.txt`, `company-blocklist.txt`
+
+- **Internet source references**: Remote filter lists via URL
+  - Create `internet-sources.txt` with one URL per line
+  - Common sources: EasyList, StevenBlack hosts, AdGuard filters
+  - Downloaded and cached during compilation
+
+**Security & Validation:**
+- SHA-384 hash verification for all input files
+- Syntax validation before compilation
+- Tampering detection via hash comparison
+- Error reporting with line numbers
+
+#### Compiled Output (`data/output/`)
+
+**Main File:** `adguard_user_filter.txt` (adblock format, 466+ lines)
 
 **Blocked Categories:**
 - Ad service domains (Google, Facebook, Twitter, TikTok, Amazon)
@@ -58,6 +80,27 @@ A comprehensive, multi-component ad-blocking solution designed for network-level
 
 **Allowlisted:**
 - Development tools (Microsoft, Postman, DataDog)
+
+#### Archive Storage (`data/archive/`)
+
+Automated archiving of processed input files for audit and rollback:
+
+- **Automatic/Interactive/Disabled modes**: User-configurable archiving behavior
+- **Timestamped snapshots**: Each compilation creates dated archive directory
+- **Manifest tracking**: JSON metadata with hashes and compilation stats
+- **Retention policy**: Automatic cleanup after 90 days (configurable)
+
+**Use cases:**
+- Historical tracking of filter rule changes
+- Rollback to previous working configuration
+- Compliance and audit requirements
+- Verification of what was compiled and when
+
+**Configuration:**
+```bash
+export ADGUARD_ARCHIVE_MODE=automatic     # or interactive, disabled
+export ADGUARD_ARCHIVE_RETENTION_DAYS=90
+```
 
 ---
 
@@ -87,7 +130,7 @@ A comprehensive, multi-component ad-blocking solution designed for network-level
 - Whitespace cleanup
 
 **Configuration Sources:**
-- Local: `../../rules/adguard_user_filter.txt`
+- Local: `../../data/output/adguard_user_filter.txt`
 - Remote: GitHub-hosted filter lists
 
 ---
@@ -188,8 +231,16 @@ ad-blocking/
 │   ├── README.md            # Documentation index
 │   ├── api/                 # Auto-generated API docs
 │   └── guides/              # Usage guides
-├── rules/
-│   ├── adguard_user_filter.txt  # Main filter list
+├── data/
+│   ├── input/                   # Source filter lists
+│   │   ├── README.md            # Input directory documentation
+│   │   ├── example-custom-rules.txt  # Example local rules
+│   │   └── internet-sources.txt.example  # Example remote sources
+│   ├── output/
+│   │   └── adguard_user_filter.txt  # Main filter list (adblock format)
+│   ├── archive/                 # Archived processed files
+│   │   ├── README.md            # Archive documentation
+│   │   └── .gitignore           # Ignore archive contents
 │   ├── Api/                 # Rules compilation API
 │   └── Config/              # Configuration utilities
 ├── src/
@@ -340,7 +391,7 @@ Invoke-Pester
 ```json
 {
   "sources": {
-    "local": "../../rules/adguard_user_filter.txt",
+    "local": "../../data/output/adguard_user_filter.txt",
     "remote": "https://github.com/..."
   },
   "transformations": [

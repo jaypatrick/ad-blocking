@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-- `rules/` contains the tracked filter list (`rules/adguard_user_filter.txt`) and compiler configuration files (`rules/Config/`).
+- `data/` contains the tracked filter list (`data/output/adguard_user_filter.txt`) and compiler configuration files.
 - `src/` contains the multi-language toolchain:
   - `src/rules-compiler-*` (TypeScript/Deno, .NET, Python, Rust, shell) compilers that wrap `@adguard/hostlist-compiler`.
   - `src/adguard-api-dotnet/`, `src/adguard-api-typescript/`, and `src/adguard-api-rust/` SDKs + interactive clients for the AdGuard DNS API.
@@ -11,7 +11,7 @@
 
 ## Build, Test, and Development Commands
 
-- Compile rules (any platform): `./src/rules-compiler-shell/compile-rules.sh -c rules/Config/config.yaml -r` (see `src/rules-compiler-shell/`).
+- Compile rules (any platform): `./src/rules-compiler-shell/compile-rules.sh -c data/Config/config.yaml -r` (see `src/rules-compiler-shell/`).
 - TypeScript compiler (`src/rules-compiler-typescript/`):
   - `deno cache src/mod.ts` — cache dependencies
   - `deno task compile` — compile rules

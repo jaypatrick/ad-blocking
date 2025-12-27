@@ -37,6 +37,12 @@ export interface CliOptions {
   compile: boolean;
   /** Validate configuration only */
   validate: boolean;
+  /** Disable archiving */
+  noArchive?: boolean;
+  /** Enable interactive archiving */
+  archiveInteractive?: boolean;
+  /** Archive retention in days */
+  archiveRetention?: number;
 }
 
 /**
@@ -96,6 +102,44 @@ export interface VersionInfo {
 }
 
 /**
+ * Hash verification configuration
+ */
+export interface HashVerificationConfig {
+  /** Verification mode: strict, warning, or disabled */
+  mode?: 'strict' | 'warning' | 'disabled';
+  /** Require hashes for all remote sources */
+  requireHashesForRemote?: boolean;
+  /** Fail compilation on hash mismatch */
+  failOnMismatch?: boolean;
+  /** Path to hash database file */
+  hashDatabasePath?: string;
+}
+
+/**
+ * Archiving configuration
+ */
+export interface ArchivingConfig {
+  /** Whether archiving is enabled */
+  enabled?: boolean;
+  /** Archiving mode: automatic, interactive, or disabled */
+  mode?: 'automatic' | 'interactive' | 'disabled';
+  /** Retention period in days */
+  retentionDays?: number;
+}
+
+/**
+ * Output configuration
+ */
+export interface OutputConfig {
+  /** Output file path */
+  path?: string;
+  /** Output file name (if not using full path) */
+  fileName?: string;
+  /** Handle file conflicts: rename, overwrite, or error */
+  conflictStrategy?: 'rename' | 'overwrite' | 'error';
+}
+
+/**
  * Extended configuration with source format tracking
  */
 export interface ExtendedConfiguration extends IConfiguration {
@@ -103,6 +147,12 @@ export interface ExtendedConfiguration extends IConfiguration {
   _sourceFormat?: ConfigurationFormat;
   /** Original file path */
   _sourcePath?: string;
+  /** Hash verification configuration */
+  hashVerification?: HashVerificationConfig;
+  /** Archiving configuration */
+  archiving?: ArchivingConfig;
+  /** Output configuration */
+  output?: OutputConfig;
 }
 
 /**

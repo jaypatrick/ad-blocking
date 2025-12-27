@@ -41,6 +41,8 @@ A comprehensive multi-language toolkit for ad-blocking, network protection, and 
 
 ## Features
 
+> 🔒 **Security First**: All compilers include **mandatory validation** to protect against malicious filter lists, tampering, and man-in-the-middle attacks. [Learn why validation matters →](docs/WHY_VALIDATION_MATTERS.md)
+
 ### Rules Compilers (5 Languages)
 
 | Language | Runtime | Distribution | Key Features |
@@ -51,11 +53,14 @@ A comprehensive multi-language toolkit for ad-blocking, network protection, and 
 | **Rust** | Native binary | Cargo/Binary | Zero-runtime deps, LTO optimization |
 | **PowerShell** | PowerShell 7+ | Module | Pipeline-friendly, Pester tests |
 
-All compilers wrap [@adguard/hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler) and support:
+All compilers wrap [@adguard/hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler) with **built-in security validation** and support:
 - **All 11 transformations**: Deduplicate, Validate, RemoveComments, Compress, RemoveModifiers, etc.
 - **Multi-format config**: JSON, YAML, and TOML configuration files
 - **Source-specific settings**: Per-source transformations, inclusions, exclusions
 - **Pattern matching**: Wildcards, regex, file-based patterns
+- **🔒 SHA-384 hash verification**: Automatic tamper detection for all sources
+- **🔒 URL security validation**: HTTPS enforcement, domain validation, content verification
+- **🔒 Runtime enforcement**: Cryptographic proof that validation occurred
 
 ### AdGuard DNS API SDKs
 
@@ -103,9 +108,18 @@ ad-blocking/
 │   ├── compiler-comparison.md         # Compiler comparison matrix
 │   ├── configuration-reference.md     # Configuration schema reference
 │   └── docker-guide.md                # Docker development guide
-├── rules/                             # Filter rules
-│   ├── adguard_user_filter.txt        # Main tracked filter list
-│   └── Config/                        # Compiler configurations
+├── data/                              # Filter rules and data
+│   ├── input/                         # Source filter lists (local & remote refs)
+│   │   ├── README.md                  # Input directory documentation
+│   │   ├── example-custom-rules.txt   # Example local rules
+│   │   ├── internet-sources.txt.example # Example remote sources config
+│   │   └── .gitignore                 # Ignore large/sensitive files
+│   ├── output/                        # Compiled filter output
+│   │   └── adguard_user_filter.txt    # Main tracked filter list (adblock format)
+│   ├── archive/                       # Archived processed input files
+│   │   ├── README.md                  # Archive directory documentation
+│   │   └── .gitignore                 # Ignore archive contents
+│   └── Config/                        # Compiler configurations (optional)
 ├── src/                               # Source code
 │   ├── rules-compiler-typescript/     # TypeScript/Node.js compiler
 │   ├── rules-compiler-dotnet/         # C#/.NET 10 compiler
@@ -253,6 +267,177 @@ warp integration create slack --environment Egji4sZU4TNIOwNasFU73A
 warp integration create linear --environment Egji4sZU4TNIOwNasFU73A
 ```
 
+## Data Directory Structure
+
+The `data/` directory organizes all filter-related files with a clear separation between inputs and outputs:
+
+### Input Directory (`data/input/`)
+
+Source location for filter rules to be compiled:
+
+- **Local rule files**: Place custom filter lists in adblock or hosts format
+  - Examples: `custom-rules.txt`, `company-blocklist.txt`
+  - Supports `.txt`, `.hosts` extensions
+  - Automatic format detection (adblock vs hosts)
+
+- **Internet source references**: File containing URLs to remote filter lists
+  - Create `internet-sources.txt` with one URL per line
+  - Example sources: EasyList, StevenBlack hosts, AdGuard filters
+  - Lines starting with `#` are comments
+  - **Security**: Only HTTPS URLs allowed, content validated before use
+
+**Features:**
+- ✅ **Hash verification**: SHA-384 integrity checking for tampering detection
+- ✅ **Syntax validation**: Automatic linting before compilation
+- ✅ **Multi-format support**: Both adblock and hosts file formats
+- ✅ **Remote list fetching**: Download and verify internet sources
+- ✅ **Error reporting**: Clear messages with line numbers for invalid rules
+- ✅ **URL security**: HTTPS enforcement, domain validation, content verification
+
+**Example structure:**
+```
+data/input/
+├── README.md                    # Documentation
+├── custom-rules.txt             # Your custom adblock rules
+├── internet-sources.txt         # URLs to remote lists
+└── .gitignore                   # Ignore large/sensitive files
+```
+
+See [`data/input/README.md`](data/input/README.md) for detailed usage instructions.
+
+### Output Directory (`data/output/`)
+
+Contains the final compiled filter list:
+
+- **`adguard_user_filter.txt`**: Main filter list in **adblock format**
+  - Merged from all input sources
+  - Deduplicated and validated
+  - Ready for use with AdGuard DNS or other blockers
+  - Tracked in version control
+
+**Compilation guarantees:**
+- ✅ Output is always in adblock syntax (not hosts format)
+- ✅ Comments and metadata preserved from sources
+- ✅ SHA-384 hash computed for verification
+- ✅ Rule count validation
+
+### Archive Directory (`data/archive/`)
+
+Stores processed input files after successful compilation for audit and rollback purposes:
+
+- **Automatic archiving**: Configurable via environment variables or CLI flags
+- **Timestamp-based organization**: Each compilation creates a dated subdirectory
+- **Manifest tracking**: JSON metadata with hashes, file info, and compilation stats
+- **Retention policy**: Automatic cleanup of archives older than 90 days (configurable)
+
+**Archiving modes:**
+- 🤖 **Automatic** (default): Archive after every successful compilation
+- 🤔 **Interactive**: Prompt user whether to archive
+- 🚫 **Disabled**: No archiving
+
+**Example structure:**
+```
+data/archive/
+├── 2024-12-27_14-30-45/
+│   ├── manifest.json              # Compilation metadata
+│   ├── custom-rules.txt           # Input file snapshot
+│   └── internet-sources.txt
+└── 2024-12-26_09-15-22/
+    ├── manifest.json
+    └── custom-rules.txt
+```
+
+**Configuration:**
+```bash
+# Environment variables
+export ADGUARD_ARCHIVE_ENABLED=true
+export ADGUARD_ARCHIVE_MODE=automatic  # or interactive, disabled
+export ADGUARD_ARCHIVE_RETENTION_DAYS=90
+
+# CLI flags (all compilers)
+npm run compile -- --no-archive              # Disable
+npm run compile -- --archive-interactive     # Prompt
+npm run compile -- --archive-retention 365   # Custom retention
+
+# Or configure in JSON/YAML/TOML config files
+```
+
+**Config file example (JSON):**
+```json
+{
+  "name": "My Filter",
+  "output": {
+    "path": "data/output/my-filter.txt",
+    "conflictStrategy": "rename"
+  },
+  "archiving": {
+    "enabled": true,
+    "mode": "automatic",
+    "retentionDays": 90
+  },
+  "sources": [...]
+}
+```
+
+**Use cases:**
+- Track historical changes to filter rules
+- Rollback to previous working configuration
+- Audit what was compiled and when
+- Meet compliance requirements for data retention
+
+See [`data/archive/README.md`](data/archive/README.md) for detailed usage and restoration procedures.
+
+### Compilation Workflow
+
+```
+┌─────────────────────────────────────────────────────┐
+│ 1. Discover all files in data/input/               │
+│    - Scan for .txt, .hosts files                   │
+│    - Parse internet-sources.txt                    │
+└─────────────────────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────┐
+│ 2. Validate & Hash Check                           │
+│    - Syntax validation for each file               │
+│    - Compute SHA-384 hashes                        │
+│    - Detect tampering/modifications                │
+└─────────────────────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────┐
+│ 3. Fetch Internet Sources (if configured)          │
+│    - Download remote lists                         │
+│    - Verify with hashes                            │
+│    - Cache for performance                         │
+└─────────────────────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────┐
+│ 4. Compile with @adguard/hostlist-compiler         │
+│    - Merge all sources                             │
+│    - Apply transformations (dedupe, validate, etc) │
+│    - Convert hosts format to adblock if needed     │
+└─────────────────────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────┐
+│ 5. Output to data/output/adguard_user_filter.txt   │
+│    - Write final adblock-format list               │
+│    - Compute output hash                           │
+│    - Log statistics (rule count, hash)             │
+└─────────────────────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────┐
+│ 6. Archive Input Files (optional)                  │
+│    - Create timestamped archive directory          │
+│    - Copy all input files to archive               │
+│    - Generate manifest.json with metadata          │
+│    - Cleanup old archives per retention policy     │
+└─────────────────────────────────────────────────────┘
+```
+
 ## Rules Compilers
 
 All compilers wrap [@adguard/hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler) and support:
@@ -276,7 +461,7 @@ deno task compile:toml              # TOML config
 
 # CLI options
 deno task compile -- -c config.yaml # Specific config
-deno task compile -- -r             # Copy to rules/
+deno task compile -- -r             # Copy to data/
 deno task compile -- -d             # Debug output
 deno task compile -- --help         # Show help
 deno task compile -- --version      # Show version
@@ -893,7 +1078,7 @@ deno task start
 deno task start -- --api-key your-key
 
 # Sync rules from file
-deno task start -- sync --file rules/adguard_user_filter.txt
+deno task start -- sync --file data/output/adguard_user_filter.txt
 ```
 
 **Features**:
@@ -971,7 +1156,7 @@ version: "1.0.0"
 
 sources:
   - name: Local Rules
-    source: rules/local.txt
+    source: data/local.txt
     type: adblock
 
   - name: EasyList

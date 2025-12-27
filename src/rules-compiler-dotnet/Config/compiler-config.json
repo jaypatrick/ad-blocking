@@ -5,10 +5,25 @@
   "homepage": "https://github.com/jaypatrick/ad-blocking",
   "license": "MIT",
   "version": "1.0.0",
+  "output": {
+    "path": "data/output/adguard_user_filter.txt",
+    "conflictStrategy": "rename"
+  },
+  "hashVerification": {
+    "mode": "warning",
+    "requireHashesForRemote": false,
+    "failOnMismatch": false,
+    "hashDatabasePath": "data/input/.hashes.json"
+  },
+  "archiving": {
+    "enabled": true,
+    "mode": "automatic",
+    "retentionDays": 90
+  },
   "sources": [
     {
       "name": "Local User Rules",
-      "source": "rules/adguard_user_filter.txt",
+      "source": "data/output/adguard_user_filter.txt",
       "type": "adblock",
       "transformations": [],
       "inclusions": [],

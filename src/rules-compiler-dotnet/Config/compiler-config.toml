@@ -16,6 +16,24 @@ license = "MIT"
 # Optional: Version number
 version = "1.0.0"
 
+# Output configuration
+[output]
+path = "data/output/adguard_user_filter.txt"
+conflictStrategy = "rename"  # rename, overwrite, or error
+
+# Hash verification configuration
+[hashVerification]
+mode = "warning"  # strict, warning, or disabled
+requireHashesForRemote = false
+failOnMismatch = false
+hashDatabasePath = "data/input/.hashes.json"
+
+# Archiving configuration
+[archiving]
+enabled = true
+mode = "automatic"  # automatic, interactive, or disabled
+retentionDays = 90
+
 # Global transformations applied to final output
 # Order in config doesn't matter - they're applied in fixed order:
 # RemoveComments, Compress, RemoveModifiers, Validate, ValidateAllowIp,
@@ -47,7 +65,7 @@ exclusions_sources = []
 
 [[sources]]
 name = "Local User Rules"
-source = "rules/adguard_user_filter.txt"
+source = "data/output/adguard_user_filter.txt"
 # Type: "adblock" (default) or "hosts"
 type = "adblock"
 # Source-specific transformations

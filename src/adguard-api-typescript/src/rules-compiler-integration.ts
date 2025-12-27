@@ -198,12 +198,12 @@ export class RulesCompilerIntegration {
    * This is designed to work with the compiled output from rules-compiler-typescript
    *
    * @param dnsServerId - DNS server ID
-   * @param rulesDirectory - Path to rules directory (default: rules/)
+   * @param rulesDirectory - Path to data directory (default: data/output/)
    * @param rulesFile - Name of rules file (default: adguard_user_filter.txt)
    */
   async syncCompiledRules(
     dnsServerId: string,
-    rulesDirectory: string = 'rules',
+    rulesDirectory: string = 'data/output',
     rulesFile: string = 'adguard_user_filter.txt',
   ): Promise<RulesSyncResult> {
     const rulesPath = path.join(rulesDirectory, rulesFile);

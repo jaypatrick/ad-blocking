@@ -1,0 +1,19 @@
+[package]
+name = "adguard-validation-cli"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "CLI tool for AdGuard filter validation"
+
+[[bin]]
+name = "adguard-validate"
+path = "src/main.rs"
+
+[dependencies]
+adguard-validation-core.workspace = true
+clap.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true

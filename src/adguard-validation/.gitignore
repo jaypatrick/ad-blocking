@@ -1,0 +1,20 @@
+# Rust build artifacts
+target/
+**/*.rs.bk
+*.pdb
+
+# Hash database (regenerated)
+.hashes.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test outputs
+*.test

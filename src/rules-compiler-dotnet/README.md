@@ -152,7 +152,7 @@ Inclusion and exclusion patterns support:
   "sources": [
     {
       "name": "Local Rules",
-      "source": "rules/local.txt",
+      "source": "data/local.txt",
       "type": "adblock"
     },
     {
@@ -176,7 +176,7 @@ version: "1.0.0"
 
 sources:
   - name: Local Rules
-    source: rules/local.txt
+    source: data/local.txt
     type: adblock
 
   - name: EasyList
@@ -208,7 +208,7 @@ exclusions = ["*.google.com", "/analytics/"]
 
 [[sources]]
 name = "Local Rules"
-source = "rules/local.txt"
+source = "data/local.txt"
 type = "adblock"
 
 [[sources]]

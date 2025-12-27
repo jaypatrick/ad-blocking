@@ -21,12 +21,141 @@ All rules compilers in this repository use the same configuration schema based o
 | `homepage` | string | No | - | Homepage URL for the filter list |
 | `license` | string | No | - | License identifier (e.g., "GPL-3.0") |
 | `version` | string | No | - | Version number of the filter list |
+| `output` | object | No | See below | Output file configuration |
+| `hashVerification` | object | No | See below | Hash verification configuration |
+| `archiving` | object | No | See below | Archiving configuration |
 | `sources` | array | **Yes** | - | List of filter sources to compile |
 | `transformations` | array | No | `[]` | Global transformations to apply |
 | `inclusions` | array | No | `[]` | Global inclusion patterns |
 | `inclusions_sources` | array | No | `[]` | Files containing inclusion patterns |
 | `exclusions` | array | No | `[]` | Global exclusion patterns |
 | `exclusions_sources` | array | No | `[]` | Files containing exclusion patterns |
+
+### Output Configuration
+
+Configure output file path and conflict handling:
+
+| Property | Type | Required | Default | Description |
+|----------|------|----------|---------|-------------|
+| `path` | string | No | `data/output/adguard_user_filter.txt` | Full path to output file |
+| `fileName` | string | No | - | Output filename (alternative to path) |
+| `conflictStrategy` | string | No | `rename` | How to handle existing files: `rename`, `overwrite`, or `error` |
+
+**Example:**
+```json
+{
+  "output": {
+    "path": "data/output/my-custom-filter.txt",
+    "conflictStrategy": "rename"
+  }
+}
+```
+
+When `conflictStrategy` is `rename` and the output file already exists:
+- First conflict: `my-custom-filter.txt` → `my-custom-filter-1.txt`
+- Second conflict: `my-custom-filter-1.txt` → `my-custom-filter-2.txt`
+- And so on...
+
+### Hash Verification Configuration
+
+Configure integrity verification for both local files (at-rest) and remote downloads (in-flight):
+
+| Property | Type | Required | Default | Description |
+|----------|------|----------|---------|-------------|
+| `mode` | string | No | `warning` | Verification mode: `strict`, `warning`, or `disabled` |
+| `requireHashesForRemote` | boolean | No | `false` | Require hashes for all remote sources |
+| `failOnMismatch` | boolean | No | `false` | Fail compilation on hash mismatch |
+| `hashDatabasePath` | string | No | `data/input/.hashes.json` | Path to hash database file |
+
+**Example:**
+```json
+{
+  "hashVerification": {
+    "mode": "strict",
+    "requireHashesForRemote": true,
+    "failOnMismatch": true,
+    "hashDatabasePath": "data/input/.hashes.json"
+  }
+}
+```
+
+**Verification Modes:**
+
+**1. Strict Mode** (recommended for production):
+- All remote sources must include hash verification
+- Any hash mismatch fails compilation immediately
+- Manual hash update required for changed files
+- Provides maximum security
+
+**2. Warning Mode** (default):
+- Hash mismatches generate warnings but don't fail compilation
+- New hashes stored automatically for future verification
+- Good for development and testing
+- Balances security with convenience
+
+**3. Disabled Mode** (not recommended):
+- No hash verification performed
+- Security risk - only use for testing
+- Files can be modified without detection
+
+**Hash Verification Process:**
+
+**At-Rest (Local Files)**:
+1. On first compilation, compute SHA-384 hash for each local file
+2. Store in `.hashes.json` database (gitignored)
+3. On subsequent compilations, verify files haven't changed
+4. Alert if mismatch detected (potential tampering)
+
+**In-Flight (Internet Sources)**:
+1. User specifies expected hash in URL or separate config
+2. Download file over HTTPS (encrypted)
+3. Compute SHA-384 hash of downloaded content
+4. Compare with expected hash
+5. Reject if mismatch (prevents MITM attacks)
+
+**Hash Database Format** (`.hashes.json`):
+```json
+{
+  "custom-rules.txt": {
+    "hash": "abc123def456...",
+    "size": 1234,
+    "lastModified": "2024-12-27T10:30:00Z",
+    "lastVerified": "2024-12-27T14:45:00Z"
+  },
+  "https://easylist.to/easylist/easylist.txt": {
+    "hash": "def456abc789...",
+    "size": 567890,
+    "lastModified": "2024-12-27T08:00:00Z",
+    "lastVerified": "2024-12-27T14:45:00Z"
+  }
+}
+```
+
+### Archiving Configuration
+
+Configure automatic archiving of processed input files:
+
+| Property | Type | Required | Default | Description |
+|----------|------|----------|---------|-------------|
+| `enabled` | boolean | No | `true` | Enable or disable archiving |
+| `mode` | string | No | `automatic` | Archiving mode: `automatic`, `interactive`, or `disabled` |
+| `retentionDays` | number | No | `90` | Days to keep archived files before cleanup |
+
+**Example:**
+```json
+{
+  "archiving": {
+    "enabled": true,
+    "mode": "automatic",
+    "retentionDays": 90
+  }
+}
+```
+
+**Modes:**
+- `automatic`: Archive after every successful compilation
+- `interactive`: Prompt user before archiving
+- `disabled`: Same as `enabled: false`, no archiving occurs
 
 ### Source Properties
 
@@ -156,6 +285,172 @@ Pattern file format (one pattern per line, comments with `!`):
 /tracking\d+\./
 ```
 
+## Data Directory Configuration
+
+The `data/` directory structure supports input/output separation for organized filter management.
+
+### Input Directory (`data/input/`)
+
+**Purpose**: Store source filter files and remote list references before compilation.
+
+**Supported Input Types**:
+
+1. **Local filter files**: `.txt` or `.hosts` files with filter rules
+   - Adblock format: `||example.com^`, `@@||allowed.com^`
+   - Hosts format: `0.0.0.0 blocked.com`, `127.0.0.1 ads.example.com`
+   - Automatic format detection
+
+2. **Internet sources file**: `internet-sources.txt` with one URL per line
+   ```
+   # Example internet-sources.txt (HTTPS only!)
+   https://easylist.to/easylist/easylist.txt
+   https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+   
+   # With hash verification for security
+   https://easylist.to/easylist/easylist.txt#sha384=abc123...
+   ```
+
+**Features**:
+- **SHA-384 hash verification**: Detects file tampering
+- **Syntax validation**: Validates rules before compilation
+- **Multi-format support**: Both adblock and hosts formats accepted
+- **Remote fetching**: Downloads and caches internet sources
+- **URL security validation**: Enforces HTTPS, validates domains, verifies content
+
+**Internet Source Security**:
+
+All URLs in `internet-sources.txt` undergo comprehensive security validation:
+
+1. **Protocol enforcement**: Only HTTPS URLs allowed (HTTP rejected)
+2. **Domain validation**: DNS verification and malicious domain checks
+3. **Content-Type verification**: Ensures text/plain format (rejects binaries)
+4. **Content validation**: Scans downloaded content for valid filter rule syntax
+5. **Hash verification**: Optional SHA-384 hash check (add `#sha384=hash` to URL)
+6. **Size limits**: Rejects unexpectedly large files
+
+**Security best practices**:
+- ⚠️ Only add URLs from trusted, well-known filter list providers
+- ⚠️ Verify domain legitimacy before adding to internet-sources.txt
+- ⚠️ Use hash verification for critical production sources
+- ⚠️ Review downloaded lists before deploying to production
+- ⚠️ Monitor for unexpected changes in list size or content
+
+**Example structure**:
+```
+data/input/
+├── README.md                    # Documentation
+├── custom-rules.txt             # Local adblock rules
+├── company-blocklist.txt        # Organization-specific rules
+├── internet-sources.txt         # URLs to remote lists
+└── .gitignore                   # Ignore cache/temp files
+```
+
+### Output Directory (`data/output/`)
+
+**Purpose**: Store final compiled filter list.
+
+**Main file**: `adguard_user_filter.txt`
+- Always in **adblock syntax** (not hosts format)
+- Merged from all input sources
+- Deduplicated and validated
+- SHA-384 hash computed for verification
+
+**Guarantees**:
+- ✅ Output format is always adblock
+- ✅ Rules are validated and deduplicated
+- ✅ Comments and metadata preserved
+- ✅ Hash computed for integrity verification
+
+### Compilation Workflow
+
+```
+data/input/          →  Compiler  →  data/output/
+├── custom.txt           (Validate,      └── adguard_user_filter.txt
+├── blocklist.txt         Hash,              (adblock format)
+└── internet-sources.txt  Merge)
+```
+
+**Processing steps**:
+1. Scan `data/input/` for all `.txt` and `.hosts` files
+2. Parse `internet-sources.txt` for remote URLs
+3. Validate syntax of each source
+4. Compute SHA-384 hashes for tampering detection
+5. Fetch internet sources with hash verification
+6. Merge all sources using `@adguard/hostlist-compiler`
+7. Apply transformations (deduplicate, validate, etc.)
+8. Convert hosts format to adblock if needed
+9. Write to `data/output/adguard_user_filter.txt`
+10. Compute final output hash
+11. Archive input files to `data/archive/` (if enabled)
+
+### Archive Directory (`data/archive/`)
+
+**Purpose**: Preserve processed input files after successful compilation.
+
+**Configuration**:
+```json
+{
+  "archiving": {
+    "enabled": true,
+    "mode": "automatic",
+    "retentionDays": 90
+  }
+}
+```
+
+**Environment Variables**:
+| Variable | Values | Default |
+|----------|--------|---------|
+| `ADGUARD_ARCHIVE_ENABLED` | `true`/`false` | `true` |
+| `ADGUARD_ARCHIVE_MODE` | `automatic`/`interactive`/`disabled` | `automatic` |
+| `ADGUARD_ARCHIVE_RETENTION_DAYS` | number | `90` |
+
+**CLI Flags**:
+```bash
+--no-archive                  # Disable archiving
+--archive-interactive         # Prompt before archiving
+--archive-retention <days>    # Custom retention period
+```
+
+**Archive structure**:
+```
+data/archive/
+├── 2024-12-27_14-30-45/
+│   ├── manifest.json         # Compilation metadata
+│   ├── custom-rules.txt      # Input file snapshot
+│   └── internet-sources.txt
+└── 2024-12-26_09-15-22/
+    ├── manifest.json
+    └── custom-rules.txt
+```
+
+**Manifest file** (`manifest.json`):
+```json
+{
+  "timestamp": "2024-12-27T14:30:45.123Z",
+  "compiler": "typescript",
+  "compilerVersion": "1.0.0",
+  "inputFiles": [
+    {
+      "name": "custom-rules.txt",
+      "hash": "abc123...",
+      "size": 1234,
+      "format": "adblock"
+    }
+  ],
+  "outputFile": "data/output/adguard_user_filter.txt",
+  "outputHash": "xyz789...",
+  "ruleCount": 150,
+  "success": true,
+  "compilationTimeMs": 1234
+}
+```
+
+**Retention policy**:
+- Archives older than `retentionDays` are automatically deleted
+- Cleanup occurs before creating new archives
+- Manual cleanup: `find data/archive/ -type d -mtime +90 -exec rm -rf {} \;`
+
 ## Example Configurations
 
 ### JSON
@@ -167,10 +462,24 @@ Pattern file format (one pattern per line, comments with `!`):
   "version": "1.0.0",
   "homepage": "https://example.com/filters",
   "license": "GPL-3.0",
+  "output": {
+    "path": "data/output/my-filter.txt",
+    "conflictStrategy": "rename"
+  },
+  "hashVerification": {
+    "mode": "strict",
+    "requireHashesForRemote": true,
+    "failOnMismatch": true
+  },
+  "archiving": {
+    "enabled": true,
+    "mode": "automatic",
+    "retentionDays": 90
+  },
   "sources": [
     {
       "name": "Local Rules",
-      "source": "rules/local.txt",
+      "source": "data/local.txt",
       "type": "adblock"
     },
     {
@@ -207,9 +516,18 @@ version: "1.0.0"
 homepage: https://example.com/filters
 license: GPL-3.0
 
+output:
+  path: data/output/my-filter.txt
+  conflictStrategy: rename
+
+archiving:
+  enabled: true
+  mode: automatic
+  retentionDays: 90
+
 sources:
   - name: Local Rules
-    source: rules/local.txt
+    source: data/local.txt
     type: adblock
 
   - name: EasyList
@@ -245,12 +563,21 @@ version = "1.0.0"
 homepage = "https://example.com/filters"
 license = "GPL-3.0"
 
+[output]
+path = "data/output/my-filter.txt"
+conflictStrategy = "rename"
+
+[archiving]
+enabled = true
+mode = "automatic"
+retentionDays = 90
+
 transformations = ["Deduplicate", "RemoveEmptyLines", "InsertFinalNewLine"]
 exclusions = ["*.google.com", "/analytics/"]
 
 [[sources]]
 name = "Local Rules"
-source = "rules/local.txt"
+source = "data/local.txt"
 type = "adblock"
 
 [[sources]]

@@ -6,11 +6,21 @@ This directory contains comprehensive documentation for the ad-blocking reposito
 
 | Document | Description |
 |----------|-------------|
+| [**Why Validation Matters**](WHY_VALIDATION_MATTERS.md) | 🔒 **Start Here** - Understand why security validation is essential |
 | [Getting Started](getting-started.md) | Installation and first steps |
 | [Configuration Reference](configuration-reference.md) | Complete configuration schema |
 | [Docker Guide](docker-guide.md) | Docker development environment |
 | [Compiler Comparison](compiler-comparison.md) | Compare TypeScript, .NET, Python, Rust compilers |
 | [Release Guide](release-guide.md) | Creating releases with automatic binary builds |
+
+## Security Documentation
+
+| Document | Description |
+|----------|-------------|
+| [**Why Validation Matters**](WHY_VALIDATION_MATTERS.md) | User-friendly explanation of validation and security (everyone should read this!) |
+| [Runtime Enforcement](RUNTIME_ENFORCEMENT.md) | Technical details on runtime validation enforcement |
+| [Validation Enforcement](VALIDATION_ENFORCEMENT.md) | CI/CD enforcement mechanisms |
+| [Security Policy](../SECURITY.md) | Security vulnerability reporting |
 
 ## Contents
 
