@@ -10,40 +10,20 @@
   },
   "sources": [
     {
-      "name": "Source 1",
-      "type": "inline",
-      "content": [
-        "! Test source 1",
-        "||ads1.example.com^",
-        "||tracker1.example.net^"
-      ]
+      "name": "AdGuard Base",
+      "source": "https://filters.adtidy.org/extension/chromium/filters/2.txt"
     },
     {
-      "name": "Source 2",
-      "type": "inline",
-      "content": [
-        "! Test source 2",
-        "||ads2.example.com^",
-        "||tracker2.example.net^"
-      ]
+      "name": "AdGuard Tracking Protection",
+      "source": "https://filters.adtidy.org/extension/chromium/filters/3.txt"
     },
     {
-      "name": "Source 3",
-      "type": "inline",
-      "content": [
-        "! Test source 3",
-        "||ads3.example.com^",
-        "||tracker3.example.net^"
-      ]
+      "name": "AdGuard Social",
+      "source": "https://filters.adtidy.org/extension/chromium/filters/4.txt"
     },
     {
-      "name": "Source 4",
-      "type": "inline",
-      "content": [
-        "! Test source 4",
-        "||ads4.example.com^",
-        "||tracker4.example.net^"
-      ]
+      "name": "AdGuard Annoyances",
+      "source": "https://filters.adtidy.org/extension/chromium/filters/14.txt"
     }
   ],
   "transformations": [

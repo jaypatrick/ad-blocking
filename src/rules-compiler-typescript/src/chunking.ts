@@ -53,13 +53,13 @@ export function shouldEnableChunking(
 ): boolean {
   const resolved = { ...DEFAULT_CHUNKING_CONFIG, ...chunkingConfig };
 
-  // If explicitly disabled, don't chunk
-  if (resolved.enabled === false) {
+  // If no sources, don't chunk
+  if (!config.sources || config.sources.length === 0) {
     return false;
   }
 
-  // If no sources, don't chunk
-  if (!config.sources || config.sources.length === 0) {
+  // If explicitly disabled, don't chunk
+  if (chunkingConfig?.enabled === false) {
     return false;
   }
 
@@ -71,7 +71,7 @@ export function shouldEnableChunking(
 
   // For 'line-count' strategy, we'd need to estimate total lines
   // For now, enable if explicitly requested
-  if (resolved.enabled === true) {
+  if (chunkingConfig?.enabled === true) {
     logger.debug('Chunking explicitly enabled in configuration');
     return true;
   }
