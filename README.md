@@ -41,6 +41,8 @@ A comprehensive multi-language toolkit for ad-blocking, network protection, and 
 
 ## Features
 
+> 🔒 **Security First**: All compilers include **mandatory validation** to protect against malicious filter lists, tampering, and man-in-the-middle attacks. [Learn why validation matters →](docs/WHY_VALIDATION_MATTERS.md)
+
 ### Rules Compilers (5 Languages)
 
 | Language | Runtime | Distribution | Key Features |
@@ -51,11 +53,14 @@ A comprehensive multi-language toolkit for ad-blocking, network protection, and 
 | **Rust** | Native binary | Cargo/Binary | Zero-runtime deps, LTO optimization |
 | **PowerShell** | PowerShell 7+ | Module | Pipeline-friendly, Pester tests |
 
-All compilers wrap [@adguard/hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler) and support:
+All compilers wrap [@adguard/hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler) with **built-in security validation** and support:
 - **All 11 transformations**: Deduplicate, Validate, RemoveComments, Compress, RemoveModifiers, etc.
 - **Multi-format config**: JSON, YAML, and TOML configuration files
 - **Source-specific settings**: Per-source transformations, inclusions, exclusions
 - **Pattern matching**: Wildcards, regex, file-based patterns
+- **🔒 SHA-384 hash verification**: Automatic tamper detection for all sources
+- **🔒 URL security validation**: HTTPS enforcement, domain validation, content verification
+- **🔒 Runtime enforcement**: Cryptographic proof that validation occurred
 
 ### AdGuard DNS API SDKs
 

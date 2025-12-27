@@ -1,5 +1,7 @@
 # Copilot Instructions for Ad-Blocking Repository
 
+> 🔒 **Security First**: All filter compilation includes mandatory validation. See [Why Validation Matters](../docs/WHY_VALIDATION_MATTERS.md) for user-friendly explanation.
+
 ## Repository Overview
 
 Multi-language toolkit for ad-blocking and AdGuard DNS management with **identical output** across all compilers. Key principle: **Four languages, one schema, same SHA-384 hash**.

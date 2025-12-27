@@ -1,5 +1,7 @@
 # Input Directory
 
+> 🔒 **Security Note**: All files in this directory are automatically validated for tampering and malicious content. [Learn why validation matters →](../../docs/WHY_VALIDATION_MATTERS.md)
+
 This directory contains local filter rule lists that will be compiled into the final output filter list.
 
 ## Purpose
