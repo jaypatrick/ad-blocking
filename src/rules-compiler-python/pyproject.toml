@@ -46,8 +46,11 @@ dev = [
 toml-export = [
     "tomlkit>=0.12.0",
 ]
+interactive = [
+    "questionary>=2.0",
+]
 all = [
-    "rules-compiler[dev,toml-export]",
+    "rules-compiler[dev,toml-export,interactive]",
 ]
 
 [project.scripts]
