@@ -479,7 +479,7 @@ deploy:production:
     - main
   script:
     - apk add --no-cache curl
-    - curl -X POST $DEPLOYMENT_WEBHOOK_URL
+    - curl -X POST $ADGUARD_WEBHOOK_URL
 ```
 
 ### Jenkins Pipeline

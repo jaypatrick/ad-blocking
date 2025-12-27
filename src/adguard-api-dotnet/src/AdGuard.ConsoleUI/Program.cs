@@ -49,19 +49,51 @@ public class Program
     /// <remarks>
     /// Configuration sources (in order of precedence, highest to lowest):
     /// <list type="number">
-    /// <item><description>Environment variables with ADGUARD_ prefix (e.g., ADGUARD_AdGuard__ApiKey)</description></item>
+    /// <item><description>Environment variables with ADGUARD_ prefix (supports both simplified and hierarchical formats)</description></item>
     /// <item><description>appsettings.json (optional)</description></item>
     /// </list>
+    /// 
+    /// Supported environment variable formats:
+    /// - Simplified format (recommended): ADGUARD_API_KEY, ADGUARD_API_BASE_URL
+    /// - Hierarchical format: ADGUARD_AdGuard__ApiKey, ADGUARD_AdGuard__BaseUrl
+    /// 
     /// Note: Double underscore (__) in environment variable names represents colon (:) in configuration keys.
     /// Example: ADGUARD_AdGuard__ApiKey maps to AdGuard:ApiKey
+    /// The simplified ADGUARD_API_KEY is automatically mapped to AdGuard:ApiKey internally.
     /// </remarks>
     private static IConfiguration BuildConfiguration()
     {
-        return new ConfigurationBuilder()
+        var builder = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-            .AddEnvironmentVariables("ADGUARD_")
-            .Build();
+            .AddEnvironmentVariables("ADGUARD_");
+
+        var config = builder.Build();
+
+        // Map simplified environment variable names to hierarchical configuration
+        // This allows ADGUARD_API_KEY to work alongside ADGUARD_AdGuard__ApiKey
+        var inMemoryConfig = new Dictionary<string, string?>();
+        
+        var apiKey = Environment.GetEnvironmentVariable("ADGUARD_API_KEY");
+        if (!string.IsNullOrWhiteSpace(apiKey))
+        {
+            inMemoryConfig["AdGuard:ApiKey"] = apiKey;
+        }
+
+        var baseUrl = Environment.GetEnvironmentVariable("ADGUARD_API_BASE_URL");
+        if (!string.IsNullOrWhiteSpace(baseUrl))
+        {
+            inMemoryConfig["AdGuard:BaseUrl"] = baseUrl;
+        }
+
+        // If we have any simplified variables, add them to configuration with higher priority
+        if (inMemoryConfig.Any())
+        {
+            builder.AddInMemoryCollection(inMemoryConfig);
+            config = builder.Build();
+        }
+
+        return config;
     }
 
     /// <summary>

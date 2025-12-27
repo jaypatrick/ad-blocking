@@ -70,10 +70,11 @@ if (import.meta.main) {
 
     const options = program.opts();
 
-    // Check for API key
-    const apiKey = Deno.env.get('LINEAR_API_KEY');
+    // Check for API key (try new format first, then fall back to legacy)
+    const apiKey = Deno.env.get('ADGUARD_LINEAR_API_KEY') || Deno.env.get('LINEAR_API_KEY');
     if (!apiKey) {
-      console.error('Error: LINEAR_API_KEY environment variable is required');
+      console.error('Error: ADGUARD_LINEAR_API_KEY environment variable is required');
+      console.error('(Legacy LINEAR_API_KEY is also supported for backward compatibility)');
       console.error('\nTo get your API key:');
       console.error('1. Go to Linear Settings > API');
       console.error('2. Create a new personal API key');
@@ -82,7 +83,7 @@ if (import.meta.main) {
     }
 
     const importConfig: ImportConfig = {
-      teamId: options['team'] || Deno.env.get('LINEAR_TEAM_ID') || '',
+      teamId: options['team'] || Deno.env.get('ADGUARD_LINEAR_TEAM_ID') || Deno.env.get('LINEAR_TEAM_ID') || '',
       projectName: options['project'] || Deno.env.get('LINEAR_PROJECT_NAME') || '',
       createProject: options['project'] !== false,
       createIssues: options['issues'] !== false,
