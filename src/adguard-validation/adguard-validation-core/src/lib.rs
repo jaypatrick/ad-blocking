@@ -43,6 +43,7 @@ pub mod file_conflict;
 pub mod config;
 pub mod error;
 pub mod validator;
+pub mod runtime_enforcement;
 
 // Re-export main types
 pub use config::{
@@ -62,6 +63,14 @@ pub use url_security::{validate_url, UrlValidationResult};
 pub use syntax::{validate_syntax, SyntaxValidationResult, FilterFormat};
 pub use archive::{create_archive, ArchiveManifest};
 pub use file_conflict::{resolve_conflict, FileConflictResolver};
+pub use runtime_enforcement::{
+    compile_with_validation,
+    verify_compilation_was_validated,
+    EnforcedCompilationResult,
+    ValidationMetadata,
+    CompilationInput,
+    CompilationOptions,
+};
 
 /// Library version.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
