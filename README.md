@@ -103,9 +103,10 @@ ad-blocking/
 │   ├── compiler-comparison.md         # Compiler comparison matrix
 │   ├── configuration-reference.md     # Configuration schema reference
 │   └── docker-guide.md                # Docker development guide
-├── rules/                             # Filter rules
-│   ├── adguard_user_filter.txt        # Main tracked filter list
-│   └── Config/                        # Compiler configurations
+├── data/                              # Filter rules and data
+│   ├── output/                        # Compiled filter output
+│   │   └── adguard_user_filter.txt    # Main tracked filter list
+│   └── Config/                        # Compiler configurations (optional)
 ├── src/                               # Source code
 │   ├── rules-compiler-typescript/     # TypeScript/Node.js compiler
 │   ├── rules-compiler-dotnet/         # C#/.NET 10 compiler

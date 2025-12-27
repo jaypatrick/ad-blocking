@@ -5,7 +5,7 @@
 Multi-language toolkit for ad-blocking and AdGuard DNS management with **identical output** across all compilers. Key principle: **Four languages, one schema, same SHA-384 hash**.
 
 **Components**:
-- **Filter Rules**: AdGuard filter lists (`rules/adguard_user_filter.txt`)
+- **Filter Rules**: AdGuard filter lists (`data/output/adguard_user_filter.txt`)
 - **API Client**: C# SDK for AdGuard DNS API v1.11 with Polly resilience
 - **Rules Compilers**: TypeScript, C#, Python, Rust - all produce identical output
 - **ConsoleUI**: Spectre.Console menu-driven interface with DI architecture
@@ -36,7 +36,8 @@ Program.cs → ConsoleApplication → [DeviceMenu, DnsServerMenu, StatisticsMenu
 ad-blocking/
 ├── .github/              # GitHub configuration and workflows
 ├── docs/                 # Documentation (API docs, guides)
-├── rules/                # Filter rules and compilation configs
+├── data/                  # Filter rules and compilation data
+│   └── output/            # Compiled filter output
 ├── src/
 │   ├── adguard-api-dotnet/         # C# AdGuard DNS API client
 │   ├── rules-compiler-typescript/  # TypeScript rules compiler
@@ -53,7 +54,7 @@ ad-blocking/
 ## Critical Workflows
 
 ### Compiling Filter Rules (Core Workflow)
-**Goal**: Generate `rules/adguard_user_filter.txt` with verified output
+**Goal**: Generate `data/output/adguard_user_filter.txt` with verified output
 
 ```bash
 # TypeScript (primary method)
@@ -303,7 +304,7 @@ pwsh -Command "Invoke-ScriptAnalyzer -Path . -Recurse"
 
 ### Filter Rules Security
 - Validate sources before adding to `sources[]` in config
-- Test rule changes locally before committing to `rules/adguard_user_filter.txt`
+- Test rule changes locally before committing to `data/output/adguard_user_filter.txt`
 - Rules deployed to AdGuard DNS affect real traffic filtering
 - Be cautious when adding rules from untrusted sources
 - Validate and test new filter rules before deployment
@@ -343,7 +344,7 @@ All compilers return/output:
 Supports 3 formats (JSON/YAML/TOML), mirrors `@adguard/hostlist-compiler`:
 ```json
 {
-  "output": "rules/adguard_user_filter.txt",
+  "output": "data/output/adguard_user_filter.txt",
   "sources": [
     { "url": "https://example.com/list.txt", "transformations": ["RemoveComments"] }
   ],
@@ -450,7 +451,7 @@ cd src/rules-compiler-rust && cargo test
 
 | File/Folder | Purpose | When to Modify |
 |-------------|---------|----------------|
-| `rules/adguard_user_filter.txt` | **Production filter list** | After successful compilation and testing |
+| `data/output/adguard_user_filter.txt` | **Production filter list** | After successful compilation and testing |
 | `src/rules-compiler-typescript/compiler-config.json` | **Primary config** for rule compilation | To change filter sources or transformations |
 | `api/openapi.yaml` | AdGuard DNS API spec (v1.11) | Never (upstream dependency) |
 | `src/adguard-api-dotnet/src/AdGuard.ApiClient/` | **Auto-generated** API client | Never (regenerate from spec instead) |

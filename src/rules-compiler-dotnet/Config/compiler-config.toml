@@ -47,7 +47,7 @@ exclusions_sources = []
 
 [[sources]]
 name = "Local User Rules"
-source = "rules/adguard_user_filter.txt"
+source = "data/output/adguard_user_filter.txt"
 # Type: "adblock" (default) or "hosts"
 type = "adblock"
 # Source-specific transformations

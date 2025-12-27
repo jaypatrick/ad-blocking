@@ -61,7 +61,7 @@ public class UserRulesMenuService : BaseMenuService
 
         // Get file path from user
         var filePath = AnsiConsole.Ask<string>(
-            "Enter path to [green]rules file[/] (or 'default' for rules/adguard_user_filter.txt):");
+            "Enter path to [green]rules file[/] (or 'default' for data/output/adguard_user_filter.txt):");
 
         if (filePath.Equals("default", StringComparison.OrdinalIgnoreCase))
         {
@@ -223,11 +223,11 @@ public class UserRulesMenuService : BaseMenuService
         // Try to find the default rules file relative to the current directory
         var candidates = new[]
         {
-            "rules/adguard_user_filter.txt",
-            "../rules/adguard_user_filter.txt",
-            "../../rules/adguard_user_filter.txt",
-            "../../../rules/adguard_user_filter.txt",
-            "../../../../rules/adguard_user_filter.txt"
+            "data/output/adguard_user_filter.txt",
+            "../data/output/adguard_user_filter.txt",
+            "../../data/output/adguard_user_filter.txt",
+            "../../../data/output/adguard_user_filter.txt",
+            "../../../../data/output/adguard_user_filter.txt"
         };
 
         foreach (var candidate in candidates)
@@ -240,6 +240,6 @@ public class UserRulesMenuService : BaseMenuService
         }
 
         // Return the most likely path even if it doesn't exist
-        return Path.GetFullPath("rules/adguard_user_filter.txt");
+        return Path.GetFullPath("data/output/adguard_user_filter.txt");
     }
 }

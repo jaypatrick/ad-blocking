@@ -170,7 +170,7 @@ Pattern file format (one pattern per line, comments with `!`):
   "sources": [
     {
       "name": "Local Rules",
-      "source": "rules/local.txt",
+      "source": "data/local.txt",
       "type": "adblock"
     },
     {
@@ -209,7 +209,7 @@ license: GPL-3.0
 
 sources:
   - name: Local Rules
-    source: rules/local.txt
+    source: data/local.txt
     type: adblock
 
   - name: EasyList
@@ -250,7 +250,7 @@ exclusions = ["*.google.com", "/analytics/"]
 
 [[sources]]
 name = "Local Rules"
-source = "rules/local.txt"
+source = "data/local.txt"
 type = "adblock"
 
 [[sources]]

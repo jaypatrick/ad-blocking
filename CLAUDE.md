@@ -290,8 +290,8 @@ cargo test config::                       # Tests in module
 
 ## Architecture
 
-### Filter Rules (`rules/`)
-- `rules/adguard_user_filter.txt` - Main tracked filter list consumed by AdGuard DNS
+### Filter Rules (`data/output/`)
+- `data/output/adguard_user_filter.txt` - Main tracked filter list consumed by AdGuard DNS
 
 ### Rules Compiler - TypeScript (`src/rules-compiler-typescript/`)
 - TypeScript wrapper around @adguard/hostlist-compiler
@@ -469,7 +469,7 @@ GitHub Actions workflows validate:
 
 ## Key File Locations
 
-- **Main filter list**: `rules/adguard_user_filter.txt`
+- **Main filter list**: `data/output/adguard_user_filter.txt`
 - **Compiler configs**: `src/rules-compiler-*/`
 - **Deno configs**: `src/*/deno.json`
 - **OpenAPI spec**: `api/openapi.yaml`

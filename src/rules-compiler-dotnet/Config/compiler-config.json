@@ -8,7 +8,7 @@
   "sources": [
     {
       "name": "Local User Rules",
-      "source": "rules/adguard_user_filter.txt",
+      "source": "data/output/adguard_user_filter.txt",
       "type": "adblock",
       "transformations": [],
       "inclusions": [],

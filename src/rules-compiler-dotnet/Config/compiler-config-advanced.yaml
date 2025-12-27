@@ -37,7 +37,7 @@ sources:
 
   # Local custom rules
   - name: "Custom Rules"
-    source: "rules/custom-rules.txt"
+    source: "data/custom-rules.txt"
     type: "adblock"
     # No source-specific transformations
     transformations: []

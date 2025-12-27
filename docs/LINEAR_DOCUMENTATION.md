@@ -44,7 +44,7 @@ A comprehensive, multi-component ad-blocking solution designed for network-level
 
 ## Components
 
-### 1. Filter Rules (`/rules/`)
+### 1. Filter Rules (`/data/output/`)
 
 **Purpose:** Core blocking lists and configuration for ad, tracker, and malware domains.
 
@@ -87,7 +87,7 @@ A comprehensive, multi-component ad-blocking solution designed for network-level
 - Whitespace cleanup
 
 **Configuration Sources:**
-- Local: `../../rules/adguard_user_filter.txt`
+- Local: `../../data/output/adguard_user_filter.txt`
 - Remote: GitHub-hosted filter lists
 
 ---
@@ -188,7 +188,8 @@ ad-blocking/
 │   ├── README.md            # Documentation index
 │   ├── api/                 # Auto-generated API docs
 │   └── guides/              # Usage guides
-├── rules/
+├── data/
+│   └── output/
 │   ├── adguard_user_filter.txt  # Main filter list
 │   ├── Api/                 # Rules compilation API
 │   └── Config/              # Configuration utilities
@@ -340,7 +341,7 @@ Invoke-Pester
 ```json
 {
   "sources": {
-    "local": "../../rules/adguard_user_filter.txt",
+    "local": "../../data/output/adguard_user_filter.txt",
     "remote": "https://github.com/..."
   },
   "transformations": [
