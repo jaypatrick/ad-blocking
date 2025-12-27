@@ -268,7 +268,7 @@ Maintainers can verify compliance with:
 
 ```bash
 # Run compliance check across all compilers
-./scripts/check-validation-compliance.sh
+./tools/check-validation-compliance.sh
 
 # Expected output:
 # ✓ TypeScript: Validation library integrated
