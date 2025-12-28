@@ -33,7 +33,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 # Copy and build only what you need
 WORKDIR /app
 COPY src/ ./src/
-COPY rules/ ./rules/
+COPY data/ ./data/
 
 # Build specific component
 RUN cd src/rules-compiler-dotnet && dotnet publish -c Release -o /app/out
@@ -411,14 +411,14 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: compiled-rules
-          path: rules/adguard_user_filter.txt
+          path: data/output/adguard_user_filter.txt
       
       - name: Create Release
         if: github.event_name == 'schedule'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: rules-${{ github.run_number }}
-          files: rules/adguard_user_filter.txt
+          files: data/output/adguard_user_filter.txt
 ```
 
 ### GitLab CI/CD
@@ -479,7 +479,7 @@ deploy:production:
     - main
   script:
     - apk add --no-cache curl
-    - curl -X POST $DEPLOYMENT_WEBHOOK_URL
+    - curl -X POST $ADGUARD_WEBHOOK_URL
 ```
 
 ### Jenkins Pipeline

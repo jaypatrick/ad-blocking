@@ -8,7 +8,7 @@ use std::path::PathBuf;
 use std::process::ExitCode;
 
 use rules_compiler::{
-    CompileOptions, ConfigFormat, RulesCompiler, VersionInfo, read_config, VERSION,
+    read_config, CompileOptions, ConfigFormat, RulesCompiler, VersionInfo, VERSION,
 };
 
 /// AdGuard Filter Rules Compiler - Rust CLI
@@ -16,9 +16,11 @@ use rules_compiler::{
 #[command(name = "rules-compiler")]
 #[command(version = VERSION)]
 #[command(about = "Compile AdGuard filter rules using hostlist-compiler")]
-#[command(long_about = "A high-performance Rust CLI for compiling AdGuard filter rules.\n\n\
+#[command(
+    long_about = "A high-performance Rust CLI for compiling AdGuard filter rules.\n\n\
     Supports JSON, YAML, and TOML configuration formats.\n\
-    Can run in direct mode with arguments or interactive menu mode.")]
+    Can run in direct mode with arguments or interactive menu mode."
+)]
 struct Cli {
     #[command(subcommand)]
     command: Option<Commands>,
@@ -55,6 +57,10 @@ enum Commands {
         /// Validate configuration before compiling
         #[arg(long)]
         validate: bool,
+
+        /// Fail compilation on validation warnings
+        #[arg(long)]
+        fail_on_warnings: bool,
     },
     /// Show configuration details without compiling
     Config,
@@ -167,11 +173,13 @@ fn run_compile(
     format: Option<ConfigFormat>,
     debug: bool,
     validate: bool,
+    fail_on_warnings: bool,
 ) -> ExitCode {
     let options = CompileOptions::new()
         .with_copy_to_rules(copy_to_rules)
         .with_debug(debug)
-        .with_validation(validate);
+        .with_validation(validate)
+        .with_fail_on_warnings(fail_on_warnings);
 
     let options = if let Some(path) = output {
         options.with_output(path)
@@ -201,7 +209,10 @@ fn run_compile(
                 println!("  ✓ Compilation successful!");
                 println!();
                 println!("  Results:");
-                println!("    Filter:     {} v{}", result.config_name, result.config_version);
+                println!(
+                    "    Filter:     {} v{}",
+                    result.config_name, result.config_version
+                );
                 println!("    Rules:      {}", result.rule_count);
                 println!("    Output:     {}", result.output_path_str());
                 println!("    Hash:       {}...", result.hash_short());
@@ -241,16 +252,82 @@ fn run_compile(
     }
 }
 
-/// Find default configuration file.
+/// Find default configuration file by searching current and ancestor directories.
+///
+/// Search strategy:
+/// 1. Check current directory for compiler-config.{json,yaml,toml}
+/// 2. Check src/rules-compiler-typescript/compiler-config.json (repository-specific)
+/// 3. Traverse up parent directories looking for compiler-config.{json,yaml,toml}
+///
+/// This mimics the behavior of tools like git, eslint, and prettier.
 fn find_default_config() -> Option<PathBuf> {
-    let search_paths = [
+    // First, try current directory with all formats
+    let current_dir_paths = [
         PathBuf::from("compiler-config.json"),
         PathBuf::from("compiler-config.yaml"),
         PathBuf::from("compiler-config.toml"),
         PathBuf::from("src/rules-compiler-typescript/compiler-config.json"),
     ];
 
-    search_paths.into_iter().find(|path| path.exists())
+    for path in &current_dir_paths {
+        if path.exists() {
+            return Some(path.clone());
+        }
+    }
+
+    // Then, traverse up parent directories
+    find_config_in_ancestors()
+}
+
+/// Search for configuration file in ancestor directories.
+///
+/// Starts from the current directory and walks up the directory tree,
+/// looking for compiler-config.{json,yaml,toml} files.
+fn find_config_in_ancestors() -> Option<PathBuf> {
+    let current = std::env::current_dir().ok()?;
+    let config_names = [
+        "compiler-config.json",
+        "compiler-config.yaml",
+        "compiler-config.toml",
+    ];
+
+    let mut dir = current.as_path();
+
+    // Walk up the directory tree
+    loop {
+        for config_name in &config_names {
+            let config_path = dir.join(config_name);
+            if config_path.exists() && config_path.is_file() {
+                return Some(config_path);
+            }
+        }
+
+        // Move to parent directory
+        dir = dir.parent()?;
+    }
+}
+
+/// Display helpful error message when no configuration file is found.
+fn print_config_not_found_error() {
+    eprintln!("[ERROR] No configuration file specified or found.");
+    eprintln!();
+    eprintln!("Searched for configuration files:");
+    eprintln!("  - compiler-config.json");
+    eprintln!("  - compiler-config.yaml");
+    eprintln!("  - compiler-config.toml");
+    eprintln!("  - src/rules-compiler-typescript/compiler-config.json");
+    eprintln!();
+
+    if let Ok(current_dir) = std::env::current_dir() {
+        eprintln!("Search started from: {}", current_dir.display());
+        eprintln!("Also checked all parent directories up to filesystem root.");
+        eprintln!();
+    }
+
+    eprintln!("Solutions:");
+    eprintln!("  1. Use -c/--config to specify a configuration file");
+    eprintln!("  2. Create a compiler-config.json in the current or parent directory");
+    eprintln!("  3. Use -i/--interactive for menu mode");
 }
 
 /// Interactive menu loop.
@@ -314,7 +391,25 @@ fn run_interactive_menu(initial_config: Option<PathBuf>) -> ExitCode {
                         .interact()
                         .unwrap_or(true);
 
-                    run_compile(path, None, copy_to_rules, None, false, validate);
+                    let fail_on_warnings = if validate {
+                        Confirm::with_theme(&theme)
+                            .with_prompt("Fail compilation on validation warnings?")
+                            .default(false)
+                            .interact()
+                            .unwrap_or(false)
+                    } else {
+                        false
+                    };
+
+                    run_compile(
+                        path,
+                        None,
+                        copy_to_rules,
+                        None,
+                        false,
+                        validate,
+                        fail_on_warnings,
+                    );
                 } else {
                     eprintln!("  No configuration file selected.");
                     eprintln!("  Use 'Change Configuration File' to select one.");
@@ -389,27 +484,20 @@ fn main() -> ExitCode {
             let config_path = match cli.config.or_else(find_default_config) {
                 Some(path) => path,
                 None => {
-                    eprintln!("[ERROR] No configuration file specified or found.");
-                    eprintln!("Use -c/--config to specify a configuration file.");
+                    print_config_not_found_error();
                     return ExitCode::FAILURE;
                 }
             };
             show_config(&config_path, format)
         }
-        Some(Commands::Compile { validate }) => {
+        Some(Commands::Compile {
+            validate,
+            fail_on_warnings,
+        }) => {
             let config_path = match cli.config.or_else(find_default_config) {
                 Some(path) => path,
                 None => {
-                    eprintln!("[ERROR] No configuration file specified or found.");
-                    eprintln!();
-                    eprintln!("Searched for:");
-                    eprintln!("  - compiler-config.json");
-                    eprintln!("  - compiler-config.yaml");
-                    eprintln!("  - compiler-config.toml");
-                    eprintln!("  - src/rules-compiler-typescript/compiler-config.json");
-                    eprintln!();
-                    eprintln!("Use -c/--config to specify a configuration file,");
-                    eprintln!("or -i/--interactive for menu mode.");
+                    print_config_not_found_error();
                     return ExitCode::FAILURE;
                 }
             };
@@ -421,22 +509,14 @@ fn main() -> ExitCode {
                 format,
                 cli.debug,
                 validate,
+                fail_on_warnings,
             )
         }
         None => {
             let config_path = match cli.config.or_else(find_default_config) {
                 Some(path) => path,
                 None => {
-                    eprintln!("[ERROR] No configuration file specified or found.");
-                    eprintln!();
-                    eprintln!("Searched for:");
-                    eprintln!("  - compiler-config.json");
-                    eprintln!("  - compiler-config.yaml");
-                    eprintln!("  - compiler-config.toml");
-                    eprintln!("  - src/rules-compiler-typescript/compiler-config.json");
-                    eprintln!();
-                    eprintln!("Use -c/--config to specify a configuration file,");
-                    eprintln!("or -i/--interactive for menu mode.");
+                    print_config_not_found_error();
                     return ExitCode::FAILURE;
                 }
             };
@@ -447,6 +527,7 @@ fn main() -> ExitCode {
                 cli.copy_to_rules,
                 format,
                 cli.debug,
+                false,
                 false,
             )
         }

@@ -25,23 +25,28 @@ impl Default for AppConfig {
 
 impl AppConfig {
     /// Load configuration from file, environment variables, and CLI args
-    /// 
-    /// Supports multiple environment variable naming conventions for compatibility:
-    /// - Legacy format: ADGUARD_API_URL, ADGUARD_API_TOKEN
-    /// - .NET-compatible format: ADGUARD_AdGuard__BaseUrl, ADGUARD_AdGuard__ApiKey
+    ///
+    /// Supports multiple environment variable naming conventions for backward compatibility:
+    /// - Standard format: ADGUARD_API_KEY, ADGUARD_API_BASE_URL (recommended, tried first)
+    /// - Legacy .NET format: ADGUARD_AdGuard__ApiKey, ADGUARD_AdGuard__BaseUrl (backward compatibility)
+    /// - Legacy Rust format: ADGUARD_API_TOKEN, ADGUARD_API_URL (backward compatibility)
     pub fn load() -> Result<Self> {
         let mut config = Self::load_from_file().unwrap_or_default();
 
         // Override with environment variables
-        // Try .NET-compatible format first (ADGUARD_AdGuard__BaseUrl), then legacy format
-        if let Ok(url) = std::env::var("ADGUARD_AdGuard__BaseUrl") {
+        // Try standardized format first, then .NET format, then legacy format
+        if let Ok(url) = std::env::var("ADGUARD_API_BASE_URL") {
+            config.api_url = url;
+        } else if let Ok(url) = std::env::var("ADGUARD_AdGuard__BaseUrl") {
             config.api_url = url;
         } else if let Ok(url) = std::env::var("ADGUARD_API_URL") {
             config.api_url = url;
         }
-        
-        // Try .NET-compatible format first (ADGUARD_AdGuard__ApiKey), then legacy format
-        if let Ok(token) = std::env::var("ADGUARD_AdGuard__ApiKey") {
+
+        // Try standardized format first, then .NET format, then legacy format
+        if let Ok(token) = std::env::var("ADGUARD_API_KEY") {
+            config.api_token = Some(token);
+        } else if let Ok(token) = std::env::var("ADGUARD_AdGuard__ApiKey") {
             config.api_token = Some(token);
         } else if let Ok(token) = std::env::var("ADGUARD_API_TOKEN") {
             config.api_token = Some(token);
@@ -67,7 +72,7 @@ impl AppConfig {
     /// Save configuration to file
     pub fn save(&self) -> Result<()> {
         let config_path = Self::config_path()?;
-        
+
         // Create parent directory if it doesn't exist
         if let Some(parent) = config_path.parent() {
             std::fs::create_dir_all(parent)?;
@@ -82,8 +87,7 @@ impl AppConfig {
 
     /// Get the path to the configuration file
     fn config_path() -> Result<PathBuf> {
-        let config_dir = dirs::config_dir()
-            .context("Failed to determine config directory")?;
+        let config_dir = dirs::config_dir().context("Failed to determine config directory")?;
         Ok(config_dir.join("adguard-api-cli").join("config.toml"))
     }
 
@@ -101,7 +105,7 @@ impl AppConfig {
     pub fn get_token(&self) -> Result<&str> {
         self.api_token
             .as_deref()
-            .context("API token not configured. Set ADGUARD_AdGuard__ApiKey (or ADGUARD_API_TOKEN) environment variable or run settings menu.")
+            .context("API token not configured. Set ADGUARD_API_KEY environment variable or run settings menu.")
     }
 }
 
@@ -111,12 +115,15 @@ mod tests {
 
     // Note: These tests modify environment variables which can cause issues
     // when run in parallel. Run with `cargo test -- --test-threads=1` if needed.
-    
+
     #[test]
     fn test_config_dotnet_compatible_env_vars() {
         // Set .NET-compatible environment variables
         unsafe {
-            std::env::set_var("TEST_ADGUARD_AdGuard__BaseUrl", "https://custom.api.example.com");
+            std::env::set_var(
+                "TEST_ADGUARD_AdGuard__BaseUrl",
+                "https://custom.api.example.com",
+            );
             std::env::set_var("TEST_ADGUARD_AdGuard__ApiKey", "test-dotnet-token");
         }
 
@@ -156,6 +163,9 @@ mod tests {
         let config = AppConfig::default();
         let result = config.get_token();
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("API token not configured"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("API token not configured"));
     }
 }

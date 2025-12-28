@@ -18,7 +18,9 @@ pub enum CompilerError {
     },
 
     /// The configuration file extension is not recognized.
-    #[error("unknown configuration file extension '.{extension}' (expected: .json, .yaml, .yml, .toml)")]
+    #[error(
+        "unknown configuration file extension '.{extension}' (expected: .json, .yaml, .yml, .toml)"
+    )]
     UnknownExtension {
         /// The unrecognized extension.
         extension: String,
@@ -62,7 +64,9 @@ pub enum CompilerError {
     },
 
     /// The hostlist-compiler tool was not found.
-    #[error("hostlist-compiler not found (install with: npm install -g @adguard/hostlist-compiler)")]
+    #[error(
+        "hostlist-compiler not found (install with: npm install -g @adguard/hostlist-compiler)"
+    )]
     CompilerNotFound,
 
     /// Compilation process failed.

@@ -56,7 +56,7 @@ All scripts support the following environment variables:
 |----------|-------------|---------|
 | `ADGUARD_COMPILER_CONFIG` | Path to configuration file | `compiler-config.json` |
 | `ADGUARD_COMPILER_OUTPUT` | Output file path | `output/compiled-{timestamp}.txt` |
-| `ADGUARD_COMPILER_RULES_DIR` | Rules directory for copying | `../../rules` |
+| `ADGUARD_COMPILER_RULES_DIR` | Rules directory for copying | `../../data` |
 | `ADGUARD_COMPILER_FORMAT` | Force config format (json/yaml/toml) | Auto-detect |
 | `ADGUARD_COMPILER_VERBOSE` | Enable verbose output (1/true) | `false` |
 | `ADGUARD_COMPILER_COPY_TO_RULES` | Auto-copy to rules dir (1/true) | `false` |
@@ -114,7 +114,7 @@ export ADGUARD_COMPILER_COPY_TO_RULES=true
 ### Example 3: Use Environment Variables
 ```bash
 export ADGUARD_COMPILER_CONFIG="production-config.yaml"
-export ADGUARD_COMPILER_OUTPUT="/var/www/rules/filter.txt"
+export ADGUARD_COMPILER_OUTPUT="/var/www/data/output/filter.txt"
 export ADGUARD_COMPILER_COPY_TO_RULES=true
 
 ./compile-rules.sh

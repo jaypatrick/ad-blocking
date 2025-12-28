@@ -38,8 +38,21 @@ cargo run -- -d -c ../filter-compiler/compiler-config.json
 
 ## CLI Usage
 
+### Configuration File Discovery
+
+The compiler automatically searches for configuration files in the following order:
+
+1. **Explicit path**: If `-c/--config` is provided, uses that file
+2. **Current directory**: Looks for `compiler-config.{json,yaml,toml}`
+3. **Repository-specific path**: `src/rules-compiler-typescript/compiler-config.json`
+4. **Parent directories**: Traverses up the directory tree looking for `compiler-config.{json,yaml,toml}` (like git)
+
+This means you can run the compiler from any subdirectory and it will find the nearest configuration file in the directory hierarchy.
+
+### Examples
+
 ```bash
-# Use default config
+# Use default config (auto-discovery)
 rules-compiler
 
 # Use specific configuration file
@@ -52,13 +65,22 @@ rules-compiler -c config.json -r
 rules-compiler -V
 
 # Show configuration only
-rules-compiler -c config.yaml --show-config
+rules-compiler config
+
+# Interactive menu mode
+rules-compiler -i
 
 # Enable debug output
 rules-compiler -c config.yaml -d
 
 # Show help
 rules-compiler --help
+
+# Validate configuration before compiling
+rules-compiler compile --validate
+
+# Fail on validation warnings
+rules-compiler compile --validate --fail-on-warnings
 ```
 
 ### CLI Options
@@ -71,8 +93,15 @@ rules-compiler --help
 | `--format FORMAT` | `-f` | Force format (json, yaml, toml) |
 | `--version-info` | `-V` | Show version information |
 | `--debug` | `-d` | Enable debug output |
-| `--show-config` | | Show configuration only |
+| `--interactive` | `-i` | Run in interactive mode |
 | `--help` | `-h` | Show help message |
+
+### Compile Subcommand Options
+
+| Option | Description |
+|--------|-------------|
+| `--validate` | Validate configuration before compiling |
+| `--fail-on-warnings` | Fail compilation if configuration has validation warnings |
 
 ## Library Usage
 

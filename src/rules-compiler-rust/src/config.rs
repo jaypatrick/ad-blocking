@@ -352,7 +352,10 @@ impl CompilerConfig {
 /// # Errors
 ///
 /// Returns an error if the file doesn't exist, can't be read, or has invalid syntax.
-pub fn read_config<P: AsRef<Path>>(path: P, format: Option<ConfigFormat>) -> Result<CompilerConfig> {
+pub fn read_config<P: AsRef<Path>>(
+    path: P,
+    format: Option<ConfigFormat>,
+) -> Result<CompilerConfig> {
     let path = path.as_ref();
 
     if !path.exists() {
@@ -412,10 +415,22 @@ mod tests {
 
     #[test]
     fn test_config_format_from_extension() {
-        assert_eq!(ConfigFormat::from_extension("json").unwrap(), ConfigFormat::Json);
-        assert_eq!(ConfigFormat::from_extension("yaml").unwrap(), ConfigFormat::Yaml);
-        assert_eq!(ConfigFormat::from_extension("yml").unwrap(), ConfigFormat::Yaml);
-        assert_eq!(ConfigFormat::from_extension("toml").unwrap(), ConfigFormat::Toml);
+        assert_eq!(
+            ConfigFormat::from_extension("json").unwrap(),
+            ConfigFormat::Json
+        );
+        assert_eq!(
+            ConfigFormat::from_extension("yaml").unwrap(),
+            ConfigFormat::Yaml
+        );
+        assert_eq!(
+            ConfigFormat::from_extension("yml").unwrap(),
+            ConfigFormat::Yaml
+        );
+        assert_eq!(
+            ConfigFormat::from_extension("toml").unwrap(),
+            ConfigFormat::Toml
+        );
         assert!(ConfigFormat::from_extension("txt").is_err());
     }
 

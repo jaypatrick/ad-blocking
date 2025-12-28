@@ -41,6 +41,12 @@ rules-compiler -c config.yaml -d
 
 # Show help
 rules-compiler -h
+
+# Disable validation before compilation
+rules-compiler -c config.yaml --no-validate-config
+
+# Fail on validation warnings
+rules-compiler -c config.yaml --fail-on-warnings
 ```
 
 ### CLI Options
@@ -53,11 +59,15 @@ rules-compiler -h
 | `--format FORMAT` | `-f` | Force format (json, yaml, toml) |
 | `--version` | `-v` | Show version information |
 | `--debug` | `-d` | Enable debug output |
+| `--validate` | | Validate configuration only (no compilation) |
+| `--validate-config` | | Enable configuration validation before compilation (default: true) |
+| `--no-validate-config` | | Disable configuration validation before compilation |
+| `--fail-on-warnings` | | Fail compilation if configuration has validation warnings |
 | `--help` | `-h` | Show help message |
 
 ## Python API
 
-### Basic Usage
+### Basic Usage (Synchronous)
 
 ```python
 from rules_compiler import RulesCompiler
@@ -74,6 +84,92 @@ if result.success:
 else:
     print(f"Error: {result.error_message}")
 ```
+
+### Async/Await Usage (Python 3.9+)
+
+The Python compiler now supports asynchronous operations for better performance in I/O-bound scenarios:
+
+```python
+import asyncio
+from rules_compiler import RulesCompiler
+
+async def main():
+    compiler = RulesCompiler()
+    
+    # Use async API for better performance
+    result = await compiler.compile_async(
+        "compiler-config.yaml",
+        copy_to_rules=True
+    )
+    
+    if result.success:
+        print(f"Compiled {result.rule_count} rules")
+        print(f"Hash: {result.hash_short()}")
+        print(f"Time: {result.elapsed_formatted()}")
+
+# Run async function
+asyncio.run(main())
+```
+
+### Parallel Processing with Async
+
+Compile multiple configurations in parallel:
+
+```python
+import asyncio
+from rules_compiler import compile_rules_async
+
+async def compile_all():
+    configs = ["config1.yaml", "config2.yaml", "config3.yaml"]
+    
+    # Compile all configurations in parallel
+    tasks = [compile_rules_async(config) for config in configs]
+    results = await asyncio.gather(*tasks)
+    
+    for result in results:
+        if result.success:
+            print(f"{result.config_name}: {result.rule_count} rules")
+        else:
+            print(f"Failed: {result.error_message}")
+
+asyncio.run(compile_all())
+```
+
+### Async File Operations
+
+Use async functions for file operations:
+
+```python
+import asyncio
+from rules_compiler import count_rules_async, compute_hash_async
+
+async def analyze_file(path):
+    # Count rules and compute hash in parallel
+    count, hash_value = await asyncio.gather(
+        count_rules_async(path),
+        compute_hash_async(path)
+    )
+    
+    print(f"File: {path}")
+    print(f"Rules: {count}")
+    print(f"Hash: {hash_value[:32]}...")
+
+asyncio.run(analyze_file("rules.txt"))
+```
+
+### Performance Considerations
+
+- **Async APIs** are recommended for:
+  - Large file operations
+  - Processing multiple configurations
+  - Integration with async frameworks (FastAPI, aiohttp, etc.)
+  
+- **Sync APIs** are simpler for:
+  - Single compilation tasks
+  - Simple scripts
+  - Interactive use
+
+**Note**: The async APIs require the `aiofiles` package for optimal performance. If not installed, they will fall back to running sync operations in a thread pool.
 
 ### Reading Configuration
 

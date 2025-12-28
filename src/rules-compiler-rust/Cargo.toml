@@ -1,14 +1,14 @@
 [package]
 name = "rules-compiler"
-version = "1.0.0"
-edition = "2024"
-authors = ["jaypatrick"]
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
 description = "Rust API for compiling AdGuard filter rules using hostlist-compiler"
-license = "GPL-3.0"
-repository = "https://github.com/jaypatrick/ad-blocking"
 keywords = ["adguard", "filter", "adblock", "hostlist", "compiler"]
 categories = ["command-line-utilities", "web-programming"]
-rust-version = "1.85"
+rust-version.workspace = true
 
 [lib]
 name = "rules_compiler"
@@ -19,53 +19,38 @@ name = "rules-compiler"
 path = "src/main.rs"
 
 [dependencies]
+# Async runtime
+tokio = { workspace = true, features = ["fs", "process", "io-util"] }
+
 # Serialization
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-serde_yaml = "0.9"
-toml = "0.8"
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_yaml = { workspace = true }
+toml = { workspace = true }
 
 # CLI
-clap = { version = "4.5", features = ["derive"] }
-dialoguer = "0.11"
+clap = { workspace = true }
+dialoguer = { workspace = true }
 
 # Error handling
-thiserror = "2.0"
+thiserror = { workspace = true }
 
 # Hashing
-sha2 = "0.10"
-hex = "0.4"
+sha2 = { workspace = true }
+hex = { workspace = true }
 
 # Cross-platform
-which = "7.0"
+which = { workspace = true }
 
 # Time
-chrono = { version = "0.4", features = ["serde"] }
+chrono = { workspace = true }
 
 # UUID for temp files
-uuid = { version = "1.11", features = ["v4"] }
+uuid = { workspace = true }
 
 # Rust version at runtime
-rustc_version_runtime = "0.3"
+rustc_version_runtime = { workspace = true }
 
 [dev-dependencies]
-tempfile = "3.14"
-
-[profile.release]
-lto = true
-codegen-units = 1
-strip = true
-panic = "abort"
-opt-level = 3
-
-[profile.dev]
-opt-level = 0
-debug = true
-
-[lints.rust]
-unsafe_code = "forbid"
-
-[lints.clippy]
-all = "warn"
-pedantic = "warn"
-nursery = "warn"
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["test-util", "macros"] }

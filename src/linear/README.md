@@ -37,9 +37,9 @@ cd src/linear
 
 3. Edit `.env` with your configuration:
    ```env
-   LINEAR_API_KEY=lin_api_your_key_here
-   LINEAR_TEAM_ID=optional_team_id
-   LINEAR_PROJECT_NAME=Ad-Blocking Documentation
+   ADGUARD_LINEAR_API_KEY=lin_api_your_key_here
+   ADGUARD_LINEAR_TEAM_ID=optional_team_id
+   ADGUARD_LINEAR_PROJECT_NAME=Ad-Blocking Documentation
    ```
 
 ## Usage
@@ -107,7 +107,7 @@ Becomes:
 
 Each documented component creates a detailed documentation issue:
 
-- Filter Rules (`/rules/`)
+- Filter Rules (`/data/output/`)
 - Rules Compiler TypeScript (`/src/rules-compiler-typescript/`)
 - API Client (`/src/adguard-api-dotnet/`)
 - etc.
@@ -153,13 +153,15 @@ deno run --allow-read --allow-write --allow-env --allow-net src/mod.ts --help
 
 ## Troubleshooting
 
-### "LINEAR_API_KEY environment variable is required"
+### "ADGUARD_LINEAR_API_KEY environment variable is required"
 
 Ensure you've created a `.env` file with your API key:
 ```bash
 cp .env.example .env
 # Edit .env and add your API key
 ```
+
+Note: The legacy `LINEAR_API_KEY` is also supported for backward compatibility.
 
 ### "No teams found in Linear workspace"
 
@@ -172,6 +174,30 @@ Check that your API key has permissions to create projects. You may need to use 
 ### Rate Limiting
 
 Linear has API rate limits. If you encounter rate limiting issues, wait a few minutes and try again.
+
+## Type Definitions
+
+This project uses Deno, which works with TypeScript natively. For compatibility with other tools or for publishing, type definition files (`.d.ts`) can be generated using:
+
+```bash
+deno task generate:types
+```
+
+The generated files are placed in the `dist/` directory and re-export all types from the source files.
+
+**Note**: The `.d.ts` files are automatically generated and should not be edited manually. They are excluded from version control.
+
+### Available Tasks
+
+- `deno task import` - Import issues from markdown
+- `deno task import:docs` - Import from LINEAR_DOCUMENTATION.md
+- `deno task import:dry-run` - Dry run import
+- `deno task cli` - Run the CLI
+- `deno task test` - Run tests
+- `deno task check` - Type check the code
+- `deno task lint` - Lint the code
+- `deno task fmt` - Format the code
+- `deno task generate:types` - Generate `.d.ts` type definition files
 
 ## License
 

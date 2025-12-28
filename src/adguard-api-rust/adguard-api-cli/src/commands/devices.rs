@@ -1,6 +1,6 @@
-use anyhow::Result;
-use adguard_api_lib::apis::devices_api;
 use crate::{commands::create_api_config, config::AppConfig, menu::MenuHelper};
+use adguard_api_lib::apis::devices_api;
+use anyhow::Result;
 
 pub async fn show_menu(app_config: &AppConfig) -> Result<()> {
     loop {
@@ -19,9 +19,9 @@ pub async fn show_menu(app_config: &AppConfig) -> Result<()> {
 
 async fn list_devices(app_config: &AppConfig) -> Result<()> {
     let config = create_api_config(app_config)?;
-    
+
     MenuHelper::status("Fetching devices...");
-    
+
     match devices_api::list_devices(&config).await {
         Ok(devices) => {
             if devices.is_empty() {
@@ -30,7 +30,7 @@ async fn list_devices(app_config: &AppConfig) -> Result<()> {
                 println!();
                 println!("{}", console::style("═══ Devices ═══").bold().cyan());
                 MenuHelper::table_header(&["ID", "Name", "Type"]);
-                
+
                 for device in &devices {
                     MenuHelper::table_row(&[
                         device.id.clone(),
@@ -38,7 +38,7 @@ async fn list_devices(app_config: &AppConfig) -> Result<()> {
                         format!("{:?}", device.device_type),
                     ]);
                 }
-                
+
                 MenuHelper::success(&format!("Found {} device(s)", devices.len()));
             }
         }
@@ -46,16 +46,16 @@ async fn list_devices(app_config: &AppConfig) -> Result<()> {
             MenuHelper::error(&format!("Failed to fetch devices: {:?}", e));
         }
     }
-    
+
     MenuHelper::press_any_key()?;
     Ok(())
 }
 
 async fn view_device_details(app_config: &AppConfig) -> Result<()> {
     let config = create_api_config(app_config)?;
-    
+
     MenuHelper::status("Fetching devices...");
-    
+
     let devices = match devices_api::list_devices(&config).await {
         Ok(devices) => devices,
         Err(e) => {
@@ -64,21 +64,21 @@ async fn view_device_details(app_config: &AppConfig) -> Result<()> {
             return Ok(());
         }
     };
-    
+
     if devices.is_empty() {
         MenuHelper::no_items("devices");
         MenuHelper::press_any_key()?;
         return Ok(());
     }
-    
+
     let device_names: Vec<String> = devices
         .iter()
         .map(|d| format!("{} ({})", d.name, d.id))
         .collect();
-    
+
     let selection = MenuHelper::select("Select a device to view details:", &device_names)?;
     let device = &devices[selection];
-    
+
     println!();
     println!("{}", console::style("═══ Device Details ═══").bold().cyan());
     println!();
@@ -86,7 +86,7 @@ async fn view_device_details(app_config: &AppConfig) -> Result<()> {
     println!("🆔 ID: {}", device.id);
     println!("🔧 Type: {:?}", device.device_type);
     println!("🖥️  DNS Server ID: {}", device.dns_server_id);
-    
+
     MenuHelper::press_any_key()?;
     Ok(())
 }

@@ -64,6 +64,12 @@ dotnet run --project src/RulesCompiler.Console -- -c config.yaml --verbose
 # Validate configuration only
 dotnet run --project src/RulesCompiler.Console -- -c config.yaml --validate
 
+# Disable validation before compilation
+dotnet run --project src/RulesCompiler.Console -- -c config.yaml --no-validate-config
+
+# Fail compilation on validation warnings
+dotnet run --project src/RulesCompiler.Console -- -c config.yaml --fail-on-warnings
+
 # Show version information
 dotnet run --project src/RulesCompiler.Console -- --version
 ```
@@ -77,6 +83,9 @@ dotnet run --project src/RulesCompiler.Console -- --version
 | `--copy` | | Copy output to rules directory |
 | `--verbose` | | Enable verbose output from hostlist-compiler |
 | `--validate` | | Validate configuration only (no compilation) |
+| `--validate-config` | | Enable configuration validation before compilation (default: true) |
+| `--no-validate-config` | | Disable configuration validation before compilation |
+| `--fail-on-warnings` | | Fail compilation if configuration has validation warnings |
 | `--version` | `-v` | Show version information |
 
 ## Configuration
@@ -152,7 +161,7 @@ Inclusion and exclusion patterns support:
   "sources": [
     {
       "name": "Local Rules",
-      "source": "rules/local.txt",
+      "source": "data/local.txt",
       "type": "adblock"
     },
     {
@@ -176,7 +185,7 @@ version: "1.0.0"
 
 sources:
   - name: Local Rules
-    source: rules/local.txt
+    source: data/local.txt
     type: adblock
 
   - name: EasyList
@@ -208,7 +217,7 @@ exclusions = ["*.google.com", "/analytics/"]
 
 [[sources]]
 name = "Local Rules"
-source = "rules/local.txt"
+source = "data/local.txt"
 type = "adblock"
 
 [[sources]]

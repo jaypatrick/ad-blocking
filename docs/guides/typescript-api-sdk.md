@@ -349,7 +349,7 @@ const stats = await client.statisticsRepository.getStatisticsForRange({
 // Sync rules from file
 const result = await client.userRulesRepository.syncFromFile(
   'dns-server-id',
-  'rules/adguard_user_filter.txt'
+  'data/output/adguard_user_filter.txt'
 );
 
 console.log(`Added: ${result.added}`);
@@ -509,7 +509,7 @@ const integration = new RulesCompilerIntegration(client);
 
 // Sync rules from compiled output
 const result = await integration.syncRulesToServer('dns-server-id', {
-  rulesFile: 'rules/adguard_user_filter.txt',
+  rulesFile: 'data/output/adguard_user_filter.txt',
   clearExisting: true,
   dryRun: false
 });

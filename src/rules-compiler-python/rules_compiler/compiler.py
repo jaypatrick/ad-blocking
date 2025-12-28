@@ -1,9 +1,14 @@
 """
 Core compiler functionality for AdGuard filter rules.
+
+This module provides both synchronous and asynchronous APIs for compiling
+AdGuard filter rules. The async APIs offer better performance for I/O-bound
+operations and can be used in async applications.
 """
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import logging
@@ -16,6 +21,12 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+
+try:
+    import aiofiles
+    AIOFILES_AVAILABLE = True
+except ImportError:
+    AIOFILES_AVAILABLE = False
 
 from rules_compiler.config import (
     CompilerConfiguration,
@@ -200,6 +211,35 @@ def count_rules(file_path: str | Path) -> int:
     return count
 
 
+async def count_rules_async(file_path: str | Path) -> int:
+    """
+    Asynchronously count non-empty, non-comment lines in a file.
+
+    Args:
+        file_path: Path to the file.
+
+    Returns:
+        Number of rules.
+    """
+    if not AIOFILES_AVAILABLE:
+        # Fall back to sync version in thread pool
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, count_rules, file_path)
+
+    path = Path(file_path)
+    if not path.exists():
+        return 0
+
+    count = 0
+    async with aiofiles.open(path, "r", encoding="utf-8") as f:
+        async for line in f:
+            stripped = line.strip()
+            if stripped and not stripped.startswith(("!", "#")):
+                count += 1
+
+    return count
+
+
 def compute_hash(file_path: str | Path) -> str:
     """
     Compute SHA-384 hash of a file.
@@ -213,6 +253,31 @@ def compute_hash(file_path: str | Path) -> str:
     sha384 = hashlib.sha384()
     with open(file_path, "rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
+            sha384.update(chunk)
+    return sha384.hexdigest()
+
+
+async def compute_hash_async(file_path: str | Path) -> str:
+    """
+    Asynchronously compute SHA-384 hash of a file.
+
+    Args:
+        file_path: Path to the file.
+
+    Returns:
+        Hex-encoded hash string.
+    """
+    if not AIOFILES_AVAILABLE:
+        # Fall back to sync version in thread pool
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, compute_hash, file_path)
+
+    sha384 = hashlib.sha384()
+    async with aiofiles.open(file_path, "rb") as f:
+        while True:
+            chunk = await f.read(8192)
+            if not chunk:
+                break
             sha384.update(chunk)
     return sha384.hexdigest()
 
@@ -306,6 +371,7 @@ class RulesCompiler:
         rules_directory: str | Path | None = None,
         format: ConfigurationFormat | None = None,
         validate: bool = True,
+        fail_on_warnings: bool = False,
     ) -> CompilerResult:
         """
         Compile filter rules.
@@ -317,6 +383,7 @@ class RulesCompiler:
             rules_directory: Custom rules directory path.
             format: Force configuration format.
             validate: Validate configuration before compiling.
+            fail_on_warnings: Fail compilation if configuration has validation warnings.
 
         Returns:
             Compilation result.
@@ -329,6 +396,7 @@ class RulesCompiler:
             format=format,
             debug=self.debug,
             validate=validate,
+            fail_on_warnings=fail_on_warnings,
         )
 
     def read_config(
@@ -370,6 +438,51 @@ class RulesCompiler:
         """Get version information for all components."""
         return get_version_info()
 
+    async def compile_async(
+        self,
+        config_path: str | Path,
+        output_path: str | Path | None = None,
+        copy_to_rules: bool = False,
+        rules_directory: str | Path | None = None,
+        format: ConfigurationFormat | None = None,
+        validate: bool = True,
+        fail_on_warnings: bool = False,
+    ) -> CompilerResult:
+        """
+        Asynchronously compile filter rules.
+
+        This method provides better performance for I/O-bound operations
+        and can be used in async applications.
+
+        Args:
+            config_path: Path to configuration file.
+            output_path: Optional output file path.
+            copy_to_rules: Copy output to rules directory.
+            rules_directory: Custom rules directory path.
+            format: Force configuration format.
+            validate: Validate configuration before compiling.
+            fail_on_warnings: Fail compilation if configuration has validation warnings.
+
+        Returns:
+            Compilation result.
+
+        Example:
+            >>> compiler = RulesCompiler()
+            >>> result = await compiler.compile_async("config.yaml")
+            >>> if result.success:
+            ...     print(f"Compiled {result.rule_count} rules")
+        """
+        return await compile_rules_async(
+            config_path=config_path,
+            output_path=output_path,
+            copy_to_rules=copy_to_rules,
+            rules_directory=rules_directory,
+            format=format,
+            debug=self.debug,
+            validate=validate,
+            fail_on_warnings=fail_on_warnings,
+        )
+
 
 def compile_rules(
     config_path: str | Path,
@@ -379,6 +492,7 @@ def compile_rules(
     format: ConfigurationFormat | None = None,
     debug: bool = False,
     validate: bool = True,
+    fail_on_warnings: bool = False,
 ) -> CompilerResult:
     """
     Compile filter rules using hostlist-compiler.
@@ -391,6 +505,7 @@ def compile_rules(
         format: Force configuration format.
         debug: Enable debug logging.
         validate: Validate configuration before compiling.
+        fail_on_warnings: Fail compilation if configuration has validation warnings.
 
     Returns:
         Compilation result.
@@ -410,9 +525,15 @@ def compile_rules(
             validation_result = config.validate()
             if not validation_result.is_valid:
                 raise ValidationError(validation_result.errors, validation_result.warnings)
-            if validation_result.warnings and debug:
+            if validation_result.warnings:
                 for warning in validation_result.warnings:
                     logger.warning(f"Config warning: {warning}")
+                if fail_on_warnings:
+                    raise ValidationError(
+                        errors=[],
+                        warnings=validation_result.warnings,
+                        message="Configuration has warnings (fail_on_warnings is enabled)",
+                    )
 
         # Determine output path
         if output_path:
@@ -496,6 +617,179 @@ def compile_rules(
                 rules_dir.mkdir(exist_ok=True)
                 dest_path = rules_dir / "adguard_user_filter.txt"
                 shutil.copy2(actual_output, dest_path)
+                result.copied_to_rules = True
+                result.rules_destination = str(dest_path)
+                if debug:
+                    logger.debug(f"Copied to: {dest_path}")
+            except (OSError, IOError) as e:
+                raise CopyError(str(actual_output), str(dest_path), str(e))
+
+    except (ValidationError, CompilationError, CompilerNotFoundError,
+            OutputNotCreatedError, CopyError, CompilerTimeoutError) as e:
+        result.success = False
+        result.error_message = str(e)
+        logger.error(f"Compilation failed: {e}")
+
+    except Exception as e:
+        result.success = False
+        result.error_message = str(e)
+        logger.error(f"Compilation failed: {e}")
+
+    finally:
+        # Clean up temp file
+        if temp_config_path and os.path.exists(temp_config_path.name):
+            os.unlink(temp_config_path.name)
+
+        result.end_time = datetime.utcnow()
+        result.elapsed_ms = int((result.end_time - result.start_time).total_seconds() * 1000)
+
+    return result
+
+
+async def compile_rules_async(
+    config_path: str | Path,
+    output_path: str | Path | None = None,
+    copy_to_rules: bool = False,
+    rules_directory: str | Path | None = None,
+    format: ConfigurationFormat | None = None,
+    debug: bool = False,
+    validate: bool = True,
+    fail_on_warnings: bool = False,
+) -> CompilerResult:
+    """
+    Asynchronously compile filter rules using hostlist-compiler.
+
+    This async version provides better performance for I/O-bound operations
+    and allows compilation to be integrated into async applications.
+
+    Args:
+        config_path: Path to configuration file.
+        output_path: Optional output file path.
+        copy_to_rules: Copy output to rules directory.
+        rules_directory: Custom rules directory path.
+        format: Force configuration format.
+        debug: Enable debug logging.
+        validate: Validate configuration before compiling.
+        fail_on_warnings: Fail compilation if configuration has validation warnings.
+
+    Returns:
+        Compilation result.
+    """
+    result = CompilerResult(start_time=datetime.utcnow())
+    config_path = Path(config_path).resolve()
+    temp_config_path = None
+
+    try:
+        # Read configuration
+        config = read_configuration(config_path, format)
+        result.config_name = config.name
+        result.config_version = config.version
+
+        # Validate configuration if requested
+        if validate:
+            validation_result = config.validate()
+            if not validation_result.is_valid:
+                raise ValidationError(validation_result.errors, validation_result.warnings)
+            if validation_result.warnings:
+                for warning in validation_result.warnings:
+                    logger.warning(f"Config warning: {warning}")
+                if fail_on_warnings:
+                    raise ValidationError(
+                        errors=[],
+                        warnings=validation_result.warnings,
+                        message="Configuration has warnings (fail_on_warnings is enabled)",
+                    )
+
+        # Determine output path
+        if output_path:
+            actual_output = Path(output_path).resolve()
+        else:
+            timestamp = datetime.utcnow().strftime("%Y%m%d-%H%M%S")
+            output_dir = config_path.parent / "output"
+            output_dir.mkdir(exist_ok=True)
+            actual_output = output_dir / f"compiled-{timestamp}.txt"
+
+        result.output_path = str(actual_output)
+
+        # Convert to JSON if needed (hostlist-compiler only supports JSON)
+        detected_format = format or config._source_format
+        if detected_format != ConfigurationFormat.JSON:
+            temp_config_path = tempfile.NamedTemporaryFile(
+                mode="w",
+                suffix=".json",
+                delete=False,
+                encoding="utf-8",
+            )
+            temp_config_path.write(to_json(config))
+            temp_config_path.close()
+            compile_config_path = temp_config_path.name
+            if debug:
+                logger.debug(f"Created temp JSON config: {compile_config_path}")
+        else:
+            compile_config_path = str(config_path)
+
+        # Get compiler command
+        cmd, cwd = _get_compiler_command(compile_config_path, str(actual_output))
+
+        if debug:
+            logger.debug(f"Running: {' '.join(cmd)}")
+            logger.debug(f"Working directory: {cwd}")
+
+        # Run compilation asynchronously
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                *cmd,
+                cwd=cwd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stdout_bytes, stderr_bytes = await asyncio.wait_for(
+                proc.communicate(),
+                timeout=300,  # 5 minute timeout
+            )
+            stdout = stdout_bytes.decode("utf-8") if stdout_bytes else ""
+            stderr = stderr_bytes.decode("utf-8") if stderr_bytes else ""
+            returncode = proc.returncode
+        except asyncio.TimeoutError:
+            raise CompilerTimeoutError(300, " ".join(cmd))
+
+        result.stdout = stdout
+        result.stderr = stderr
+
+        if returncode != 0:
+            raise CompilationError(
+                f"Compiler exited with code {returncode}",
+                exit_code=returncode,
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+        # Verify output was created
+        if not actual_output.exists():
+            raise OutputNotCreatedError(str(actual_output))
+
+        # Calculate statistics asynchronously
+        result.rule_count = await count_rules_async(actual_output)
+        result.output_hash = await compute_hash_async(actual_output)
+        result.success = True
+
+        if debug:
+            logger.debug(f"Compiled {result.rule_count} rules")
+            logger.debug(f"Output hash: {result.hash_short()}...")
+
+        # Copy to rules directory if requested
+        if copy_to_rules:
+            if rules_directory:
+                rules_dir = Path(rules_directory)
+            else:
+                rules_dir = config_path.parent.parent.parent / "rules"
+
+            try:
+                # Run file copy in thread pool to avoid blocking
+                loop = asyncio.get_event_loop()
+                await loop.run_in_executor(None, rules_dir.mkdir, True, 0o755)
+                dest_path = rules_dir / "adguard_user_filter.txt"
+                await loop.run_in_executor(None, shutil.copy2, actual_output, dest_path)
                 result.copied_to_rules = True
                 result.rules_destination = str(dest_path)
                 if debug:

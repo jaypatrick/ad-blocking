@@ -20,6 +20,8 @@ import { logger as defaultLogger } from './logger.ts';
 import { CompilationError, ErrorCode, isCompilerError } from './errors.ts';
 import { withTimeout } from './timeout.ts';
 import { checkFileSize, DEFAULT_RESOURCE_LIMITS } from './validation.ts';
+import { mergeChunks, shouldEnableChunking, splitIntoChunks } from './chunking.ts';
+import { compileChunksInParallel } from './parallel-compiler.ts';
 
 /**
  * Writes compiled rules to an output file
@@ -212,17 +214,84 @@ export async function runCompiler(options: ExtendedCompileOptions): Promise<Comp
     const versionValue = configRecord['version'];
     result.configVersion = typeof versionValue === 'string' ? versionValue : 'unknown';
 
+    // Validate configuration if requested (default: true)
+    const shouldValidate = options.validateConfig ?? true;
+    if (shouldValidate) {
+      const { validateConfiguration } = await import('./validation.ts');
+      const validationResult = validateConfiguration(config);
+
+      if (!validationResult.valid) {
+        logger.error('Configuration validation failed:');
+        for (const error of validationResult.errors) {
+          logger.error(`  ${error}`);
+        }
+        throw new CompilationError(
+          `Configuration validation failed: ${validationResult.errors.join('; ')}`,
+          ErrorCode.CONFIG_VALIDATION_ERROR,
+        );
+      }
+
+      if (validationResult.warnings.length > 0) {
+        for (const warning of validationResult.warnings) {
+          logger.warn(`Configuration warning: ${warning}`);
+        }
+
+        if (options.failOnWarnings) {
+          throw new CompilationError(
+            `Configuration has warnings (failOnWarnings is enabled): ${validationResult.warnings.join('; ')}`,
+            ErrorCode.CONFIG_VALIDATION_ERROR,
+          );
+        }
+      }
+    }
+
     // Determine output path
     const outputFilename = generateOutputFilename();
     const defaultOutputPath = join(dirname(options.configPath), 'output', outputFilename);
     const outputPath = options.outputPath ?? defaultOutputPath;
     result.outputPath = resolve(outputPath);
 
-    // Compile filters with timeout
-    const rules = await compileFilters(config, logger, {
-      timeoutMs: options.timeoutMs,
-      maxOutputSize: options.maxOutputSize,
-    });
+    // Determine if chunking should be used
+    const chunkingConfig = {
+      enabled: options.enableChunking ?? config.chunking?.enabled,
+      chunkSize: options.chunkSize ?? config.chunking?.chunkSize,
+      maxParallel: options.maxParallel ?? config.chunking?.maxParallel,
+      strategy: config.chunking?.strategy,
+    };
+
+    const useChunking = shouldEnableChunking(config, chunkingConfig, logger);
+
+    let rules: string[];
+
+    if (useChunking) {
+      logger.info('Using chunked parallel compilation');
+
+      // Split configuration into chunks
+      const chunks = splitIntoChunks(config, chunkingConfig, logger);
+
+      if (chunks.length === 1) {
+        // Only one chunk, compile directly
+        logger.info('Only one chunk created, compiling directly');
+        rules = await compileFilters(config, logger, {
+          timeoutMs: options.timeoutMs,
+          maxOutputSize: options.maxOutputSize,
+        });
+      } else {
+        // Compile chunks in parallel
+        const maxParallel = chunkingConfig.maxParallel ?? 4;
+        const compiledChunks = await compileChunksInParallel(chunks, maxParallel, logger);
+
+        // Merge chunks back together
+        rules = mergeChunks(compiledChunks, logger);
+      }
+    } else {
+      logger.info('Using standard single-threaded compilation');
+      // Standard compilation (no chunking)
+      rules = await compileFilters(config, logger, {
+        timeoutMs: options.timeoutMs,
+        maxOutputSize: options.maxOutputSize,
+      });
+    }
 
     // Write output
     writeOutput(result.outputPath, rules, logger);

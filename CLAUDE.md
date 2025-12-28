@@ -290,8 +290,8 @@ cargo test config::                       # Tests in module
 
 ## Architecture
 
-### Filter Rules (`rules/`)
-- `rules/adguard_user_filter.txt` - Main tracked filter list consumed by AdGuard DNS
+### Filter Rules (`data/output/`)
+- `data/output/adguard_user_filter.txt` - Main tracked filter list consumed by AdGuard DNS
 
 ### Rules Compiler - TypeScript (`src/rules-compiler-typescript/`)
 - TypeScript wrapper around @adguard/hostlist-compiler
@@ -311,7 +311,6 @@ cargo test config::                       # Tests in module
   - `app.ts` - `ConsoleApplication` class with menu-driven interface
   - `utils.ts` - Console utilities (spinners, tables, colored output)
 - `src/mod.ts` - Deno entry point
-- `frontend-rust/` - Optional Rust CLI frontend
 - `deno.json` - Deno configuration and tasks
 - Key classes: `RulesCompiler`, `RulesCompilerBuilder`, `ConfigurationBuilder`, `ConsoleApplication`
 - Uses Deno's built-in testing framework
@@ -433,12 +432,12 @@ RemoveComments, Compress, RemoveModifiers, Validate, ValidateAllowIp, Deduplicat
 
 | Variable | Description |
 |----------|-------------|
-| `AdGuard:ApiKey` | API credential for console UI (can also prompt interactively) |
-| `ADGUARD_API_KEY` | API credential for TypeScript client |
-| `ADGUARD_AdGuard__ApiKey` | .NET-compatible API credential format |
-| `LINEAR_API_KEY` | For Linear import scripts (`src/linear/`) |
-| `LINEAR_TEAM_ID` | Optional Linear team ID |
-| `LINEAR_PROJECT_NAME` | Optional Linear project name |
+| `ADGUARD_API_KEY` | Universal API credential (works with all languages - recommended) |
+| `AdGuard:ApiKey` | .NET appsettings.json format |
+| `ADGUARD_AdGuard__ApiKey` | .NET environment variable hierarchical format (legacy) |
+| `ADGUARD_LINEAR_API_KEY` | Linear API key for Linear import scripts (`src/linear/`) |
+| `ADGUARD_LINEAR_TEAM_ID` | Optional Linear team ID |
+| `ADGUARD_LINEAR_PROJECT_NAME` | Optional Linear project name |
 | `DEBUG` | Set to any value to enable debug logging |
 | `LOG_LEVEL` | Log level (DEBUG, INFO, WARN, ERROR, SILENT) |
 | `LOG_FORMAT` | Set to `json` for structured logging |
@@ -469,7 +468,7 @@ GitHub Actions workflows validate:
 
 ## Key File Locations
 
-- **Main filter list**: `rules/adguard_user_filter.txt`
+- **Main filter list**: `data/output/adguard_user_filter.txt`
 - **Compiler configs**: `src/rules-compiler-*/`
 - **Deno configs**: `src/*/deno.json`
 - **OpenAPI spec**: `api/openapi.yaml`

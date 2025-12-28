@@ -111,6 +111,24 @@ Examples:
     )
 
     parser.add_argument(
+        "--validate-config",
+        action="store_true",
+        help="Enable configuration validation before compilation (default: true)",
+    )
+
+    parser.add_argument(
+        "--no-validate-config",
+        action="store_true",
+        help="Disable configuration validation before compilation",
+    )
+
+    parser.add_argument(
+        "--fail-on-warnings",
+        action="store_true",
+        help="Fail compilation if configuration has validation warnings",
+    )
+
+    parser.add_argument(
         "--check-files",
         action="store_true",
         help="Check if local source files exist (use with --validate)",
@@ -120,6 +138,12 @@ Examples:
         "--transformations",
         action="store_true",
         help="List all available transformations and exit",
+    )
+
+    parser.add_argument(
+        "-i", "--interactive",
+        action="store_true",
+        help="Run in interactive menu mode",
     )
 
     return parser
@@ -344,6 +368,23 @@ def main(args: list[str] | None = None) -> int:
         show_transformations()
         return 0
 
+    # Handle interactive mode
+    if opts.interactive:
+        from rules_compiler.interactive import run_interactive_menu
+        
+        # Try to determine initial config
+        initial_config = None
+        if opts.config_path:
+            initial_config = Path(opts.config_path).resolve()
+        elif opts.config:
+            initial_config = Path(opts.config).resolve()
+        else:
+            found_path = find_default_config()
+            if found_path:
+                initial_config = found_path
+        
+        return run_interactive_menu(initial_config)
+
     # Determine config path (positional or flag)
     if opts.config_path:
         config_path = Path(opts.config_path).resolve()
@@ -380,6 +421,10 @@ def main(args: list[str] | None = None) -> int:
     }
     config_format = format_map.get(opts.format) if opts.format else None
 
+    # Determine validation settings
+    validate_config = not opts.no_validate_config  # Default is True
+    fail_on_warnings = opts.fail_on_warnings
+
     # Create compiler and run
     compiler = RulesCompiler(debug=opts.debug)
 
@@ -392,6 +437,8 @@ def main(args: list[str] | None = None) -> int:
             copy_to_rules=opts.copy_to_rules,
             rules_directory=opts.rules_dir,
             format=config_format,
+            validate=validate_config,
+            fail_on_warnings=fail_on_warnings,
         )
 
         if result.success:

@@ -1,0 +1,174 @@
+name: Validation Library Compliance
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  validation-library-build:
+    name: Build Validation Library
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+      
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-validation-${{ hashFiles('**/Cargo.lock') }}
+      
+      - name: Build validation library
+        run: |
+          cargo build --release -p adguard-validation-core --verbose
+      
+      - name: Run validation library tests
+        run: |
+          cargo test -p adguard-validation-core -p adguard-validation-cli --verbose
+      
+      - name: Check clippy
+        run: |
+          cargo clippy -p adguard-validation-core -p adguard-validation-cli --all-targets --all-features -- -W clippy::all -W clippy::correctness -W clippy::suspicious
+      
+      - name: Build CLI tool
+        run: |
+          cargo build --release -p adguard-validation-cli
+      
+      - name: Upload validation library artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-library
+          path: |
+            target/release/libadguard_validation.*
+            target/release/adguard-validate
+          retention-days: 7
+
+  compliance-check:
+    name: Compliance Check
+    runs-on: ubuntu-latest
+    needs: validation-library-build
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+      
+      - name: Run compliance check
+        run: |
+          chmod +x tools/check-validation-compliance.sh
+          ./tools/check-validation-compliance.sh
+      
+      - name: Generate compliance report
+        if: always()
+        run: |
+          echo "# Validation Library Compliance Report" > compliance-report.md
+          echo "" >> compliance-report.md
+          echo "**Date**: $(date)" >> compliance-report.md
+          echo "**Commit**: ${{ github.sha }}" >> compliance-report.md
+          echo "" >> compliance-report.md
+          echo "## Status" >> compliance-report.md
+          echo "" >> compliance-report.md
+          ./tools/check-validation-compliance.sh >> compliance-report.md 2>&1 || true
+      
+      - name: Upload compliance report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compliance-report
+          path: compliance-report.md
+          retention-days: 30
+
+  integration-status:
+    name: Integration Status
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check TypeScript integration status
+        id: typescript
+        run: |
+          if grep -rq "adguard.*validation" src/rules-compiler-typescript/package.json 2>/dev/null; then
+            echo "status=integrated" >> $GITHUB_OUTPUT
+          else
+            echo "status=pending" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Check .NET integration status
+        id: dotnet
+        run: |
+          if grep -rq "adguard_validation" src/rules-compiler-dotnet 2>/dev/null; then
+            echo "status=integrated" >> $GITHUB_OUTPUT
+          else
+            echo "status=pending" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Check Python integration status
+        id: python
+        run: |
+          if [ -f src/rules-compiler-python/requirements.txt ] && grep -q "adguard-validation" src/rules-compiler-python/requirements.txt 2>/dev/null; then
+            echo "status=integrated" >> $GITHUB_OUTPUT
+          else
+            echo "status=pending" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Check Rust integration status
+        id: rust
+        run: |
+          if grep -q "adguard-validation" src/rules-compiler-rust/Cargo.toml 2>/dev/null; then
+            echo "status=integrated" >> $GITHUB_OUTPUT
+          else
+            echo "status=pending" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Create integration status summary
+        run: |
+          echo "# Integration Status Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Compiler | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| TypeScript | ${{ steps.typescript.outputs.status }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| .NET | ${{ steps.dotnet.outputs.status }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Python | ${{ steps.python.outputs.status }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Rust | ${{ steps.rust.outputs.status }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Note**: 'pending' status is expected during migration. See VALIDATION_ENFORCEMENT.md for timeline." >> $GITHUB_STEP_SUMMARY
+
+  enforce-integration:
+    name: Enforce Integration (Future)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check if PR modifies compilers without validation
+        run: |
+          # This will be enabled in Phase 5 - currently informational only
+          echo "::notice::Integration enforcement is currently in informational mode"
+          echo "::notice::Future: PRs modifying compilers will require validation library integration"
+          
+          # Check if compiler files were modified
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }})
+          
+          if echo "$CHANGED_FILES" | grep -q "src/rules-compiler"; then
+            echo "::warning::Compiler files modified. Ensure validation library integration."
+            echo "::warning::See docs/VALIDATION_ENFORCEMENT.md for requirements."
+          fi

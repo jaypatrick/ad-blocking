@@ -1,5 +1,5 @@
-use anyhow::Result;
 use crate::{config::AppConfig, menu::MenuHelper};
+use anyhow::Result;
 
 pub async fn show_menu(_app_config: &AppConfig) -> Result<()> {
     MenuHelper::info("User Rules management functionality coming soon!");

@@ -180,7 +180,7 @@ export class UserRulesMenu extends BaseMenu {
     const server = await this.selectDnsServer();
     if (!server) return;
 
-    showInfo('Syncing from rules/adguard_user_filter.txt...');
+    showInfo('Syncing from data/output/adguard_user_filter.txt...');
 
     const result = await withSpinner(
       'Syncing compiled rules...',

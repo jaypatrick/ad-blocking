@@ -65,7 +65,7 @@ deno task start
 deno task start -- --api-key your-key
 
 # Sync rules from file
-deno task start -- sync --file rules/adguard_user_filter.txt
+deno task start -- sync --file data/output/adguard_user_filter.txt
 ```
 
 ## Architecture
@@ -291,6 +291,29 @@ This SDK provides equivalent functionality to the .NET implementation:
 - **ora**: Spinners
 - **chalk**: Terminal colors
 - **cli-table3**: Table formatting
+
+## Type Definitions
+
+This project uses Deno, which works with TypeScript natively. For compatibility with other tools or for publishing, type definition files (`.d.ts`) can be generated using:
+
+```bash
+deno task generate:types
+```
+
+The generated files are placed in the `dist/` directory and re-export all types from the source files. These files provide type information for consumers of this library.
+
+**Note**: The `.d.ts` files are automatically generated and should not be edited manually. They are excluded from version control.
+
+### Available Tasks
+
+- `deno task start` - Run the CLI application
+- `deno task sync` - Sync rules to AdGuard DNS
+- `deno task cli` - Run the interactive CLI
+- `deno task test` - Run tests
+- `deno task check` - Type check the code
+- `deno task lint` - Lint the code
+- `deno task fmt` - Format the code
+- `deno task generate:types` - Generate `.d.ts` type definition files
 
 ## License
 

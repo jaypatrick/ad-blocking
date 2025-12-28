@@ -95,6 +95,38 @@ export function parseArgs(args: string[]): CliOptions {
       case '--validate':
         options.validate = true;
         break;
+      case '--validate-config':
+        options.validateConfig = true;
+        break;
+      case '--no-validate-config':
+        options.validateConfig = false;
+        break;
+      case '--fail-on-warnings':
+        options.failOnWarnings = true;
+        break;
+      case '--enable-chunking':
+        options.enableChunking = true;
+        break;
+      case '--chunk-size':
+        if (!nextArg) {
+          throw new Error('Chunk size value is required');
+        }
+        options.chunkSize = parseInt(nextArg, 10);
+        if (isNaN(options.chunkSize) || options.chunkSize <= 0) {
+          throw new Error(`Invalid chunk size: ${nextArg}. Must be a positive integer.`);
+        }
+        i++;
+        break;
+      case '--max-parallel':
+        if (!nextArg) {
+          throw new Error('Max parallel value is required');
+        }
+        options.maxParallel = parseInt(nextArg, 10);
+        if (isNaN(options.maxParallel) || options.maxParallel <= 0) {
+          throw new Error(`Invalid max parallel: ${nextArg}. Must be a positive integer.`);
+        }
+        i++;
+        break;
       default:
         // Allow positional config path
         if (arg && !arg.startsWith('-') && !options.configPath) {
@@ -130,6 +162,14 @@ Options:
   -h, --help            Show this help message
   -d, --debug           Enable debug output
   --show-config         Show parsed configuration (don't compile)
+  --validate-config     Enable configuration validation before compilation (default: true)
+  --no-validate-config  Disable configuration validation before compilation
+  --fail-on-warnings    Fail compilation if configuration has validation warnings
+
+Chunking Options (for large rule lists):
+  --enable-chunking     Enable chunked parallel compilation
+  --chunk-size N        Number of sources per chunk (applies when using source-based chunking)
+  --max-parallel N      Maximum number of chunks to compile in parallel (default: CPU count)
 
 Production Options:
   --json-logs           Use JSON format for log output (structured logging)
@@ -154,6 +194,8 @@ Examples:
   deno task start --validate -c config.yaml # Validate only
   deno task start --show-config -c config.yaml
   deno task start --json-logs -c config.yaml  # Production mode
+  deno task start --enable-chunking --max-parallel 8  # Parallel chunked compilation
+  deno task start --enable-chunking --chunk-size 50000 --max-parallel 4  # Custom chunk settings
 `);
 }
 
@@ -428,6 +470,11 @@ export async function main(args: string[] = Deno.args): Promise<number> {
       format: options.format,
       logger,
       timeoutMs: options.timeout,
+      validateConfig: options.validateConfig,
+      failOnWarnings: options.failOnWarnings,
+      enableChunking: options.enableChunking,
+      chunkSize: options.chunkSize,
+      maxParallel: options.maxParallel,
     });
 
     if (result.success) {

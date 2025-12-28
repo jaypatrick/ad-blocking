@@ -75,7 +75,7 @@ Both modules support comprehensive environment variable configuration:
 |----------|-------------|---------|
 | `ADGUARD_COMPILER_CONFIG` | Configuration file path | `compiler-config.json` |
 | `ADGUARD_COMPILER_OUTPUT` | Output file path | `adguard_user_filter.txt` |
-| `ADGUARD_COMPILER_RULES_DIR` | Rules directory | `../../rules` |
+| `ADGUARD_COMPILER_RULES_DIR` | Rules directory | `../../data` |
 | `ADGUARD_COMPILER_VERBOSE` | Enable verbose mode | `false` |
 | `ADGUARD_COMPILER_COPY_TO_RULES` | Auto-copy to rules | `false` |
 | `DEBUG` | Enable debug logging | `false` |
@@ -146,7 +146,7 @@ Invoke-RulesCompiler
 # Get configuration, compile, and write output
 Read-CompilerConfiguration -ConfigPath "config.yaml" |
     Invoke-FilterCompiler |
-    Write-CompiledOutput -DestinationPath "../rules/filter.txt"
+    Write-CompiledOutput -DestinationPath "../data/output/filter.txt"
 ```
 
 #### Check Version Information

@@ -64,7 +64,7 @@ async fn run_interactive_mode() -> Result<()> {
                 MenuHelper::error(&format!("Error: {:?}", e));
             }
         }
-        
+
         println!();
     }
 

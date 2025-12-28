@@ -41,6 +41,8 @@ A comprehensive multi-language toolkit for ad-blocking, network protection, and 
 
 ## Features
 
+> 🔒 **Security First**: All compilers include **mandatory validation** to protect against malicious filter lists, tampering, and man-in-the-middle attacks. [Learn why validation matters →](docs/WHY_VALIDATION_MATTERS.md)
+
 ### Rules Compilers (5 Languages)
 
 | Language | Runtime | Distribution | Key Features |
@@ -51,11 +53,14 @@ A comprehensive multi-language toolkit for ad-blocking, network protection, and 
 | **Rust** | Native binary | Cargo/Binary | Zero-runtime deps, LTO optimization |
 | **PowerShell** | PowerShell 7+ | Module | Pipeline-friendly, Pester tests |
 
-All compilers wrap [@adguard/hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler) and support:
+All compilers wrap [@adguard/hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler) with **built-in security validation** and support:
 - **All 11 transformations**: Deduplicate, Validate, RemoveComments, Compress, RemoveModifiers, etc.
 - **Multi-format config**: JSON, YAML, and TOML configuration files
 - **Source-specific settings**: Per-source transformations, inclusions, exclusions
 - **Pattern matching**: Wildcards, regex, file-based patterns
+- **🔒 SHA-384 hash verification**: Automatic tamper detection for all sources
+- **🔒 URL security validation**: HTTPS enforcement, domain validation, content verification
+- **🔒 Runtime enforcement**: Cryptographic proof that validation occurred
 
 ### AdGuard DNS API SDKs
 
@@ -93,7 +98,8 @@ ad-blocking/
 │   │   ├── devskim.yml                # DevSkim security analysis
 │   │   └── claude*.yml                # Claude AI integration
 │   └── ISSUE_TEMPLATE/                # Issue templates
-├── api/                               # OpenAPI specifications
+├── api/                               # OpenAPI specifications (centralized)
+│   ├── README.md                      # API spec documentation
 │   ├── openapi.json                   # AdGuard DNS API v1.11 (primary)
 │   └── openapi.yaml                   # AdGuard DNS API v1.11 (optional)
 ├── docs/                              # Documentation
@@ -102,20 +108,33 @@ ad-blocking/
 │   ├── getting-started.md             # Quick start guide
 │   ├── compiler-comparison.md         # Compiler comparison matrix
 │   ├── configuration-reference.md     # Configuration schema reference
-│   └── docker-guide.md                # Docker development guide
-├── rules/                             # Filter rules
-│   ├── adguard_user_filter.txt        # Main tracked filter list
-│   └── Config/                        # Compiler configurations
+│   ├── docker-guide.md                # Docker development guide
+│   ├── AGENTS.md                      # AI agent documentation
+│   ├── PHASE2_IMPLEMENTATION.md       # Modernization roadmap
+│   ├── RUST_WORKSPACE.md              # Rust workspace documentation
+│   ├── RUST_MODERNIZATION_SUMMARY.md  # Rust migration summary
+│   ├── TEST_UPDATES_SUMMARY.md        # Testing updates
+│   └── WARP.md                        # Warp terminal integration
+├── data/                              # Filter rules and data
+│   ├── input/                         # Source filter lists (local & remote refs)
+│   │   ├── README.md                  # Input directory documentation
+│   │   ├── example-custom-rules.txt   # Example local rules
+│   │   ├── internet-sources.txt.example # Example remote sources config
+│   │   └── .gitignore                 # Ignore large/sensitive files
+│   ├── output/                        # Compiled filter output
+│   │   └── adguard_user_filter.txt    # Main tracked filter list (adblock format)
+│   ├── archive/                       # Archived processed input files
+│   │   ├── README.md                  # Archive directory documentation
+│   │   └── .gitignore                 # Ignore archive contents
+│   └── Config/                        # Compiler configurations (optional)
 ├── src/                               # Source code
-│   ├── rules-compiler-typescript/     # TypeScript/Node.js compiler
+│   ├── rules-compiler-typescript/     # TypeScript/Deno compiler
 │   ├── rules-compiler-dotnet/         # C#/.NET 10 compiler
 │   ├── rules-compiler-python/         # Python 3.9+ compiler
 │   ├── rules-compiler-rust/           # Rust compiler (single binary)
-│   ├── rules-compiler-shell/          # Shell scripts
-│   │   ├── compile-rules.sh           # Bash (Linux/macOS)
-│   │   ├── compile-rules.zsh          # Zsh (macOS/Linux)
-│   │   ├── compile-rules.ps1          # PowerShell Core (all platforms)
-│   │   └── compile-rules.cmd          # Windows batch wrapper
+│   ├── shell-scripts/                 # Shell script wrappers
+│   │   ├── bash/                      # Bash scripts
+│   │   └── zsh/                       # Zsh scripts
 │   ├── adguard-api-dotnet/            # C# API SDK + Console UI
 │   │   ├── src/AdGuard.ApiClient/     # C# SDK library
 │   │   ├── src/AdGuard.ConsoleUI/     # Spectre.Console interface
@@ -127,18 +146,59 @@ ad-blocking/
 │   │   ├── src/api/                   # API client implementations
 │   │   ├── src/cli/                   # Interactive CLI application
 │   │   └── tests/                     # Deno test suite
-│   ├── adguard-api-powershell/        # PowerShell modules
-│   │   ├── Invoke-RulesCompiler.psm1  # Rules compiler module
-│   │   ├── RulesCompiler.psd1         # Module manifest
-│   │   └── Tests/                     # Pester test suite
+│   ├── adguard-api-powershell/        # PowerShell API client (legacy)
+│   ├── powershell-modules/            # PowerShell modules (modern)
+│   │   ├── Common/                    # Shared utilities
+│   │   ├── RulesCompiler/             # Rules compiler module
+│   │   └── AdGuardWebhook/            # Webhook module
+│   ├── adguard-validation/            # Rust validation library
+│   │   ├── adguard-validation-core/   # Core validation logic
+│   │   └── adguard-validation-cli/    # CLI tool
 │   └── linear/                        # Linear integration scripts
+├── tools/                             # Utility and build scripts
+│   ├── README.md                      # Tools documentation
+│   ├── test-build-scripts.sh          # Bash build script tests
+│   ├── test-build-scripts.ps1         # PowerShell build script tests
+│   ├── test-modules.ps1               # PowerShell module tests
+│   ├── check-validation-compliance.sh # Validation compliance check
+│   └── Migrate-To-NewStructure.ps1    # Structure migration script
 ├── Dockerfile.warp                    # Docker dev environment
 ├── CLAUDE.md                          # AI assistant instructions
+├── CONTRIBUTING.md                    # Contribution guidelines
 ├── SECURITY.md                        # Security policy
-└── LICENSE                            # GPL-3.0 license
+├── README.md                          # This file
+├── LICENSE                            # GPL-3.0 license
+├── build.sh                           # Multi-language build script (Bash)
+├── build.ps1                          # Multi-language build script (PowerShell)
+├── launcher.sh                        # Interactive launcher (Bash)
+└── launcher.ps1                       # Interactive launcher (PowerShell)
 ```
 
 ## Quick Start
+
+### 🚀 Interactive Launcher (Easiest Way)
+
+The repository includes feature-rich interactive launchers that provide an intuitive menu system for all tools and tasks:
+
+**Bash Launcher (Linux/macOS):**
+```bash
+./launcher.sh
+```
+
+**PowerShell Launcher (Windows/Cross-platform):**
+```powershell
+.\launcher.ps1
+```
+
+**Features:**
+- 🔨 **Build Tools** - Build projects with debug/release profiles
+- ⚙️ **Compile Filter Rules** - Run compilers in any language
+- 🌐 **AdGuard API Clients** - Launch interactive API tools
+- 🔍 **Validation & Testing** - Run tests and compliance checks
+- 📦 **Project Management** - Clean builds, update dependencies
+- ℹ️ **System Information** - Check installed tools and project status
+
+The launcher provides guided navigation with numbered menus, colored output, and automatic tool detection. Perfect for newcomers and experienced users alike!
 
 ### Prerequisites
 
@@ -148,8 +208,10 @@ ad-blocking/
 | [hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler) | Latest | All compilers |
 | [.NET SDK](https://dotnet.microsoft.com/download/dotnet/10.0) | 10.0+ | .NET compiler, API client |
 | [Python](https://www.python.org/) | 3.9+ | Python compiler |
-| [Rust](https://rustup.rs/) | 1.70+ | Rust compiler |
+| [Rust](https://rustup.rs/) | 1.83+ | Rust workspace (all Rust projects) |
 | [PowerShell](https://github.com/PowerShell/PowerShell) | 7+ | PowerShell scripts |
+
+> **Note**: All Rust projects are now part of a unified workspace. See [RUST_WORKSPACE.md](RUST_WORKSPACE.md) for details.
 
 ### Install Deno
 
@@ -179,9 +241,87 @@ cd ../adguard-api-dotnet && dotnet restore src/AdGuard.ApiClient.sln
 # Python compiler
 cd ../rules-compiler-python && pip install -e ".[dev]"
 
-# Rust compiler
-cd ../rules-compiler-rust && cargo build --release
+# Rust workspace (builds all Rust projects)
+cd .. && cargo build --release
 ```
+
+> **Rust Workspace**: All Rust projects (adguard-validation, adguard-api-rust, rules-compiler-rust) are now unified in a single workspace at the repository root. Run `cargo build` from the root to build all Rust projects together. See [RUST_WORKSPACE.md](RUST_WORKSPACE.md) for more details.
+
+### Build All Projects
+
+Root-level build scripts are available to build all projects or specific language ecosystems:
+
+```bash
+# Build all projects (debug mode - default)
+./build.sh
+
+# Build all projects in release mode
+./build.sh --release
+
+# Build specific language ecosystems
+./build.sh --rust              # Build all Rust projects
+./build.sh --dotnet            # Build all .NET projects
+./build.sh --typescript        # Build all TypeScript/Deno projects
+./build.sh --python            # Build Python projects
+
+# Combine options
+./build.sh --rust --dotnet --release   # Build Rust and .NET in release mode
+```
+
+**PowerShell (Windows/Cross-platform)**:
+
+```powershell
+# Build all projects (debug mode - default)
+.\build.ps1
+
+# Build all projects in release mode
+.\build.ps1 -Profile release
+
+# Build specific language ecosystems
+.\build.ps1 -Rust              # Build all Rust projects
+.\build.ps1 -DotNet            # Build all .NET projects
+.\build.ps1 -TypeScript        # Build all TypeScript/Deno projects
+.\build.ps1 -Python            # Build Python projects
+
+# Combine options
+.\build.ps1 -Rust -DotNet -Profile release
+```
+
+**Available Options**:
+- `--all` / `-All`: Build all projects (default if no specific project selected)
+- `--rust` / `-Rust`: Build Rust workspace (validation library, API clients, compilers)
+- `--dotnet` / `-DotNet`: Build .NET solutions (API client, rules compiler)
+- `--typescript` / `-TypeScript`: Build TypeScript/Deno projects (requires Deno)
+- `--python` / `-Python`: Build Python projects (requires Python 3.9+)
+- `--debug`: Use debug profile (default)
+- `--release` / `-Profile release`: Use release/optimized profile
+
+The build scripts automatically:
+- Check for required tools (Rust, .NET, Deno, Python)
+- Restore dependencies
+- Build projects with appropriate configuration
+- Report build status with colored output
+- Exit with appropriate status codes for CI integration
+
+**Testing the Build Scripts**:
+
+Comprehensive test suites are available to validate build script functionality:
+
+```bash
+# Run Bash script tests (25+ unit and integration tests)
+./tools/test-build-scripts.sh
+
+# Run PowerShell script tests
+pwsh -File tools/test-build-scripts.ps1
+```
+
+The test suites include:
+- **Unit tests**: Help output, argument parsing, error handling
+- **Integration tests**: Rust, .NET, TypeScript, Python builds
+- **Combined tests**: Multiple language ecosystems together
+- **Profile tests**: Debug and release build configurations
+
+Tests run automatically in CI via the **Build Scripts Tests** workflow.
 
 ### Compile Filter Rules (Any Language)
 
@@ -197,6 +337,9 @@ cd src/rules-compiler-python && rules-compiler
 
 # Rust
 cd src/rules-compiler-rust && cargo run --release
+
+# Or from repository root (using workspace)
+cargo run --release -p rules-compiler
 
 # PowerShell
 Import-Module ./src/adguard-api-powershell/Invoke-RulesCompiler.psm1
@@ -253,6 +396,177 @@ warp integration create slack --environment Egji4sZU4TNIOwNasFU73A
 warp integration create linear --environment Egji4sZU4TNIOwNasFU73A
 ```
 
+## Data Directory Structure
+
+The `data/` directory organizes all filter-related files with a clear separation between inputs and outputs:
+
+### Input Directory (`data/input/`)
+
+Source location for filter rules to be compiled:
+
+- **Local rule files**: Place custom filter lists in adblock or hosts format
+  - Examples: `custom-rules.txt`, `company-blocklist.txt`
+  - Supports `.txt`, `.hosts` extensions
+  - Automatic format detection (adblock vs hosts)
+
+- **Internet source references**: File containing URLs to remote filter lists
+  - Create `internet-sources.txt` with one URL per line
+  - Example sources: EasyList, StevenBlack hosts, AdGuard filters
+  - Lines starting with `#` are comments
+  - **Security**: Only HTTPS URLs allowed, content validated before use
+
+**Features:**
+- ✅ **Hash verification**: SHA-384 integrity checking for tampering detection
+- ✅ **Syntax validation**: Automatic linting before compilation
+- ✅ **Multi-format support**: Both adblock and hosts file formats
+- ✅ **Remote list fetching**: Download and verify internet sources
+- ✅ **Error reporting**: Clear messages with line numbers for invalid rules
+- ✅ **URL security**: HTTPS enforcement, domain validation, content verification
+
+**Example structure:**
+```
+data/input/
+├── README.md                    # Documentation
+├── custom-rules.txt             # Your custom adblock rules
+├── internet-sources.txt         # URLs to remote lists
+└── .gitignore                   # Ignore large/sensitive files
+```
+
+See [`data/input/README.md`](data/input/README.md) for detailed usage instructions.
+
+### Output Directory (`data/output/`)
+
+Contains the final compiled filter list:
+
+- **`adguard_user_filter.txt`**: Main filter list in **adblock format**
+  - Merged from all input sources
+  - Deduplicated and validated
+  - Ready for use with AdGuard DNS or other blockers
+  - Tracked in version control
+
+**Compilation guarantees:**
+- ✅ Output is always in adblock syntax (not hosts format)
+- ✅ Comments and metadata preserved from sources
+- ✅ SHA-384 hash computed for verification
+- ✅ Rule count validation
+
+### Archive Directory (`data/archive/`)
+
+Stores processed input files after successful compilation for audit and rollback purposes:
+
+- **Automatic archiving**: Configurable via environment variables or CLI flags
+- **Timestamp-based organization**: Each compilation creates a dated subdirectory
+- **Manifest tracking**: JSON metadata with hashes, file info, and compilation stats
+- **Retention policy**: Automatic cleanup of archives older than 90 days (configurable)
+
+**Archiving modes:**
+- 🤖 **Automatic** (default): Archive after every successful compilation
+- 🤔 **Interactive**: Prompt user whether to archive
+- 🚫 **Disabled**: No archiving
+
+**Example structure:**
+```
+data/archive/
+├── 2024-12-27_14-30-45/
+│   ├── manifest.json              # Compilation metadata
+│   ├── custom-rules.txt           # Input file snapshot
+│   └── internet-sources.txt
+└── 2024-12-26_09-15-22/
+    ├── manifest.json
+    └── custom-rules.txt
+```
+
+**Configuration:**
+```bash
+# Environment variables
+export ADGUARD_ARCHIVE_ENABLED=true
+export ADGUARD_ARCHIVE_MODE=automatic  # or interactive, disabled
+export ADGUARD_ARCHIVE_RETENTION_DAYS=90
+
+# CLI flags (all compilers)
+npm run compile -- --no-archive              # Disable
+npm run compile -- --archive-interactive     # Prompt
+npm run compile -- --archive-retention 365   # Custom retention
+
+# Or configure in JSON/YAML/TOML config files
+```
+
+**Config file example (JSON):**
+```json
+{
+  "name": "My Filter",
+  "output": {
+    "path": "data/output/my-filter.txt",
+    "conflictStrategy": "rename"
+  },
+  "archiving": {
+    "enabled": true,
+    "mode": "automatic",
+    "retentionDays": 90
+  },
+  "sources": [...]
+}
+```
+
+**Use cases:**
+- Track historical changes to filter rules
+- Rollback to previous working configuration
+- Audit what was compiled and when
+- Meet compliance requirements for data retention
+
+See [`data/archive/README.md`](data/archive/README.md) for detailed usage and restoration procedures.
+
+### Compilation Workflow
+
+```
+┌─────────────────────────────────────────────────────┐
+│ 1. Discover all files in data/input/               │
+│    - Scan for .txt, .hosts files                   │
+│    - Parse internet-sources.txt                    │
+└─────────────────────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────┐
+│ 2. Validate & Hash Check                           │
+│    - Syntax validation for each file               │
+│    - Compute SHA-384 hashes                        │
+│    - Detect tampering/modifications                │
+└─────────────────────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────┐
+│ 3. Fetch Internet Sources (if configured)          │
+│    - Download remote lists                         │
+│    - Verify with hashes                            │
+│    - Cache for performance                         │
+└─────────────────────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────┐
+│ 4. Compile with @adguard/hostlist-compiler         │
+│    - Merge all sources                             │
+│    - Apply transformations (dedupe, validate, etc) │
+│    - Convert hosts format to adblock if needed     │
+└─────────────────────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────┐
+│ 5. Output to data/output/adguard_user_filter.txt   │
+│    - Write final adblock-format list               │
+│    - Compute output hash                           │
+│    - Log statistics (rule count, hash)             │
+└─────────────────────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────┐
+│ 6. Archive Input Files (optional)                  │
+│    - Create timestamped archive directory          │
+│    - Copy all input files to archive               │
+│    - Generate manifest.json with metadata          │
+│    - Cleanup old archives per retention policy     │
+└─────────────────────────────────────────────────────┘
+```
+
 ## Rules Compilers
 
 All compilers wrap [@adguard/hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler) and support:
@@ -276,7 +590,7 @@ deno task compile:toml              # TOML config
 
 # CLI options
 deno task compile -- -c config.yaml # Specific config
-deno task compile -- -r             # Copy to rules/
+deno task compile -- -r             # Copy to data/
 deno task compile -- -d             # Debug output
 deno task compile -- --help         # Show help
 deno task compile -- --version      # Show version
@@ -294,7 +608,7 @@ deno task test:coverage             # With coverage
 **Features**:
 - Deno 2.0+ runtime with secure-by-default permissions
 - Built-in TypeScript support, no build step required
-- Optional Rust CLI frontend (`frontend-rust/`)
+- Interactive console mode with menu-driven interface
 - Deno native testing and linting
 
 ### .NET Compiler
@@ -389,29 +703,31 @@ result = compiler.compile("config.yaml", output_path="output.txt")
 
 ### Rust Compiler
 
-**Location**: `src/rules-compiler-rust/`
+**Location**: `src/rules-compiler-rust/` (part of root workspace)
+
+> **Rust Workspace**: This compiler is part of a unified Rust workspace. All Rust projects can be built together from the repository root. See [RUST_WORKSPACE.md](RUST_WORKSPACE.md) for details.
 
 ```bash
-cd src/rules-compiler-rust
+# From repository root (recommended)
+cargo build --release -p rules-compiler
+cargo run --release -p rules-compiler -- -c config.yaml
 
-# Build
-cargo build                         # Debug build
-cargo build --release               # Release build (optimized)
+# Or from project directory
+cd src/rules-compiler-rust
+cargo build --release
+cargo run --release -- -c config.yaml
 
 # CLI usage
-cargo run -- -c config.yaml         # Specific config
-cargo run -- -c config.json -r      # Compile and copy
-cargo run -- -o output.txt          # Custom output
-cargo run -- -V                     # Version info
-cargo run -- -d                     # Debug output
-cargo run -- --help                 # Show help
-
-# Release binary
-./target/release/rules-compiler -c config.yaml
+./target/release/rules-compiler -c config.yaml   # Specific config
+./target/release/rules-compiler -c config.json -r # Compile and copy
+./target/release/rules-compiler -o output.txt     # Custom output
+./target/release/rules-compiler -V                # Version info
+./target/release/rules-compiler -d                # Debug output
+./target/release/rules-compiler --help            # Show help
 
 # Tests
-cargo test                          # Run tests
-cargo test -- --nocapture           # With output
+cargo test -p rules-compiler                      # Run tests
+cargo test -p rules-compiler -- --nocapture       # With output
 ```
 
 **Features**:
@@ -419,6 +735,7 @@ cargo test -- --nocapture           # With output
 - LTO optimization for small binary size
 - Zero runtime dependencies (except Node.js for hostlist-compiler)
 - Cross-platform support
+- Part of unified workspace with shared dependencies
 
 **Rust API**:
 
@@ -675,15 +992,19 @@ Console.WriteLine($"Devices: {limits.DevicesCount}/{limits.DevicesLimit}");
 
 ### Rust SDK
 
-**Location**: `src/adguard-api-rust/`
+**Location**: `src/adguard-api-rust/` (part of root workspace)
+
+> **Rust Workspace**: This SDK is part of a unified Rust workspace. All Rust projects can be built together from the repository root. See [RUST_WORKSPACE.md](RUST_WORKSPACE.md) for details.
 
 ```bash
+# From repository root (recommended)
+cargo build --release -p adguard-api-lib
+cargo build --release -p adguard-api-cli
+cargo run --release -p adguard-api-cli
+
+# Or from project directory
 cd src/adguard-api-rust
-
-# Build
 cargo build --release
-
-# Run tests
 cargo test
 ```
 
@@ -693,6 +1014,7 @@ cargo test
 - Single statically-linked binary distribution
 - Configurable TLS: rustls (default) or native-tls
 - Memory-safe with zero-cost abstractions
+- Part of unified workspace with shared dependencies
 
 **Usage Example**:
 
@@ -833,13 +1155,17 @@ api_token = "your-api-token-here"
 
 Or use environment variables (both .NET-compatible and legacy formats supported by Rust CLI):
 ```bash
-# .NET-compatible format (recommended - works with both C# and Rust)
-export ADGUARD_AdGuard__BaseUrl="https://api.adguard-dns.io"
-export ADGUARD_AdGuard__ApiKey="your-token-here"
+# Recommended cross-platform format
+export ADGUARD_API_BASE_URL="https://api.adguard-dns.io"
+export ADGUARD_API_KEY="your-api-key-here"
 
-# Legacy format (Rust CLI backward compatibility)
-export ADGUARD_API_URL="https://api.adguard-dns.io"
-export ADGUARD_API_TOKEN="your-token-here"
+# Alternative: .NET hierarchical format
+export ADGUARD_AdGuard__BaseUrl="https://api.adguard-dns.io"
+export ADGUARD_AdGuard__ApiKey="your-api-key-here"
+
+# Deprecated (backward compatibility only)
+# export ADGUARD_API_URL="https://api.adguard-dns.io"
+# export ADGUARD_API_TOKEN="your-token-here"
 ```
 
 **Menu Options** (both applications):
@@ -859,16 +1185,18 @@ export ADGUARD_API_TOKEN="your-token-here"
 
 **Environment Variables**:
 
-Both applications now support the same environment variable names for cross-compatibility:
+Both applications support standardized environment variable names for cross-compatibility:
 
 | Variable | Description |
 |----------|-------------|
-| `ADGUARD_AdGuard__ApiKey` | API credential (recommended - works with both C# and Rust) |
-| `ADGUARD_AdGuard__BaseUrl` | API base URL (optional, works with both C# and Rust) |
-| `ADGUARD_API_TOKEN` | Legacy API credential (Rust backward compatibility) |
-| `ADGUARD_API_URL` | Legacy API base URL (Rust backward compatibility) |
+| `ADGUARD_API_KEY` | API credential (recommended cross-platform format) |
+| `ADGUARD_API_BASE_URL` | API base URL (optional, cross-platform format) |
+| `ADGUARD_AdGuard__ApiKey` | API credential (.NET hierarchical format) |
+| `ADGUARD_AdGuard__BaseUrl` | API base URL (.NET hierarchical format) |
 
-**Note**: The Rust CLI now prioritizes .NET-compatible format (`ADGUARD_AdGuard__ApiKey`) over legacy format (`ADGUARD_API_TOKEN`) for maximum cross-compatibility.
+**Deprecated (backward compatibility)**:
+- `ADGUARD_API_TOKEN` - Use `ADGUARD_API_KEY` instead
+- `ADGUARD_API_URL` - Use `ADGUARD_API_BASE_URL` instead
 
 **C# Console UI Configuration Example**:
 ```bash
@@ -893,7 +1221,7 @@ deno task start
 deno task start -- --api-key your-key
 
 # Sync rules from file
-deno task start -- sync --file rules/adguard_user_filter.txt
+deno task start -- sync --file data/output/adguard_user_filter.txt
 ```
 
 **Features**:
@@ -971,7 +1299,7 @@ version: "1.0.0"
 
 sources:
   - name: Local Rules
-    source: rules/local.txt
+    source: data/local.txt
     type: adblock
 
   - name: EasyList
@@ -1056,19 +1384,28 @@ pytest --cov=rules_compiler         # Coverage
 
 ### Rust (cargo test)
 
+> **Rust Workspace**: All Rust projects are now unified in a single workspace. Tests can be run from the repository root or individual project directories.
+
 ```bash
-# Rules Compiler
+# From repository root (recommended) - runs all Rust tests
+cargo test --workspace              # All tests in workspace
+cargo test --workspace -- --nocapture  # With output
+
+# Test specific packages
+cargo test -p rules-compiler        # Rules compiler only
+cargo test -p adguard-api-lib       # API library only
+cargo test -p adguard-api-cli       # API CLI only
+cargo test -p adguard-validation-core  # Validation core only
+
+# From individual project directories
 cd src/rules-compiler-rust
 cargo test                          # All tests
 cargo test -- --nocapture           # With output
 cargo test test_count_rules         # Specific test
 cargo test config::                 # Module tests
 
-# API Client
 cd ../adguard-api-rust
 cargo test                          # All workspace tests
-cargo test --package adguard-api-lib    # Library tests only
-cargo test --package adguard-api-cli    # CLI tests only
 ```
 
 ### PowerShell (Pester)
@@ -1158,6 +1495,7 @@ Download the latest release from the [Releases page](https://github.com/jaypatri
 - [Security Policy](SECURITY.md) - Vulnerability reporting
 - [Release Guide](docs/release-guide.md) - Release process and binary publishing
 - [Centralized Package Management](docs/centralized-package-management.md) - NuGet package management
+- [Shared Deno Configuration](docs/DENO_CONFIG.md) - Deno configuration pattern and guidelines
 
 ### Test Your Ad Blocking
 
@@ -1168,16 +1506,20 @@ Download the latest release from the [Releases page](https://github.com/jaypatri
 
 ### API Clients
 
-Both C# and Rust implementations now support the same environment variable names:
+Both C# and Rust implementations support standardized environment variable names:
 
 | Variable | Description |
 |----------|-------------|
-| `ADGUARD_AdGuard__ApiKey` | AdGuard DNS API credential (recommended - works with both C# and Rust) |
-| `ADGUARD_AdGuard__BaseUrl` | API base URL (optional, works with both C# and Rust) |
-| `ADGUARD_API_TOKEN` | Legacy API credential (Rust backward compatibility only) |
-| `ADGUARD_API_URL` | Legacy API base URL (Rust backward compatibility only) |
+| `ADGUARD_API_KEY` | AdGuard DNS API credential (recommended cross-platform format) |
+| `ADGUARD_API_BASE_URL` | API base URL (optional, cross-platform format) |
+| `ADGUARD_AdGuard__ApiKey` | AdGuard DNS API credential (.NET hierarchical format) |
+| `ADGUARD_AdGuard__BaseUrl` | API base URL (.NET hierarchical format) |
 
-**Cross-Compatibility**: You can now use the same environment variables across both C# Console UI and Rust CLI implementations. The Rust CLI prioritizes the .NET-compatible format (`ADGUARD_AdGuard__ApiKey`) over legacy format (`ADGUARD_API_TOKEN`).
+**Deprecated (backward compatibility only)**:
+- `ADGUARD_API_TOKEN` - Use `ADGUARD_API_KEY` instead
+- `ADGUARD_API_URL` - Use `ADGUARD_API_BASE_URL` instead
+
+**Cross-Compatibility**: All API clients (C#, TypeScript, Rust) support both `ADGUARD_API_KEY` (recommended) and the .NET hierarchical format `ADGUARD_AdGuard__ApiKey`.
 
 **Note for .NET format**: The `ADGUARD_` prefix is required, and double underscore (`__`) represents colon (`:`) in configuration keys. Example: `ADGUARD_AdGuard__ApiKey` maps to `AdGuard:ApiKey` in configuration.
 
@@ -1189,11 +1531,12 @@ Both C# and Rust implementations now support the same environment variable names
 | `RULESCOMPILER_config` | .NET compiler | Default config file path |
 | `RULESCOMPILER_Logging__LogLevel__Default` | .NET compiler | Log level (Debug, Information, Warning, Error) |
 
-### Other
+### Linear Integration
 
 | Variable | Description |
 |----------|-------------|
-| `LINEAR_API_KEY` | Linear integration scripts |
+| `ADGUARD_LINEAR_API_KEY` | Linear integration scripts (recommended) |
+| `LINEAR_API_KEY` | Legacy format (deprecated, use ADGUARD_LINEAR_API_KEY) |
 
 ## Contributing
 

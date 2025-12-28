@@ -653,10 +653,10 @@ public class MyTests
 cp config.yaml config.yaml.backup
 
 # Backup rules
-cp -r rules/ rules.backup/
+cp -r data/ data.backup/
 
 # Backup database/state if applicable
-tar czf backup-$(date +%Y%m%d).tar.gz config/ rules/
+tar czf backup-$(date +%Y%m%d).tar.gz config/ data/
 ```
 
 2. **Test in Parallel:**
@@ -695,7 +695,7 @@ echo "Rollback complete"
 ### Pre-Migration
 
 - [ ] Backup all configuration files
-- [ ] Backup existing rules/output
+- [ ] Backup existing data/output
 - [ ] Document current setup
 - [ ] Test current implementation
 - [ ] Review new implementation docs

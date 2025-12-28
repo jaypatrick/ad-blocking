@@ -1,11 +1,15 @@
 # Copilot Instructions for Ad-Blocking Repository
 
+> 🔒 **Security First**: All filter compilation includes mandatory validation. See [Why Validation Matters](../docs/WHY_VALIDATION_MATTERS.md) for user-friendly explanation.
+
 ## Repository Overview
 
 Multi-language toolkit for ad-blocking and AdGuard DNS management with **identical output** across all compilers. Key principle: **Four languages, one schema, same SHA-384 hash**.
 
 **Components**:
-- **Filter Rules**: AdGuard filter lists (`rules/adguard_user_filter.txt`)
+- **Filter Rules**: AdGuard filter lists with input/output separation
+  - **Input**: `data/input/` - Local rules and internet source references with hash verification
+  - **Output**: `data/output/adguard_user_filter.txt` - Final compiled list in adblock format
 - **API Client**: C# SDK for AdGuard DNS API v1.11 with Polly resilience
 - **Rules Compilers**: TypeScript, C#, Python, Rust - all produce identical output
 - **ConsoleUI**: Spectre.Console menu-driven interface with DI architecture
@@ -14,12 +18,33 @@ Multi-language toolkit for ad-blocking and AdGuard DNS management with **identic
 
 ## Architecture Principles
 
+### Centralized Validation Layer
+**NEW**: Rust-based validation library (`src/adguard-validation/`) provides unified security across all compilers:
+- **At-rest hash verification**: SHA-384 for local files (`data/input/.hashes.json` database)
+- **In-flight hash verification**: SHA-384 for downloads (prevents MITM)
+- **URL security**: HTTPS enforcement, domain validation, content verification
+- **Syntax validation**: Adblock and hosts format linting
+- **File conflict handling**: Rename, overwrite, or error strategies
+- **Archiving**: Timestamped with manifest tracking
+
+**Integration Options**:
+- **Rust compiler**: Direct native library usage (zero overhead)
+- **.NET compiler**: P/Invoke to native library or WASM via Wasmtime
+- **Python compiler**: PyO3 bindings for native Rust integration
+- **TypeScript compiler**: WebAssembly module (no Node.js runtime required)
+
+**Build outputs**:
+- `libadguard_validation.so/.dll/.dylib` (native libraries)
+- `adguard_validation.wasm` (WebAssembly module)
+- `adguard-validate` (CLI tool)
+
 ### Compiler Equivalence
 All four compilers (TypeScript, .NET, Python, Rust) wrap `@adguard/hostlist-compiler` and **must**:
 - Support JSON, YAML, TOML config formats (except PowerShell: JSON only)
 - Count rules identically (exclude empty lines and `!`/`#` comments)
 - Compute SHA-384 hash of output (96 hex chars)
 - Return same result structure: `{ success, ruleCount, hash, elapsedMs, outputPath }`
+- **Use centralized validation library** for all security checks
 
 ### ConsoleUI DI Pattern
 `src/adguard-api-dotnet/src/AdGuard.ConsoleUI/` uses service-oriented architecture:
@@ -36,7 +61,10 @@ Program.cs → ConsoleApplication → [DeviceMenu, DnsServerMenu, StatisticsMenu
 ad-blocking/
 ├── .github/              # GitHub configuration and workflows
 ├── docs/                 # Documentation (API docs, guides)
-├── rules/                # Filter rules and compilation configs
+├── data/                  # Filter rules and compilation data
+│   ├── input/             # Source filter lists (local & remote refs)
+│   ├── output/            # Compiled filter output
+│   └── archive/           # Archived input files (timestamped)
 ├── src/
 │   ├── adguard-api-dotnet/         # C# AdGuard DNS API client
 │   ├── rules-compiler-typescript/  # TypeScript rules compiler
@@ -53,15 +81,36 @@ ad-blocking/
 ## Critical Workflows
 
 ### Compiling Filter Rules (Core Workflow)
-**Goal**: Generate `rules/adguard_user_filter.txt` with verified output
+**Goal**: Generate `data/output/adguard_user_filter.txt` with verified output in adblock format
 
+**Input Processing**:
+1. Scan `data/input/` for local filter files (`.txt`, `.hosts`)
+2. Parse `internet-sources.txt` for remote list URLs
+3. **Validate URLs for security**:
+   - Enforce HTTPS only (reject HTTP)
+   - Validate domain via DNS
+   - Verify Content-Type is text/plain
+   - Scan first 1KB for valid filter syntax
+   - Optional: verify SHA-384 hash (URL format: `https://...#sha384=hash`)
+4. Validate syntax of all sources (adblock/hosts format)
+5. Compute SHA-384 hashes for integrity verification
+6. Detect tampering via hash comparison
+
+**Compilation**:
 ```bash
 # TypeScript (primary method)
 cd src/rules-compiler-typescript && npm run compile
 
-# Validates against compiler-config.json, writes output, computes SHA-384
+# Validates inputs, fetches remote sources, writes output, computes SHA-384
 # CI: .github/workflows/typescript.yml runs this with type-checking
 ```
+
+**Output Guarantees**:
+- ✅ Always in adblock syntax (not hosts format)
+- ✅ SHA-384 hash computed and verified
+- ✅ Rule count validation (excludes comments/empty lines)
+- ✅ Deduplication and validation applied
+- ✅ URL security verified (HTTPS, domain validation, content checks)
 
 **Why four compilers?** Provides language flexibility while ensuring identical output. Use `docs/compiler-comparison.md` to choose based on runtime requirements.
 
@@ -287,8 +336,8 @@ pwsh -Command "Invoke-ScriptAnalyzer -Path . -Recurse"
 **Environment variables**:
 - `ADGUARD_WEBHOOK_URL` - Webhook endpoint for notifications
 - `ADGUARD_API_KEY` - AdGuard DNS API authentication
-- `LINEAR_API_KEY` - Linear integration (src/linear/)
-- `SECRET_KEY` - Encryption keys
+- `ADGUARD_LINEAR_API_KEY` - Linear integration (src/linear/)
+- `DEBUG` - Enable debug mode (common cross-platform variable)
 
 **Configuration priority** (ConsoleUI):
 1. `appsettings.json` (checked into repo, no secrets)
@@ -302,11 +351,24 @@ pwsh -Command "Invoke-ScriptAnalyzer -Path . -Recurse"
 - API client uses **Polly** for rate limiting and retry strategies
 
 ### Filter Rules Security
-- Validate sources before adding to `sources[]` in config
-- Test rule changes locally before committing to `rules/adguard_user_filter.txt`
+- **Input validation**: All files in `data/input/` undergo syntax validation and linting
+- **Hash verification**: SHA-384 hashes computed for all input files to detect tampering
+- **Format enforcement**: Output is always adblock syntax, regardless of input formats
+- **Source tracking**: Maintains provenance of rules from local and internet sources
+- **Syntax validation**: Rules validated before compilation; errors reported with line numbers
+- **Remote source verification**: Internet lists verified via hashes after download
+- **URL security validation**: Comprehensive security checks for internet sources
+  - HTTPS enforcement (HTTP rejected)
+  - Domain validation via DNS
+  - Content-Type verification (text/plain required)
+  - Content scanning for valid filter syntax
+  - Optional SHA-384 hash verification (add `#sha384=hash` to URL)
+  - File size limits to prevent abuse
+- Test rule changes locally before committing to `data/output/adguard_user_filter.txt`
 - Rules deployed to AdGuard DNS affect real traffic filtering
 - Be cautious when adding rules from untrusted sources
 - Validate and test new filter rules before deployment
+- Only use trusted, well-known sources for internet lists
 
 ## Rules Compilation Standards
 
@@ -343,7 +405,7 @@ All compilers return/output:
 Supports 3 formats (JSON/YAML/TOML), mirrors `@adguard/hostlist-compiler`:
 ```json
 {
-  "output": "rules/adguard_user_filter.txt",
+  "output": "data/output/adguard_user_filter.txt",
   "sources": [
     { "url": "https://example.com/list.txt", "transformations": ["RemoveComments"] }
   ],
@@ -450,7 +512,7 @@ cd src/rules-compiler-rust && cargo test
 
 | File/Folder | Purpose | When to Modify |
 |-------------|---------|----------------|
-| `rules/adguard_user_filter.txt` | **Production filter list** | After successful compilation and testing |
+| `data/output/adguard_user_filter.txt` | **Production filter list** | After successful compilation and testing |
 | `src/rules-compiler-typescript/compiler-config.json` | **Primary config** for rule compilation | To change filter sources or transformations |
 | `api/openapi.yaml` | AdGuard DNS API spec (v1.11) | Never (upstream dependency) |
 | `src/adguard-api-dotnet/src/AdGuard.ApiClient/` | **Auto-generated** API client | Never (regenerate from spec instead) |
@@ -490,9 +552,9 @@ npm install
 npm run build
 
 # Configure .env (never commit this!)
-LINEAR_API_KEY=lin_api_your_key_here
-LINEAR_TEAM_ID=optional_team_id
-LINEAR_PROJECT_NAME=Ad-Blocking Documentation
+ADGUARD_LINEAR_API_KEY=lin_api_your_key_here
+ADGUARD_LINEAR_TEAM_ID=optional_team_id
+ADGUARD_LINEAR_PROJECT_NAME=Ad-Blocking Documentation
 ```
 
 ### Usage

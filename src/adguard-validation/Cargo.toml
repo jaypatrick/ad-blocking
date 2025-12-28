@@ -1,0 +1,11 @@
+# This workspace is now part of the root workspace
+# All dependencies are managed at the root level
+
+[workspace.dependencies]
+# Validation core library
+adguard-validation-core = { path = "adguard-validation-core" }
+
+[profile.release.package.adguard-validation-core]
+# Extra optimization for core library
+opt-level = 3
+codegen-units = 1
