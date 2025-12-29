@@ -98,7 +98,8 @@ ad-blocking/
 │   │   ├── devskim.yml                # DevSkim security analysis
 │   │   └── claude*.yml                # Claude AI integration
 │   └── ISSUE_TEMPLATE/                # Issue templates
-├── api/                               # OpenAPI specifications
+├── api/                               # OpenAPI specifications (centralized)
+│   ├── README.md                      # API spec documentation
 │   ├── openapi.json                   # AdGuard DNS API v1.11 (primary)
 │   └── openapi.yaml                   # AdGuard DNS API v1.11 (optional)
 ├── docs/                              # Documentation
@@ -107,7 +108,13 @@ ad-blocking/
 │   ├── getting-started.md             # Quick start guide
 │   ├── compiler-comparison.md         # Compiler comparison matrix
 │   ├── configuration-reference.md     # Configuration schema reference
-│   └── docker-guide.md                # Docker development guide
+│   ├── docker-guide.md                # Docker development guide
+│   ├── AGENTS.md                      # AI agent documentation
+│   ├── PHASE2_IMPLEMENTATION.md       # Modernization roadmap
+│   ├── RUST_WORKSPACE.md              # Rust workspace documentation
+│   ├── RUST_MODERNIZATION_SUMMARY.md  # Rust migration summary
+│   ├── TEST_UPDATES_SUMMARY.md        # Testing updates
+│   └── WARP.md                        # Warp terminal integration
 ├── data/                              # Filter rules and data
 │   ├── input/                         # Source filter lists (local & remote refs)
 │   │   ├── README.md                  # Input directory documentation
@@ -121,15 +128,13 @@ ad-blocking/
 │   │   └── .gitignore                 # Ignore archive contents
 │   └── Config/                        # Compiler configurations (optional)
 ├── src/                               # Source code
-│   ├── rules-compiler-typescript/     # TypeScript/Node.js compiler
+│   ├── rules-compiler-typescript/     # TypeScript/Deno compiler
 │   ├── rules-compiler-dotnet/         # C#/.NET 10 compiler
 │   ├── rules-compiler-python/         # Python 3.9+ compiler
 │   ├── rules-compiler-rust/           # Rust compiler (single binary)
-│   ├── rules-compiler-shell/          # Shell scripts
-│   │   ├── compile-rules.sh           # Bash (Linux/macOS)
-│   │   ├── compile-rules.zsh          # Zsh (macOS/Linux)
-│   │   ├── compile-rules.ps1          # PowerShell Core (all platforms)
-│   │   └── compile-rules.cmd          # Windows batch wrapper
+│   ├── shell-scripts/                 # Shell script wrappers
+│   │   ├── bash/                      # Bash scripts
+│   │   └── zsh/                       # Zsh scripts
 │   ├── adguard-api-dotnet/            # C# API SDK + Console UI
 │   │   ├── src/AdGuard.ApiClient/     # C# SDK library
 │   │   ├── src/AdGuard.ConsoleUI/     # Spectre.Console interface
@@ -141,18 +146,59 @@ ad-blocking/
 │   │   ├── src/api/                   # API client implementations
 │   │   ├── src/cli/                   # Interactive CLI application
 │   │   └── tests/                     # Deno test suite
-│   ├── adguard-api-powershell/        # PowerShell modules
-│   │   ├── Invoke-RulesCompiler.psm1  # Rules compiler module
-│   │   ├── RulesCompiler.psd1         # Module manifest
-│   │   └── Tests/                     # Pester test suite
+│   ├── adguard-api-powershell/        # PowerShell API client (legacy)
+│   ├── powershell-modules/            # PowerShell modules (modern)
+│   │   ├── Common/                    # Shared utilities
+│   │   ├── RulesCompiler/             # Rules compiler module
+│   │   └── AdGuardWebhook/            # Webhook module
+│   ├── adguard-validation/            # Rust validation library
+│   │   ├── adguard-validation-core/   # Core validation logic
+│   │   └── adguard-validation-cli/    # CLI tool
 │   └── linear/                        # Linear integration scripts
+├── tools/                             # Utility and build scripts
+│   ├── README.md                      # Tools documentation
+│   ├── test-build-scripts.sh          # Bash build script tests
+│   ├── test-build-scripts.ps1         # PowerShell build script tests
+│   ├── test-modules.ps1               # PowerShell module tests
+│   ├── check-validation-compliance.sh # Validation compliance check
+│   └── Migrate-To-NewStructure.ps1    # Structure migration script
 ├── Dockerfile.warp                    # Docker dev environment
 ├── CLAUDE.md                          # AI assistant instructions
+├── CONTRIBUTING.md                    # Contribution guidelines
 ├── SECURITY.md                        # Security policy
-└── LICENSE                            # GPL-3.0 license
+├── README.md                          # This file
+├── LICENSE                            # GPL-3.0 license
+├── build.sh                           # Multi-language build script (Bash)
+├── build.ps1                          # Multi-language build script (PowerShell)
+├── launcher.sh                        # Interactive launcher (Bash)
+└── launcher.ps1                       # Interactive launcher (PowerShell)
 ```
 
 ## Quick Start
+
+### 🚀 Interactive Launcher (Easiest Way)
+
+The repository includes feature-rich interactive launchers that provide an intuitive menu system for all tools and tasks:
+
+**Bash Launcher (Linux/macOS):**
+```bash
+./launcher.sh
+```
+
+**PowerShell Launcher (Windows/Cross-platform):**
+```powershell
+.\launcher.ps1
+```
+
+**Features:**
+- 🔨 **Build Tools** - Build projects with debug/release profiles
+- ⚙️ **Compile Filter Rules** - Run compilers in any language
+- 🌐 **AdGuard API Clients** - Launch interactive API tools
+- 🔍 **Validation & Testing** - Run tests and compliance checks
+- 📦 **Project Management** - Clean builds, update dependencies
+- ℹ️ **System Information** - Check installed tools and project status
+
+The launcher provides guided navigation with numbered menus, colored output, and automatic tool detection. Perfect for newcomers and experienced users alike!
 
 ### Prerequisites
 
@@ -200,6 +246,82 @@ cd .. && cargo build --release
 ```
 
 > **Rust Workspace**: All Rust projects (adguard-validation, adguard-api-rust, rules-compiler-rust) are now unified in a single workspace at the repository root. Run `cargo build` from the root to build all Rust projects together. See [RUST_WORKSPACE.md](RUST_WORKSPACE.md) for more details.
+
+### Build All Projects
+
+Root-level build scripts are available to build all projects or specific language ecosystems:
+
+```bash
+# Build all projects (debug mode - default)
+./build.sh
+
+# Build all projects in release mode
+./build.sh --release
+
+# Build specific language ecosystems
+./build.sh --rust              # Build all Rust projects
+./build.sh --dotnet            # Build all .NET projects
+./build.sh --typescript        # Build all TypeScript/Deno projects
+./build.sh --python            # Build Python projects
+
+# Combine options
+./build.sh --rust --dotnet --release   # Build Rust and .NET in release mode
+```
+
+**PowerShell (Windows/Cross-platform)**:
+
+```powershell
+# Build all projects (debug mode - default)
+.\build.ps1
+
+# Build all projects in release mode
+.\build.ps1 -Profile release
+
+# Build specific language ecosystems
+.\build.ps1 -Rust              # Build all Rust projects
+.\build.ps1 -DotNet            # Build all .NET projects
+.\build.ps1 -TypeScript        # Build all TypeScript/Deno projects
+.\build.ps1 -Python            # Build Python projects
+
+# Combine options
+.\build.ps1 -Rust -DotNet -Profile release
+```
+
+**Available Options**:
+- `--all` / `-All`: Build all projects (default if no specific project selected)
+- `--rust` / `-Rust`: Build Rust workspace (validation library, API clients, compilers)
+- `--dotnet` / `-DotNet`: Build .NET solutions (API client, rules compiler)
+- `--typescript` / `-TypeScript`: Build TypeScript/Deno projects (requires Deno)
+- `--python` / `-Python`: Build Python projects (requires Python 3.9+)
+- `--debug`: Use debug profile (default)
+- `--release` / `-Profile release`: Use release/optimized profile
+
+The build scripts automatically:
+- Check for required tools (Rust, .NET, Deno, Python)
+- Restore dependencies
+- Build projects with appropriate configuration
+- Report build status with colored output
+- Exit with appropriate status codes for CI integration
+
+**Testing the Build Scripts**:
+
+Comprehensive test suites are available to validate build script functionality:
+
+```bash
+# Run Bash script tests (25+ unit and integration tests)
+./tools/test-build-scripts.sh
+
+# Run PowerShell script tests
+pwsh -File tools/test-build-scripts.ps1
+```
+
+The test suites include:
+- **Unit tests**: Help output, argument parsing, error handling
+- **Integration tests**: Rust, .NET, TypeScript, Python builds
+- **Combined tests**: Multiple language ecosystems together
+- **Profile tests**: Debug and release build configurations
+
+Tests run automatically in CI via the **Build Scripts Tests** workflow.
 
 ### Compile Filter Rules (Any Language)
 
@@ -486,7 +608,7 @@ deno task test:coverage             # With coverage
 **Features**:
 - Deno 2.0+ runtime with secure-by-default permissions
 - Built-in TypeScript support, no build step required
-- Optional Rust CLI frontend (`frontend-rust/`)
+- Interactive console mode with menu-driven interface
 - Deno native testing and linting
 
 ### .NET Compiler
@@ -1373,6 +1495,7 @@ Download the latest release from the [Releases page](https://github.com/jaypatri
 - [Security Policy](SECURITY.md) - Vulnerability reporting
 - [Release Guide](docs/release-guide.md) - Release process and binary publishing
 - [Centralized Package Management](docs/centralized-package-management.md) - NuGet package management
+- [Shared Deno Configuration](docs/DENO_CONFIG.md) - Deno configuration pattern and guidelines
 
 ### Test Your Ad Blocking
 

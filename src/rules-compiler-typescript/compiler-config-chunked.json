@@ -1,0 +1,34 @@
+{
+  "name": "Test Chunked Compilation",
+  "version": "1.0.0",
+  "description": "Test configuration for chunked parallel compilation",
+  "license": "MIT",
+  "chunking": {
+    "enabled": true,
+    "strategy": "source",
+    "maxParallel": 4
+  },
+  "sources": [
+    {
+      "name": "AdGuard Base",
+      "source": "https://filters.adtidy.org/extension/chromium/filters/2.txt"
+    },
+    {
+      "name": "AdGuard Tracking Protection",
+      "source": "https://filters.adtidy.org/extension/chromium/filters/3.txt"
+    },
+    {
+      "name": "AdGuard Social",
+      "source": "https://filters.adtidy.org/extension/chromium/filters/4.txt"
+    },
+    {
+      "name": "AdGuard Annoyances",
+      "source": "https://filters.adtidy.org/extension/chromium/filters/14.txt"
+    }
+  ],
+  "transformations": [
+    "RemoveComments",
+    "Compress",
+    "Validate"
+  ]
+}

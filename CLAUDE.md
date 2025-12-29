@@ -311,7 +311,6 @@ cargo test config::                       # Tests in module
   - `app.ts` - `ConsoleApplication` class with menu-driven interface
   - `utils.ts` - Console utilities (spinners, tables, colored output)
 - `src/mod.ts` - Deno entry point
-- `frontend-rust/` - Optional Rust CLI frontend
 - `deno.json` - Deno configuration and tasks
 - Key classes: `RulesCompiler`, `RulesCompilerBuilder`, `ConfigurationBuilder`, `ConsoleApplication`
 - Uses Deno's built-in testing framework

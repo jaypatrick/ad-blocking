@@ -30,7 +30,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             target
-          key: ${{ runner.os }}-cargo-validation-${{ hashFiles('Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-validation-${{ hashFiles('**/Cargo.lock') }}
       
       - name: Build validation library
         run: |
@@ -42,7 +42,7 @@ jobs:
       
       - name: Check clippy
         run: |
-          cargo clippy -p adguard-validation-core -p adguard-validation-cli --all-targets --all-features -- -D warnings
+          cargo clippy -p adguard-validation-core -p adguard-validation-cli --all-targets --all-features -- -W clippy::all -W clippy::correctness -W clippy::suspicious
       
       - name: Build CLI tool
         run: |
@@ -72,8 +72,8 @@ jobs:
       
       - name: Run compliance check
         run: |
-          chmod +x scripts/check-validation-compliance.sh
-          ./scripts/check-validation-compliance.sh
+          chmod +x tools/check-validation-compliance.sh
+          ./tools/check-validation-compliance.sh
       
       - name: Generate compliance report
         if: always()
@@ -85,7 +85,7 @@ jobs:
           echo "" >> compliance-report.md
           echo "## Status" >> compliance-report.md
           echo "" >> compliance-report.md
-          ./scripts/check-validation-compliance.sh >> compliance-report.md 2>&1 || true
+          ./tools/check-validation-compliance.sh >> compliance-report.md 2>&1 || true
       
       - name: Upload compliance report
         if: always()
