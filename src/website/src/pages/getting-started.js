@@ -1,0 +1,195 @@
+import * as React from "react"
+import { Link } from "gatsby"
+import Layout from "../components/Layout"
+
+const GettingStartedPage = () => {
+  return (
+    <Layout pageTitle="Getting Started">
+      <p style={{ fontSize: "1.1rem", marginBottom: "2rem" }}>
+        Welcome! This guide will help you get up and running with the
+        Ad-Blocking Toolkit in just a few minutes.
+      </p>
+
+      <section>
+        <h2>Quick Start Options</h2>
+        <div className="features">
+          <div className="feature">
+            <h3>🚀 Interactive Launcher (Recommended)</h3>
+            <p>The easiest way to get started. Choose your platform:</p>
+            <ul>
+              <li>
+                <strong>Linux/macOS:</strong> Run <code>./launcher.sh</code>
+              </li>
+              <li>
+                <strong>Windows:</strong> Run <code>.\launcher.ps1</code>
+              </li>
+            </ul>
+            <p>
+              The launcher provides a guided menu system for all tools and
+              tasks.
+            </p>
+          </div>
+          <div className="feature">
+            <h3>📦 Choose Your Language</h3>
+            <p>Pick the compiler that fits your environment:</p>
+            <ul>
+              <li>
+                <strong>TypeScript/Deno:</strong> Secure by default, no build
+                step
+              </li>
+              <li>
+                <strong>.NET:</strong> Cross-platform with excellent tooling
+              </li>
+              <li>
+                <strong>Python:</strong> Easy installation via pip
+              </li>
+              <li>
+                <strong>Rust:</strong> Single binary, no runtime dependencies
+              </li>
+            </ul>
+            <p>
+              <Link to="/compiler-comparison">Compare compilers →</Link>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section style={{ marginTop: "2rem" }}>
+        <h2>Prerequisites</h2>
+        <p>You'll need at least one of these installed:</p>
+        <ul style={{ fontSize: "1.1rem", lineHeight: "2" }}>
+          <li>
+            <strong>Deno 2.0+</strong> for TypeScript compiler
+          </li>
+          <li>
+            <strong>.NET 10 SDK</strong> for .NET compiler and API client
+          </li>
+          <li>
+            <strong>Python 3.9+</strong> for Python compiler
+          </li>
+          <li>
+            <strong>Rust 1.83+</strong> for Rust compiler and tools
+          </li>
+          <li>
+            <strong>PowerShell 7+</strong> for PowerShell scripts
+          </li>
+        </ul>
+        <p>
+          All compilers also need{" "}
+          <code>@adguard/hostlist-compiler</code> installed.
+        </p>
+      </section>
+
+      <section style={{ marginTop: "2rem" }}>
+        <h2>Installation Steps</h2>
+        <ol style={{ fontSize: "1.1rem", lineHeight: "2" }}>
+          <li>
+            <strong>Clone the repository:</strong>
+            <pre style={{ marginTop: "0.5rem" }}>
+              git clone https://github.com/jaypatrick/ad-blocking.git
+              <br />
+              cd ad-blocking
+            </pre>
+          </li>
+          <li>
+            <strong>Install dependencies:</strong> Run the build script for your
+            chosen language(s):
+            <pre style={{ marginTop: "0.5rem" }}>
+              # Build all projects
+              <br />
+              ./build.sh
+              <br />
+              <br />
+              # Or specific language
+              <br />
+              ./build.sh --typescript
+              <br />
+              ./build.sh --dotnet
+              <br />
+              ./build.sh --python
+              <br />
+              ./build.sh --rust
+            </pre>
+          </li>
+          <li>
+            <strong>Compile filter rules:</strong> Choose your preferred method:
+            <pre style={{ marginTop: "0.5rem" }}>
+              # TypeScript
+              <br />
+              cd src/rules-compiler-typescript && deno task compile
+              <br />
+              <br />
+              # .NET
+              <br />
+              cd src/rules-compiler-dotnet && dotnet run --project
+              src/RulesCompiler.Console
+              <br />
+              <br />
+              # Python
+              <br />
+              cd src/rules-compiler-python && rules-compiler
+              <br />
+              <br />
+              # Rust
+              <br />
+              cargo run --release -p rules-compiler
+            </pre>
+          </li>
+        </ol>
+      </section>
+
+      <section style={{ marginTop: "2rem" }}>
+        <h2>Next Steps</h2>
+        <div className="features">
+          <div className="feature">
+            <h3>
+              <Link to="/docs">Explore Documentation</Link>
+            </h3>
+            <p>
+              Learn about advanced features, configuration options, and API
+              integration.
+            </p>
+          </div>
+          <div className="feature">
+            <h3>
+              <Link to="/guides">Read the Guides</Link>
+            </h3>
+            <p>
+              Step-by-step tutorials for common tasks and deployment scenarios.
+            </p>
+          </div>
+          <div className="feature">
+            <h3>
+              <a href="https://github.com/jaypatrick/ad-blocking">
+                Join the Community
+              </a>
+            </h3>
+            <p>
+              Contribute, report issues, or ask questions on GitHub.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section
+        style={{
+          marginTop: "2rem",
+          padding: "1.5rem",
+          backgroundColor: "#f0f0f0",
+          borderRadius: "8px",
+        }}
+      >
+        <h2>Need Help?</h2>
+        <p>
+          For detailed installation instructions and troubleshooting, see the{" "}
+          <Link to="/getting-started">complete Getting Started guide</Link> in
+          the documentation.
+        </p>
+      </section>
+    </Layout>
+  )
+}
+
+export default GettingStartedPage
+
+export const Head = () => <title>Getting Started - Ad-Blocking Toolkit</title>
