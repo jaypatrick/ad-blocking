@@ -32,6 +32,7 @@ use std::io::{self, Read};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant, SystemTime};
+use sha2::{Sha256, Digest};
 use uuid::Uuid;
 
 #[cfg(unix)]

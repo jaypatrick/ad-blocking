@@ -396,7 +396,11 @@ pub async fn compile_chunks_async(
         result.merged_rules = Some(merged_rules);
     }
 
-    result.total_rules = result.chunks.iter().filter_map(|c| c.actual_rules).sum();
+    result.total_rules = result
+        .chunks
+        .iter()
+        .filter_map(|c| c.actual_rules)
+        .sum();
     result.success = result.errors.is_empty();
 
     tracing::info!(
