@@ -7,7 +7,7 @@ const GettingStartedPage = () => {
     <Layout pageTitle="Getting Started">
       <p style={{ fontSize: "1.1rem", marginBottom: "2rem" }}>
         Welcome! This guide will help you get up and running with the
-        Ad-Blocking Toolkit in just a few minutes.
+        AdGuard Tools and Utilities in just a few minutes.
       </p>
 
       <section>
@@ -192,4 +192,4 @@ const GettingStartedPage = () => {
 
 export default GettingStartedPage
 
-export const Head = () => <title>Getting Started - Ad-Blocking Toolkit</title>
+export const Head = () => <title>Getting Started - AdGuard Tools and Utilities</title>

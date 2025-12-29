@@ -45,4 +45,4 @@ export const query = graphql`
 
 export default ApiPage
 
-export const Head = () => <title>API Reference - Ad-Blocking Toolkit</title>
+export const Head = () => <title>API Reference - AdGuard Tools and Utilities</title>

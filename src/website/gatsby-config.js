@@ -4,7 +4,7 @@
  */
 module.exports = {
   siteMetadata: {
-    title: `Ad-Blocking Toolkit`,
+    title: `AdGuard Tools and Utilities`,
     description: `A comprehensive multi-language toolkit for ad-blocking, network protection, and AdGuard DNS management`,
     author: `Ad-Blocking Contributors`,
     siteUrl: `https://jaypatrick.github.io/ad-blocking`,
@@ -38,8 +38,8 @@ module.exports = {
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
-        name: `Ad-Blocking Toolkit`,
-        short_name: `Ad-Blocking`,
+        name: `AdGuard Tools and Utilities`,
+        short_name: `AdGuard Tools`,
         start_url: `/`,
         background_color: `#663399`,
         theme_color: `#663399`,
