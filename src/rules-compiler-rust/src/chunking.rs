@@ -396,11 +396,7 @@ pub async fn compile_chunks_async(
         result.merged_rules = Some(merged_rules);
     }
 
-    result.total_rules = result
-        .chunks
-        .iter()
-        .filter_map(|c| c.actual_rules)
-        .sum();
+    result.total_rules = result.chunks.iter().filter_map(|c| c.actual_rules).sum();
     result.success = result.errors.is_empty();
 
     tracing::info!(
@@ -457,12 +453,14 @@ async fn compile_single_chunk_async(
 
     // Write config to temp file
     let json = to_json(&config)?;
-    tokio::fs::write(&temp_config_path, &json).await.map_err(|e| {
-        CompilerError::file_system(
-            format!("writing chunk config to {}", temp_config_path.display()),
-            e,
-        )
-    })?;
+    tokio::fs::write(&temp_config_path, &json)
+        .await
+        .map_err(|e| {
+            CompilerError::file_system(
+                format!("writing chunk config to {}", temp_config_path.display()),
+                e,
+            )
+        })?;
 
     // Get compiler command
     let (cmd, args) = get_compiler_command(
@@ -475,11 +473,10 @@ async fn compile_single_chunk_async(
     }
 
     // Execute compiler asynchronously
-    let output = Command::new(&cmd)
-        .args(&args)
-        .output()
-        .await
-        .map_err(|e| CompilerError::process_execution(format!("{} {}", cmd, args.join(" ")), e))?;
+    let output =
+        Command::new(&cmd).args(&args).output().await.map_err(|e| {
+            CompilerError::process_execution(format!("{} {}", cmd, args.join(" ")), e)
+        })?;
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
@@ -694,11 +691,7 @@ mod tests {
                 String::new(),
                 "||test.com^".to_string(),
             ],
-            vec![
-                "||other.com^".to_string(),
-                String::new(),
-                String::new(),
-            ],
+            vec!["||other.com^".to_string(), String::new(), String::new()],
         ];
 
         let (rules, duplicates_removed) = merge_chunks(&chunk_results);

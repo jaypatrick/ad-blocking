@@ -92,7 +92,6 @@ impl Validator {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::config::VerificationMode;
     use std::io::Write;
     use tempfile::{NamedTempFile, TempDir};
 

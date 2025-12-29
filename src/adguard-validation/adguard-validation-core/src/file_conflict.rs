@@ -80,6 +80,7 @@ pub fn resolve_conflict<P: AsRef<Path>>(path: P, strategy: ConflictStrategy) -> 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
     use tempfile::TempDir;
 
     #[test]
