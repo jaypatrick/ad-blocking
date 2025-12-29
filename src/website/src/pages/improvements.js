@@ -6,37 +6,37 @@ const ImprovementsPage = ({ data }) => {
   const improvements = [
     {
       title: "Phase 2 Implementation",
-      slug: "/phase2-implementation",
+      slug: "/PHASE2_IMPLEMENTATION",
       description:
         "Shell reorganization and environment variable standardization across all components.",
     },
     {
       title: "Rust Modernization",
-      slug: "/rust-modernization-summary",
+      slug: "/RUST_MODERNIZATION_SUMMARY",
       description:
         "Unified Rust workspace with shared dependencies and improved build performance.",
     },
     {
       title: "Test Infrastructure Updates",
-      slug: "/test-updates-summary",
+      slug: "/TEST_UPDATES_SUMMARY",
       description:
         "Enhanced testing across all language ecosystems with comprehensive coverage.",
     },
     {
       title: "Runtime Enforcement",
-      slug: "/runtime-enforcement",
+      slug: "/RUNTIME_ENFORCEMENT",
       description:
         "Cryptographic validation ensuring security measures are actually executed.",
     },
     {
       title: "Validation Security",
-      slug: "/validation-enforcement",
+      slug: "/VALIDATION_ENFORCEMENT",
       description:
         "Enhanced security validation with hash verification and URL security checks.",
     },
     {
       title: "Environment Variable Migration",
-      slug: "/environment-variable-migration",
+      slug: "/ENVIRONMENT_VARIABLE_MIGRATION",
       description:
         "Standardized environment variables across .NET, TypeScript, Rust, and PowerShell.",
     },
