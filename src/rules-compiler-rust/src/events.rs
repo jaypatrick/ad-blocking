@@ -25,6 +25,7 @@
 //! dispatcher.add_handler(Box::new(MyHandler));
 //! ```
 
+use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{self, Read};
@@ -505,7 +506,9 @@ impl Default for EventDispatcher {
 impl EventDispatcher {
     /// Create a new event dispatcher.
     pub fn new() -> Self {
-        Self { handlers: Vec::new() }
+        Self {
+            handlers: Vec::new(),
+        }
     }
 
     /// Add an event handler.
@@ -520,14 +523,14 @@ impl EventDispatcher {
 
     /// Raise the compilation starting event.
     pub fn raise_compilation_starting(&self, args: &mut CompilationStartedEventArgs) {
-        tracing::debug!("Raising CompilationStarting event to {} handlers", self.handlers.len());
+        tracing::debug!(
+            "Raising CompilationStarting event to {} handlers",
+            self.handlers.len()
+        );
         for handler in &self.handlers {
             handler.on_compilation_starting(args);
             if args.cancel {
-                tracing::info!(
-                    "Compilation cancelled: {:?}",
-                    args.cancel_reason
-                );
+                tracing::info!("Compilation cancelled: {:?}", args.cancel_reason);
                 break;
             }
         }
@@ -535,7 +538,10 @@ impl EventDispatcher {
 
     /// Raise the configuration loaded event.
     pub fn raise_configuration_loaded(&self, args: &ConfigurationLoadedEventArgs) {
-        tracing::debug!("Raising ConfigurationLoaded event to {} handlers", self.handlers.len());
+        tracing::debug!(
+            "Raising ConfigurationLoaded event to {} handlers",
+            self.handlers.len()
+        );
         for handler in &self.handlers {
             handler.on_configuration_loaded(args);
         }
@@ -643,11 +649,7 @@ impl EventDispatcher {
         for handler in &self.handlers {
             handler.on_chunk_started(args);
             if args.skip {
-                tracing::info!(
-                    "Chunk {} skipped: {:?}",
-                    args.chunk_index,
-                    args.skip_reason
-                );
+                tracing::info!("Chunk {} skipped: {:?}", args.chunk_index, args.skip_reason);
                 break;
             }
         }
@@ -695,7 +697,10 @@ impl EventDispatcher {
 
     /// Raise the compilation completed event.
     pub fn raise_compilation_completed(&self, args: &CompilationCompletedEventArgs) {
-        tracing::debug!("Raising CompilationCompleted event to {} handlers", self.handlers.len());
+        tracing::debug!(
+            "Raising CompilationCompleted event to {} handlers",
+            self.handlers.len()
+        );
         for handler in &self.handlers {
             handler.on_compilation_completed(args);
         }
@@ -703,7 +708,10 @@ impl EventDispatcher {
 
     /// Raise the compilation error event.
     pub fn raise_compilation_error(&self, args: &mut CompilationErrorEventArgs) {
-        tracing::debug!("Raising CompilationError event to {} handlers", self.handlers.len());
+        tracing::debug!(
+            "Raising CompilationError event to {} handlers",
+            self.handlers.len()
+        );
         for handler in &self.handlers {
             handler.on_compilation_error(args);
         }
@@ -934,11 +942,7 @@ mod tests {
 
     #[test]
     fn test_validation_finding() {
-        let finding = ValidationFinding::new(
-            ValidationSeverity::Error,
-            "E001",
-            "Test error",
-        );
+        let finding = ValidationFinding::new(ValidationSeverity::Error, "E001", "Test error");
         assert_eq!(finding.severity, ValidationSeverity::Error);
         assert_eq!(finding.code, "E001");
     }

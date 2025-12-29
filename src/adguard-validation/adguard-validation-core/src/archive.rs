@@ -136,7 +136,6 @@ pub fn cleanup_old_archives<P: AsRef<Path>>(archive_root: P, retention_days: u32
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::io::Write;
     use tempfile::TempDir;
 
     #[test]

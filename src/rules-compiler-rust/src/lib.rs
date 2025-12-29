@@ -80,25 +80,38 @@ pub use error::{CompilerError, Result};
 // Re-export chunking types
 pub use chunking::{
     compile_chunks_async, estimate_speedup, merge_chunks, should_enable_chunking,
-    split_into_chunks, ChunkedCompilationResult, ChunkingOptions, ChunkingStrategy, ChunkMetadata,
+    split_into_chunks, ChunkMetadata, ChunkedCompilationResult, ChunkingOptions, ChunkingStrategy,
 };
 
 // Re-export event types
 pub use events::{
-    // Enums
-    ValidationSeverity, FileLockType,
-    // Event args
-    CompilationStartedEventArgs, ConfigurationLoadedEventArgs, ValidationEventArgs,
-    SourceLoadingEventArgs, SourceLoadedEventArgs,
-    FileLockAcquiredEventArgs, FileLockReleasedEventArgs, FileLockFailedEventArgs,
-    ChunkStartedEventArgs, ChunkCompletedEventArgs, ChunksMergingEventArgs, ChunksMergedEventArgs,
-    CompilationCompletedEventArgs, CompilationErrorEventArgs,
-    // Types
-    ValidationFinding, EventTimestamp,
+    ChunkCompletedEventArgs,
+    ChunkStartedEventArgs,
+    ChunksMergedEventArgs,
+    ChunksMergingEventArgs,
+    CompilationCompletedEventArgs,
+    CompilationErrorEventArgs,
     // Trait and dispatcher
-    CompilationEventHandler, EventDispatcher,
+    CompilationEventHandler,
+    // Event args
+    CompilationStartedEventArgs,
+    ConfigurationLoadedEventArgs,
+    EventDispatcher,
+    EventTimestamp,
+    FileLockAcquiredEventArgs,
+    FileLockFailedEventArgs,
     // File locking
-    FileLockHandle, FileLockService,
+    FileLockHandle,
+    FileLockReleasedEventArgs,
+    FileLockService,
+    FileLockType,
+    SourceLoadedEventArgs,
+    SourceLoadingEventArgs,
+    ValidationEventArgs,
+    // Types
+    ValidationFinding,
+    // Enums
+    ValidationSeverity,
 };
 
 /// Library version from Cargo.toml.

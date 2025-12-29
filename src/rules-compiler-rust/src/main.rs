@@ -194,7 +194,10 @@ fn run_benchmark(rule_count: usize, max_parallel: Option<usize>) -> ExitCode {
     // Show scaling table
     println!("Expected speedups at different scales:");
     println!("--------------------------------------------------");
-    println!("{:<15} {:<15} {:<15} Speedup", "Rules", "Sequential", "Parallel");
+    println!(
+        "{:<15} {:<15} {:<15} Speedup",
+        "Rules", "Sequential", "Parallel"
+    );
     println!("--------------------------------------------------");
 
     for size in [10_000usize, 50_000, 200_000, 500_000] {
