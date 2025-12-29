@@ -48,6 +48,18 @@ struct Cli {
     /// Run in interactive menu mode
     #[arg(short, long)]
     interactive: bool,
+
+    /// Run synthetic benchmark to show expected chunking speedups
+    #[arg(long)]
+    benchmark: bool,
+
+    /// Number of rules to simulate in benchmark (default: 200000)
+    #[arg(long, value_name = "COUNT", default_value = "200000")]
+    benchmark_rules: usize,
+
+    /// Max parallel workers for benchmark (default: CPU count, max 8)
+    #[arg(long, value_name = "WORKERS")]
+    benchmark_parallel: Option<usize>,
 }
 
 #[derive(Subcommand, Debug)]
@@ -68,6 +80,145 @@ enum Commands {
     Version,
     /// Run interactive menu
     Menu,
+    /// Run synthetic benchmark to show expected chunking speedups
+    Benchmark {
+        /// Number of rules to simulate (default: 200000)
+        #[arg(long, value_name = "COUNT", default_value = "200000")]
+        rules: usize,
+
+        /// Max parallel workers (default: CPU count, max 8)
+        #[arg(long, value_name = "WORKERS")]
+        parallel: Option<usize>,
+    },
+}
+
+/// Run a synthetic benchmark to demonstrate chunking speedup.
+fn run_benchmark(rule_count: usize, max_parallel: Option<usize>) -> ExitCode {
+    use rand::Rng;
+    use std::time::{Duration, Instant};
+
+    let max_parallel = max_parallel.unwrap_or_else(|| {
+        std::thread::available_parallelism()
+            .map(|p| std::cmp::min(p.get(), 8))
+            .unwrap_or(4)
+    });
+
+    println!();
+    println!("======================================================================");
+    println!("CHUNKING PERFORMANCE BENCHMARK");
+    println!("======================================================================");
+    println!(
+        "CPU cores available: {}",
+        std::thread::available_parallelism()
+            .map(|p| p.get())
+            .unwrap_or(0)
+    );
+    println!("Max parallel workers: {max_parallel}");
+    println!("Simulating {rule_count} rules");
+    println!();
+
+    // Simulate processing function
+    fn simulate_processing(rule_count: usize) -> f64 {
+        let fixed_overhead_ms = 50.0;
+        let per_rule_ms = 0.01; // 10ms per 1000 rules
+
+        let mut rng = rand::rng();
+        let variation: f64 = rng.random_range(0.95..1.15);
+
+        let processing_time = (fixed_overhead_ms + (rule_count as f64 * per_rule_ms)) * variation;
+
+        // Sleep scaled down for demo (1% of actual time)
+        std::thread::sleep(Duration::from_micros((processing_time * 10.0) as u64));
+
+        processing_time
+    }
+
+    // Sequential benchmark
+    print!("Running sequential benchmark... ");
+    std::io::Write::flush(&mut std::io::stdout()).ok();
+    let _start = Instant::now();
+    let sequential_time = simulate_processing(rule_count);
+    println!("done ({sequential_time:.0}ms simulated)");
+
+    // Parallel benchmark
+    print!("Running parallel benchmark ({max_parallel} workers)... ");
+    std::io::Write::flush(&mut std::io::stdout()).ok();
+
+    let chunk_size = (rule_count + max_parallel - 1) / max_parallel;
+    let _start = Instant::now();
+
+    // Use threads to simulate parallel processing
+    let handles: Vec<_> = (0..max_parallel)
+        .map(|i| {
+            let rules_in_chunk = if i == max_parallel - 1 {
+                rule_count - (chunk_size * i)
+            } else {
+                chunk_size
+            };
+            std::thread::spawn(move || simulate_processing(rules_in_chunk))
+        })
+        .collect();
+
+    let chunk_times: Vec<f64> = handles
+        .into_iter()
+        .map(|h| h.join().unwrap_or(0.0))
+        .collect();
+
+    let parallel_time = chunk_times
+        .iter()
+        .cloned()
+        .max_by(|a, b| a.partial_cmp(b).unwrap())
+        .unwrap_or(0.0);
+    println!("done ({parallel_time:.0}ms simulated)");
+
+    // Calculate results
+    let speedup = if parallel_time > 0.0 {
+        sequential_time / parallel_time
+    } else {
+        1.0
+    };
+    let efficiency = speedup / max_parallel as f64;
+    let time_saved = sequential_time - parallel_time;
+
+    println!();
+    println!("----------------------------------------------------------------------");
+    println!("RESULTS");
+    println!("----------------------------------------------------------------------");
+    println!("Sequential time:     {sequential_time:.0} ms");
+    println!("Parallel time:       {parallel_time:.0} ms");
+    println!("Speedup:             {speedup:.2}x");
+    println!("Efficiency:          {:.1}%", efficiency * 100.0);
+    println!("Time saved:          {time_saved:.0} ms");
+    println!();
+
+    // Show scaling table
+    println!("Expected speedups at different scales:");
+    println!("--------------------------------------------------");
+    println!("{:<15} {:<15} {:<15} Speedup", "Rules", "Sequential", "Parallel");
+    println!("--------------------------------------------------");
+
+    for size in [10_000usize, 50_000, 200_000, 500_000] {
+        let seq = 50.0 + (size as f64 * 0.01);
+        let par = 50.0 + ((size as f64 / max_parallel as f64) * 0.01);
+        let spd = seq / par;
+        println!(
+            "{:<15} {:<15} {:<15} {:.2}x",
+            format!("{size}"),
+            format!("{seq:.0} ms"),
+            format!("{par:.0} ms"),
+            spd
+        );
+    }
+
+    println!("--------------------------------------------------");
+    println!();
+    println!("Note: Actual speedup depends on:");
+    println!("  - Number of CPU cores");
+    println!("  - I/O performance (especially for network sources)");
+    println!("  - Rule complexity and transformations applied");
+    println!();
+
+    ExitCode::SUCCESS
 }
 
 /// Parse format string to ConfigFormat.
@@ -469,6 +620,11 @@ fn main() -> ExitCode {
     // Parse format if provided
     let format = cli.format.as_deref().and_then(parse_format);
 
+    // Handle benchmark flag
+    if cli.benchmark {
+        return run_benchmark(cli.benchmark_rules, cli.benchmark_parallel);
+    }
+
     // Handle interactive mode
     if cli.interactive || matches!(cli.command, Some(Commands::Menu)) {
         return run_interactive_menu(cli.config);
@@ -532,5 +688,6 @@ fn main() -> ExitCode {
             )
         }
         Some(Commands::Menu) => run_interactive_menu(cli.config),
+        Some(Commands::Benchmark { rules, parallel }) => run_benchmark(rules, parallel),
     }
 }

@@ -15,6 +15,9 @@ namespace RulesCompiler.Console.Services;
 ///   <item><description>--no-validate-config: Disable configuration validation before compilation</description></item>
 ///   <item><description>--fail-on-warnings: Fail compilation if configuration has validation warnings</description></item>
 ///   <item><description>--version, -v: Show version information</description></item>
+///   <item><description>--benchmark: Run synthetic benchmark to show expected chunking speedups</description></item>
+///   <item><description>--benchmark-rules: Number of rules to simulate (default: 200000)</description></item>
+///   <item><description>--benchmark-parallel: Max parallel workers (default: CPU count, max 8)</description></item>
 /// </list>
 /// </remarks>
 public class ConsoleApplication
@@ -54,7 +57,12 @@ public class ConsoleApplication
         var showVersion = _configuration.GetValue<bool>("version") || _configuration.GetValue<bool>("v");
         var verbose = _configuration.GetValue<bool>("verbose");
         var validateOnly = _configuration.GetValue<bool>("validate");
-        
+
+        // Check for benchmark mode - handle both the flag alone and with options
+        var runBenchmark = args.Contains("--benchmark", StringComparer.OrdinalIgnoreCase);
+        var benchmarkRules = _configuration.GetValue<int>("benchmark-rules");
+        var benchmarkParallel = _configuration.GetValue<int>("benchmark-parallel");
+
         // Parse validation options
         var validateConfig = ParseValidateConfigOption();
         var failOnWarnings = _configuration.GetValue<bool>("fail-on-warnings");
@@ -63,6 +71,13 @@ public class ConsoleApplication
         {
             await ShowVersionInfoAsync();
             return 0;
+        }
+
+        if (runBenchmark)
+        {
+            return RunBenchmark(
+                benchmarkRules > 0 ? benchmarkRules : 200_000,
+                benchmarkParallel > 0 ? benchmarkParallel : Math.Min(Environment.ProcessorCount, 8));
         }
 
         if (validateOnly)
@@ -264,6 +279,118 @@ public class ConsoleApplication
             AnsiConsole.WriteException(ex);
             return 1;
         }
+    }
+
+    private static int RunBenchmark(int ruleCount, int maxParallel)
+    {
+        AnsiConsole.WriteLine();
+        AnsiConsole.Write(new Rule("[green]Chunking Performance Benchmark[/]").RuleStyle("grey"));
+        AnsiConsole.WriteLine();
+
+        var cpuCount = Environment.ProcessorCount;
+        AnsiConsole.MarkupLine($"[grey]CPU cores available:[/] {cpuCount}");
+        AnsiConsole.MarkupLine($"[grey]Max parallel workers:[/] {maxParallel}");
+        AnsiConsole.MarkupLine($"[grey]Simulating:[/] {ruleCount:N0} rules");
+        AnsiConsole.WriteLine();
+
+        // Simulate processing function
+        static double SimulateProcessing(int rules)
+        {
+            const double fixedOverheadMs = 50.0;
+            const double perRuleMs = 0.01; // 10ms per 1000 rules
+
+            var random = new Random();
+            var variation = 0.95 + (random.NextDouble() * 0.2); // 0.95 to 1.15
+
+            var processingTime = (fixedOverheadMs + (rules * perRuleMs)) * variation;
+
+            // Sleep scaled down for demo (1% of actual time)
+            Thread.Sleep(TimeSpan.FromMilliseconds(processingTime * 0.01));
+
+            return processingTime;
+        }
+
+        // Sequential benchmark
+        double sequentialTime = 0;
+        AnsiConsole.Status()
+            .Start("Running sequential benchmark...", ctx =>
+            {
+                sequentialTime = SimulateProcessing(ruleCount);
+            });
+        AnsiConsole.MarkupLine($"[green]✓[/] Sequential: {sequentialTime:N0}ms simulated");
+
+        // Parallel benchmark
+        double parallelTime = 0;
+        AnsiConsole.Status()
+            .Start($"Running parallel benchmark ({maxParallel} workers)...", ctx =>
+            {
+                var chunkSize = (ruleCount + maxParallel - 1) / maxParallel;
+                var tasks = new List<Task<double>>();
+
+                for (var i = 0; i < maxParallel; i++)
+                {
+                    var rulesInChunk = i == maxParallel - 1
+                        ? ruleCount - (chunkSize * i)
+                        : chunkSize;
+                    var rules = rulesInChunk;
+                    tasks.Add(Task.Run(() => SimulateProcessing(rules)));
+                }
+
+                Task.WaitAll(tasks.ToArray());
+                parallelTime = tasks.Max(t => t.Result);
+            });
+        AnsiConsole.MarkupLine($"[green]✓[/] Parallel: {parallelTime:N0}ms simulated");
+
+        // Calculate results
+        var speedup = parallelTime > 0 ? sequentialTime / parallelTime : 1.0;
+        var efficiency = speedup / maxParallel;
+        var timeSaved = sequentialTime - parallelTime;
+
+        AnsiConsole.WriteLine();
+        AnsiConsole.Write(new Rule("[yellow]Results[/]").RuleStyle("grey"));
+        AnsiConsole.WriteLine();
+
+        var resultsTable = new Table()
+            .Border(TableBorder.Rounded)
+            .AddColumn("[green]Metric[/]")
+            .AddColumn("[green]Value[/]");
+
+        resultsTable.AddRow("Sequential time", $"{sequentialTime:N0} ms");
+        resultsTable.AddRow("Parallel time", $"{parallelTime:N0} ms");
+        resultsTable.AddRow("Speedup", $"{speedup:F2}x");
+        resultsTable.AddRow("Efficiency", $"{efficiency:P1}");
+        resultsTable.AddRow("Time saved", $"{timeSaved:N0} ms");
+
+        AnsiConsole.Write(resultsTable);
+
+        // Show scaling table
+        AnsiConsole.WriteLine();
+        AnsiConsole.MarkupLine("[grey]Expected speedups at different scales:[/]");
+        AnsiConsole.WriteLine();
+
+        var scalingTable = new Table()
+            .Border(TableBorder.Simple)
+            .AddColumn("Rules")
+            .AddColumn("Sequential")
+            .AddColumn("Parallel")
+            .AddColumn("Speedup");
+
+        var testSizes = new[] { 10_000, 50_000, 200_000, 500_000 };
+        foreach (var size in testSizes)
+        {
+            var seq = 50.0 + (size * 0.01);
+            var par = 50.0 + ((double)size / maxParallel * 0.01);
+            var spd = seq / par;
+            scalingTable.AddRow($"{size:N0}", $"{seq:N0} ms", $"{par:N0} ms", $"{spd:F2}x");
+        }
+
+        AnsiConsole.Write(scalingTable);
+
+        AnsiConsole.WriteLine();
+        AnsiConsole.MarkupLine("[grey]Note: Actual speedup depends on CPU cores, I/O performance, and rule complexity.[/]");
+        AnsiConsole.WriteLine();
+
+        return 0;
     }
 
     private async Task<int> RunValidationAsync(string? configPath)

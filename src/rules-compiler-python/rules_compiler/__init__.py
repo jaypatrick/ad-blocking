@@ -77,6 +77,46 @@ from rules_compiler.errors import (
     ValidationResult,
     ErrorCode,
 )
+from rules_compiler.chunking import (
+    ChunkingOptions,
+    ChunkingStrategy,
+    ChunkMetadata,
+    ChunkedCompilationResult,
+    should_enable_chunking,
+    split_into_chunks,
+    merge_chunks,
+    compile_chunks_async,
+    estimate_speedup,
+)
+from rules_compiler.events import (
+    # Enums
+    ValidationSeverity,
+    FileLockType,
+    # Validation types
+    ValidationFinding,
+    # Event args
+    CompilationEventArgs,
+    CompilationStartedEventArgs,
+    ConfigurationLoadedEventArgs,
+    ValidationEventArgs,
+    SourceLoadingEventArgs,
+    SourceLoadedEventArgs,
+    FileLockAcquiredEventArgs,
+    FileLockReleasedEventArgs,
+    FileLockFailedEventArgs,
+    ChunkStartedEventArgs,
+    ChunkCompletedEventArgs,
+    ChunksMergingEventArgs,
+    ChunksMergedEventArgs,
+    CompilationCompletedEventArgs,
+    CompilationErrorEventArgs,
+    # Handler and dispatcher
+    CompilationEventHandler,
+    EventDispatcher,
+    # File locking
+    FileLockHandle,
+    FileLockService,
+)
 from rules_compiler.cli import main
 
 __all__ = [
@@ -112,6 +152,17 @@ __all__ = [
     "hash_short",
     "format_elapsed",
     "find_command",
+    # Chunking types
+    "ChunkingOptions",
+    "ChunkingStrategy",
+    "ChunkMetadata",
+    "ChunkedCompilationResult",
+    # Chunking functions
+    "should_enable_chunking",
+    "split_into_chunks",
+    "merge_chunks",
+    "compile_chunks_async",
+    "estimate_speedup",
     # Error types
     "CompilerError",
     "ConfigNotFoundError",
@@ -125,6 +176,32 @@ __all__ = [
     "TimeoutError",
     "ValidationResult",
     "ErrorCode",
+    # Event enums
+    "ValidationSeverity",
+    "FileLockType",
+    # Event types
+    "ValidationFinding",
+    "CompilationEventArgs",
+    "CompilationStartedEventArgs",
+    "ConfigurationLoadedEventArgs",
+    "ValidationEventArgs",
+    "SourceLoadingEventArgs",
+    "SourceLoadedEventArgs",
+    "FileLockAcquiredEventArgs",
+    "FileLockReleasedEventArgs",
+    "FileLockFailedEventArgs",
+    "ChunkStartedEventArgs",
+    "ChunkCompletedEventArgs",
+    "ChunksMergingEventArgs",
+    "ChunksMergedEventArgs",
+    "CompilationCompletedEventArgs",
+    "CompilationErrorEventArgs",
+    # Event handling
+    "CompilationEventHandler",
+    "EventDispatcher",
+    # File locking
+    "FileLockHandle",
+    "FileLockService",
     # CLI
     "main",
 ]

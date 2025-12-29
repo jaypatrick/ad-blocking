@@ -8,6 +8,7 @@ public class FilterCompiler : IFilterCompiler
     private readonly ILogger<FilterCompiler> _logger;
     private readonly IConfigurationReader _configurationReader;
     private readonly CommandHelper _commandHelper;
+    private readonly IChunkingService? _chunkingService;
 
     private const string CompilerCommand = "hostlist-compiler";
     private const string NpxCommand = "npx";
@@ -19,14 +20,17 @@ public class FilterCompiler : IFilterCompiler
     /// <param name="logger">The logger instance.</param>
     /// <param name="configurationReader">The configuration reader.</param>
     /// <param name="commandHelper">The command helper.</param>
+    /// <param name="chunkingService">Optional chunking service for parallel compilation.</param>
     public FilterCompiler(
         ILogger<FilterCompiler> logger,
         IConfigurationReader configurationReader,
-        CommandHelper commandHelper)
+        CommandHelper commandHelper,
+        IChunkingService? chunkingService = null)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _configurationReader = configurationReader ?? throw new ArgumentNullException(nameof(configurationReader));
         _commandHelper = commandHelper ?? throw new ArgumentNullException(nameof(commandHelper));
+        _chunkingService = chunkingService;
     }
 
     /// <inheritdoc/>
@@ -70,6 +74,14 @@ public class FilterCompiler : IFilterCompiler
                 options.ConfigPath, options.Format, cancellationToken);
             result.ConfigName = config.Name;
             result.ConfigVersion = config.Version;
+
+            // Check if chunking should be used
+            if (_chunkingService != null &&
+                options.Chunking != null &&
+                _chunkingService.ShouldEnableChunking(config, options.Chunking))
+            {
+                return await CompileWithChunkingAsync(config, options, cancellationToken);
+            }
 
             // Determine config path to use (convert to JSON if needed)
             var actualFormat = options.Format ?? _configurationReader.DetectFormat(options.ConfigPath);
@@ -254,5 +266,103 @@ public class FilterCompiler : IFilterCompiler
         }
 
         return (string.Empty, string.Empty);
+    }
+
+    /// <summary>
+    /// Compiles filter rules using chunked parallel compilation.
+    /// </summary>
+    private async Task<CompilerResult> CompileWithChunkingAsync(
+        CompilerConfiguration config,
+        CompilerOptions options,
+        CancellationToken cancellationToken)
+    {
+        var result = new CompilerResult
+        {
+            StartTime = DateTime.UtcNow,
+            ConfigName = config.Name,
+            ConfigVersion = config.Version
+        };
+
+        var stopwatch = Stopwatch.StartNew();
+
+        try
+        {
+            _logger.LogInformation("Starting chunked parallel compilation for {Name}", config.Name);
+
+            // Split into chunks
+            var chunks = _chunkingService!.SplitIntoChunks(config, options.Chunking!);
+
+            if (chunks.Count == 0)
+            {
+                result.Success = false;
+                result.ErrorMessage = "No chunks were created";
+                return result;
+            }
+
+            _logger.LogInformation("Created {Count} chunks for parallel compilation", chunks.Count);
+
+            // Compile chunks in parallel
+            var chunkResult = await _chunkingService.CompileChunksAsync(
+                chunks,
+                options,
+                options.Chunking!,
+                cancellationToken);
+
+            // Determine output path
+            var actualOutputPath = options.OutputPath ?? Path.Combine(
+                Path.GetDirectoryName(options.ConfigPath!) ?? ".",
+                "output",
+                $"compiled-{DateTime.UtcNow:yyyyMMdd-HHmmss}.txt");
+
+            // Ensure output directory exists
+            var outputDir = Path.GetDirectoryName(actualOutputPath);
+            if (!string.IsNullOrEmpty(outputDir) && !Directory.Exists(outputDir))
+            {
+                Directory.CreateDirectory(outputDir);
+            }
+
+            result.OutputPath = actualOutputPath;
+
+            if (!chunkResult.Success)
+            {
+                result.Success = false;
+                result.ErrorMessage = string.Join("; ", chunkResult.Errors);
+                _logger.LogError("Chunked compilation failed: {Errors}", result.ErrorMessage);
+                return result;
+            }
+
+            // Write merged output
+            if (chunkResult.MergedRules != null)
+            {
+                await File.WriteAllLinesAsync(actualOutputPath, chunkResult.MergedRules, cancellationToken);
+                _logger.LogInformation(
+                    "Wrote {Count} rules to {Path} (removed {Duplicates} duplicates)",
+                    chunkResult.FinalRuleCount,
+                    actualOutputPath,
+                    chunkResult.DuplicatesRemoved);
+            }
+
+            result.Success = true;
+            result.StandardOutput = $"Chunked compilation complete: {chunkResult.FinalRuleCount} rules from {chunks.Count} chunks (speedup: {chunkResult.EstimatedSpeedup:F2}x)";
+
+            _logger.LogInformation(
+                "Chunked compilation completed successfully in {ElapsedMs}ms (estimated speedup: {Speedup:F2}x)",
+                stopwatch.ElapsedMilliseconds,
+                chunkResult.EstimatedSpeedup);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Chunked compilation failed");
+            result.Success = false;
+            result.ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            stopwatch.Stop();
+            result.ElapsedMs = stopwatch.ElapsedMilliseconds;
+            result.EndTime = DateTime.UtcNow;
+        }
+
+        return result;
     }
 }
