@@ -700,14 +700,9 @@ pub async fn compile_rules_async<P: AsRef<Path>>(
         let temp_path =
             std::env::temp_dir().join(format!("compiler-config-{}.json", uuid::Uuid::new_v4()));
         let json = to_json(&config)?;
-        tokio::fs::write(&temp_path, &json)
-            .await
-            .map_err(|e| {
-                CompilerError::file_system(
-                    format!("writing temp config to {}", temp_path.display()),
-                    e,
-                )
-            })?;
+        tokio::fs::write(&temp_path, &json).await.map_err(|e| {
+            CompilerError::file_system(format!("writing temp config to {}", temp_path.display()), e)
+        })?;
 
         if options.debug {
             eprintln!("[DEBUG] Created temp JSON config: {}", temp_path.display());
@@ -721,14 +716,12 @@ pub async fn compile_rules_async<P: AsRef<Path>>(
 
     // Ensure output directory exists
     if let Some(output_dir) = output_path.parent() {
-        tokio::fs::create_dir_all(output_dir)
-            .await
-            .map_err(|e| {
-                CompilerError::file_system(
-                    format!("creating output directory {}", output_dir.display()),
-                    e,
-                )
-            })?;
+        tokio::fs::create_dir_all(output_dir).await.map_err(|e| {
+            CompilerError::file_system(
+                format!("creating output directory {}", output_dir.display()),
+                e,
+            )
+        })?;
     }
 
     // Get compiler command
@@ -785,14 +778,12 @@ pub async fn compile_rules_async<P: AsRef<Path>>(
     // Copy to rules directory if requested
     if options.copy_to_rules {
         let rules_dir = get_rules_directory(&config_path, options.rules_directory.as_deref());
-        tokio::fs::create_dir_all(&rules_dir)
-            .await
-            .map_err(|e| {
-                CompilerError::file_system(
-                    format!("creating rules directory {}", rules_dir.display()),
-                    e,
-                )
-            })?;
+        tokio::fs::create_dir_all(&rules_dir).await.map_err(|e| {
+            CompilerError::file_system(
+                format!("creating rules directory {}", rules_dir.display()),
+                e,
+            )
+        })?;
 
         let dest_path = rules_dir.join("adguard_user_filter.txt");
         tokio::fs::copy(&output_path, &dest_path)

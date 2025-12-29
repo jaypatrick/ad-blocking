@@ -2,13 +2,13 @@
  * Base API client class
  */
 
-import { AxiosError, AxiosInstance } from 'axios';
+import { AxiosError, type AxiosInstance } from 'axios';
 import {
-  ApiConfiguration,
   createAxiosInstance,
   createRetryableClient,
-  Logger,
   silentLogger,
+  type ApiConfiguration,
+  type Logger,
 } from '../helpers/configuration.ts';
 import {
   ApiError,
@@ -17,7 +17,7 @@ import {
   RateLimitError,
   ValidationError,
 } from '../errors/index.ts';
-import { ErrorResponse } from '../models/index.ts';
+import type { ErrorResponse } from '../models/index.ts';
 
 /** Base API client */
 export abstract class BaseApi {

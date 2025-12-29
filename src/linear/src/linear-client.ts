@@ -3,7 +3,7 @@
  */
 
 import { LinearClient } from '@linear/sdk';
-import {
+import type {
   ComponentInfo,
   ImportConfig,
   LinearImportResult,

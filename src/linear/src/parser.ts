@@ -3,7 +3,7 @@
  */
 
 import { readFileSync } from 'fs';
-import { ComponentInfo, DocumentSection, ParsedDocument, RoadmapItem } from './types.ts';
+import type { ComponentInfo, DocumentSection, ParsedDocument, RoadmapItem } from './types.ts';
 
 /**
  * Parse a markdown file into structured sections

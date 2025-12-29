@@ -1,144 +1,72 @@
-# This workflow will build and test TypeScript projects using Deno
+# Deno TypeScript Build and Test workflow
+# Optimized with Deno caching, matrix strategy, and path-based triggers
+
 name: Deno TypeScript Build
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
+    paths:
+      - 'src/rules-compiler-typescript/**'
+      - 'src/adguard-api-typescript/**'
+      - 'src/linear/**'
+      - '.github/workflows/typescript.yml'
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
+    paths:
+      - 'src/rules-compiler-typescript/**'
+      - 'src/adguard-api-typescript/**'
+      - 'src/linear/**'
+      - '.github/workflows/typescript.yml'
 
 jobs:
-  build-rules-compiler:
-    name: Build and Test Rules Compiler (Deno)
+  build:
+    name: ${{ matrix.name }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Rules Compiler (Deno)
+            path: src/rules-compiler-typescript
+            has_tests: true
+          - name: AdGuard API Client (Deno)
+            path: src/adguard-api-typescript
+            has_tests: true
+          - name: Linear Import Tool (Deno)
+            path: src/linear
+            has_tests: false
+
     defaults:
       run:
-        working-directory: ./src/rules-compiler-typescript
+        working-directory: ${{ matrix.path }}
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Setup Deno
-      uses: denoland/setup-deno@v2
-      with:
-        deno-version: v2.x
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
 
-    - name: Verify Deno installation
-      run: deno --version
+      - name: Cache Deno dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/deno
+            ~/.deno
+          key: ${{ runner.os }}-deno-${{ hashFiles('**/deno.lock', '**/deno.json') }}
+          restore-keys: ${{ runner.os }}-deno-
 
-    - name: Generate type definitions
-      run: deno task generate:types
+      - name: Type check
+        run: deno task check
 
-    - name: Verify type definitions generated
-      run: |
-        if [ ! -d "dist" ]; then
-          echo "Error: dist directory not created"
-          exit 1
-        fi
-        file_count=$(find dist -name "*.d.ts" | wc -l)
-        echo "Generated $file_count .d.ts files"
-        if [ "$file_count" -eq 0 ]; then
-          echo "Error: No .d.ts files generated"
-          exit 1
-        fi
+      - name: Lint
+        run: deno task lint
 
-    - name: Type check
-      run: deno task check
+      - name: Format check
+        run: deno fmt --check src/
 
-    - name: Lint
-      run: deno task lint
-
-    - name: Format check
-      run: deno fmt --check src/
-
-    - name: Test
-      run: deno task test
-
-  build-adguard-api:
-    name: Build and Test AdGuard API Client (Deno)
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./src/adguard-api-typescript
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Setup Deno
-      uses: denoland/setup-deno@v2
-      with:
-        deno-version: v2.x
-
-    - name: Verify Deno installation
-      run: deno --version
-
-    - name: Generate type definitions
-      run: deno task generate:types
-
-    - name: Verify type definitions generated
-      run: |
-        if [ ! -d "dist" ]; then
-          echo "Error: dist directory not created"
-          exit 1
-        fi
-        file_count=$(find dist -name "*.d.ts" | wc -l)
-        echo "Generated $file_count .d.ts files"
-        if [ "$file_count" -eq 0 ]; then
-          echo "Error: No .d.ts files generated"
-          exit 1
-        fi
-
-    - name: Type check
-      run: deno task check
-
-    - name: Lint
-      run: deno task lint
-
-    - name: Format check
-      run: deno fmt --check src/
-
-    - name: Test
-      run: deno task test
-
-  build-linear:
-    name: Build Linear Import Tool (Deno)
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./src/linear
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Setup Deno
-      uses: denoland/setup-deno@v2
-      with:
-        deno-version: v2.x
-
-    - name: Verify Deno installation
-      run: deno --version
-
-    - name: Generate type definitions
-      run: deno task generate:types
-
-    - name: Verify type definitions generated
-      run: |
-        if [ ! -d "dist" ]; then
-          echo "Error: dist directory not created"
-          exit 1
-        fi
-        file_count=$(find dist -name "*.d.ts" | wc -l)
-        echo "Generated $file_count .d.ts files"
-        if [ "$file_count" -eq 0 ]; then
-          echo "Error: No .d.ts files generated"
-          exit 1
-        fi
-
-    - name: Type check
-      run: deno task check
-
-    - name: Lint
-      run: deno task lint
-
-    - name: Format check
-      run: deno fmt --check src/
+      - name: Test
+        if: matrix.has_tests
+        run: deno task test

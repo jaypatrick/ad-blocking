@@ -3,8 +3,8 @@
  */
 
 import { BaseApi } from './base.ts';
-import { ApiConfiguration } from '../helpers/configuration.ts';
-import { WebService } from '../models/index.ts';
+import type { ApiConfiguration } from '../helpers/configuration.ts';
+import type { WebService } from '../models/index.ts';
 
 /** Web Services API endpoints */
 export class WebServicesApi extends BaseApi {

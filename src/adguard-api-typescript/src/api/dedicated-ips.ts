@@ -3,8 +3,8 @@
  */
 
 import { BaseApi } from './base.ts';
-import { ApiConfiguration } from '../helpers/configuration.ts';
-import { DedicatedIPv4Address } from '../models/index.ts';
+import type { ApiConfiguration } from '../helpers/configuration.ts';
+import type { DedicatedIPv4Address } from '../models/index.ts';
 
 /** Dedicated IP Addresses API endpoints */
 export class DedicatedIpApi extends BaseApi {

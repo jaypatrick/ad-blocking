@@ -31,7 +31,7 @@ import {
   flattenSections,
   parseMarkdownFile,
 } from './parser.ts';
-import { ImportConfig } from './types.ts';
+import type { ImportConfig } from './types.ts';
 
 // Load environment variables
 const __dirname = dirname(fileURLToPath(import.meta.url));

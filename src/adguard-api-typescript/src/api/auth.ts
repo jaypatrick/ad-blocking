@@ -3,8 +3,8 @@
  */
 
 import { BaseApi } from './base.ts';
-import { ApiConfiguration } from '../helpers/configuration.ts';
-import { AccessTokenCredentials, AccessTokenResponse } from '../models/index.ts';
+import type { ApiConfiguration } from '../helpers/configuration.ts';
+import type { AccessTokenCredentials, AccessTokenResponse } from '../models/index.ts';
 
 /** Authentication API endpoints */
 export class AuthApi extends BaseApi {

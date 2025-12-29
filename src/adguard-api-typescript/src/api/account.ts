@@ -3,8 +3,8 @@
  */
 
 import { BaseApi } from './base.ts';
-import { ApiConfiguration } from '../helpers/configuration.ts';
-import { AccountLimits } from '../models/index.ts';
+import type { ApiConfiguration } from '../helpers/configuration.ts';
+import type { AccountLimits } from '../models/index.ts';
 
 /** Account API endpoints */
 export class AccountApi extends BaseApi {
