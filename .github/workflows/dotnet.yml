@@ -1,50 +1,73 @@
-# This workflow will build and test .NET projects
+# .NET Build and Test workflow
+# Optimized with matrix strategy and path-based triggers
 
 name: .NET
 
 on:
   push:
     branches: ["main"]
+    paths:
+      - 'src/adguard-api-dotnet/**'
+      - 'src/rules-compiler-dotnet/**'
+      - '.github/workflows/dotnet.yml'
   pull_request:
     branches: ["main"]
+    paths:
+      - 'src/adguard-api-dotnet/**'
+      - 'src/rules-compiler-dotnet/**'
+      - '.github/workflows/dotnet.yml'
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
 
 jobs:
-  build-api-client:
-    name: Build API Client
+  build:
+    name: ${{ matrix.name }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Build API Client
+            path: src/adguard-api-dotnet
+            solution: AdGuard.ApiClient.slnx
+            filter: "FullyQualifiedName!~Integration"
+          - name: Build Rules Compiler
+            path: src/rules-compiler-dotnet
+            solution: RulesCompiler.slnx
+            filter: ""
+
     defaults:
       run:
-        working-directory: ./src/adguard-api-dotnet
+        working-directory: ${{ matrix.path }}
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
-      - name: Restore dependencies
-        run: dotnet restore AdGuard.ApiClient.slnx
-      - name: Build
-        run: dotnet build AdGuard.ApiClient.slnx --no-restore
-      - name: Test
-        run: dotnet test AdGuard.ApiClient.slnx --no-build --verbosity normal --filter "FullyQualifiedName!~Integration"
 
-  build-rules-compiler:
-    name: Build Rules Compiler
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./src/rules-compiler-dotnet
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
         with:
-          dotnet-version: 10.0.x
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.slnx') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
       - name: Restore dependencies
-        run: dotnet restore RulesCompiler.slnx
+        run: dotnet restore ${{ matrix.solution }}
+
       - name: Build
-        run: dotnet build RulesCompiler.slnx --no-restore
+        run: dotnet build ${{ matrix.solution }} --no-restore -c Release
+
       - name: Test
-        run: dotnet test RulesCompiler.slnx --no-build --verbosity normal
+        run: |
+          if [ -n "${{ matrix.filter }}" ]; then
+            dotnet test ${{ matrix.solution }} --no-build -c Release --verbosity normal --filter "${{ matrix.filter }}"
+          else
+            dotnet test ${{ matrix.solution }} --no-build -c Release --verbosity normal
+          fi

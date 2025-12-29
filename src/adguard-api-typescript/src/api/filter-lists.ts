@@ -3,8 +3,8 @@
  */
 
 import { BaseApi } from './base.ts';
-import { ApiConfiguration } from '../helpers/configuration.ts';
-import { FilterList } from '../models/index.ts';
+import type { ApiConfiguration } from '../helpers/configuration.ts';
+import type { FilterList } from '../models/index.ts';
 
 /** Filter Lists API endpoints */
 export class FilterListsApi extends BaseApi {

@@ -4,7 +4,8 @@
  */
 
 import compile, { type IConfiguration } from '@adguard/hostlist-compiler';
-import type { ChunkedConfiguration, Logger } from './types.ts';
+import type { Logger } from './types.ts';
+import type { ChunkedConfiguration } from './chunking.ts';
 import { logger as defaultLogger } from './logger.ts';
 import { CompilationError, ErrorCode } from './errors.ts';
 
