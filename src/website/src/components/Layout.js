@@ -1,17 +1,45 @@
 import * as React from "react"
-import { Link } from "gatsby"
+import { Link, useStaticQuery, graphql } from "gatsby"
 import "../styles/global.css"
+import ThemeToggle from "./ThemeToggle"
+import Search from "./Search"
 
 const Layout = ({ children, pageTitle }) => {
+  const data = useStaticQuery(graphql`
+    query SearchIndexQuery {
+      allMarkdownRemark {
+        nodes {
+          fields {
+            slug
+          }
+          frontmatter {
+            title
+          }
+          excerpt(pruneLength: 200)
+        }
+      }
+    }
+  `)
+
+  const searchIndex = data.allMarkdownRemark.nodes.map((node) => ({
+    slug: node.fields.slug,
+    title: node.frontmatter.title || node.fields.slug,
+    excerpt: node.excerpt,
+  }))
+
   return (
     <>
       <header>
-        <div className="container">
+        <div className="container header-content">
           <h1>
             <Link to="/" style={{ color: "white", textDecoration: "none" }}>
               🔒 Ad-Blocking Toolkit
             </Link>
           </h1>
+          <div className="header-actions">
+            <Search searchIndex={searchIndex} />
+            <ThemeToggle />
+          </div>
         </div>
       </header>
       <nav>
