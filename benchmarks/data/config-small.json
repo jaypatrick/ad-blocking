@@ -1,0 +1,19 @@
+{
+  "name": "Synthetic Benchmark - Small",
+  "description": "Synthetic 10,000 rule filter list for benchmarking",
+  "version": "1.0.0",
+  "homepage": "https://github.com/jaypatrick/ad-blocking",
+  "license": "MIT",
+  "sources": [
+    {
+      "name": "small-source",
+      "source": "C:/Users/jayson.knight/.claude-worktrees/ad-blocking/reverent-lehmann/benchmarks/data/small.txt",
+      "type": "adblock"
+    }
+  ],
+  "transformations": [
+    "Deduplicate",
+    "RemoveEmptyLines",
+    "TrimLines"
+  ]
+}

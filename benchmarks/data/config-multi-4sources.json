@@ -1,0 +1,31 @@
+{
+  "name": "Multi-Source Benchmark (4 sources)",
+  "description": "Benchmark with 4 parallel sources",
+  "version": "1.0.0",
+  "sources": [
+    {
+      "name": "source-1",
+      "source": "C:/Users/jayson.knight/.claude-worktrees/ad-blocking/reverent-lehmann/benchmarks/data/medium.txt",
+      "type": "adblock"
+    },
+    {
+      "name": "source-2",
+      "source": "C:/Users/jayson.knight/.claude-worktrees/ad-blocking/reverent-lehmann/benchmarks/data/medium.txt",
+      "type": "adblock"
+    },
+    {
+      "name": "source-3",
+      "source": "C:/Users/jayson.knight/.claude-worktrees/ad-blocking/reverent-lehmann/benchmarks/data/medium.txt",
+      "type": "adblock"
+    },
+    {
+      "name": "source-4",
+      "source": "C:/Users/jayson.knight/.claude-worktrees/ad-blocking/reverent-lehmann/benchmarks/data/medium.txt",
+      "type": "adblock"
+    }
+  ],
+  "transformations": [
+    "Deduplicate",
+    "RemoveEmptyLines"
+  ]
+}

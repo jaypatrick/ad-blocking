@@ -54,6 +54,15 @@ public class CompilerOptions
     public bool FailOnWarnings { get; set; }
 
     /// <summary>
+    /// Gets or sets the chunking options for parallel compilation.
+    /// </summary>
+    /// <remarks>
+    /// When chunking is enabled, sources are split into multiple chunks
+    /// and compiled in parallel for improved performance on large filter lists.
+    /// </remarks>
+    public ChunkingOptions? Chunking { get; set; }
+
+    /// <summary>
     /// Creates default compiler options.
     /// </summary>
     public static CompilerOptions Default => new()
@@ -61,6 +70,19 @@ public class CompilerOptions
         ValidateConfig = true,
         Verbose = false,
         CopyToRules = false,
-        FailOnWarnings = false
+        FailOnWarnings = false,
+        Chunking = ChunkingOptions.Default
+    };
+
+    /// <summary>
+    /// Creates compiler options optimized for large filter lists with parallel chunking enabled.
+    /// </summary>
+    public static CompilerOptions ForLargeLists => new()
+    {
+        ValidateConfig = true,
+        Verbose = false,
+        CopyToRules = false,
+        FailOnWarnings = false,
+        Chunking = ChunkingOptions.ForLargeLists
     };
 }

@@ -146,6 +146,28 @@ Examples:
         help="Run in interactive menu mode",
     )
 
+    parser.add_argument(
+        "--benchmark",
+        action="store_true",
+        help="Run synthetic benchmark to show expected chunking speedups",
+    )
+
+    parser.add_argument(
+        "--benchmark-rules",
+        type=int,
+        default=200_000,
+        metavar="COUNT",
+        help="Number of rules to simulate in benchmark (default: 200000)",
+    )
+
+    parser.add_argument(
+        "--benchmark-parallel",
+        type=int,
+        default=None,
+        metavar="WORKERS",
+        help="Max parallel workers for benchmark (default: CPU count, max 8)",
+    )
+
     return parser
 
 
@@ -170,6 +192,115 @@ def show_version() -> None:
     if info.hostlist_compiler_path:
         print(f"    Path:       {info.hostlist_compiler_path}")
     print()
+
+
+def run_benchmark(rule_count: int, max_parallel: int | None = None) -> int:
+    """Run a synthetic benchmark to demonstrate chunking speedup."""
+    import os
+    import random
+    import string
+    import time
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    if max_parallel is None:
+        max_parallel = min(os.cpu_count() or 4, 8)
+
+    print()
+    print("=" * 70)
+    print("CHUNKING PERFORMANCE BENCHMARK")
+    print("=" * 70)
+    print(f"CPU cores available: {os.cpu_count()}")
+    print(f"Max parallel workers: {max_parallel}")
+    print(f"Simulating {rule_count:,} rules")
+    print()
+
+    # Generate synthetic rules
+    print("Generating synthetic rules...", end=" ", flush=True)
+    rules = []
+    tlds = ["com", "net", "org", "io", "co"]
+    words = ["ad", "ads", "track", "pixel", "banner", "promo", "click"]
+    for _ in range(rule_count):
+        word = random.choice(words)
+        suffix = ''.join(random.choices(string.ascii_lowercase, k=4))
+        tld = random.choice(tlds)
+        rules.append(f"||{word}{suffix}.{tld}^")
+    print("done")
+
+    # Simulate sequential processing
+    def simulate_processing(rule_list: list, chunk_id: int = 0) -> tuple[int, float]:
+        """Simulate processing rules with realistic timing."""
+        fixed_overhead_ms = 50
+        per_rule_ms = 0.01  # 10ms per 1000 rules
+
+        processing_time = fixed_overhead_ms + (len(rule_list) * per_rule_ms)
+        variation = random.uniform(0.95, 1.15)
+        processing_time *= variation
+
+        # Scale down for demo (1% of actual time)
+        time.sleep(processing_time / 1000 * 0.01)
+
+        return len(rule_list), processing_time
+
+    print("Running sequential benchmark...", end=" ", flush=True)
+    start = time.perf_counter()
+    _, sequential_time = simulate_processing(rules)
+    print(f"done ({sequential_time:.0f}ms simulated)")
+
+    # Simulate parallel processing
+    print(f"Running parallel benchmark ({max_parallel} workers)...", end=" ", flush=True)
+    chunk_size = (len(rules) + max_parallel - 1) // max_parallel
+    chunks = [rules[i:i + chunk_size] for i in range(0, len(rules), chunk_size)]
+
+    start = time.perf_counter()
+    chunk_times = []
+
+    with ThreadPoolExecutor(max_workers=max_parallel) as executor:
+        futures = [executor.submit(simulate_processing, chunk, i) for i, chunk in enumerate(chunks)]
+        for future in as_completed(futures):
+            _, chunk_time = future.result()
+            chunk_times.append(chunk_time)
+
+    parallel_time = max(chunk_times)  # Parallel time is the slowest chunk
+    print(f"done ({parallel_time:.0f}ms simulated)")
+
+    # Calculate results
+    speedup = sequential_time / parallel_time if parallel_time > 0 else 1.0
+    efficiency = speedup / max_parallel
+    time_saved = sequential_time - parallel_time
+
+    print()
+    print("-" * 70)
+    print("RESULTS")
+    print("-" * 70)
+    print(f"Sequential time:     {sequential_time:,.0f} ms")
+    print(f"Parallel time:       {parallel_time:,.0f} ms")
+    print(f"Speedup:             {speedup:.2f}x")
+    print(f"Efficiency:          {efficiency:.1%}")
+    print(f"Time saved:          {time_saved:,.0f} ms")
+    print()
+
+    # Show scaling table
+    print("Expected speedups at different scales:")
+    print("-" * 50)
+    print(f"{'Rules':<15} {'Sequential':<15} {'Parallel':<15} {'Speedup'}")
+    print("-" * 50)
+
+    test_sizes = [10_000, 50_000, 200_000, 500_000]
+    for size in test_sizes:
+        seq = 50 + (size * 0.01)  # Simulated time
+        par = 50 + ((size / max_parallel) * 0.01)
+        spd = seq / par
+        print(f"{size:,}".ljust(15) + f"{seq:,.0f} ms".ljust(15) + f"{par:,.0f} ms".ljust(15) + f"{spd:.2f}x")
+
+    print("-" * 50)
+    print()
+    print("Note: Actual speedup depends on:")
+    print("  - Number of CPU cores")
+    print("  - I/O performance (especially for network sources)")
+    print("  - Rule complexity and transformations applied")
+    print()
+
+    return 0
 
 
 def show_transformations() -> None:
@@ -368,6 +499,10 @@ def main(args: list[str] | None = None) -> int:
         show_transformations()
         return 0
 
+    # Handle benchmark mode
+    if opts.benchmark:
+        return run_benchmark(opts.benchmark_rules, opts.benchmark_parallel)
+
     # Handle interactive mode
     if opts.interactive:
         from rules_compiler.interactive import run_interactive_menu
@@ -422,7 +557,7 @@ def main(args: list[str] | None = None) -> int:
     config_format = format_map.get(opts.format) if opts.format else None
 
     # Determine validation settings
-    validate_config = not opts.no_validate_config  # Default is True
+    should_validate = not opts.no_validate_config  # Default is True
     fail_on_warnings = opts.fail_on_warnings
 
     # Create compiler and run
@@ -437,7 +572,7 @@ def main(args: list[str] | None = None) -> int:
             copy_to_rules=opts.copy_to_rules,
             rules_directory=opts.rules_dir,
             format=config_format,
-            validate=validate_config,
+            validate=should_validate,
             fail_on_warnings=fail_on_warnings,
         )
 

@@ -19,6 +19,66 @@ public abstract class CompilationEventHandlerBase : ICompilationEventHandler
         => Task.CompletedTask;
 
     /// <inheritdoc/>
+    public virtual Task OnValidationAsync(
+        ValidationEventArgs args,
+        CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+
+    /// <inheritdoc/>
+    public virtual Task OnSourceLoadingAsync(
+        SourceLoadingEventArgs args,
+        CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+
+    /// <inheritdoc/>
+    public virtual Task OnSourceLoadedAsync(
+        SourceLoadedEventArgs args,
+        CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+
+    /// <inheritdoc/>
+    public virtual Task OnFileLockAcquiredAsync(
+        FileLockAcquiredEventArgs args,
+        CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+
+    /// <inheritdoc/>
+    public virtual Task OnFileLockReleasedAsync(
+        FileLockReleasedEventArgs args,
+        CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+
+    /// <inheritdoc/>
+    public virtual Task OnFileLockFailedAsync(
+        FileLockFailedEventArgs args,
+        CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+
+    /// <inheritdoc/>
+    public virtual Task OnChunkStartedAsync(
+        ChunkStartedEventArgs args,
+        CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+
+    /// <inheritdoc/>
+    public virtual Task OnChunkCompletedAsync(
+        ChunkCompletedEventArgs args,
+        CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+
+    /// <inheritdoc/>
+    public virtual Task OnChunksMergingAsync(
+        ChunksMergingEventArgs args,
+        CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+
+    /// <inheritdoc/>
+    public virtual Task OnChunksMergedAsync(
+        ChunksMergedEventArgs args,
+        CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+
+    /// <inheritdoc/>
     public virtual Task OnCompilationCompletedAsync(
         CompilationCompletedEventArgs args,
         CancellationToken cancellationToken = default)

@@ -56,9 +56,11 @@
 //! # Ok::<(), rules_compiler::CompilerError>(())
 //! ```
 
+pub mod chunking;
 pub mod compiler;
 pub mod config;
 pub mod error;
+pub mod events;
 
 // Re-export main types from config module
 pub use config::{
@@ -74,6 +76,30 @@ pub use compiler::{
 
 // Re-export error types
 pub use error::{CompilerError, Result};
+
+// Re-export chunking types
+pub use chunking::{
+    compile_chunks_async, estimate_speedup, merge_chunks, should_enable_chunking,
+    split_into_chunks, ChunkedCompilationResult, ChunkingOptions, ChunkingStrategy, ChunkMetadata,
+};
+
+// Re-export event types
+pub use events::{
+    // Enums
+    ValidationSeverity, FileLockType,
+    // Event args
+    CompilationStartedEventArgs, ConfigurationLoadedEventArgs, ValidationEventArgs,
+    SourceLoadingEventArgs, SourceLoadedEventArgs,
+    FileLockAcquiredEventArgs, FileLockReleasedEventArgs, FileLockFailedEventArgs,
+    ChunkStartedEventArgs, ChunkCompletedEventArgs, ChunksMergingEventArgs, ChunksMergedEventArgs,
+    CompilationCompletedEventArgs, CompilationErrorEventArgs,
+    // Types
+    ValidationFinding, EventTimestamp,
+    // Trait and dispatcher
+    CompilationEventHandler, EventDispatcher,
+    // File locking
+    FileLockHandle, FileLockService,
+};
 
 /// Library version from Cargo.toml.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

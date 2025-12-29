@@ -1,0 +1,51 @@
+{
+  "name": "Multi-Source Benchmark (8 sources)",
+  "description": "Benchmark with 8 parallel sources",
+  "version": "1.0.0",
+  "sources": [
+    {
+      "name": "source-1",
+      "source": "C:/Users/jayson.knight/.claude-worktrees/ad-blocking/reverent-lehmann/benchmarks/data/medium.txt",
+      "type": "adblock"
+    },
+    {
+      "name": "source-2",
+      "source": "C:/Users/jayson.knight/.claude-worktrees/ad-blocking/reverent-lehmann/benchmarks/data/medium.txt",
+      "type": "adblock"
+    },
+    {
+      "name": "source-3",
+      "source": "C:/Users/jayson.knight/.claude-worktrees/ad-blocking/reverent-lehmann/benchmarks/data/medium.txt",
+      "type": "adblock"
+    },
+    {
+      "name": "source-4",
+      "source": "C:/Users/jayson.knight/.claude-worktrees/ad-blocking/reverent-lehmann/benchmarks/data/medium.txt",
+      "type": "adblock"
+    },
+    {
+      "name": "source-5",
+      "source": "C:/Users/jayson.knight/.claude-worktrees/ad-blocking/reverent-lehmann/benchmarks/data/medium.txt",
+      "type": "adblock"
+    },
+    {
+      "name": "source-6",
+      "source": "C:/Users/jayson.knight/.claude-worktrees/ad-blocking/reverent-lehmann/benchmarks/data/medium.txt",
+      "type": "adblock"
+    },
+    {
+      "name": "source-7",
+      "source": "C:/Users/jayson.knight/.claude-worktrees/ad-blocking/reverent-lehmann/benchmarks/data/medium.txt",
+      "type": "adblock"
+    },
+    {
+      "name": "source-8",
+      "source": "C:/Users/jayson.knight/.claude-worktrees/ad-blocking/reverent-lehmann/benchmarks/data/medium.txt",
+      "type": "adblock"
+    }
+  ],
+  "transformations": [
+    "Deduplicate",
+    "RemoveEmptyLines"
+  ]
+}

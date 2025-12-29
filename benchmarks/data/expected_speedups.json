@@ -1,0 +1,27 @@
+{
+  "system_info": {
+    "cpu_cores": 24,
+    "recommended_max_parallel": 8
+  },
+  "expected_speedups": {
+    "single_source": {
+      "description": "Single source file, chunking by line count",
+      "10k_rules": 1.0,
+      "50k_rules": 1.0,
+      "200k_rules": "2.0x",
+      "500k_rules": "5.0x"
+    },
+    "multi_source": {
+      "description": "Multiple source files, chunking by source",
+      "2_sources": "2.0x",
+      "4_sources": "4.0x",
+      "8_sources": "8.0x"
+    }
+  },
+  "notes": [
+    "Actual speedup depends on CPU cores, I/O speed, and source complexity",
+    "Network fetching is the main bottleneck for remote sources",
+    "Local file sources show the best speedup from chunking",
+    "Your system has 24 CPU cores available"
+  ]
+}

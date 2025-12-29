@@ -42,14 +42,27 @@ hex = { workspace = true }
 # Cross-platform
 which = { workspace = true }
 
+# Async utilities
+futures = { workspace = true }
+
+# Logging/tracing
+tracing = { workspace = true }
+
 # Time
 chrono = { workspace = true }
 
 # UUID for temp files
 uuid = { workspace = true }
 
+# Random number generation (for benchmarks)
+rand = "0.9"
+
 # Rust version at runtime
 rustc_version_runtime = { workspace = true }
+
+# Platform-specific file locking (Unix only - Windows uses open file handles)
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
 
 [dev-dependencies]
 tempfile = { workspace = true }

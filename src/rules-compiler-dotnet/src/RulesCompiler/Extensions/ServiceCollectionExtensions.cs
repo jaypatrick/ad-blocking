@@ -35,6 +35,8 @@ public static class ServiceCollectionExtensions
         services.TryAddSingleton<IConfigurationReader, ConfigurationReader>();
         services.TryAddSingleton<IFilterCompiler, FilterCompiler>();
         services.TryAddSingleton<IOutputWriter, OutputWriter>();
+        services.TryAddSingleton<IChunkingService, ChunkingService>();
+        services.TryAddSingleton<IFileLockService, FileLockService>();
         services.TryAddSingleton<IRulesCompilerService, RulesCompilerService>();
 
         // Register extensibility services
