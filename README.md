@@ -12,6 +12,8 @@
 
 A comprehensive multi-language toolkit for ad-blocking, network protection, and AdGuard DNS management. Features filter rule compilers in **5 languages** (TypeScript, .NET, Python, Rust, PowerShell), plus complete **API SDKs for AdGuard DNS** in both C# and Rust with interactive console interfaces.
 
+📚 **[View Documentation Website](https://jaypatrick.github.io/ad-blocking)** - User-friendly documentation for all features and recent improvements.
+
 ## Table of Contents
 
 - [Features](#features)
@@ -154,6 +156,11 @@ ad-blocking/
 │   ├── adguard-validation/            # Rust validation library
 │   │   ├── adguard-validation-core/   # Core validation logic
 │   │   └── adguard-validation-cli/    # CLI tool
+│   ├── website/                       # Gatsby documentation website
+│   │   ├── src/pages/                 # Static pages (home, getting started)
+│   │   ├── src/templates/             # Dynamic page templates
+│   │   ├── src/components/            # React components
+│   │   └── gatsby-config.js           # Gatsby configuration
 │   └── linear/                        # Linear integration scripts
 ├── tools/                             # Utility and build scripts
 │   ├── README.md                      # Tools documentation
@@ -1462,6 +1469,17 @@ Pre-built binaries are available for:
 Download the latest release from the [Releases page](https://github.com/jaypatrick/ad-blocking/releases).
 
 ## Documentation
+
+### 📚 Documentation Website
+
+**[https://jaypatrick.github.io/ad-blocking](https://jaypatrick.github.io/ad-blocking)**
+
+A user-friendly Gatsby-powered website with:
+- Organized documentation by category (Getting Started, Guides, API, Technical)
+- Recent improvements and changelog
+- Responsive design for desktop and mobile
+- Full-text search across all documentation
+- Direct links to all 58+ markdown files
 
 ### Getting Started
 
