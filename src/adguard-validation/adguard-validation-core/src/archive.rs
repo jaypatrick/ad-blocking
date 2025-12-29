@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::error::{Result, ValidationError};
-use crate::hash::{compute_file_hash, HashEntry};
+use crate::error::Result;
+use crate::hash::compute_file_hash;
 
 /// Archive manifest containing metadata about archived files.
 #[derive(Debug, Clone, Serialize, Deserialize)]

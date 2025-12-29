@@ -8,7 +8,6 @@ use std::path::{Path, PathBuf};
 
 use crate::config::ValidationConfig;
 use crate::error::{Result, ValidationError};
-use crate::hash::HashDatabase;
 use crate::validator::Validator;
 
 /// Compilation result with validation metadata.

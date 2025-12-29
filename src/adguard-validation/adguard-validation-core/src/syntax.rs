@@ -4,7 +4,7 @@ use regex::Regex;
 use std::fs;
 use std::path::Path;
 
-use crate::error::{Result, ValidationError};
+use crate::error::Result;
 
 /// Filter format type.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

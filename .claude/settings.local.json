@@ -7,7 +7,13 @@
       "Bash(dotnet test:*)",
       "Bash(VSTEST_CONNECTION_TIMEOUT=180 dotnet test:*)",
       "Bash(export VSTEST_CONNECTION_TIMEOUT=180)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(xargs ls:*)",
+      "Bash(gh run view:*)",
+      "Bash(cargo fmt:*)",
+      "Bash(cargo check:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

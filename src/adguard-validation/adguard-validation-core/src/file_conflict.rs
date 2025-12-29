@@ -1,6 +1,5 @@
 //! File conflict resolution strategies.
 
-use std::fs;
 use std::path::{Path, PathBuf};
 
 use crate::config::ConflictStrategy;
