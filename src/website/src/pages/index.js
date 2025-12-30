@@ -90,6 +90,12 @@ const IndexPage = () => {
           </div>
           <div className="feature">
             <h3>
+              <Link to="/benchmarks">Performance Benchmarks</Link>
+            </h3>
+            <p>Measure and optimize compilation performance with benchmarking tools.</p>
+          </div>
+          <div className="feature">
+            <h3>
               <Link to="/improvements">Recent Improvements</Link>
             </h3>
             <p>See what's new in the latest releases and ongoing development.</p>
