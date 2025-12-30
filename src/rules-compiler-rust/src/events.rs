@@ -32,7 +32,6 @@ use std::io::{self, Read};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant, SystemTime};
-use sha2::{Sha256, Digest};
 use uuid::Uuid;
 
 #[cfg(unix)]
@@ -436,6 +435,69 @@ pub struct CompilationErrorEventArgs {
 }
 
 // =============================================================================
+// Hash Verification Events
+// =============================================================================
+
+/// Event arguments for when a hash is computed.
+#[derive(Debug, Clone, Default)]
+pub struct HashComputedEventArgs {
+    /// Base timestamp.
+    pub base: EventTimestamp,
+    /// Path or identifier for the item being hashed.
+    pub item_identifier: String,
+    /// Type of item (e.g., "input_file", "output_file", "downloaded_source").
+    pub item_type: String,
+    /// Computed SHA-384 hash (96 hex characters).
+    pub hash: String,
+    /// Size of the item in bytes.
+    pub size_bytes: u64,
+    /// Whether this is for verification purposes.
+    pub is_verification: bool,
+}
+
+/// Event arguments for when a hash is verified successfully.
+#[derive(Debug, Clone, Default)]
+pub struct HashVerifiedEventArgs {
+    /// Base timestamp.
+    pub base: EventTimestamp,
+    /// Path or identifier for the item.
+    pub item_identifier: String,
+    /// Type of item (e.g., "input_file", "output_file", "downloaded_source").
+    pub item_type: String,
+    /// Expected hash.
+    pub expected_hash: String,
+    /// Actual hash.
+    pub actual_hash: String,
+    /// Size of the item in bytes.
+    pub size_bytes: u64,
+    /// Duration of hash computation in milliseconds.
+    pub computation_duration_ms: f64,
+}
+
+/// Event arguments for when a hash verification fails.
+#[derive(Debug, Clone, Default)]
+pub struct HashMismatchEventArgs {
+    /// Base timestamp.
+    pub base: EventTimestamp,
+    /// Path or identifier for the item.
+    pub item_identifier: String,
+    /// Type of item (e.g., "input_file", "output_file", "downloaded_source").
+    pub item_type: String,
+    /// Expected hash.
+    pub expected_hash: String,
+    /// Actual hash.
+    pub actual_hash: String,
+    /// Size of the item in bytes.
+    pub size_bytes: u64,
+    /// Whether to abort compilation.
+    pub abort: bool,
+    /// Reason for aborting (if abort is true).
+    pub abort_reason: Option<String>,
+    /// Whether the handler allowed continuation despite mismatch.
+    pub allow_continuation: bool,
+}
+
+// =============================================================================
 // Event Handler Trait
 // =============================================================================
 
@@ -486,6 +548,15 @@ pub trait CompilationEventHandler: Send + Sync {
 
     /// Called when compilation fails.
     fn on_compilation_error(&self, args: &mut CompilationErrorEventArgs) {}
+
+    /// Called when a hash is computed for any item.
+    fn on_hash_computed(&self, args: &HashComputedEventArgs) {}
+
+    /// Called when a hash is verified successfully.
+    fn on_hash_verified(&self, args: &HashVerifiedEventArgs) {}
+
+    /// Called when a hash verification fails.
+    fn on_hash_mismatch(&self, args: &mut HashMismatchEventArgs) {}
 }
 
 // =============================================================================
@@ -714,6 +785,51 @@ impl EventDispatcher {
         );
         for handler in &self.handlers {
             handler.on_compilation_error(args);
+        }
+    }
+
+    /// Raise the hash computed event.
+    pub fn raise_hash_computed(&self, args: &HashComputedEventArgs) {
+        tracing::debug!(
+            "Raising HashComputed event ({}, {}) to {} handlers",
+            args.item_type,
+            &args.hash[..16.min(args.hash.len())],
+            self.handlers.len()
+        );
+        for handler in &self.handlers {
+            handler.on_hash_computed(args);
+        }
+    }
+
+    /// Raise the hash verified event.
+    pub fn raise_hash_verified(&self, args: &HashVerifiedEventArgs) {
+        tracing::debug!(
+            "Raising HashVerified event ({}, match) to {} handlers",
+            args.item_type,
+            self.handlers.len()
+        );
+        for handler in &self.handlers {
+            handler.on_hash_verified(args);
+        }
+    }
+
+    /// Raise the hash mismatch event.
+    pub fn raise_hash_mismatch(&self, args: &mut HashMismatchEventArgs) {
+        tracing::debug!(
+            "Raising HashMismatch event ({}) to {} handlers",
+            args.item_type,
+            self.handlers.len()
+        );
+        for handler in &self.handlers {
+            handler.on_hash_mismatch(args);
+            if args.abort {
+                tracing::error!(
+                    "Hash mismatch caused abort for {}: {:?}",
+                    args.item_identifier,
+                    args.abort_reason
+                );
+                break;
+            }
         }
     }
 }
