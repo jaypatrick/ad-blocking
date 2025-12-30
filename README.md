@@ -339,7 +339,7 @@ Import-Module ./src/adguard-api-powershell/Invoke-RulesCompiler.psm1
 Invoke-RulesCompiler
 
 # Bash
-./src/rules-compiler-shell/compile-rules.sh
+./src/shell/bash/compile-rules.sh
 ```
 
 ## Docker Development Environment
@@ -1466,7 +1466,7 @@ A user-friendly Gatsby-powered website with:
 - [.NET Compiler README](src/rules-compiler-dotnet/README.md) - C# library and CLI
 - [Python Compiler README](src/rules-compiler-python/README.md) - pip-installable package
 - [Rust Compiler README](src/rules-compiler-rust/README.md) - Single binary distribution
-- [Shell Scripts README](src/rules-compiler-shell/README.md) - Bash, Zsh, PowerShell, Batch
+- [Shell Scripts README](src/shell/README.md) - Bash and Zsh wrappers
 - [PowerShell Module](src/adguard-api-powershell/README.md) - Full-featured PowerShell API
 
 ### Development

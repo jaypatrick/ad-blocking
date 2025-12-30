@@ -220,7 +220,7 @@ Get-CompilerVersion | Format-List
 **Best for**: Simple automation, CI/CD, Unix environments
 
 ```bash
-./src/rules-compiler-shell/compile-rules.sh -c config.yaml -r
+./src/shell/bash/compile-rules.sh -c config.yaml -r
 ```
 
 **Pros**:
