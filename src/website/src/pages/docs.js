@@ -35,7 +35,7 @@ const DocsPage = ({ data }) => {
     <Layout pageTitle="Documentation">
       <p style={{ fontSize: "1.1rem", marginBottom: "2rem" }}>
         Explore comprehensive documentation for all components of the
-        Ad-Blocking Toolkit.
+        AdGuard Tools and Utilities.
       </p>
 
       <section style={{ marginBottom: "3rem" }}>
@@ -112,4 +112,4 @@ export const query = graphql`
 
 export default DocsPage
 
-export const Head = () => <title>Documentation - Ad-Blocking Toolkit</title>
+export const Head = () => <title>Documentation - AdGuard Tools and Utilities</title>

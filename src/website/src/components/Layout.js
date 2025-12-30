@@ -33,7 +33,7 @@ const Layout = ({ children, pageTitle }) => {
         <div className="container header-content">
           <h1>
             <Link to="/" style={{ color: "white", textDecoration: "none" }}>
-              🔒 Ad-Blocking Toolkit
+              🔒 AdGuard Tools and Utilities
             </Link>
           </h1>
           <div className="header-actions">
@@ -75,7 +75,7 @@ const Layout = ({ children, pageTitle }) => {
       <footer>
         <div className="container">
           <p>
-            Ad-Blocking Toolkit - Licensed under{" "}
+            AdGuard Tools and Utilities - Licensed under{" "}
             <a href="https://github.com/jaypatrick/ad-blocking/blob/main/LICENSE">
               GPL-3.0
             </a>

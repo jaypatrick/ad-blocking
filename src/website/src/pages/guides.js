@@ -6,8 +6,8 @@ const GuidesPage = ({ data }) => {
   return (
     <Layout pageTitle="User Guides">
       <p style={{ fontSize: "1.1rem", marginBottom: "2rem" }}>
-        Step-by-step guides to help you get the most out of the Ad-Blocking
-        Toolkit.
+        Step-by-step guides to help you get the most out of the AdGuard Tools
+        and Utilities.
       </p>
 
       <ul className="doc-list">
@@ -46,4 +46,4 @@ export const query = graphql`
 
 export default GuidesPage
 
-export const Head = () => <title>Guides - Ad-Blocking Toolkit</title>
+export const Head = () => <title>Guides - AdGuard Tools and Utilities</title>

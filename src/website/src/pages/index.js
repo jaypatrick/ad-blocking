@@ -6,7 +6,7 @@ const IndexPage = () => {
   return (
     <Layout>
       <div className="hero">
-        <h1>Ad-Blocking Toolkit</h1>
+        <h1>AdGuard Tools and Utilities</h1>
         <p>
           A comprehensive multi-language toolkit for ad-blocking, network
           protection, and AdGuard DNS management
@@ -14,7 +14,7 @@ const IndexPage = () => {
       </div>
 
       <section>
-        <h2>What is the Ad-Blocking Toolkit?</h2>
+        <h2>What is AdGuard Tools and Utilities?</h2>
         <p style={{ fontSize: "1.1rem", marginBottom: "2rem" }}>
           This toolkit helps you protect your network from ads, trackers, and
           malware. It works with IoT devices, smart TVs, and any device on your
@@ -124,4 +124,4 @@ const IndexPage = () => {
 
 export default IndexPage
 
-export const Head = () => <title>Ad-Blocking Toolkit</title>
+export const Head = () => <title>AdGuard Tools and Utilities</title>

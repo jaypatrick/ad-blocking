@@ -35,7 +35,7 @@ export const query = graphql`
 
 export const Head = ({ data }) => {
   const title = data.markdownRemark.frontmatter.title || "Documentation"
-  return <title>{title} - Ad-Blocking Toolkit</title>
+  return <title>{title} - AdGuard Tools and Utilities</title>
 }
 
 export default DocTemplate

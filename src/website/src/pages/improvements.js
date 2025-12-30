@@ -45,8 +45,8 @@ const ImprovementsPage = ({ data }) => {
   return (
     <Layout pageTitle="Recent Improvements">
       <p style={{ fontSize: "1.1rem", marginBottom: "2rem" }}>
-        Discover the latest enhancements and features added to the Ad-Blocking
-        Toolkit over the past few weeks.
+        Discover the latest enhancements and features added to the AdGuard
+        Tools and Utilities over the past few weeks.
       </p>
 
       <div className="features">
@@ -104,5 +104,5 @@ export const query = graphql`
 export default ImprovementsPage
 
 export const Head = () => (
-  <title>Recent Improvements - Ad-Blocking Toolkit</title>
+  <title>Recent Improvements - AdGuard Tools and Utilities</title>
 )
