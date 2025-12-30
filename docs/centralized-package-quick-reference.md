@@ -121,7 +121,7 @@ Verify the package name matches exactly (case-sensitive)
 ## 📚 Documentation
 
 - **Full Guide:** [docs/centralized-package-management.md](centralized-package-management.md)
-- **Migration Summary:** [docs/centralized-package-migration-summary.md](centralized-package-migration-summary.md)
+- **Migration Summary (archived):** [docs/archive/centralized-package-migration-summary.md](archive/centralized-package-migration-summary.md)
 - **Microsoft Docs:** [Central Package Management](https://learn.microsoft.com/en-us/nuget/consume-packages/central-package-management)
 
 ## 📊 Before vs After

@@ -206,7 +206,7 @@ cd /workspace/src/rules-compiler-rust
 cargo run --release
 
 # Shell (Bash)
-/workspace/src/rules-compiler-shell/compile-rules.sh
+/workspace/src/shell/bash/compile-rules.sh
 
 # PowerShell
 cd /workspace

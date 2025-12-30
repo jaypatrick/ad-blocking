@@ -101,10 +101,7 @@ ad-blocking/
 │   ├── configuration-reference.md     # Configuration schema reference
 │   ├── docker-guide.md                # Docker development guide
 │   ├── AGENTS.md                      # AI agent documentation
-│   ├── PHASE2_IMPLEMENTATION.md       # Modernization roadmap
 │   ├── RUST_WORKSPACE.md              # Rust workspace documentation
-│   ├── RUST_MODERNIZATION_SUMMARY.md  # Rust migration summary
-│   ├── TEST_UPDATES_SUMMARY.md        # Testing updates
 │   └── WARP.md                        # Warp terminal integration
 ├── data/                              # Filter rules and data
 │   ├── input/                         # Source filter lists (local & remote refs)
@@ -123,7 +120,7 @@ ad-blocking/
 │   ├── rules-compiler-dotnet/         # C#/.NET 10 compiler
 │   ├── rules-compiler-python/         # Python 3.9+ compiler
 │   ├── rules-compiler-rust/           # Rust compiler (single binary)
-│   ├── shell-scripts/                 # Shell script wrappers
+│   ├── shell/                         # Shell script wrappers
 │   │   ├── bash/                      # Bash scripts
 │   │   └── zsh/                       # Zsh scripts
 │   ├── adguard-api-dotnet/            # C# API SDK + Console UI
@@ -138,7 +135,7 @@ ad-blocking/
 │   │   ├── src/cli/                   # Interactive CLI application
 │   │   └── tests/                     # Deno test suite
 │   ├── adguard-api-powershell/        # PowerShell API client (legacy)
-│   ├── powershell-modules/            # PowerShell modules (modern)
+│   ├── powershell/                    # PowerShell modules (modern)
 │   │   ├── Common/                    # Shared utilities
 │   │   ├── RulesCompiler/             # Rules compiler module
 │   │   └── AdGuardWebhook/            # Webhook module
@@ -342,7 +339,7 @@ Import-Module ./src/adguard-api-powershell/Invoke-RulesCompiler.psm1
 Invoke-RulesCompiler
 
 # Bash
-./src/rules-compiler-shell/compile-rules.sh
+./src/shell/bash/compile-rules.sh
 ```
 
 ## Docker Development Environment
@@ -745,7 +742,7 @@ println!("Compiled {} rules", result.rule_count);
 
 ### Shell Scripts
 
-**Location**: `src/rules-compiler-shell/`
+**Location**: `src/shell/`
 
 Cross-platform shell scripts that wrap `@adguard/hostlist-compiler` for simple automation and CI/CD pipelines.
 
@@ -753,68 +750,44 @@ Cross-platform shell scripts that wrap `@adguard/hostlist-compiler` for simple a
 |--------|----------|-------|----------|
 | `compile-rules.sh` | Linux, macOS | Bash | Full feature support, YAML/TOML via yq/Python |
 | `compile-rules.zsh` | Linux, macOS | Zsh | Native zsh features (zparseopts, EPOCHREALTIME) |
-| `compile-rules.ps1` | All platforms | PowerShell 7+ | Cross-platform, PowerShell pipeline support |
-| `compile-rules.cmd` | Windows | Batch | Simple wrapper for Windows users |
 
 #### Bash (Linux/macOS)
 
 ```bash
 # Make executable (first time)
-chmod +x src/rules-compiler-shell/compile-rules.sh
+chmod +x src/shell/bash/compile-rules.sh
 
 # Run with defaults
-./src/rules-compiler-shell/compile-rules.sh
+./src/shell/bash/compile-rules.sh
 
 # Use specific configuration
-./src/rules-compiler-shell/compile-rules.sh -c config.yaml
+./src/shell/bash/compile-rules.sh -c config.yaml
 
 # Compile and copy to rules directory
-./src/rules-compiler-shell/compile-rules.sh -c config.yaml -r
+./src/shell/bash/compile-rules.sh -c config.yaml -r
 
 # Show version/help
-./src/rules-compiler-shell/compile-rules.sh -v
-./src/rules-compiler-shell/compile-rules.sh -h
+./src/shell/bash/compile-rules.sh -v
+./src/shell/bash/compile-rules.sh -h
 ```
 
 #### Zsh (macOS/Linux)
 
 ```zsh
 # Make executable (first time)
-chmod +x src/rules-compiler-shell/compile-rules.zsh
+chmod +x src/shell/zsh/compile-rules.zsh
 
 # Run with defaults
-./src/rules-compiler-shell/compile-rules.zsh
+./src/shell/zsh/compile-rules.zsh
 
 # Use YAML configuration
-./src/rules-compiler-shell/compile-rules.zsh -c config.yaml
+./src/shell/zsh/compile-rules.zsh -c config.yaml
 
 # Compile and copy to rules directory
-./src/rules-compiler-shell/compile-rules.zsh -c config.yaml -r
+./src/shell/zsh/compile-rules.zsh -c config.yaml -r
 
 # Debug mode
-./src/rules-compiler-shell/compile-rules.zsh -c config.yaml -d
-```
-
-#### PowerShell Core (Cross-platform)
-
-```powershell
-# Run with defaults
-./src/rules-compiler-shell/compile-rules.ps1
-
-# Use YAML configuration
-./src/rules-compiler-shell/compile-rules.ps1 -ConfigPath config.yaml
-
-# Compile and copy to rules directory
-./src/rules-compiler-shell/compile-rules.ps1 -ConfigPath config.yaml -CopyToRules
-
-# Show version
-./src/rules-compiler-shell/compile-rules.ps1 -Version
-```
-
-#### Windows Batch
-
-```cmd
-src\rules-compiler-shell\compile-rules.cmd -c config.json -r
+./src/shell/zsh/compile-rules.zsh -c config.yaml -d
 ```
 
 **CLI Options** (all scripts):
@@ -829,7 +802,7 @@ src\rules-compiler-shell\compile-rules.cmd -c config.json -r
 | `--help` | `-h` | Show help message |
 | `--debug` | `-d` | Enable debug output |
 
-See [Shell Scripts README](src/rules-compiler-shell/README.md) for detailed documentation.
+See [Shell Scripts README](src/shell/README.md) for detailed documentation.
 
 ### PowerShell Modules
 
@@ -1493,7 +1466,7 @@ A user-friendly Gatsby-powered website with:
 - [.NET Compiler README](src/rules-compiler-dotnet/README.md) - C# library and CLI
 - [Python Compiler README](src/rules-compiler-python/README.md) - pip-installable package
 - [Rust Compiler README](src/rules-compiler-rust/README.md) - Single binary distribution
-- [Shell Scripts README](src/rules-compiler-shell/README.md) - Bash, Zsh, PowerShell, Batch
+- [Shell Scripts README](src/shell/README.md) - Bash and Zsh wrappers
 - [PowerShell Module](src/adguard-api-powershell/README.md) - Full-featured PowerShell API
 
 ### Development

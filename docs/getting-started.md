@@ -96,7 +96,7 @@ Invoke-RulesCompiler
 #### Bash/Shell
 
 ```bash
-./src/rules-compiler-shell/compile-rules.sh
+./src/shell/bash/compile-rules.sh
 ```
 
 ## First Compilation
@@ -289,7 +289,7 @@ deno run --allow-all npm:@adguard/hostlist-compiler --version
 Make shell scripts executable:
 
 ```bash
-chmod +x src/rules-compiler-shell/compile-rules.sh
+chmod +x src/shell/bash/compile-rules.sh
 ```
 
 ### Python package not found
