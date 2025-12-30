@@ -61,6 +61,9 @@ const Layout = ({ children, pageTitle }) => {
               <Link to="/api">API Reference</Link>
             </li>
             <li>
+              <Link to="/benchmarks">Benchmarks</Link>
+            </li>
+            <li>
               <Link to="/improvements">Recent Improvements</Link>
             </li>
           </ul>
