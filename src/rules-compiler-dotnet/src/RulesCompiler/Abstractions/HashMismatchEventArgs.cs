@@ -69,7 +69,7 @@ public class HashMismatchEventArgs : CompilationEventArgs
         ActualHash = actualHash ?? throw new ArgumentNullException(nameof(actualHash));
         SizeBytes = sizeBytes;
         Abort = true;
-        AbortReason = $"Hash mismatch for {itemIdentifier}: expected {expectedHash[..Math.Min(16, expectedHash.Length)]}..., got {actualHash[..16]}...";
+        AbortReason = $"Hash mismatch for {itemIdentifier}: expected {expectedHash[..Math.Min(16, expectedHash.Length)]}..., got {actualHash[..Math.Min(16, actualHash.Length)]}...";
         AllowContinuation = false;
     }
 }
