@@ -6,9 +6,9 @@ const SecurityPage = () => {
   return (
     <Layout pageTitle="Security">
       <div className="hero" style={{ marginBottom: "2rem" }}>
-        <h2>🛡️ Your Safety is Our Priority</h2>
+        <h2>🛡️ Security Features</h2>
         <p style={{ fontSize: "1.2rem" }}>
-          Learn how our built-in security features protect you from malicious
+          Learn how the built-in security features protect against malicious
           filter lists, tampering, and network attacks.
         </p>
       </div>
@@ -16,10 +16,10 @@ const SecurityPage = () => {
       <section style={{ marginBottom: "3rem" }}>
         <h2>Why Security Matters</h2>
         <p style={{ fontSize: "1.1rem", lineHeight: "1.8" }}>
-          When you use ad-blocking or DNS filtering, you're trusting filter
-          lists to protect your network. But what if those lists themselves
-          become compromised? Our <strong>mandatory validation system</strong>{" "}
-          ensures that every filter list you use is authentic, unmodified, and
+          When using ad-blocking or DNS filtering, filter lists are trusted
+          to protect the network. But what if those lists themselves
+          become compromised? The <strong>mandatory validation system</strong>{" "}
+          ensures that every filter list is authentic, unmodified, and
           safe.
         </p>
 
@@ -53,7 +53,7 @@ const SecurityPage = () => {
           >
             <h3>🎯 Zero False Sense of Security</h3>
             <p>
-              Unlike optional features that users forget to enable, our
+              Unlike optional features that users forget to enable, this
               validation is mandatory by design.
             </p>
           </div>
@@ -137,25 +137,25 @@ const SecurityPage = () => {
               xyz789uvw321abc789uvw321xyz789uvw321abc789uvw321xyz789uvw321abc789uvw321xyz789uvw321xyz789
             </pre>
             <p style={{ marginTop: "1rem", fontWeight: "bold", color: "#d9534f" }}>
-              ❌ Hash mismatch detected! Compilation stopped to protect you.
+              ❌ Hash mismatch detected! Compilation stopped.
             </p>
           </div>
         </div>
       </section>
 
       <section style={{ marginBottom: "3rem" }}>
-        <h2>5 Real-World Threats We Stop</h2>
+        <h2>5 Real-World Threats Mitigated</h2>
 
         <div style={{ marginTop: "2rem" }}>
           <div style={{ marginBottom: "2.5rem" }}>
             <h3>🚨 1. Man-in-the-Middle Attacks</h3>
             <p style={{ fontSize: "1.05rem", lineHeight: "1.7" }}>
-              <strong>The Threat:</strong> An attacker intercepts your download
-              of a filter list and replaces it with a malicious version that
-              redirects banking sites or unblocks malware.
+              <strong>The Threat:</strong> An attacker intercepts downloads
+              of filter lists and replaces them with malicious versions that
+              redirect banking sites or unblock malware.
             </p>
             <p style={{ fontSize: "1.05rem", lineHeight: "1.7" }}>
-              <strong>Our Protection:</strong> Every downloaded list must match
+              <strong>The Protection:</strong> Every downloaded list must match
               a known fingerprint. If even 1 character changes, validation
               fails immediately.
             </p>
@@ -169,22 +169,22 @@ const SecurityPage = () => {
               block security warnings or allow phishing domains.
             </p>
             <p style={{ fontSize: "1.05rem", lineHeight: "1.7" }}>
-              <strong>Our Protection:</strong> We store fingerprints of
-              known-good versions. If a list changes unexpectedly, you're
-              alerted and can review the changes before accepting them.
+              <strong>The Protection:</strong> Fingerprints of known-good versions
+              are stored. If a list changes unexpectedly, users are alerted and can
+              review the changes before accepting them.
             </p>
           </div>
 
           <div style={{ marginBottom: "2.5rem" }}>
             <h3>🚨 3. Local File Tampering</h3>
             <p style={{ fontSize: "1.05rem", lineHeight: "1.7" }}>
-              <strong>The Threat:</strong> Malware on your computer modifies
-              your local filter lists to remove its own domains from blocklists
+              <strong>The Threat:</strong> Malware on a computer modifies
+              local filter lists to remove its own domains from blocklists
               or add legitimate security tools to the blocklist.
             </p>
             <p style={{ fontSize: "1.05rem", lineHeight: "1.7" }}>
-              <strong>Our Protection:</strong> Before each compilation, we
-              verify files haven't changed. If tampering is detected,
+              <strong>The Protection:</strong> Before each compilation, files are
+              verified to ensure they haven't changed. If tampering is detected,
               compilation stops immediately.
             </p>
           </div>
@@ -197,8 +197,8 @@ const SecurityPage = () => {
               instead of easy<strong>l</strong>ist.to).
             </p>
             <p style={{ fontSize: "1.05rem", lineHeight: "1.7" }}>
-              <strong>Our Protection:</strong> We enforce HTTPS-only URLs,
-              verify domains via DNS, and scan content to ensure it's actually
+              <strong>The Protection:</strong> HTTPS-only URLs are enforced,
+              domains are verified via DNS, and content is scanned to ensure it's actually
               a filter list.
             </p>
           </div>
@@ -211,7 +211,7 @@ const SecurityPage = () => {
               rules into otherwise legitimate updates.
             </p>
             <p style={{ fontSize: "1.05rem", lineHeight: "1.7" }}>
-              <strong>Our Protection:</strong> Cryptographic signatures and
+              <strong>The Protection:</strong> Cryptographic signatures and
               audit trails ensure that validation actually occurred and can't
               be forged.
             </p>
@@ -369,11 +369,11 @@ const SecurityPage = () => {
               Can I disable validation if I trust my sources?
             </summary>
             <p style={{ marginTop: "1rem", marginLeft: "1.5rem" }}>
-              <strong>No, and that's for your own safety.</strong> Validation
-              is mandatory by design. Even trusted sources can be compromised.
-              However, you can use "warning mode" for development which logs
-              issues without failing compilation. For production, we strongly
-              recommend "strict mode" which fails on any anomaly.
+              <strong>No, and that's by design for safety.</strong> Validation
+              is mandatory. Even trusted sources can be compromised.
+              However, "warning mode" is available for development which logs
+              issues without failing compilation. For production, "strict mode"
+              is strongly recommended, which fails on any anomaly.
             </p>
           </details>
 
@@ -390,10 +390,10 @@ const SecurityPage = () => {
             </summary>
             <p style={{ marginTop: "1rem", marginLeft: "1.5rem" }}>
               <strong>This is a feature, not a bug!</strong> When validation
-              detects a change, it alerts you to review what was modified. If
-              the change is legitimate, you simply update your hash database and
-              compilation proceeds. This gives you visibility and control over
-              what enters your network.
+              detects a change, it alerts users to review what was modified. If
+              the change is legitimate, simply update the hash database and
+              compilation proceeds. This provides visibility and control over
+              what enters the network.
             </p>
           </details>
 
@@ -493,9 +493,8 @@ const SecurityPage = () => {
         </ul>
         <p style={{ fontSize: "1.1rem", marginTop: "1.5rem" }}>
           <strong>
-            Remember: The best security is security you don't have to think
-            about. Our validation system handles the complexity so you can focus
-            on staying safe online.
+            Remember: The best security is security that doesn't require thinking
+            about. The validation system handles the complexity automatically.
           </strong>
         </p>
       </section>
@@ -508,7 +507,7 @@ const SecurityPage = () => {
               <Link to="/WHY_VALIDATION_MATTERS">Why Validation Matters</Link>
             </h3>
             <p>
-              Complete technical and non-technical guide to our validation
+              Complete technical and non-technical guide to the validation
               system, including threat models and attack scenarios.
             </p>
           </div>
@@ -535,8 +534,8 @@ const SecurityPage = () => {
               <Link to="/VALIDATION_ENFORCEMENT">Validation Enforcement</Link>
             </h3>
             <p>
-              CI/CD enforcement mechanisms and how we ensure validation is never
-              skipped in production.
+              CI/CD enforcement mechanisms and how validation is ensured to never
+              be skipped in production.
             </p>
           </div>
           <div className="feature">
@@ -555,7 +554,7 @@ const SecurityPage = () => {
               </a>
             </h3>
             <p>
-              Our commitment to security, vulnerability reporting, and
+              The project's commitment to security, vulnerability reporting, and
               responsible disclosure.
             </p>
           </div>
