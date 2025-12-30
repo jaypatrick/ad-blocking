@@ -6,7 +6,7 @@ const GettingStartedPage = () => {
   return (
     <Layout pageTitle="Getting Started">
       <p style={{ fontSize: "1.1rem", marginBottom: "2rem" }}>
-        Welcome! This guide will help you get up and running with the
+        This guide will help get started with the
         AdGuard Tools and Utilities in just a few minutes.
       </p>
 
@@ -56,7 +56,7 @@ const GettingStartedPage = () => {
 
       <section style={{ marginTop: "2rem" }}>
         <h2>Prerequisites</h2>
-        <p>You'll need at least one of these installed:</p>
+        <p>At least one of these is required:</p>
         <ul style={{ fontSize: "1.1rem", lineHeight: "2" }}>
           <li>
             <strong>Deno 2.0+</strong> for TypeScript compiler
