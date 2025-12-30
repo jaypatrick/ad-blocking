@@ -101,10 +101,7 @@ ad-blocking/
 │   ├── configuration-reference.md     # Configuration schema reference
 │   ├── docker-guide.md                # Docker development guide
 │   ├── AGENTS.md                      # AI agent documentation
-│   ├── PHASE2_IMPLEMENTATION.md       # Modernization roadmap
 │   ├── RUST_WORKSPACE.md              # Rust workspace documentation
-│   ├── RUST_MODERNIZATION_SUMMARY.md  # Rust migration summary
-│   ├── TEST_UPDATES_SUMMARY.md        # Testing updates
 │   └── WARP.md                        # Warp terminal integration
 ├── data/                              # Filter rules and data
 │   ├── input/                         # Source filter lists (local & remote refs)
