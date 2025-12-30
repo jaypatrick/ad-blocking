@@ -82,7 +82,7 @@ const IndexPage = () => {
           </div>
           <div className="feature">
             <h3>
-              <Link to="/security">Security & Hash Verification</Link>
+              <Link to="/security">Security</Link>
             </h3>
             <p>
               Learn how our built-in security features protect you from malicious

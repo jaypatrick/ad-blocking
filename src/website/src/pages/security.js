@@ -4,7 +4,7 @@ import Layout from "../components/Layout"
 
 const SecurityPage = () => {
   return (
-    <Layout pageTitle="Security & Hash Verification">
+    <Layout pageTitle="Security">
       <div className="hero" style={{ marginBottom: "2rem" }}>
         <h2>🛡️ Your Safety is Our Priority</h2>
         <p style={{ fontSize: "1.2rem" }}>
@@ -568,5 +568,5 @@ const SecurityPage = () => {
 export default SecurityPage
 
 export const Head = () => (
-  <title>Security & Hash Verification - AdGuard Tools and Utilities</title>
+  <title>Security - AdGuard Tools and Utilities</title>
 )
