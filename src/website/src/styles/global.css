@@ -33,11 +33,11 @@
   --bg-color: #1a1a1a;
   --border-color: #444;
   --link-color: #66b3ff;
-  --code-bg: #1e1e1e;
-  --code-text: #d4d4d4;
-  --code-keyword: #569cd6;
-  --code-string: #ce9178;
-  --code-comment: #6a9955;
+  --code-bg: #0d1117;
+  --code-text: #f0f6fc;
+  --code-keyword: #79c0ff;
+  --code-string: #a5d6ff;
+  --code-comment: #8b949e;
   --header-bg: #0a0a0a;
   --nav-bg: #7744bb;
   --feature-bg: #2d2d2d;
@@ -228,6 +228,7 @@ main {
   margin: 1rem 0;
   border: 1px solid var(--border-color);
   line-height: 1.5;
+  font-weight: 400;
 }
 
 .doc-content pre code {
