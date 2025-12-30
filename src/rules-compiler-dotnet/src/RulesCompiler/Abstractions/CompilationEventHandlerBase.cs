@@ -89,4 +89,22 @@ public abstract class CompilationEventHandlerBase : ICompilationEventHandler
         CompilationErrorEventArgs args,
         CancellationToken cancellationToken = default)
         => Task.CompletedTask;
+
+    /// <inheritdoc/>
+    public virtual Task OnHashComputedAsync(
+        HashComputedEventArgs args,
+        CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+
+    /// <inheritdoc/>
+    public virtual Task OnHashVerifiedAsync(
+        HashVerifiedEventArgs args,
+        CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+
+    /// <inheritdoc/>
+    public virtual Task OnHashMismatchAsync(
+        HashMismatchEventArgs args,
+        CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
 }

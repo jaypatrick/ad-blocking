@@ -13,6 +13,8 @@ use std::time::Instant;
 
 use crate::config::{read_config, to_json, CompilerConfig, ConfigFormat};
 use crate::error::{CompilerError, Result};
+use crate::events::{EventDispatcher, HashComputedEventArgs, HashVerifiedEventArgs, HashMismatchEventArgs, EventTimestamp};
+
 
 /// Platform-specific information.
 #[derive(Debug, Clone, Default)]
@@ -437,6 +439,108 @@ pub async fn compute_hash_async<P: AsRef<Path>>(path: P) -> Result<String> {
     Ok(hex::encode(hasher.finalize()))
 }
 
+/// Compute hash and fire events if dispatcher is provided.
+///
+/// # Errors
+///
+/// Returns an error if the file can't be read.
+pub fn compute_hash_with_events<P: AsRef<Path>>(
+    path: P,
+    item_type: &str,
+    dispatcher: Option<&EventDispatcher>,
+) -> Result<String> {
+    let path = path.as_ref();
+    
+    // Compute the hash
+    let hash = compute_hash(path)?;
+    let metadata = fs::metadata(path)?;
+    let size_bytes = metadata.len();
+    
+    // Fire hash computed event
+    if let Some(dispatcher) = dispatcher {
+        let args = HashComputedEventArgs {
+            base: EventTimestamp::default(),
+            item_identifier: path.display().to_string(),
+            item_type: item_type.to_string(),
+            hash: hash.clone(),
+            size_bytes,
+            is_verification: false,
+        };
+        dispatcher.raise_hash_computed(&args);
+    }
+    
+    Ok(hash)
+}
+
+/// Verify hash against expected value and fire events if dispatcher is provided.
+///
+/// # Errors
+///
+/// Returns an error if hashes don't match (unless allow_continuation is set by handler).
+pub fn verify_hash_with_events<P: AsRef<Path>>(
+    path: P,
+    expected_hash: &str,
+    item_type: &str,
+    dispatcher: Option<&EventDispatcher>,
+) -> Result<()> {
+    let path = path.as_ref();
+    let start = Instant::now();
+    
+    // Compute the hash
+    let actual_hash = compute_hash(path)?;
+    let metadata = fs::metadata(path)?;
+    let size_bytes = metadata.len();
+    let computation_duration_ms = start.elapsed().as_secs_f64() * 1000.0;
+    
+    if actual_hash == expected_hash {
+        // Hash matches - fire verified event
+        if let Some(dispatcher) = dispatcher {
+            let args = HashVerifiedEventArgs {
+                base: EventTimestamp::default(),
+                item_identifier: path.display().to_string(),
+                item_type: item_type.to_string(),
+                expected_hash: expected_hash.to_string(),
+                actual_hash,
+                size_bytes,
+                computation_duration_ms,
+            };
+            dispatcher.raise_hash_verified(&args);
+        }
+        Ok(())
+    } else {
+        // Hash mismatch - fire mismatch event and check if continuation is allowed
+        if let Some(dispatcher) = dispatcher {
+            let mut args = HashMismatchEventArgs {
+                base: EventTimestamp::default(),
+                item_identifier: path.display().to_string(),
+                item_type: item_type.to_string(),
+                expected_hash: expected_hash.to_string(),
+                actual_hash: actual_hash.clone(),
+                size_bytes,
+                abort: true,
+                abort_reason: Some(format!(
+                    "Hash mismatch for {}: expected {}, got {}",
+                    path.display(),
+                    &expected_hash[..16.min(expected_hash.len())],
+                    &actual_hash[..16]
+                )),
+                allow_continuation: false,
+            };
+            dispatcher.raise_hash_mismatch(&mut args);
+            
+            if args.allow_continuation {
+                return Ok(());
+            }
+        }
+        
+        Err(CompilerError::HashMismatch {
+            path: path.display().to_string(),
+            expected: expected_hash.to_string(),
+            actual: actual_hash,
+        })
+    }
+}
+
 /// Get compiler command and arguments.
 fn get_compiler_command(config_path: &str, output_path: &str) -> Result<(String, Vec<String>)> {
     if let Some(compiler_path) = find_command("hostlist-compiler") {
@@ -635,6 +739,174 @@ pub fn compile_rules<P: AsRef<Path>>(
                 e,
             )
         })?;
+
+        result.copied_to_rules = true;
+        result.rules_destination = Some(dest_path);
+    }
+
+    result.end_time = Utc::now();
+    result.elapsed_ms = start.elapsed().as_millis() as u64;
+
+    Ok(result)
+}
+
+/// Compile filter rules with event dispatcher for hash verification callbacks.
+///
+/// This extended version fires hash verification events at each compilation stage:
+/// - Configuration file loading (computes hash)
+/// - Output file writing (computes and optionally verifies hash)
+/// - Rules file copying (computes hash)
+///
+/// # Arguments
+///
+/// * `config_path` - Path to the configuration file.
+/// * `options` - Compilation options.
+/// * `dispatcher` - Event dispatcher for firing hash verification events.
+///
+/// # Errors
+///
+/// Returns an error if compilation fails.
+pub fn compile_rules_with_events<P: AsRef<Path>>(
+    config_path: P,
+    options: &CompileOptions,
+    dispatcher: &EventDispatcher,
+) -> Result<CompilerResult> {
+    let start = Instant::now();
+    let mut result = CompilerResult {
+        start_time: Utc::now(),
+        ..Default::default()
+    };
+
+    let config_path = config_path.as_ref().canonicalize().map_err(|e| {
+        CompilerError::file_system(
+            format!("resolving config path {}", config_path.as_ref().display()),
+            e,
+        )
+    })?;
+
+    // Compute hash of input config file (at-rest verification)
+    let _config_hash = compute_hash_with_events(&config_path, "config_file", Some(dispatcher))?;
+
+    // Read configuration
+    let config = read_config(&config_path, options.format)?;
+    result.config_name = config.name.clone();
+    result.config_version = config.version.clone();
+
+    // Validate if requested
+    if options.validate {
+        config.validate()?;
+    }
+
+    // Determine output path
+    let output_path = options
+        .output_path
+        .clone()
+        .unwrap_or_else(|| generate_output_path(&config_path));
+    result.output_path = output_path.clone();
+
+    // Convert to JSON if needed (hostlist-compiler only accepts JSON)
+    let (compile_config_path, temp_config_path) = if config.format() != Some(ConfigFormat::Json) {
+        let temp_path =
+            std::env::temp_dir().join(format!("compiler-config-{}.json", uuid::Uuid::new_v4()));
+        let json = to_json(&config)?;
+        fs::write(&temp_path, &json).map_err(|e| {
+            CompilerError::file_system(format!("writing temp config to {}", temp_path.display()), e)
+        })?;
+
+        if options.debug {
+            eprintln!("[DEBUG] Created temp JSON config: {}", temp_path.display());
+            eprintln!("[DEBUG] Config content:\n{json}");
+        }
+
+        (temp_path.clone(), Some(temp_path))
+    } else {
+        (config_path.clone(), None)
+    };
+
+    // Ensure output directory exists
+    if let Some(output_dir) = output_path.parent() {
+        fs::create_dir_all(output_dir).map_err(|e| {
+            CompilerError::file_system(
+                format!("creating output directory {}", output_dir.display()),
+                e,
+            )
+        })?;
+    }
+
+    // Get compiler command
+    let (cmd, args) = get_compiler_command(
+        compile_config_path.to_str().unwrap_or(""),
+        output_path.to_str().unwrap_or(""),
+    )?;
+
+    if options.debug {
+        eprintln!("[DEBUG] Running: {cmd} {}", args.join(" "));
+    }
+
+    // Run compilation
+    let output = Command::new(&cmd)
+        .args(&args)
+        .current_dir(config_path.parent().unwrap_or(Path::new(".")))
+        .output()
+        .map_err(|e| CompilerError::process_execution(format!("{cmd} {}", args.join(" ")), e))?;
+
+    result.stdout = String::from_utf8_lossy(&output.stdout).to_string();
+    result.stderr = String::from_utf8_lossy(&output.stderr).to_string();
+
+    // Clean up temp file
+    if let Some(temp_path) = temp_config_path {
+        let _ = fs::remove_file(temp_path);
+    }
+
+    // Check for compilation failure
+    if !output.status.success() {
+        result.error_message = Some(format!(
+            "compiler exited with code {:?}: {}",
+            output.status.code(),
+            result.stderr.trim()
+        ));
+        result.end_time = Utc::now();
+        result.elapsed_ms = start.elapsed().as_millis() as u64;
+        return Ok(result);
+    }
+
+    // Verify output was created
+    if !output_path.exists() {
+        result.error_message = Some("output file was not created".to_string());
+        result.end_time = Utc::now();
+        result.elapsed_ms = start.elapsed().as_millis() as u64;
+        return Ok(result);
+    }
+
+    // Calculate statistics and compute output hash with events
+    result.rule_count = count_rules(&output_path);
+    result.output_hash = compute_hash_with_events(&output_path, "output_file", Some(dispatcher))?;
+    result.success = true;
+
+    // Copy to rules directory if requested
+    if options.copy_to_rules {
+        let rules_dir = get_rules_directory(&config_path, options.rules_directory.as_deref());
+        fs::create_dir_all(&rules_dir).map_err(|e| {
+            CompilerError::file_system(
+                format!("creating rules directory {}", rules_dir.display()),
+                e,
+            )
+        })?;
+
+        let dest_path = rules_dir.join("adguard_user_filter.txt");
+        fs::copy(&output_path, &dest_path).map_err(|e| {
+            CompilerError::copy_failed(
+                format!(
+                    "copying {} to {}",
+                    output_path.display(),
+                    dest_path.display()
+                ),
+                e,
+            )
+        })?;
+
+        // Compute hash of copied file to verify integrity
+        let _dest_hash = compute_hash_with_events(&dest_path, "copied_rules_file", Some(dispatcher))?;
 
         result.copied_to_rules = true;
         result.rules_destination = Some(dest_path);

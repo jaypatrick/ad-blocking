@@ -105,6 +105,17 @@ pub enum CompilerError {
         source: std::io::Error,
     },
 
+    /// Hash verification failed.
+    #[error("hash mismatch for {path}: expected {expected}, got {actual}")]
+    HashMismatch {
+        /// The path to the file with mismatched hash.
+        path: String,
+        /// The expected hash value.
+        expected: String,
+        /// The actual hash value.
+        actual: String,
+    },
+
     /// Generic I/O error.
     #[error("I/O error: {0}")]
     Io(#[from] std::io::Error),
@@ -177,6 +188,20 @@ impl CompilerError {
         Self::ProcessExecution {
             command: command.into(),
             source,
+        }
+    }
+
+    /// Create a new `HashMismatch` error.
+    #[must_use]
+    pub fn hash_mismatch(
+        path: impl Into<String>,
+        expected: impl Into<String>,
+        actual: impl Into<String>,
+    ) -> Self {
+        Self::HashMismatch {
+            path: path.into(),
+            expected: expected.into(),
+            actual: actual.into(),
         }
     }
 
