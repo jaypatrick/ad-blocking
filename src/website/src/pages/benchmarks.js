@@ -14,8 +14,8 @@ const BenchmarksPage = () => {
       <section>
         <h2>Overview</h2>
         <p>
-          The repository includes comprehensive benchmarking tools to help you
-          understand performance across different compilers and optimize your
+          The repository includes comprehensive benchmarking tools to help
+          understand performance across different compilers and optimize
           compilation workflows. All compilers (TypeScript, .NET, Python, Rust)
           support parallel chunking for improved performance with large filter
           lists.
@@ -60,7 +60,7 @@ const BenchmarksPage = () => {
 
         <h3>Quick Synthetic Benchmark</h3>
         <p>
-          Run a quick simulation to see expected speedups on your system:
+          Run a quick simulation to see expected speedups:
         </p>
         <pre style={{ marginTop: "0.5rem" }}>
           cd benchmarks
@@ -307,7 +307,7 @@ Maximum speedup: 6.75x`}
             </h3>
             <p>
               Compare the different compiler implementations and choose the
-              best one for your needs.
+              best one based on specific needs.
             </p>
           </div>
           <div className="feature">
@@ -334,8 +334,8 @@ Maximum speedup: 6.75x`}
       >
         <h2>💡 Tip</h2>
         <p>
-          Run benchmarks on your actual hardware to get accurate performance
-          data for your specific use case. Results vary based on CPU cores,
+          Run benchmarks on actual hardware to get accurate performance
+          data for specific use cases. Results vary based on CPU cores,
           memory, I/O speed, and network latency.
         </p>
       </section>

@@ -220,3 +220,75 @@ export interface CompileOptions {
   /** Maximum number of chunks to process in parallel */
   maxParallel?: number;
 }
+
+/**
+ * Event callback types for hash verification
+ */
+
+/** Event arguments for when a hash is computed */
+export interface HashComputedEvent {
+  /** Path or identifier for the item being hashed */
+  itemIdentifier: string;
+  /** Type of item (e.g., "input_file", "output_file", "downloaded_source") */
+  itemType: string;
+  /** Computed SHA-384 hash (96 hex characters) */
+  hash: string;
+  /** Size of the item in bytes */
+  sizeBytes: number;
+  /** Whether this is for verification purposes */
+  isVerification: boolean;
+  /** Timestamp of the event */
+  timestamp: Date;
+}
+
+/** Event arguments for when a hash is verified successfully */
+export interface HashVerifiedEvent {
+  /** Path or identifier for the item */
+  itemIdentifier: string;
+  /** Type of item (e.g., "input_file", "output_file", "downloaded_source") */
+  itemType: string;
+  /** Expected hash */
+  expectedHash: string;
+  /** Actual hash */
+  actualHash: string;
+  /** Size of the item in bytes */
+  sizeBytes: number;
+  /** Duration of hash computation in milliseconds */
+  computationDurationMs: number;
+  /** Timestamp of the event */
+  timestamp: Date;
+}
+
+/** Event arguments for when a hash verification fails */
+export interface HashMismatchEvent {
+  /** Path or identifier for the item */
+  itemIdentifier: string;
+  /** Type of item (e.g., "input_file", "output_file", "downloaded_source") */
+  itemType: string;
+  /** Expected hash */
+  expectedHash: string;
+  /** Actual hash */
+  actualHash: string;
+  /** Size of the item in bytes */
+  sizeBytes: number;
+  /** Whether to abort compilation */
+  abort: boolean;
+  /** Reason for aborting (if abort is true) */
+  abortReason?: string;
+  /** Whether the handler allowed continuation despite mismatch */
+  allowContinuation: boolean;
+  /** Timestamp of the event */
+  timestamp: Date;
+}
+
+/**
+ * Hash verification event callbacks
+ */
+export interface HashVerificationCallbacks {
+  /** Called when a hash is computed */
+  onHashComputed?: (event: HashComputedEvent) => void | Promise<void>;
+  /** Called when a hash is verified successfully */
+  onHashVerified?: (event: HashVerifiedEvent) => void | Promise<void>;
+  /** Called when a hash verification fails */
+  onHashMismatch?: (event: HashMismatchEvent) => void | Promise<void>;
+}

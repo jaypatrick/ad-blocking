@@ -40,7 +40,8 @@ const IndexPage = () => {
             <h3>🔒 Security First</h3>
             <p>
               Built-in validation with SHA-384 hashing protects against
-              malicious filter lists and tampering.
+              malicious filter lists and tampering.{" "}
+              <Link to="/security">Learn about the 5 layers of protection →</Link>
             </p>
           </div>
           <div className="feature">
@@ -77,6 +78,15 @@ const IndexPage = () => {
             <p>
               New to the toolkit? Start here for installation and your first
               compilation.
+            </p>
+          </div>
+          <div className="feature">
+            <h3>
+              <Link to="/security">Security</Link>
+            </h3>
+            <p>
+              Learn how the built-in security features protect against malicious
+              filter lists, tampering, and network attacks.
             </p>
           </div>
           <div className="feature">

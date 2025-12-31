@@ -14,7 +14,15 @@ import {
 } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
-import type { CompileOptions, CompilerResult, Logger } from './types.ts';
+import type {
+  CompileOptions,
+  CompilerResult,
+  HashComputedEvent,
+  HashMismatchEvent,
+  HashVerificationCallbacks,
+  HashVerifiedEvent,
+  Logger,
+} from './types.ts';
 import { readConfiguration } from './config-reader.ts';
 import { logger as defaultLogger } from './logger.ts';
 import { CompilationError, ErrorCode, isCompilerError } from './errors.ts';
@@ -80,6 +88,100 @@ export function computeHash(filePath: string): string {
   const content = readFileSync(filePath);
   return createHash('sha384').update(content).digest('hex');
 }
+
+/**
+ * Computes SHA-384 hash of a file and fires callback if provided
+ * @param filePath - Path to file
+ * @param itemType - Type of item being hashed
+ * @param callbacks - Optional hash verification callbacks
+ * @returns Hex-encoded hash string
+ */
+export async function computeHashWithCallbacks(
+  filePath: string,
+  itemType: string,
+  callbacks?: HashVerificationCallbacks,
+): Promise<string> {
+  const content = readFileSync(filePath);
+  const hash = createHash('sha384').update(content).digest('hex');
+  const sizeBytes = statSync(filePath).size;
+
+  // Fire hash computed callback
+  if (callbacks?.onHashComputed) {
+    const event: HashComputedEvent = {
+      itemIdentifier: filePath,
+      itemType,
+      hash,
+      sizeBytes,
+      isVerification: false,
+      timestamp: new Date(),
+    };
+    await Promise.resolve(callbacks.onHashComputed(event));
+  }
+
+  return hash;
+}
+
+/**
+ * Verifies hash against expected value and fires callbacks
+ * @param filePath - Path to file
+ * @param expectedHash - Expected SHA-384 hash
+ * @param itemType - Type of item being verified
+ * @param callbacks - Optional hash verification callbacks
+ * @throws {Error} If hashes don't match (unless allowContinuation is set by callback)
+ */
+export async function verifyHashWithCallbacks(
+  filePath: string,
+  expectedHash: string,
+  itemType: string,
+  callbacks?: HashVerificationCallbacks,
+): Promise<void> {
+  const startTime = Date.now();
+  const content = readFileSync(filePath);
+  const actualHash = createHash('sha384').update(content).digest('hex');
+  const sizeBytes = statSync(filePath).size;
+  const computationDurationMs = Date.now() - startTime;
+
+  if (actualHash === expectedHash) {
+    // Hash matches - fire verified callback
+    if (callbacks?.onHashVerified) {
+      const event: HashVerifiedEvent = {
+        itemIdentifier: filePath,
+        itemType,
+        expectedHash,
+        actualHash,
+        sizeBytes,
+        computationDurationMs,
+        timestamp: new Date(),
+      };
+      await Promise.resolve(callbacks.onHashVerified(event));
+    }
+  } else {
+    // Hash mismatch - fire mismatch callback and check if continuation is allowed
+    if (callbacks?.onHashMismatch) {
+      const event: HashMismatchEvent = {
+        itemIdentifier: filePath,
+        itemType,
+        expectedHash,
+        actualHash,
+        sizeBytes,
+        abort: true,
+        abortReason: `Hash mismatch for ${filePath}: expected ${expectedHash.slice(0, 16)}..., got ${actualHash.slice(0, 16)}...`,
+        allowContinuation: false,
+        timestamp: new Date(),
+      };
+      await Promise.resolve(callbacks.onHashMismatch(event));
+
+      if (event.allowContinuation) {
+        return;
+      }
+    }
+
+    throw new Error(
+      `Hash mismatch for ${filePath}: expected ${expectedHash}, got ${actualHash}`,
+    );
+  }
+}
+
 
 /**
  * Copies compiled output to rules directory
@@ -181,6 +283,8 @@ export interface ExtendedCompileOptions extends CompileOptions {
   timeoutMs?: number;
   /** Maximum output file size in bytes */
   maxOutputSize?: number;
+  /** Hash verification callbacks for monitoring integrity */
+  hashCallbacks?: HashVerificationCallbacks;
 }
 
 /**
@@ -301,9 +405,17 @@ export async function runCompiler(options: ExtendedCompileOptions): Promise<Comp
     const maxOutputSize = options.maxOutputSize ?? DEFAULT_RESOURCE_LIMITS.maxOutputFileSize;
     checkFileSize(outputStats.size, maxOutputSize, 'output file');
 
-    // Calculate statistics
+    // Calculate statistics - use callbacks if provided
     result.ruleCount = countRules(result.outputPath);
-    result.outputHash = computeHash(result.outputPath);
+    if (options.hashCallbacks) {
+      result.outputHash = await computeHashWithCallbacks(
+        result.outputPath,
+        'output_file',
+        options.hashCallbacks,
+      );
+    } else {
+      result.outputHash = computeHash(result.outputPath);
+    }
 
     logger.debug(`Hash: ${result.outputHash}`);
 
@@ -315,6 +427,11 @@ export async function runCompiler(options: ExtendedCompileOptions): Promise<Comp
       copyToRulesDirectory(result.outputPath, resolve(destPath), logger);
       result.copiedToRules = true;
       result.rulesDestination = resolve(destPath);
+
+      // Compute hash of copied file if callbacks provided
+      if (options.hashCallbacks) {
+        await computeHashWithCallbacks(destPath, 'copied_rules_file', options.hashCallbacks);
+      }
     }
 
     result.success = true;

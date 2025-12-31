@@ -131,4 +131,31 @@ public interface ICompilationEventHandler
     Task OnCompilationErrorAsync(
         CompilationErrorEventArgs args,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Called when a hash is computed for any item.
+    /// </summary>
+    /// <param name="args">The event arguments.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task OnHashComputedAsync(
+        HashComputedEventArgs args,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Called when a hash is verified successfully.
+    /// </summary>
+    /// <param name="args">The event arguments.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task OnHashVerifiedAsync(
+        HashVerifiedEventArgs args,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Called when a hash verification fails.
+    /// </summary>
+    /// <param name="args">The event arguments.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task OnHashMismatchAsync(
+        HashMismatchEventArgs args,
+        CancellationToken cancellationToken = default);
 }

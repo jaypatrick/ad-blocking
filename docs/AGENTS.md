@@ -11,7 +11,7 @@
 
 ## Build, Test, and Development Commands
 
-- Compile rules (any platform): `./src/rules-compiler-shell/compile-rules.sh -c data/Config/config.yaml -r` (see `src/rules-compiler-shell/`).
+- Compile rules (any platform): `./src/shell/bash/compile-rules.sh -c data/Config/config.yaml -r` (see `src/shell/`).
 - TypeScript compiler (`src/rules-compiler-typescript/`):
   - `deno cache src/mod.ts` — cache dependencies
   - `deno task compile` — compile rules
