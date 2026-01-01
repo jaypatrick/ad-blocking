@@ -8,18 +8,22 @@ The TypeScript rules compiler now uses the modern JSR-based `@jk-com/adblock-com
 
 ### Compiler Adapter (`src/lib/compiler-adapter.ts`)
 
-The `compiler-adapter.ts` module provides the compiler interface:
+The `compiler-adapter.ts` module provides automatic fallback logic with lazy initialization:
 
-1. **Loads**: `@jk-com/adblock-compiler` from JSR
-2. **Logging**: Logs compiler information at startup
+1. **Lazy Loading**: Compiler is loaded on first use, not at module import time
+2. **Primary**: Attempts to load `@jk-com/adblock-compiler` from JSR
+3. **Fallback**: Falls back to `@adguard/hostlist-compiler` from npm if JSR fails
+4. **Logging**: Logs which compiler is being used when initialized
 
 ```typescript
-import { compile, FilterCompiler, getCompilerInfo } from './lib/compiler-adapter.ts';
+import { compile, getFilterCompiler, getCompilerInfo } from './lib/compiler-adapter.ts';
 
-// Check which compiler is active
-const info = getCompilerInfo();
+// Check which compiler is active (triggers lazy initialization if not yet loaded)
+const info = await getCompilerInfo();
 console.log(`Using ${info.source} package: ${info.package}`);
 ```
+
+**Key Design Decision**: The adapter uses lazy initialization instead of top-level await to prevent blocking module imports. This ensures fast startup and deferred loading until the compiler is actually needed.
 
 ## Benefits of JSR Package
 
@@ -65,8 +69,10 @@ console.log(`Compiled ${rules.length} rules`);
 ### Using FilterCompiler Class
 
 ```typescript
-import { FilterCompiler } from './lib/compiler-adapter.ts';
+import { getFilterCompiler } from './lib/compiler-adapter.ts';
 
+// Get the FilterCompiler class (lazy loads on first call)
+const FilterCompiler = await getFilterCompiler();
 const compiler = new FilterCompiler(logger);
 const result = await compiler.compile(config);
 ```
@@ -76,7 +82,8 @@ const result = await compiler.compile(config);
 ```typescript
 import { getCompilerInfo } from './lib/compiler-adapter.ts';
 
-const { source, package: pkg } = getCompilerInfo();
+// This will trigger lazy initialization if compiler not yet loaded
+const { source, package: pkg } = await getCompilerInfo();
 console.log(`Active compiler: ${pkg} (${source})`);
 ```
 
