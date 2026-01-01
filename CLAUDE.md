@@ -28,7 +28,7 @@ This repository is a comprehensive multi-language toolkit for ad-blocking, netwo
 - **Linear Import Tool** (`src/linear/`) - TypeScript tool with Deno support
 
 ### Configuration Support
-All compilers support JSON, YAML, and TOML configuration formats with full @adguard/hostlist-compiler compatibility.
+All compilers support JSON, YAML, and TOML configuration formats with full @jk-com/adblock-compiler compatibility.
 
 ## Docker Development Environment
 
@@ -294,7 +294,7 @@ cargo test config::                       # Tests in module
 - `data/output/adguard_user_filter.txt` - Main tracked filter list consumed by AdGuard DNS
 
 ### Rules Compiler - TypeScript (`src/rules-compiler-typescript/`)
-- TypeScript wrapper around @adguard/hostlist-compiler
+- TypeScript compiler using @jk-com/adblock-compiler
 - Deno 2.0+ runtime with npm compatibility
 - Supports JSON, YAML, and TOML configuration formats
 - **Library API** (`src/lib/`):
@@ -324,7 +324,7 @@ cargo test config::                       # Tests in module
 - Supports JSON, YAML, TOML via external tools (yq, Python)
 
 ### Rules Compiler - .NET (`src/rules-compiler-dotnet/`)
-- .NET 10 library wrapping @adguard/hostlist-compiler
+- .NET 10 library for filter compilation
 - Supports JSON, YAML, and TOML configuration formats
 - `RulesCompiler` - Core library with abstractions, models, and services
 - `RulesCompiler.Console` - Spectre.Console interactive and CLI frontend
@@ -333,7 +333,7 @@ cargo test config::                       # Tests in module
 - Features: Configuration validation, verbose mode, dependency injection
 
 ### Rules Compiler - Python (`src/rules-compiler-python/`)
-- Python 3.9+ package wrapping @adguard/hostlist-compiler
+- Python 3.9+ package for filter compilation
 - Supports JSON, YAML, and TOML configuration formats
 - `rules_compiler/config.py` - Multi-format configuration reader
 - `rules_compiler/compiler.py` - Core `RulesCompiler` class and `compile_rules()` function
@@ -343,7 +343,7 @@ cargo test config::                       # Tests in module
 - Tools: pytest, mypy, ruff
 
 ### Rules Compiler - Rust (`src/rules-compiler-rust/`)
-- High-performance Rust library and CLI wrapping @adguard/hostlist-compiler
+- High-performance Rust library and CLI for filter compilation
 - Supports JSON, YAML, and TOML configuration formats
 - `src/config.rs` - Configuration structs and parsing
 - `src/compiler.rs` - `RulesCompiler` struct and `compile_rules()` function
@@ -400,7 +400,7 @@ cargo test config::                       # Tests in module
 
 ## Configuration Schema
 
-All compilers support the same @adguard/hostlist-compiler configuration schema:
+All compilers support the same @jk-com/adblock-compiler configuration schema:
 
 ### Root-Level Properties
 | Property | Type | Required | Description |
@@ -463,7 +463,7 @@ GitHub Actions workflows validate:
 | PowerShell | 7+ | PowerShell scripts |
 | Python | 3.9+ | Python compiler |
 | Rust | 1.85+ | Rust compiler (install via rustup) |
-| hostlist-compiler | Latest | All compilers (via Deno: `deno run npm:@adguard/hostlist-compiler`) |
+| adblock-compiler | 0.6.0 | TypeScript compiler (via JSR: `deno add @jk-com/adblock-compiler`) |
 | Docker | 24.0+ | Container development (optional but recommended) |
 
 ## Key File Locations

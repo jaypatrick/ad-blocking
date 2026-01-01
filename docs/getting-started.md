@@ -9,7 +9,7 @@ This guide will help you get up and running with the ad-blocking toolkit.
 | Requirement | Version | Purpose | Installation |
 |-------------|---------|---------|--------------|
 | Deno | 2.0+ | TypeScript compilers and tools | [deno.land](https://deno.land/) |
-| hostlist-compiler | Latest | Filter compilation | `deno run npm:@adguard/hostlist-compiler` |
+| adblock-compiler | 0.6.0 | Filter compilation | `deno run jsr:@jk-com/adblock-compiler` |
 
 ### Language-Specific Requirements
 
@@ -48,7 +48,7 @@ Verify installation:
 deno --version
 ```
 
-The `@adguard/hostlist-compiler` package is accessed via Deno's npm compatibility.
+The `@jk-com/adblock-compiler` package is accessed via Deno's JSR integration.
 
 ### 3. Choose Your Compiler
 
@@ -281,7 +281,7 @@ deno --version
 You can run hostlist-compiler directly with:
 
 ```bash
-deno run --allow-all npm:@adguard/hostlist-compiler --version
+deno run --allow-all jsr:@jk-com/adblock-compiler --version
 ```
 
 ### Permission denied on Linux/macOS

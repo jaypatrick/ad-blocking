@@ -4,7 +4,7 @@ A comprehensive guide to using the TypeScript rules compiler with Deno 2.0+.
 
 ## Overview
 
-The TypeScript rules compiler is a Deno-based implementation that wraps [@adguard/hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler) to compile filter lists from multiple sources with transformations, inclusions, and exclusions.
+The TypeScript rules compiler is a Deno-based implementation that uses [@jk-com/adblock-compiler](https://github.com/jaypatrick/hostlistcompiler) to compile filter lists from multiple sources with transformations, inclusions, and exclusions.
 
 ## Features
 
@@ -20,7 +20,7 @@ The TypeScript rules compiler is a Deno-based implementation that wraps [@adguar
 | Requirement | Version | Installation |
 |-------------|---------|--------------|
 | Deno | 2.0+ | [deno.land](https://deno.land/) |
-| @adguard/hostlist-compiler | Latest | Via Deno's npm compatibility |
+| @jk-com/adblock-compiler | 0.6.0 | Via JSR |
 
 ## Installation
 
@@ -349,7 +349,7 @@ deno --version
 Test hostlist-compiler access:
 
 ```bash
-deno run --allow-all npm:@adguard/hostlist-compiler --version
+deno run --allow-all jsr:@jk-com/adblock-compiler --version
 ```
 
 ### Permission Denied
