@@ -30,9 +30,4 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\AdGuard.ApiClient\AdGuard.ApiClient.csproj" />
-    <ProjectReference Include="..\AdGuard.Repositories\AdGuard.Repositories.csproj" />
-  </ItemGroup>
-
 </Project>

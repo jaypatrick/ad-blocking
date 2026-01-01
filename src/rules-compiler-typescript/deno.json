@@ -31,6 +31,7 @@
     "node:crypto": "node:crypto",
     "yaml": "npm:yaml@^2.8.2",
     "@iarna/toml": "npm:@iarna/toml@^2.2.5",
+    "@jk-com/adblock-compiler": "jsr:@jk-com/adblock-compiler@^0.6.0",
     "@adguard/hostlist-compiler": "npm:@adguard/hostlist-compiler@^1.0.39",
     "chalk": "npm:chalk@^5.6.2",
     "cli-table3": "npm:cli-table3@^0.6.5",
