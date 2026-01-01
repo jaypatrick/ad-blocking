@@ -562,12 +562,18 @@ See [`data/archive/README.md`](data/archive/README.md) for detailed usage and re
 
 ## Rules Compilers
 
-All compilers use [@jk-com/adblock-compiler](https://github.com/jaypatrick/hostlistcompiler) and support:
+All compilers use [@jk-com/adblock-compiler](https://github.com/jaypatrick/adblock-compiler) and support:
 
 - **Multi-format config**: JSON, YAML, TOML
 - **All 11 transformations**: Deduplicate, Validate, RemoveComments, Compress, etc.
 - **Source-specific settings**: Per-source transformations, inclusions, exclusions
 - **Pattern matching**: Wildcards, regex, file-based patterns
+
+**AdBlock Compiler Documentation**:
+- [Migration Guide](https://github.com/jaypatrick/adblock-compiler/blob/master/docs/MIGRATION.md) - Migrate from @adguard/hostlist-compiler
+- [Troubleshooting](https://github.com/jaypatrick/adblock-compiler/blob/master/docs/TROUBLESHOOTING.md) - Common issues and solutions
+- [Web UI](https://adblock.jaysonknight.com) - Interactive compilation with visual diff
+- [API Reference](https://adblock-compiler.jayson-knight.workers.dev/api) - REST API documentation
 
 ### TypeScript Compiler
 
