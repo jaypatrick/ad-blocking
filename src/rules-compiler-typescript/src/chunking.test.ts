@@ -4,7 +4,7 @@
  */
 
 import { assertEquals } from 'https://deno.land/std@0.220.0/assert/mod.ts';
-import type { IConfiguration } from '@adguard/hostlist-compiler';
+import type { IConfiguration } from '@jk-com/adblock-compiler';
 import {
   DEFAULT_CHUNKING_CONFIG,
   mergeChunks,

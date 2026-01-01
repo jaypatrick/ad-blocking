@@ -75,8 +75,9 @@ const GettingStartedPage = () => {
           </li>
         </ul>
         <p>
-          All compilers also need{" "}
-          <code>@adguard/hostlist-compiler</code> installed.
+          All compilers wrap either <code>@adguard/hostlist-compiler</code> or{" "}
+          <Link to="/adblock-compiler">AdBlock Compiler</Link> (a modern TypeScript rewrite
+          with production features).
         </p>
       </section>
 
@@ -166,6 +167,14 @@ const GettingStartedPage = () => {
             </h3>
             <p>
               Contribute, report issues, or ask questions on GitHub.
+            </p>
+          </div>
+          <div className="feature">
+            <h3>
+              <Link to="/adblock-compiler">Try AdBlock Compiler</Link>
+            </h3>
+            <p>
+              Modern compiler-as-a-service with web UI, batch processing, and visual diff.
             </p>
           </div>
         </div>

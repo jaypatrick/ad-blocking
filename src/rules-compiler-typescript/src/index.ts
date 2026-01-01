@@ -2,7 +2,7 @@
  * Rules Compiler TypeScript Frontend
  *
  * A TypeScript API and CLI for compiling AdGuard filter rules
- * using @adguard/hostlist-compiler.
+ * using @jk-com/adblock-compiler.
  *
  * Production-ready with:
  * - Custom error classes with error codes

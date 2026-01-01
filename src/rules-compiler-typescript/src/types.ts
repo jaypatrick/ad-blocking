@@ -2,7 +2,7 @@
  * Type definitions for the Rules Compiler TypeScript Frontend
  */
 
-import type { IConfiguration } from '@adguard/hostlist-compiler';
+import type { IConfiguration } from '@jk-com/adblock-compiler';
 
 /**
  * Supported configuration file formats

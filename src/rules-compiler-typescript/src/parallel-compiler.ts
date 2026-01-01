@@ -1,9 +1,9 @@
 /**
  * Parallel compilation using Deno workers for chunked rule compilation
- * Enables multi-threaded compilation to work around single-threaded @adguard/hostlist-compiler
+ * Enables multi-threaded compilation to work around single-threaded @jk-com/adblock-compiler
  */
 
-import compile, { type IConfiguration } from '@adguard/hostlist-compiler';
+import compile, { type IConfiguration } from '@jk-com/adblock-compiler';
 import type { Logger } from './types.ts';
 import type { ChunkedConfiguration } from './chunking.ts';
 import { logger as defaultLogger } from './logger.ts';
