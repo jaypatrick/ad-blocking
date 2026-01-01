@@ -34,9 +34,10 @@ This library provides a unified, high-performance validation layer that can be u
 └────────────────┬────────────────────────────────┘
                  │
                  ▼
-┌─────────────────────────────────────────────────┐
-│  @adguard/hostlist-compiler                    │
-└─────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────┐
+│  @jk-com/adblock-compiler                    │
+│  (via wrapper/CLI)                           │
+└──────────────────────────────────────────────┘
 ```
 
 ## Building

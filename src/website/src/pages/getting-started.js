@@ -76,7 +76,7 @@ const GettingStartedPage = () => {
         </ul>
         <p>
           All compilers also need{" "}
-          <code>@adguard/hostlist-compiler</code> installed.
+          <code>@jk-com/adblock-compiler</code> installed.
         </p>
       </section>
 
