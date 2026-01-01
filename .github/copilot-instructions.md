@@ -39,12 +39,14 @@ Multi-language toolkit for ad-blocking and AdGuard DNS management with **identic
 - `adguard-validate` (CLI tool)
 
 ### Compiler Equivalence
-All four compilers (TypeScript, .NET, Python, Rust) use `@jk-com/adblock-compiler` and **must**:
+All four compilers (TypeScript, .NET, Python, Rust) use **[@jk-com/adblock-compiler](https://github.com/jaypatrick/hostlistcompiler)** and **must**:
 - Support JSON, YAML, TOML config formats (except PowerShell: JSON only)
 - Count rules identically (exclude empty lines and `!`/`#` comments)
 - Compute SHA-384 hash of output (96 hex chars)
 - Return same result structure: `{ success, ruleCount, hash, elapsedMs, outputPath }`
 - **Use centralized validation library** for all security checks
+
+📘 **See [adblock-compiler guide](../docs/guides/adblock-compiler-guide.md)** for package details, benefits, and CI/CD integration examples.
 
 ### ConsoleUI DI Pattern
 `src/adguard-api-dotnet/src/AdGuard.ConsoleUI/` uses service-oriented architecture:

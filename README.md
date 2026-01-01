@@ -44,7 +44,17 @@ A comprehensive multi-language toolkit for ad-blocking, network protection, and 
 | **Rust** | Native binary | Cargo/Binary | Zero-runtime deps, LTO optimization |
 | **PowerShell** | PowerShell 7+ | Module | Pipeline-friendly, Pester tests |
 
-All compilers use [@jk-com/adblock-compiler](https://github.com/jaypatrick/hostlistcompiler) with **built-in security validation** and support:
+All compilers use **[@jk-com/adblock-compiler](https://github.com/jaypatrick/hostlistcompiler)** - a modern, SOLID-compliant TypeScript package distributed via JSR. [📘 See comprehensive guide →](docs/guides/adblock-compiler-guide.md)
+
+**Why @jk-com/adblock-compiler?**
+- ✨ **SOLID Architecture**: 8+ specialized classes following Single Responsibility Principle
+- 🔧 **Dependency Injection**: Full DI support for testability and customization
+- 📘 **Superior Type Safety**: Complete TypeScript interfaces with JSDoc coverage
+- ⚡ **Performance Optimized**: Improved pattern matching and rule processing
+- 🎯 **Better Error Handling**: Descriptive errors with context and suggestions
+- 📦 **JSR Distribution**: Modern registry with better dependency management
+
+**Compilation Features:**
 - **All 11 transformations**: Deduplicate, Validate, RemoveComments, Compress, RemoveModifiers, etc.
 - **Multi-format config**: JSON, YAML, and TOML configuration files
 - **Source-specific settings**: Per-source transformations, inclusions, exclusions
@@ -568,6 +578,9 @@ All compilers use [@jk-com/adblock-compiler](https://github.com/jaypatrick/adblo
 - **All 11 transformations**: Deduplicate, Validate, RemoveComments, Compress, etc.
 - **Source-specific settings**: Per-source transformations, inclusions, exclusions
 - **Pattern matching**: Wildcards, regex, file-based patterns
+- **SOLID Architecture**: Dependency injection, single responsibility, better testing
+
+📘 **[Complete @jk-com/adblock-compiler Guide](docs/guides/adblock-compiler-guide.md)** - Why it's better, CI/CD integration, API reference, migration guide
 
 **AdBlock Compiler Documentation**:
 - [Migration Guide](https://github.com/jaypatrick/adblock-compiler/blob/master/docs/MIGRATION.md) - Migrate from @adguard/hostlist-compiler
@@ -1468,7 +1481,8 @@ A user-friendly Gatsby-powered website with:
 
 ### Rules Compilers
 
-- [TypeScript Compiler](src/rules-compiler-typescript/) - Node.js/Deno compiler
+- **[@jk-com/adblock-compiler Guide](docs/guides/adblock-compiler-guide.md)** - Core package documentation with CI/CD examples
+- [TypeScript Compiler](src/rules-compiler-typescript/) - Deno compiler with JSR integration
 - [.NET Compiler README](src/rules-compiler-dotnet/README.md) - C# library and CLI
 - [Python Compiler README](src/rules-compiler-python/README.md) - pip-installable package
 - [Rust Compiler README](src/rules-compiler-rust/README.md) - Single binary distribution
