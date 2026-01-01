@@ -138,6 +138,6 @@ All URIs are relative to `https://api.adguard-dns.io`
 
 - [AdGuard DNS](https://adguard-dns.io/)
 - [AdGuard DNS API Documentation](https://api.adguard-dns.io/static/swagger/swagger.json)
-- [@adguard/hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler)
+- [@jk-com/adblock-compiler](https://github.com/jaypatrick/hostlistcompiler)
 - [AdBlock Tester](https://adblock-tester.com/)
 - [AdGuard Tester](https://d3ward.github.io/toolz/adblock.html)

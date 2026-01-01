@@ -114,7 +114,7 @@ dotnet run --project src/RulesCompiler.Console
     "compile": "node compile.js"
   },
   "dependencies": {
-    "@adguard/hostlist-compiler": "^1.0.0"
+    "@jk-com/adblock-compiler": "^0.6.0"
   }
 }
 ```
@@ -739,7 +739,7 @@ jsonlint config.json  # For JSON
 # Transformations are applied in fixed order regardless of config
 
 # Check for version differences in hostlist-compiler
-deno run npm:@adguard/hostlist-compiler --version
+deno run jsr:@jk-com/adblock-compiler --version
 
 # Enable debug output
 new-compiler -c config.yaml -d

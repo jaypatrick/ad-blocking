@@ -39,7 +39,7 @@ Multi-language toolkit for ad-blocking and AdGuard DNS management with **identic
 - `adguard-validate` (CLI tool)
 
 ### Compiler Equivalence
-All four compilers (TypeScript, .NET, Python, Rust) wrap `@adguard/hostlist-compiler` and **must**:
+All four compilers (TypeScript, .NET, Python, Rust) use `@jk-com/adblock-compiler` and **must**:
 - Support JSON, YAML, TOML config formats (except PowerShell: JSON only)
 - Count rules identically (exclude empty lines and `!`/`#` comments)
 - Compute SHA-384 hash of output (96 hex chars)
@@ -402,7 +402,7 @@ All compilers return/output:
 ```
 
 ### Configuration Schema
-Supports 3 formats (JSON/YAML/TOML), mirrors `@adguard/hostlist-compiler`:
+Supports 3 formats (JSON/YAML/TOML), based on `@jk-com/adblock-compiler` schema:
 ```json
 {
   "output": "data/output/adguard_user_filter.txt",
@@ -493,11 +493,13 @@ cd src/rules-compiler-rust && cargo test
 - **Auth**: Bearer token in `Authorization` header
 - **Retry logic**: 3 attempts with exponential backoff (408, 429, 5xx)
 
-### @adguard/hostlist-compiler
-- **All compilers depend on this**: npm package must be globally installed
-- **Installation**: `npm install -g @adguard/hostlist-compiler`
+### @jk-com/adblock-compiler
+- **All compilers depend on this**: JSR package
+- **Installation**: `deno add @jk-com/adblock-compiler` or via JSR
+- **Source**: https://github.com/jaypatrick/hostlistcompiler
+- **Documentation**: https://jsr.io/@jk-com/adblock-compiler
 - Provides 11 transformations (RemoveComments, Compress, Validate, etc.)
-- Compilers wrap this, handling config parsing and result formatting
+- Compilers use this, handling config parsing and result formatting
 
 ### Docker Development
 - **Dockerfile**: `Dockerfile.warp` (multi-stage with .NET 8 SDK + Node 20 + PowerShell 7)

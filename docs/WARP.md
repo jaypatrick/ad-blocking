@@ -48,7 +48,7 @@ High-level architecture and structure
 - Filter rules (data/output/)
   - data/output/adguard_user_filter.txt is the tracked output list consumed by AdGuard DNS.
 - Filter compiler (src/rules-compiler-typescript/)
-  - Deno/TypeScript wrapper around @adguard/hostlist-compiler. Reads configuration, compiles sources, and writes compiled rules. Deno tests cover config parsing and output writing.
+  - Deno/TypeScript wrapper around @jk-com/adblock-compiler. Reads configuration, compiles sources, and writes compiled rules. Deno tests cover config parsing and output writing.
 - API clients
   - src/adguard-api-dotnet/: Auto-generated C# SDK for AdGuard DNS API v1.11. Targets net10.0; uses Newtonsoft.Json and JsonSubTypes. Includes Helpers for configuration and Polly-based retry policies. Console UI uses Spectre.Console.
   - src/adguard-api-typescript/: TypeScript/Deno SDK with full API coverage, repository pattern, and interactive CLI using inquirer/ora.

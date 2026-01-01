@@ -1,44 +1,32 @@
 /**
- * Compiler adapter that tries the new JSR package first, with fallback to AdGuard npm package
+ * Compiler adapter that loads the JSR package
  */
 
 import type { IConfiguration, ILogger } from '@jk-com/adblock-compiler';
 
-// Try to import from JSR first
+// Import from JSR
 let FilterCompiler: any;
 let compile: any;
-let compilerSource: 'jsr' | 'npm' = 'jsr';
+const compilerSource: 'jsr' = 'jsr';
 
 try {
   const jsrModule = await import('@jk-com/adblock-compiler');
   FilterCompiler = jsrModule.FilterCompiler;
   compile = jsrModule.compile;
-  compilerSource = 'jsr';
   console.log('[Compiler] Using JSR package: @jk-com/adblock-compiler@^0.6.0');
 } catch (jsrError) {
-  console.warn('[Compiler] JSR package failed, falling back to npm:', jsrError);
-  try {
-    const npmModule = await import('@adguard/hostlist-compiler');
-    FilterCompiler = npmModule.FilterCompiler;
-    compile = npmModule.compile;
-    compilerSource = 'npm';
-    console.log('[Compiler] Using npm package: @adguard/hostlist-compiler');
-  } catch (npmError) {
-    throw new Error(
-      `Failed to load compiler from both sources:\nJSR: ${jsrError}\nnpm: ${npmError}`,
-    );
-  }
+  throw new Error(
+    `Failed to load compiler from JSR: ${jsrError}`,
+  );
 }
 
 /**
  * Get information about which compiler is being used
  */
-export function getCompilerInfo(): { source: 'jsr' | 'npm'; package: string } {
+export function getCompilerInfo(): { source: 'jsr'; package: string } {
   return {
     source: compilerSource,
-    package: compilerSource === 'jsr'
-      ? '@jk-com/adblock-compiler@^0.6.0'
-      : '@adguard/hostlist-compiler',
+    package: '@jk-com/adblock-compiler@^0.6.0',
   };
 }
 

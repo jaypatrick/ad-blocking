@@ -85,18 +85,18 @@ deno run -A src/mod.ts
 }
 ```
 
-### hostlist-compiler Not Found
+### adblock-compiler Not Found
 
-**Symptom:** `npm:@adguard/hostlist-compiler not found`
+**Symptom:** `jsr:@jk-com/adblock-compiler not found`
 
 **Solution:**
 
 ```bash
-# Test npm: specifier
-deno run --allow-all npm:@adguard/hostlist-compiler --version
+# Test JSR specifier
+deno run --allow-all jsr:@jk-com/adblock-compiler --version
 
 # If that works, the issue is with your configuration
-# Check deno.json for correct npm imports
+# Check deno.json for correct JSR imports
 
 # Ensure Deno version is 2.0+
 deno upgrade
