@@ -126,7 +126,7 @@ dotnet run --project src/RulesCompiler.Console
     "compile": "deno run --allow-all src/mod.ts"
   },
   "imports": {
-    "@adguard/hostlist-compiler": "npm:@adguard/hostlist-compiler"
+    "@jk-com/adblock-compiler": "jsr:@jk-com/adblock-compiler@^0.6.0"
   }
 }
 ```

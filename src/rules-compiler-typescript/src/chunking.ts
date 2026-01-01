@@ -3,7 +3,7 @@
  * Splits large sources into manageable chunks for parallel processing
  */
 
-import type { IConfiguration, ISource } from '@adguard/hostlist-compiler';
+import type { IConfiguration, ISource } from '@jk-com/adblock-compiler';
 import type { ChunkingConfig, Logger } from './types.ts';
 import { logger as defaultLogger } from './logger.ts';
 
