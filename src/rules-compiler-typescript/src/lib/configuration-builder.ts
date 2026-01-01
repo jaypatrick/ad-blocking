@@ -26,7 +26,7 @@
  * ```
  */
 
-import type { IConfiguration } from '@adguard/hostlist-compiler';
+import type { IConfiguration } from '@jk-com/adblock-compiler';
 
 /**
  * Available transformation types
@@ -282,7 +282,7 @@ export class ConfigurationBuilder {
 
   /**
    * Build the configuration object
-   * @returns IConfiguration compatible with @adguard/hostlist-compiler
+   * @returns IConfiguration compatible with @jk-com/adblock-compiler
    */
   build(): IConfiguration {
     if (this.sources.length === 0) {

@@ -24,7 +24,7 @@
  * ```
  */
 
-import type { IConfiguration } from '@adguard/hostlist-compiler';
+import type { IConfiguration } from '@jk-com/adblock-compiler';
 import type {
   CompilerResult,
   ConfigurationFormat,

@@ -3,7 +3,7 @@
  * Production-ready with timeouts, error handling, and resource limits
  */
 
-import compile, { type IConfiguration } from '@adguard/hostlist-compiler';
+import { compile, type IConfiguration } from './lib/compiler-adapter.ts';
 import {
   copyFileSync,
   existsSync,

@@ -73,7 +73,7 @@ deno task start -- --version
 
 ### Chunked Parallel Compilation
 
-For large rule lists (e.g., 10+ million entries), the single-threaded `@adguard/hostlist-compiler` can be slow. The chunking feature splits compilation into parallel chunks:
+For large rule lists (e.g., 10+ million entries), chunking splits compilation into parallel chunks for improved performance:
 
 **Command-line usage:**
 ```bash

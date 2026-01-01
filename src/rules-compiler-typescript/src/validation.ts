@@ -4,7 +4,7 @@
  */
 
 import { isAbsolute, normalize, resolve } from 'node:path';
-import type { IConfiguration } from '@adguard/hostlist-compiler';
+import type { IConfiguration } from '@jk-com/adblock-compiler';
 import {
   ConfigurationError,
   ErrorCode,
@@ -115,7 +115,7 @@ function validateSource(source: unknown, index: number): string[] {
 }
 
 /**
- * Valid transformation names from @adguard/hostlist-compiler
+ * Valid transformation names from @jk-com/adblock-compiler
  */
 const VALID_TRANSFORMATIONS = [
   'RemoveComments',

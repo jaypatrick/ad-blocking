@@ -32,7 +32,8 @@
                  │
                  ▼
 ┌─────────────────────────────────────────┐
-│  @adguard/hostlist-compiler             │
+│  @jk-com/adblock-compiler               │
+│  (JSR package)                          │
 └─────────────────────────────────────────┘
 ```
 
@@ -40,7 +41,7 @@
 
 ### 1. Mandatory Wrapper Function
 
-All compilers **MUST** use `compile_with_validation()` instead of calling `@adguard/hostlist-compiler` directly:
+All compilers **MUST** use `compile_with_validation()` instead of calling `@jk-com/adblock-compiler` directly:
 
 **❌ FORBIDDEN - Direct compilation bypass:**
 ```typescript
@@ -280,7 +281,7 @@ module.exports = {
   rules: {
     'no-restricted-imports': ['error', {
       patterns: [{
-        group: ['@adguard/hostlist-compiler'],
+        group: ['@jk-com/adblock-compiler'],
         message: 'Do not import hostlist-compiler directly. Use compile_with_validation() from @adguard/validation instead.'
       }]
     }]

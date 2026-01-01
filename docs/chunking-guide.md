@@ -4,7 +4,7 @@ This guide explains the parallel chunking feature available in the rules compile
 
 ## Overview
 
-When compiling filter lists with many sources or millions of rules, the single-threaded nature of `@adguard/hostlist-compiler` can become a bottleneck. Chunking addresses this by:
+When compiling filter lists with many sources or millions of rules, chunking addresses this by:
 
 1. **Splitting sources into chunks** - Distributes sources across multiple parallel workers
 2. **Compiling chunks in parallel** - Uses multiple CPU cores simultaneously

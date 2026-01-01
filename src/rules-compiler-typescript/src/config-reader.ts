@@ -7,7 +7,7 @@ import { existsSync, readFileSync, statSync } from 'node:fs';
 import { extname, resolve } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { parse as parseToml } from '@iarna/toml';
-import type { IConfiguration } from '@adguard/hostlist-compiler';
+import type { IConfiguration } from '@jk-com/adblock-compiler';
 import type { ConfigurationFormat, ExtendedConfiguration, Logger } from './types.ts';
 import { logger as defaultLogger } from './logger.ts';
 import { ConfigNotFoundError, ConfigParseError, ConfigurationError, ErrorCode } from './errors.ts';
