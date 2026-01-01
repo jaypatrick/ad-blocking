@@ -110,6 +110,12 @@ const IndexPage = () => {
             </h3>
             <p>See what's new in the latest releases and ongoing development.</p>
           </div>
+          <div className="feature">
+            <h3>
+              <Link to="/adblock-compiler">AdBlock Compiler</Link>
+            </h3>
+            <p>Modern TypeScript compiler-as-a-service with real-time progress, visual diff, and production features.</p>
+          </div>
         </div>
       </section>
 

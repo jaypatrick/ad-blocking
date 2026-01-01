@@ -1,6 +1,6 @@
 /**
  * Parallel compilation using Deno workers for chunked rule compilation
- * Enables multi-threaded compilation for large filter lists
+ * Enables multi-threaded compilation to work around single-threaded @jk-com/adblock-compiler
  */
 
 import compile, { type IConfiguration } from '@jk-com/adblock-compiler';
