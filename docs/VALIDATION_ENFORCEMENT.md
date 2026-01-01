@@ -85,7 +85,7 @@ async function compile(config: CompilerConfig): Promise<CompilerResult> {
     }
   }
   
-  // 3. Proceed with compilation using @adguard/hostlist-compiler
+  // 3. Proceed with compilation using @jk-com/adblock-compiler
   const output = await hostlistCompiler.compile(config);
   
   // 4. MANDATORY: Handle file conflicts

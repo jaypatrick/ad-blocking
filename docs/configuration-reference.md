@@ -1,6 +1,6 @@
 # Configuration Reference
 
-All rules compilers in this repository use the same configuration schema based on [@adguard/hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler).
+All rules compilers in this repository use the same configuration schema based on [@jk-com/adblock-compiler](https://github.com/jaypatrick/hostlistcompiler).
 
 ## Supported Formats
 
@@ -376,7 +376,7 @@ data/input/          →  Compiler  →  data/output/
 3. Validate syntax of each source
 4. Compute SHA-384 hashes for tampering detection
 5. Fetch internet sources with hash verification
-6. Merge all sources using `@adguard/hostlist-compiler`
+6. Merge all sources using `@jk-com/adblock-compiler`
 7. Apply transformations (deduplicate, validate, etc.)
 8. Convert hosts format to adblock if needed
 9. Write to `data/output/adguard_user_filter.txt`

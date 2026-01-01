@@ -2,7 +2,7 @@
 
 ## Overview
 
-The TypeScript rules compiler now uses the modern JSR-based `@jk-com/adblock-compiler` package as the primary compiler, with automatic fallback to the npm-based `@adguard/hostlist-compiler` if needed.
+The TypeScript rules compiler now uses the modern JSR-based `@jk-com/adblock-compiler` package for all compilation tasks.
 
 ## Architecture
 
@@ -37,12 +37,11 @@ The `@jk-com/adblock-compiler@^0.6.0` package includes:
 ✅ **Better Documentation**: Full JSDoc coverage
 ✅ **Trace Logging**: Additional debug level for troubleshooting
 
-## Backward Compatibility
+## API Compatibility
 
-- ✅ 100% API compatible with `@adguard/hostlist-compiler`
-- ✅ Same `IConfiguration` interface
-- ✅ Same `compile()` function signature
-- ✅ No breaking changes to existing code
+- ✅ Standard `IConfiguration` interface
+- ✅ Standard `compile()` function signature
+- ✅ Drop-in replacement for filter compilation needs
 
 ## Usage
 
@@ -92,47 +91,26 @@ console.log(`Active compiler: ${pkg} (${source})`);
 
 ### For Developers
 
-No code changes required! The adapter handles everything automatically. Just import from `./lib/compiler-adapter.ts` instead of directly from `@adguard/hostlist-compiler`.
+Import from `./lib/compiler-adapter.ts` to use the compiler:
 
-**Before:**
-```typescript
-import compile from '@adguard/hostlist-compiler';
-```
-
-**After:**
 ```typescript
 import { compile } from './lib/compiler-adapter.ts';
 ```
 
 ### For CI/CD
 
-No changes needed. The fallback mechanism ensures compilation works even if JSR registry is unavailable.
+The JSR package is used for all compilations. Ensure network access to jsr.io is available.
 
 ## Troubleshooting
 
 ### JSR Package Not Loading
 
-If you see:
-```
-[Compiler] JSR package failed, falling back to npm
-```
+If the package fails to load:
 
-This is normal and automatic. The npm package will be used instead. Check:
-- Network connectivity to jsr.io
-- Deno cache status (`deno cache --reload`)
-
-### Both Packages Fail
-
-If both fail:
-```
-Failed to load compiler from both sources:
-JSR: <error>
-npm: <error>
-```
-
-1. Check internet connectivity
-2. Verify `deno.json` has both imports configured
+1. Check internet connectivity to jsr.io
+2. Verify `deno.json` has the import configured
 3. Run `deno cache --reload src/compiler.ts`
+4. Check Deno cache status: `deno cache --reload`
 
 ## Version History
 

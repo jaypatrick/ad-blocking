@@ -1,6 +1,6 @@
 # Rules Compiler (Rust)
 
-Rust API for compiling AdGuard filter rules using `@adguard/hostlist-compiler`.
+Rust API for compiling AdGuard filter rules.
 
 ## Features
 
@@ -14,9 +14,8 @@ Rust API for compiling AdGuard filter rules using `@adguard/hostlist-compiler`.
 
 | Requirement | Version | Notes |
 |-------------|---------|-------|
-| Rust | 1.70+ | Install via rustup |
-| Node.js | 18+ | Required for hostlist-compiler |
-| hostlist-compiler | Latest | `npm install -g @adguard/hostlist-compiler` |
+| Rust | 1.85+ | Core language |
+| Node.js | 18+ | For compilation engine |
 
 ## Building
 

@@ -44,7 +44,7 @@ A comprehensive multi-language toolkit for ad-blocking, network protection, and 
 | **Rust** | Native binary | Cargo/Binary | Zero-runtime deps, LTO optimization |
 | **PowerShell** | PowerShell 7+ | Module | Pipeline-friendly, Pester tests |
 
-All compilers wrap [@adguard/hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler) with **built-in security validation** and support:
+All compilers use [@jk-com/adblock-compiler](https://github.com/jaypatrick/hostlistcompiler) with **built-in security validation** and support:
 - **All 11 transformations**: Deduplicate, Validate, RemoveComments, Compress, RemoveModifiers, etc.
 - **Multi-format config**: JSON, YAML, and TOML configuration files
 - **Source-specific settings**: Per-source transformations, inclusions, exclusions
@@ -216,7 +216,7 @@ curl -fsSL https://deno.land/install.sh | sh
 irm https://deno.land/install.ps1 | iex
 ```
 
-The `@adguard/hostlist-compiler` package is accessed via Deno's npm compatibility.
+The `@jk-com/adblock-compiler` package is accessed via Deno's JSR integration.
 
 ### Clone and Setup
 
@@ -536,7 +536,7 @@ See [`data/archive/README.md`](data/archive/README.md) for detailed usage and re
                         │
                         ▼
 ┌─────────────────────────────────────────────────────┐
-│ 4. Compile with @adguard/hostlist-compiler         │
+│ 4. Compile with @jk-com/adblock-compiler         │
 │    - Merge all sources                             │
 │    - Apply transformations (dedupe, validate, etc) │
 │    - Convert hosts format to adblock if needed     │
@@ -562,7 +562,7 @@ See [`data/archive/README.md`](data/archive/README.md) for detailed usage and re
 
 ## Rules Compilers
 
-All compilers wrap [@adguard/hostlist-compiler](https://github.com/AdguardTeam/HostlistCompiler) and support:
+All compilers use [@jk-com/adblock-compiler](https://github.com/jaypatrick/hostlistcompiler) and support:
 
 - **Multi-format config**: JSON, YAML, TOML
 - **All 11 transformations**: Deduplicate, Validate, RemoveComments, Compress, etc.
@@ -744,7 +744,7 @@ println!("Compiled {} rules", result.rule_count);
 
 **Location**: `src/shell/`
 
-Cross-platform shell scripts that wrap `@adguard/hostlist-compiler` for simple automation and CI/CD pipelines.
+Cross-platform shell scripts that use `@jk-com/adblock-compiler` for simple automation and CI/CD pipelines.
 
 | Script | Platform | Shell | Features |
 |--------|----------|-------|----------|

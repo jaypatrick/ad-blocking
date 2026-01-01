@@ -110,7 +110,7 @@ export ADGUARD_ARCHIVE_RETENTION_DAYS=90
 
 **Technology Stack:**
 - TypeScript 5.4.5
-- @adguard/hostlist-compiler v1.0.39
+- @jk-com/adblock-compiler v0.6.0
 - Deno test (testing)
 - Deno 2.0+
 
@@ -284,7 +284,7 @@ ad-blocking/
 | Technology | Version | Purpose |
 |------------|---------|---------|
 | TypeScript | 5.4.5 | Strongly-typed JavaScript |
-| @adguard/hostlist-compiler | 1.0.39 | Core compilation engine |
+| @jk-com/adblock-compiler | 0.6.0 | Core compilation engine |
 | Deno | 2.0+ | TypeScript/JavaScript runtime |
 | Deno test | built-in | Testing framework |
 

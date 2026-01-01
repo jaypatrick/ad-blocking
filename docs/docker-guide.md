@@ -42,7 +42,7 @@ WORKDIR /workspace
 
 ### Pre-installed Tools
 
-- **Deno packages**: `@adguard/hostlist-compiler` (via npm: specifier)
+- **Deno packages**: `@jk-com/adblock-compiler` (via JSR)
 - **Python packages**: `pytest`, `pytest-cov`, `mypy`, `ruff`, `pyyaml`, `tomlkit`
 - **Rust components**: `clippy`, `rustfmt`
 - **PowerShell modules**: `Pester`, `PSScriptAnalyzer`
