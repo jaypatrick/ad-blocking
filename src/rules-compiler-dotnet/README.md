@@ -4,7 +4,7 @@ A .NET 10 library and console application for compiling AdGuard filter rules usi
 
 ## Features
 
-- **Full hostlist-compiler support**: All configuration options from the underlying @adguard/hostlist-compiler package
+- **Full compilation support**: All configuration options for filter compilation
 - **Multi-format configuration**: JSON, YAML, and TOML configuration file support
 - **Configuration validation**: Validates configuration before compilation with detailed error/warning reporting
 - **Interactive and CLI modes**: Use interactively with menus or from command line with arguments

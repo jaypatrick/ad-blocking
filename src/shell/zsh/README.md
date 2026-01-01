@@ -4,7 +4,7 @@ Zsh-specific implementation of the AdGuard filter rules compiler.
 
 ## Overview
 
-This script provides a Z Shell (zsh) interface to the `@adguard/hostlist-compiler` CLI tool, with zsh-specific optimizations and modern shell features.
+This script provides a Z Shell (zsh) interface to the filter compilation CLI tool, with zsh-specific optimizations and modern shell features.
 
 ## Features
 
@@ -188,10 +188,6 @@ Uses zsh options:
 ### Required
 - **Zsh** 5.0 or later (check with `zsh --version`)
 - **Node.js** 18 or later
-- **@adguard/hostlist-compiler**: 
-  ```zsh
-  npm install -g @adguard/hostlist-compiler
-  ```
 
 ### Optional (for YAML/TOML)
 - **yq** - YAML processor:
@@ -254,14 +250,11 @@ chmod +x compile-rules.zsh
 which zsh
 ```
 
-### "command not found: hostlist-compiler"
+### "command not found: compilation tool"
 ```zsh
-# Install globally
-npm install -g @adguard/hostlist-compiler
-
-# Verify installation
-which hostlist-compiler
-hostlist-compiler --version
+# Ensure Node.js is installed
+which node
+node --version
 ```
 
 ### YAML parsing issues

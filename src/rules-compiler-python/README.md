@@ -1,6 +1,6 @@
 # Rules Compiler (Python)
 
-Python API for compiling AdGuard filter rules using `@adguard/hostlist-compiler`.
+Python API for compiling AdGuard filter rules.
 
 ## Installation
 
@@ -17,9 +17,8 @@ pip install -e ".[dev]"
 
 | Requirement | Version | Notes |
 |-------------|---------|-------|
-| Python | 3.9+ | Required |
-| Node.js | 18+ | Required for hostlist-compiler |
-| hostlist-compiler | Latest | `npm install -g @adguard/hostlist-compiler` |
+| Python | 3.9+ | Core language |
+| Node.js | 18+ | For compilation engine |
 
 ## CLI Usage
 
