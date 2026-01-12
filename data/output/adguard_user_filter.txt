@@ -243,6 +243,7 @@
 @@||teams.live.com^
 @@||data.microsoft.com^
 @@||aria.microsoft.com^
+@@||vscode.dev^
 ! Microsoft Purview
 @@||compliancedrive.microsoft.com^
 @@||odc.officeapps.live.com^
@@ -401,8 +402,7 @@
 @@||crl.globalsign.com^
 @@||crl.globalsign.net^
 @@||crl.identrust.com^
-@@||crl3.digicert.com^
-@@||crl4.digicert.com^
+@@||digicert.com^
 @@||isrg.trustid.ocsp.identrust.com^
 @@||mscrl.microsoft.com^
 @@||ocsp.digicert.com^
@@ -454,4 +454,5 @@
 @@||notion.so^
 @@||notion.com^
 @@||linear.app^
+
 @@||sentry.io^
