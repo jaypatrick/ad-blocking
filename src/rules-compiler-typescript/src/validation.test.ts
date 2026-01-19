@@ -99,7 +99,7 @@ Deno.test('validateConfiguration - validates source objects', () => {
   const result = validateConfiguration(config);
 
   assertEquals(result.valid, false);
-  assertEquals(result.errors.some((e) => e.includes('sources[0]') && (e.includes('source') || e.includes('content'))), true);
+  assertEquals(result.errors.some((e) => e.includes('sources[0]') && e.includes('source')), true);
 });
 
 Deno.test('validateConfiguration - validates source type values', () => {
