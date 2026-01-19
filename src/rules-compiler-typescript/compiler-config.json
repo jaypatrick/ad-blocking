@@ -16,14 +16,8 @@
   "sources": [
     {
       "name": "User Rules",
-      "type": "inline",
-      "content": [
-        "! Title: Custom User Rules",
-        "! Description: Personal ad-blocking rules",
-        "! Last modified: 2024-01-01",
-        "||example-ads.com^",
-        "||tracking.example.net^"
-      ]
+      "source": "data/input/user-rules.txt",
+      "type": "adblock"
     }
   ],
   "transformations": [
