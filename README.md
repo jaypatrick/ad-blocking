@@ -158,7 +158,14 @@ ad-blocking/
 │   │   ├── src/components/            # React components
 │   │   └── gatsby-config.js           # Gatsby configuration
 │   └── linear/                        # Linear integration scripts
-├── tools/                             # Utility and build scripts
+├── build/                             # Build scripts directory
+│   ├── README.md                      # Build scripts documentation
+│   ├── build.sh / build.ps1           # Main build scripts (all projects)
+│   ├── build-rust.sh / build-rust.ps1 # Rust workspace build scripts
+│   ├── build-dotnet.sh / build-dotnet.ps1 # .NET projects build scripts
+│   ├── build-typescript.sh / build-typescript.ps1 # TypeScript/Deno build scripts
+│   └── build-python.sh / build-python.ps1 # Python project build scripts
+├── tools/                             # Utility scripts
 │   ├── README.md                      # Tools documentation
 │   ├── test-build-scripts.sh          # Bash build script tests
 │   ├── test-build-scripts.ps1         # PowerShell build script tests
@@ -171,8 +178,8 @@ ad-blocking/
 ├── SECURITY.md                        # Security policy
 ├── README.md                          # This file
 ├── LICENSE                            # GPL-3.0 license
-├── build.sh                           # Multi-language build script (Bash)
-├── build.ps1                          # Multi-language build script (PowerShell)
+├── build.sh                           # Multi-language build script wrapper
+├── build.ps1                          # Multi-language build script wrapper
 ├── launcher.sh                        # Interactive launcher (Bash)
 └── launcher.ps1                       # Interactive launcher (PowerShell)
 ```
@@ -252,43 +259,69 @@ cd .. && cargo build --release
 
 ### Build All Projects
 
-Root-level build scripts are available to build all projects or specific language ecosystems:
+The repository includes comprehensive build scripts in the `build/` directory for compiling all projects or specific ones:
 
+**Bash (Linux/macOS):**
 ```bash
-# Build all projects (debug mode - default)
+# Build all projects (debug)
 ./build.sh
 
-# Build all projects in release mode
+# Build all projects (release)
 ./build.sh --release
 
-# Build specific language ecosystems
+# Build specific components
 ./build.sh --rust              # Build all Rust projects
 ./build.sh --dotnet            # Build all .NET projects
 ./build.sh --typescript        # Build all TypeScript/Deno projects
 ./build.sh --python            # Build Python projects
 
-# Combine options
+# Build multiple components in release mode
 ./build.sh --rust --dotnet --release   # Build Rust and .NET in release mode
 ```
 
-**PowerShell (Windows/Cross-platform)**:
+**Alternative: Component-specific build scripts:**
+```bash
+# Build individual components directly
+./build/build-rust.sh --release        # Rust workspace only
+./build/build-dotnet.sh --release      # .NET projects only
+./build/build-typescript.sh            # TypeScript projects only
+./build/build-python.sh                # Python projects only
+```
 
+**PowerShell (Windows/Cross-platform):**
 ```powershell
-# Build all projects (debug mode - default)
+# Build all projects (debug)
 .\build.ps1
 
-# Build all projects in release mode
+# Build all projects (release)
 .\build.ps1 -Profile release
 
-# Build specific language ecosystems
+# Build specific components
 .\build.ps1 -Rust              # Build all Rust projects
 .\build.ps1 -DotNet            # Build all .NET projects
 .\build.ps1 -TypeScript        # Build all TypeScript/Deno projects
 .\build.ps1 -Python            # Build Python projects
 
-# Combine options
+# Build multiple components in release mode
 .\build.ps1 -Rust -DotNet -Profile release
 ```
+
+**Alternative: Component-specific build scripts:**
+```powershell
+# Build individual components directly
+.\build\build-rust.ps1 -Profile release     # Rust workspace only
+.\build\build-dotnet.ps1 -Configuration Release  # .NET projects only
+.\build\build-typescript.ps1                # TypeScript projects only
+.\build\build-python.ps1                    # Python projects only
+```
+
+> 📖 **For detailed build documentation**, see [build/README.md](build/README.md) which includes:
+> - Complete usage examples
+> - Build profiles (debug vs release)
+> - Prerequisites and installation
+> - Troubleshooting guide
+> - CI/CD integration examples
+> - Performance tips
 
 **Available Options**:
 - `--all` / `-All`: Build all projects (default if no specific project selected)
