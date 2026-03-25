@@ -1,7 +1,7 @@
 ! Checksum: s8yoqc+UnjP2yG6UuCyjog
 ! Title: JK.com AdGuard Rules
 ! Description: This is the base AdGuard blocking list for JK.com
-! Version: 4.4.3.45
+! Version: 4.4.3.46
 ! Homepage: https://github.com/jaypatrick/ad-blocking
 ! License: GPLv3
 !
@@ -456,4 +456,5 @@
 @@||linear.app^
 
 @@||sentry.io^
+@@||jkcom.sentry.io^
 @@||my.splashtop.com^
