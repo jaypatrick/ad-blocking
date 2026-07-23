@@ -1,11 +1,11 @@
 ! Checksum: s8yoqc+UnjP2yG6UuCyjog
 ! Title: JK.com AdGuard Rules
 ! Description: This is the base AdGuard blocking list for JK.com
-! Version: 5.0.1.15
+! Version: 5.0.2.18
 ! Homepage: https://github.com/jaypatrick/ad-blocking
 ! License: GPLv3
 !
-! Last modified: 2026-07-22T00:12:10.864Z
+! Last modified: 2026-07-22T00:45:10.864Z
 ! Expires: 90 days (update frequency)
 ! License: https://github.com/AdguardTeam/AdguardSDNSFilter/blob/master/LICENSE
 ! Compiled by @bloqr-systems/bloqr-compiler v0.102.00
@@ -218,7 +218,6 @@
 @@||trafficmanager.net^
 @@||data.trafficmanager.net^
 !(Microsoft Server Diagnostics)
-@@||microsoft.com^
 @@||windowsazure.com^
 @@||windows.net^
 @@||blob.core.windows.net^
@@ -377,7 +376,6 @@
 @@||login.windows-ppe.net^
 @@||appex-rf.msn.com^
 @@||appex.bing.com^
-@@||c.bing.com^
 @@||c.live.com^
 @@||d.docs.live.net^
 @@||docs.live.net^
@@ -497,3 +495,6 @@
 ||static.klaviyo.com^
 ||dai.google.com^
 ||ssl.p.jwpcdn.com^
+||assets.adobedtm.com^
+||sstats.adobe.com^
+||vk-ads.com^
