@@ -71,8 +71,6 @@
 ! Error Trackers
 ||api.bugsnag.com^
 ||app.bugsnag.com^
-@@||browser.sentry-cdn.com^
-@@||app.getsentry.com^
 ||notify.bugsnag.com^
 ||sessions.bugsnag.com^
 @@||postman.com^
