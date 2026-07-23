@@ -1,15 +1,15 @@
 ! Checksum: s8yoqc+UnjP2yG6UuCyjog
-! Title: JK.com Browser Rules
-! Description: This is the browser filter for JK.com
-! Version: 2.0.0.18
+! Title: Bloqr Browser Rules
+! Description: This is the Bloqr browser filter list
+! Version: 2.0.0.20
 ! Homepage: https://github.com/jaypatrick/ad-blocking
 ! License: GPLv3
 !
-! Last modified: 2026-07-22T01:23:10.864Z
+! Last modified: 2026-07-22T01:25:10.864Z
 ! Expires: 90 days (update frequency)
 ! License: https://github.com/AdguardTeam/AdguardSDNSFilter/blob/master/LICENSE
 ! Compiled by @bloqr-systems/bloqr-compiler v0.102.00
-! Source name: JK.com Browser filter js scripts
+! Source name: Bloqr Browser filter rules
 ! Source: https://raw.githubusercontent.com/jaypatrick/ad-blocking/refs/heads/main/data/output/adguard_browser_filter.txt
 
 ! --- DO NOT ADD TO DNS SINKHOLE LISTS ---
