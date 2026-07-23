@@ -1,17 +1,16 @@
 ! Checksum: s8yoqc+UnjP2yG6UuCyjog
 ! Title: JK.com AdGuard Rules
 ! Description: This is the base AdGuard blocking list for JK.com
-! Version: 4.5.6.89
+! Version: 5.0.1.15
 ! Homepage: https://github.com/jaypatrick/ad-blocking
 ! License: GPLv3
 !
-! Last modified: 2026-04-24T00:12:10.864Z
+! Last modified: 2026-07-22T00:12:10.864Z
 ! Expires: 90 days (update frequency)
 ! License: https://github.com/AdguardTeam/AdguardSDNSFilter/blob/master/LICENSE
-! Compiled by @jk-com/adblock-compiler v0.6.72
+! Compiled by @bloqr-systems/bloqr-compiler v0.102.00
 ! Source name: JK.com Base filter ad servers
 ! Source: https://raw.githubusercontent.com/jaypatrick/ad-blocking/refs/heads/main/data/output/adguard_user_filter.txt
-
 
 ||adservice.google.com^
 ||ads.yap.yahoo.com^
@@ -454,11 +453,47 @@
 @@||notion.com^
 @@||linear.app^
 @@||sentry.io^
+@@||ingest.sentry.io^
 @@||jkcom.sentry.io^
 @@||getsentry.net^
 @@||my.splashtop.com^
 @@||jaysonknight.com^
 @@||bloqr.jaysonknight.com^
 @@||posthog.com^
+@@||app.posthog.com^
+@@||eu.posthog.com^
 @@||isitagentready.com^
 @@||analytics.google.com^
+! MISC - https://superadblocktest.com
+||bingads.microsoft.com^
+||ads.microsoft.com^
+||c.bing.com^
+||s.youtube.com^
+||redirector.googlevideo.com^
+||youtubei.googleapis.com^
+||quantcast.com^
+||rudderstack.com^
+||snowplowanalytics.com^
+||appsflyer.com^
+||adjust.com^
+||singular.net^
+||analytics.twitter.com^
+||connect.facebook.net^
+||i.instagram.com^
+||qevents.quora.com^
+||snap.licdn.com^
+||ngfts.lge.com^
+||xp.apple.com^
+||cmp.inmobi.com^
+||impact.com^
+||api.impact.com^
+||shareasale-analytics.com^
+||zenaps.com^
+||redirect.viglink.com^
+||cdn.dynamicyield.com^
+||clientstream.launchdarkly.com^
+||click.mailchimp.com^
+||klaviyo.com^
+||static.klaviyo.com^
+||dai.google.com^
+||ssl.p.jwpcdn.com^
