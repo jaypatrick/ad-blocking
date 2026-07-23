@@ -1,0 +1,30 @@
+! === DO NOT ADD TO DNS RULES ===
+
+! === Block common ad-related JS files ===
+*/ads.js$script
+*/ad.js$script
+*/advert.js$script
+*/advertisement.js$script
+*/adscript.js$script
+*/analytics.js$script
+*/pagead.js$script
+
+! === Block common ad-related JS min files ===
+*/ads.min.js$script
+*/ad.min.js$script
+*/advert.min.js$script
+*/advertisement.min.js$script
+*/analytics.min.js$script
+*/pagead.min.js$script
+
+! === Block JS from known ad domains ===
+||doubleclick.net^$script
+||googlesyndication.com^$script
+||googletagservices.com^$script
+||adnxs.com^$script
+||taboola.com^$script
+||outbrain.com^$script
+||criteo.com^$script
+||zedo.com^$script
+||rubiconproject.com^$script
+||pubmatic.com^$script
