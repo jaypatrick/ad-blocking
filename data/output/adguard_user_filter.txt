@@ -1,16 +1,17 @@
 ! Checksum: s8yoqc+UnjP2yG6UuCyjog
-! Title: JK.com AdGuard Rules
-! Description: This is the base AdGuard blocking list for JK.com
-! Version: 5.0.3.37
+! Title: Bloqr Dns Rules
+! Description: This is the Bloqr Dns filter list
+! Version: 5.0.3.40
 ! Homepage: https://github.com/jaypatrick/ad-blocking
 ! License: GPLv3
 !
-! Last modified: 2026-07-22T00:58:10.864Z
+! Last modified: 2026-07-22T01:58:10.864Z
 ! Expires: 90 days (update frequency)
 ! License: https://github.com/AdguardTeam/AdguardSDNSFilter/blob/master/LICENSE
 ! Compiled by @bloqr-systems/bloqr-compiler v0.102.00
-! Source name: JK.com Base filter ad servers
+! Source name: Bloqr Dns filter list
 ! Source: https://raw.githubusercontent.com/jaypatrick/ad-blocking/refs/heads/main/data/output/adguard_user_filter.txt
+
 
 ||adservice.google.com^
 ||ads.yap.yahoo.com^
