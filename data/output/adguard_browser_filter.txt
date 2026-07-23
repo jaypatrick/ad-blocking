@@ -1,45 +1,185 @@
 ! Checksum: s8yoqc+UnjP2yG6UuCyjog
 ! Title: JK.com Browser Rules
 ! Description: This is the browser filter for JK.com
-! Version: 1.0.0.18
+! Version: 2.0.0.18
 ! Homepage: https://github.com/jaypatrick/ad-blocking
 ! License: GPLv3
 !
-! Last modified: 2026-07-22T00:45:10.864Z
+! Last modified: 2026-07-22T01:23:10.864Z
 ! Expires: 90 days (update frequency)
 ! License: https://github.com/AdguardTeam/AdguardSDNSFilter/blob/master/LICENSE
 ! Compiled by @bloqr-systems/bloqr-compiler v0.102.00
 ! Source name: JK.com Browser filter js scripts
 ! Source: https://raw.githubusercontent.com/jaypatrick/ad-blocking/refs/heads/main/data/output/adguard_browser_filter.txt
 
+! --- DO NOT ADD TO DNS SINKHOLE LISTS ---
 
-! === DO NOT ADD TO DNS RULES ===
+! --- 1. NETWORK BLOCKING: Major & Secondary Ad Networks ---
+||doubleclick.net^
+||googlesyndication.com^
+||googleadservices.com^
+||adsafeprotected.com^
+||adnxs.com^
+||taboola.com^
+||outbrain.com^
+||zedo.com^
+||revcontent.com^
+||scorecardresearch.com^
+||moatads.com^
+||criteo.com^
+||rubiconproject.com^
+||pubmatic.com^
+||openx.net^
+||yieldmo.com^
+||adform.net^
+||advertising.com^
+||quantserve.com^
+||media.net^
+||brightcove.net^
+||adroll.com^
+||serving-sys.com^
+||spotxchange.com^
+||spotx.tv^
+||teads.tv^
+||playwire.com^
+||chartbeat.net^
+||exponential.com^
+||lijit.com^
+||gumgum.com^
+||triplelift.com^
+||bidswitch.net^
+||contextweb.com^
+||smartadserver.com^
+||adblade.com^
+||adcolony.com^
+||adlightning.com^
+||adpushup.com^
+||adthrive.com^
+||adzerk.net^
+||yieldlab.net^
+||yieldify.com^
+||yldbt.com^
+||connatix.com^
+||brealtime.com^
+||spotim.market^
+||mgid.com^
+||plista.com^
+||sharethrough.com^
+||undertone.com^
 
-! === Block common ad-related JS files ===
-*/ads.js$script
-*/ad.js$script
-*/advert.js$script
-*/advertisement.js$script
-*/adscript.js$script
-*/analytics.js$script
-*/pagead.js$script
+! --- 2. NETWORK BLOCKING: Aggressive JS Blocking ---
+||*/ads.js$script
+||*/ads.min.js$script
+||*/advert.js$script
+||*/advertisement.js$script
+||*/advertising.js$script
+||*/adserver.js$script
+||*/admanager.js$script
+||*/banner.js$script
+||*/popunder.js$script
+||*/popup.js$script
+||*/popads.js$script
+||*/sponsor.js$script
+||*/tracking.js$script
+||*/tracker.js$script
+||*/analytics.js$script,third-party
+||*/pixel.js$script
+||*/beacon.js$script
+||*/displayAd*.js$script
+||*/showAd*.js$script
+||*/loadAd*.js$script
+||*/serveAd*.js$script
+||*/renderAd*.js$script
 
-! === Block common ad-related JS min files ===
-*/ads.min.js$script
-*/ad.min.js$script
-*/advert.min.js$script
-*/advertisement.min.js$script
-*/analytics.min.js$script
-*/pagead.min.js$script
+! --- 3. NETWORK BLOCKING: Aggressive Image Blocking ---
+||*/banner*.jpg
+||*/banner*.png
+||*/banner*.gif
+||*/ad_*.jpg
+||*/ad_*.png
+||*/ad_*.gif
+||*/promo*.jpg
+||*/promo*.png
+||*/promo*.gif
+||*/sponsor*.jpg
+||*/sponsor*.png
+||*/sponsor*.gif
 
-! === Block JS from known ad domains ===
-||doubleclick.net^$script
-||googlesyndication.com^$script
-||googletagservices.com^$script
-||adnxs.com^$script
-||taboola.com^$script
-||outbrain.com^$script
-||criteo.com^$script
-||zedo.com^$script
-||rubiconproject.com^$script
-||pubmatic.com^$script
+! --- 4. CSS HIDING: Common Ad Selectors Only ---
+##.adsbygoogle
+##.ad-slot
+##.adunit
+##.ad-container
+##.ad-banner
+##.dfp-ad
+##.sponsor-block
+##.sponsored
+##.sponsor-link
+##.sponsor-label
+##.advertisement
+##.advert
+##.promo-ad
+##.promo-banner
+##.in-article-ad
+##.native-ad
+##.nativeAd
+##.ad-wrapper
+##.adbox
+##.adspace
+##.admodule
+##iframe[id^="google_ads"]
+##iframe[src*="doubleclick.net"]
+##[id="ad"]
+##[class="ad"]
+##[id="ads"]
+##[class="ads"]
+##.ad
+##.ads
+##.adsbox
+##.adbanner
+##.ad-banner
+##.ad-container
+##.advertisement
+##.adwrapper
+##.sponsor
+##.sponsored
+##.promo
+##.promobox
+##.banner-ad
+##.banner-ads
+##.bottom-ad
+##.bottom-ads
+##.textads
+##.top-ad
+##.top-ads
+
+! --- 5. SIZE-BASED HIDING: Expanded IAB & Non-Standard Sizes ---
+#?#div:matches-css(width:300px):matches-css(height:250px)
+#?#div:matches-css(width:728px):matches-css(height:90px)
+#?#div:matches-css(width:160px):matches-css(height:600px)
+#?#div:matches-css(width:970px):matches-css(height:250px)
+#?#div:matches-css(width:320px):matches-css(height:50px)
+#?#div:matches-css(width:468px):matches-css(height:60px)
+#?#div:matches-css(width:234px):matches-css(height:60px)
+#?#div:matches-css(width:120px):matches-css(height:600px)
+#?#div:matches-css(width:200px):matches-css(height:200px)
+
+! --- 6. WHITELISTS: Prevent False Positives ---
+@@##[id*="header"]
+@@##[class*="header"]
+@@##[id*="adapter"]
+@@##[class*="adapter"]
+@@##[id*="admission"]
+@@##[class*="admission"]
+@@##[id*="shadow"]
+@@##[class*="shadow"]
+@@##[id*="load"]
+@@##[class*="load"]
+@@##[id*="read"]
+@@##[class*="read"]
+@@##[id*="lead"]
+@@##[class*="lead"]
+
+! ================================
+!  END OF LIST
+! ================================
