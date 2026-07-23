@@ -1,11 +1,11 @@
 ! Checksum: s8yoqc+UnjP2yG6UuCyjog
 ! Title: JK.com AdGuard Rules
 ! Description: This is the base AdGuard blocking list for JK.com
-! Version: 5.0.2.18
+! Version: 5.0.3.37
 ! Homepage: https://github.com/jaypatrick/ad-blocking
 ! License: GPLv3
 !
-! Last modified: 2026-07-22T00:45:10.864Z
+! Last modified: 2026-07-22T00:58:10.864Z
 ! Expires: 90 days (update frequency)
 ! License: https://github.com/AdguardTeam/AdguardSDNSFilter/blob/master/LICENSE
 ! Compiled by @bloqr-systems/bloqr-compiler v0.102.00
@@ -56,6 +56,9 @@
 ! Google
 ||afs.googlesyndication.com^
 ||click.googleanalytics.com^
+||googletagmanager.com^
+||tagmanager.google.com^
+||www.googletagmanager.com^
 ! Samsung
 ||samsung-com.112.2o7.net^
 ! OEMs
@@ -450,16 +453,14 @@
 @@||notion.so^
 @@||notion.com^
 @@||linear.app^
-@@||sentry.io^
-@@||ingest.sentry.io^
 @@||jkcom.sentry.io^
-@@||getsentry.net^
 @@||my.splashtop.com^
 @@||jaysonknight.com^
 @@||bloqr.jaysonknight.com^
 @@||posthog.com^
 @@||app.posthog.com^
 @@||eu.posthog.com^
+@@||us.i.posthog.com^
 @@||isitagentready.com^
 @@||analytics.google.com^
 ! MISC - https://superadblocktest.com
@@ -498,3 +499,10 @@
 ||assets.adobedtm.com^
 ||sstats.adobe.com^
 ||vk-ads.com^
+||browser.sentry-cdn.com^
+||app.getsentry.com^
+||ingest.sentry.io^
+||o0.ingest.sentry.io^
+||graph.facebook.com^
+||graph.instagram.com^
+||widget.intercom.io^
