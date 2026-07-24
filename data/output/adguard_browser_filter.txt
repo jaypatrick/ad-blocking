@@ -1,11 +1,11 @@
 ! Checksum: s8yoqc+UnjP2yG6UuCyjog
 ! Title: Bloqr Browser Rules
 ! Description: This is the Bloqr browser filter list
-! Version: 2.0.0.21
+! Version: 2.0.0.23
 ! Homepage: https://github.com/jaypatrick/ad-blocking
 ! License: GPLv3
 !
-! Last modified: 2026-07-22T01:29:10.864Z
+! Last modified: 2026-07-23T01:29:10.864Z
 ! Expires: 90 days (update frequency)
 ! License: https://github.com/AdguardTeam/AdguardSDNSFilter/blob/master/LICENSE
 ! Compiled by @bloqr-systems/bloqr-compiler v0.102.00
