@@ -83,7 +83,7 @@
 ||*/sponsor.js$script
 ||*/tracking.js$script
 ||*/tracker.js$script
-||*/analytics.js$script,third-party
+||*/analytics.js$script
 ||*/pixel.js$script
 ||*/beacon.js$script
 ||*/displayAd*.js$script
