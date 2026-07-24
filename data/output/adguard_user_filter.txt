@@ -456,10 +456,6 @@
 @@||my.splashtop.com^
 @@||jaysonknight.com^
 @@||bloqr.jaysonknight.com^
-@@||posthog.com^
-@@||app.posthog.com^
-@@||eu.posthog.com^
-@@||us.i.posthog.com^
 @@||isitagentready.com^
 @@||analytics.google.com^
 ! MISC - https://superadblocktest.com
@@ -505,3 +501,7 @@
 ||graph.facebook.com^
 ||graph.instagram.com^
 ||widget.intercom.io^
+||posthog.com^
+||app.posthog.com^
+||eu.posthog.com^
+||us.i.posthog.com^
